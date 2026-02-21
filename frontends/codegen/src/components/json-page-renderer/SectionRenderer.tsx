@@ -165,7 +165,7 @@ function GradientCard({
   return (
     <Card style={gradientStyle}>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2" style={{ fontSize: '0.95rem' }}>
+        <CardTitle className="flex items-center gap-2" style={{ fontSize: '1rem', fontWeight: 600 }}>
           {icon && <span className="text-primary" style={{ display: 'inline-flex' }}>{icon}</span>}
           {card.title}
         </CardTitle>
@@ -198,7 +198,7 @@ function BuildStatusCard({ card }: { card: any }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2" style={{ fontSize: '0.95rem' }}>
+        <CardTitle className="flex items-center gap-2" style={{ fontSize: '1rem', fontWeight: 600 }}>
           {icon && <span className="text-primary" style={{ display: 'inline-flex' }}>{icon}</span>}
           {card.title}
         </CardTitle>
@@ -363,9 +363,9 @@ function StatCardRenderer({ stat, data }: { stat: any; data: Record<string, any>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <span
             style={{
-              fontSize: '0.8rem',
-              fontWeight: 500,
-              color: 'var(--muted-foreground)',
+              fontSize: '0.85rem',
+              fontWeight: 600,
+              color: 'var(--foreground)',
               letterSpacing: '0.02em',
             }}
           >
