@@ -1,0 +1,121 @@
+# metabuilder/devcontainer
+#
+# All-in-one development container: every build tool, language runtime,
+# package manager cache, and software 3D renderer in a single image.
+#
+# Layers (in order):
+#   base-conan-deps   → all apt packages + all Conan C++ packages
+#   base-node-deps    → all npm workspace packages (copied in)
+#   base-pip-deps     → all Python pip packages (copied in)
+#   base-android-sdk  → Android SDK 34 + Gradle (copied in)
+#   + Rust / Cargo
+#   + Go 1.22
+#   + Mesa software renderer (CPU-powered headless 3D/GL/Vulkan)
+#   + oh-my-zsh + dev comforts
+#
+# Build:   docker build -f Dockerfile.devcontainer -t metabuilder/devcontainer:latest ../../
+# VS Code: "image": "metabuilder/devcontainer:latest" in devcontainer.json
+
+FROM metabuilder/base-conan-deps:latest
+
+# ── Node.js (from base-node-deps) ─────────────────────────────────────────────
+# Copy pre-installed node_modules + node binary from base-node-deps image
+COPY --from=metabuilder/base-node-deps:latest /usr/local/bin/node   /usr/local/bin/node
+COPY --from=metabuilder/base-node-deps:latest /usr/local/bin/npm    /usr/local/bin/npm
+COPY --from=metabuilder/base-node-deps:latest /usr/local/bin/npx    /usr/local/bin/npx
+COPY --from=metabuilder/base-node-deps:latest /usr/local/lib/node_modules /usr/local/lib/node_modules
+COPY --from=metabuilder/base-node-deps:latest /app/node_modules     /workspace/node_modules
+
+# ── Python packages (from base-pip-deps) ──────────────────────────────────────
+COPY --from=metabuilder/base-pip-deps:latest /usr/local/lib/python3.11 /usr/local/lib/python3.11
+COPY --from=metabuilder/base-pip-deps:latest /usr/local/bin/pip     /usr/local/bin/pip
+COPY --from=metabuilder/base-pip-deps:latest /usr/local/bin/gunicorn /usr/local/bin/gunicorn
+COPY --from=metabuilder/base-pip-deps:latest /usr/local/bin/celery  /usr/local/bin/celery
+
+# ── Android SDK + Gradle (from base-android-sdk) ──────────────────────────────
+COPY --from=metabuilder/base-android-sdk:latest /opt/android-sdk    /opt/android-sdk
+COPY --from=metabuilder/base-android-sdk:latest /opt/gradle         /opt/gradle
+COPY --from=metabuilder/base-android-sdk:latest /root/.gradle       /root/.gradle
+
+ENV ANDROID_HOME=/opt/android-sdk \
+    ANDROID_SDK_ROOT=/opt/android-sdk \
+    GRADLE_HOME=/opt/gradle/gradle-8.1.4
+
+# ── Rust + Cargo ──────────────────────────────────────────────────────────────
+ENV CARGO_HOME=/opt/cargo \
+    RUSTUP_HOME=/opt/rustup \
+    PATH=/opt/cargo/bin:$PATH
+
+RUN for i in 1 2 3 4 5; do \
+      curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
+        | sh -s -- -y --no-modify-path \
+           --default-toolchain stable \
+           --component rust-analyzer,clippy,rustfmt \
+      && break \
+      || (echo "rustup failed (attempt $i/5), retrying in $((i*10))s..." && sleep $((i*10))); \
+    done
+
+# ── Go 1.22 ───────────────────────────────────────────────────────────────────
+ENV GOROOT=/opt/go \
+    GOPATH=/opt/gopath \
+    PATH=/opt/go/bin:/opt/gopath/bin:$PATH
+
+RUN GO_VERSION=1.22.6 && \
+    ARCH=$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/') && \
+    for i in 1 2 3 4 5; do \
+      wget -q "https://go.dev/dl/go${GO_VERSION}.linux-${ARCH}.tar.gz" -O /tmp/go.tar.gz && \
+      tar -C /opt -xzf /tmp/go.tar.gz && \
+      rm /tmp/go.tar.gz \
+      && break \
+      || (echo "Go download failed (attempt $i/5), retrying in $((i*10))s..." \
+          && rm -f /tmp/go.tar.gz && sleep $((i*10))); \
+    done
+
+# ── Mesa software 3D renderer (CPU-powered, no GPU required) ──────────────────
+# Enables OpenGL, Vulkan (llvmpipe), EGL in headless Docker environments.
+# Set LIBGL_ALWAYS_SOFTWARE=1 to force software rendering at runtime.
+RUN for i in 1 2 3 4 5; do \
+      apt-get update && apt-get install -y --no-install-recommends \
+        # Software OpenGL (Mesa llvmpipe)
+        libgl1-mesa-glx \
+        libgl1-mesa-dri \
+        mesa-utils \
+        # Software Vulkan (llvmpipe)
+        mesa-vulkan-drivers \
+        vulkan-tools \
+        # EGL / GLES software
+        libegl1-mesa \
+        libgles2-mesa \
+        # X virtual framebuffer (for headless window creation)
+        xvfb \
+        x11-utils \
+      && break \
+      || (echo "apt-get (mesa) failed (attempt $i/5), retrying in $((i*10))s..." && sleep $((i*10))); \
+    done && rm -rf /var/lib/apt/lists/*
+
+# Runtime env: always use software renderer in containers
+ENV LIBGL_ALWAYS_SOFTWARE=1 \
+    MESA_LOADER_DRIVER_OVERRIDE=softpipe \
+    GALLIUM_DRIVER=softpipe \
+    VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/lvp_icd.x86_64.json
+
+# ── oh-my-zsh + shell comforts ────────────────────────────────────────────────
+RUN for i in 1 2 3 4 5; do \
+      sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" \
+        "" --unattended \
+      && break \
+      || (echo "oh-my-zsh failed (attempt $i/5), retrying in $((i*10))s..." && sleep $((i*10))); \
+    done
+
+COPY --from=metabuilder/base-android-sdk:latest /usr/lib/jvm /usr/lib/jvm
+ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-arm64
+
+# ── PATH consolidation ────────────────────────────────────────────────────────
+ENV PATH=/opt/android-sdk/cmdline-tools/latest/bin:/opt/android-sdk/platform-tools:/opt/gradle/gradle-8.1.4/bin:/opt/cargo/bin:/opt/go/bin:/opt/gopath/bin:/usr/local/bin:$PATH
+
+WORKDIR /workspace
+
+SHELL ["/bin/zsh", "-c"]
+
+LABEL org.metabuilder.image="devcontainer" \
+      org.metabuilder.description="All-in-one dev container: C++/Conan, Node/npm, Python/pip, Android/Gradle, Rust, Go, Mesa software 3D"

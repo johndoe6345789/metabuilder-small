@@ -1,0 +1,82 @@
+{
+  "name": "@metabuilder/workflow",
+  "version": "3.0.0",
+  "description": "Enterprise-grade DAG workflow engine with N8N-style architecture",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./executor": {
+      "import": "./dist/executor/dag-executor.js",
+      "require": "./dist/executor/dag-executor.js",
+      "types": "./dist/executor/dag-executor.d.ts"
+    },
+    "./types": {
+      "import": "./dist/types.js",
+      "require": "./dist/types.js",
+      "types": "./dist/types.d.ts"
+    },
+    "./registry": {
+      "import": "./dist/registry/node-executor-registry.js",
+      "require": "./dist/registry/node-executor-registry.js",
+      "types": "./dist/registry/node-executor-registry.d.ts"
+    },
+    "./plugins": {
+      "import": "./dist/plugins/index.js",
+      "require": "./dist/plugins/index.js",
+      "types": "./dist/plugins/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "lint": "eslint executor/ts --ext .ts",
+    "type-check": "tsc --noEmit",
+    "prepublish": "npm run build"
+  },
+  "keywords": [
+    "workflow",
+    "dag",
+    "orchestration",
+    "automation",
+    "n8n",
+    "enterprise"
+  ],
+  "author": "MetaBuilder Team",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "@types/node": "^25.3.0",
+    "eslint": "^9.39.2",
+    "jest": "^30.2.0",
+    "ts-jest": "^29.4.6",
+    "typescript": "^5.9.3",
+    "eslint-config-next": "^16.1.6",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-react": "^7.37.5",
+    "@chromatic-com/playwright": "^0.12.8",
+    "checkly": "^7.1.0",
+    "npm-run-all2": "8.0.4",
+    "@sentry/nextjs": "^10.39.0",
+    "@spotlightjs/spotlight": "^4.10.0"
+  },
+  "dependencies": {},
+  "peerDependencies": {
+    "node-fetch": "^3.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/metabuilder/metabuilder.git",
+    "directory": "workflow"
+  },
+  "bugs": {
+    "url": "https://github.com/metabuilder/metabuilder.git/issues"
+  },
+  "homepage": "https://github.com/metabuilder/metabuilder.git/tree/main/workflow"
+}

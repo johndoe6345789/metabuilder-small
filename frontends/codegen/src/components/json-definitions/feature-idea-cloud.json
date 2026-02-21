@@ -1,0 +1,23 @@
+{
+  "id": "feature-idea-cloud",
+  "type": "div",
+  "props": {
+    "className": "p-4"
+  },
+  "children": [
+    {
+      "type": "h3",
+      "props": {
+        "className": "text-lg font-semibold mb-2"
+      },
+      "children": "Feature Ideas"
+    },
+    {
+      "type": "p",
+      "props": {
+        "className": "text-muted-foreground"
+      },
+      "children": "No ideas yet."
+    }
+  ]
+}

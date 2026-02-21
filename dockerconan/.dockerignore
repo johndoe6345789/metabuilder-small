@@ -1,0 +1,51 @@
+# Build artifacts
+_build/
+build/
+*.o
+*.a
+*.so
+*.dylib
+*.dll
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Git
+.git/
+.gitignore
+
+# Node.js
+node_modules/
+npm-debug.log
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.pytest_cache/
+
+# Conan (only include if explicitly prepared)
+# .conan2-cache/ is excluded by default
+# Use prepare-conan-cache.sh to include it
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.bak
+tmp/
+
+# macOS
+.DS_Store
+
+# Documentation
+docs/
+*.md
+!README.md

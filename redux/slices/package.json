@@ -1,0 +1,124 @@
+{
+  "name": "@metabuilder/redux-slices",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Redux slices for workflow state management",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./canvasSlice": {
+      "types": "./dist/slices/canvasSlice.d.ts",
+      "import": "./dist/slices/canvasSlice.js",
+      "default": "./dist/slices/canvasSlice.js"
+    },
+    "./canvasItemsSlice": {
+      "types": "./dist/slices/canvasItemsSlice.d.ts",
+      "import": "./dist/slices/canvasItemsSlice.js",
+      "default": "./dist/slices/canvasItemsSlice.js"
+    },
+    "./editorSlice": {
+      "types": "./dist/slices/editorSlice.d.ts",
+      "import": "./dist/slices/editorSlice.js",
+      "default": "./dist/slices/editorSlice.js"
+    },
+    "./uiSlice": {
+      "types": "./dist/slices/uiSlice.d.ts",
+      "import": "./dist/slices/uiSlice.js",
+      "default": "./dist/slices/uiSlice.js"
+    },
+    "./workflowSlice": {
+      "types": "./dist/slices/workflowSlice.d.ts",
+      "import": "./dist/slices/workflowSlice.js",
+      "default": "./dist/slices/workflowSlice.js"
+    },
+    "./connectionSlice": {
+      "types": "./dist/slices/connectionSlice.d.ts",
+      "import": "./dist/slices/connectionSlice.js",
+      "default": "./dist/slices/connectionSlice.js"
+    },
+    "./authSlice": {
+      "types": "./dist/slices/authSlice.d.ts",
+      "import": "./dist/slices/authSlice.js",
+      "default": "./dist/slices/authSlice.js"
+    },
+    "./projectSlice": {
+      "types": "./dist/slices/projectSlice.d.ts",
+      "import": "./dist/slices/projectSlice.js",
+      "default": "./dist/slices/projectSlice.js"
+    },
+    "./nodesSlice": {
+      "types": "./dist/slices/nodesSlice.d.ts",
+      "import": "./dist/slices/nodesSlice.js",
+      "default": "./dist/slices/nodesSlice.js"
+    },
+    "./workspaceSlice": {
+      "types": "./dist/slices/workspaceSlice.d.ts",
+      "import": "./dist/slices/workspaceSlice.js",
+      "default": "./dist/slices/workspaceSlice.js"
+    },
+    "./collaborationSlice": {
+      "types": "./dist/slices/collaborationSlice.d.ts",
+      "import": "./dist/slices/collaborationSlice.js",
+      "default": "./dist/slices/collaborationSlice.js"
+    },
+    "./realtimeSlice": {
+      "types": "./dist/slices/realtimeSlice.d.ts",
+      "import": "./dist/slices/realtimeSlice.js",
+      "default": "./dist/slices/realtimeSlice.js"
+    },
+    "./documentationSlice": {
+      "types": "./dist/slices/documentationSlice.d.ts",
+      "import": "./dist/slices/documentationSlice.js",
+      "default": "./dist/slices/documentationSlice.js"
+    },
+    "./asyncDataSlice": {
+      "types": "./dist/slices/asyncDataSlice.d.ts",
+      "import": "./dist/slices/asyncDataSlice.js",
+      "default": "./dist/slices/asyncDataSlice.js"
+    }
+  },
+  "typesVersions": {
+    "*": {
+      "canvasSlice": ["dist/slices/canvasSlice.d.ts"],
+      "canvasItemsSlice": ["dist/slices/canvasItemsSlice.d.ts"],
+      "editorSlice": ["dist/slices/editorSlice.d.ts"],
+      "uiSlice": ["dist/slices/uiSlice.d.ts"],
+      "workflowSlice": ["dist/slices/workflowSlice.d.ts"],
+      "connectionSlice": ["dist/slices/connectionSlice.d.ts"],
+      "authSlice": ["dist/slices/authSlice.d.ts"],
+      "projectSlice": ["dist/slices/projectSlice.d.ts"],
+      "nodesSlice": ["dist/slices/nodesSlice.d.ts"],
+      "workspaceSlice": ["dist/slices/workspaceSlice.d.ts"],
+      "collaborationSlice": ["dist/slices/collaborationSlice.d.ts"],
+      "realtimeSlice": ["dist/slices/realtimeSlice.d.ts"],
+      "documentationSlice": ["dist/slices/documentationSlice.d.ts"],
+      "asyncDataSlice": ["dist/slices/asyncDataSlice.d.ts"]
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "dependencies": {
+    "@metabuilder/types": "*",
+    "@reduxjs/toolkit": "^2.11.2",
+    "react": "^19.2.4",
+    "react-redux": "^9.2.0"
+  },
+  "peerDependencies": {
+    "@reduxjs/toolkit": "^1.9.7 || ^2.5.2",
+    "react": "^18.0.0 || ^19.0.0",
+    "react-redux": "^8.0.0 || ^9.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  },
+  "files": [
+    "dist"
+  ]
+}

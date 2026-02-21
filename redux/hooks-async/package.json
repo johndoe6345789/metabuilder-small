@@ -1,0 +1,45 @@
+{
+  "name": "@metabuilder/hooks-async",
+  "version": "1.0.0",
+  "description": "Redux-backed async hooks (useReduxAsyncData, useReduxMutation) - drop-in replacement for TanStack React Query",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@metabuilder/redux-slices": "*",
+    "@reduxjs/toolkit": "^2.11.2",
+    "react-redux": "^9.2.0"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@types/jest": "^30.0.0",
+    "@types/react": "^19.2.14",
+    "jest": "^30.2.0",
+    "typescript": "^5.9.3"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0 || ^19.0.0"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "keywords": [
+    "redux",
+    "hooks",
+    "async-data",
+    "mutations",
+    "react-query",
+    "tanstack"
+  ],
+  "author": "MetaBuilder Team",
+  "license": "MIT"
+}

@@ -1,0 +1,32 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN for i in 1 2 3 4 5; do \
+      pip install --no-cache-dir -r requirements.txt && break \
+      || (echo "pip failed (attempt $i/5), retrying in $((i*10))s..." && sleep $((i*10))); \
+    done
+
+COPY app.py .
+
+RUN mkdir -p /app/data
+
+EXPOSE 5000
+
+CMD ["python", "app.py"]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,156 @@
+{
+  "name": "MetaBuilder C++ Dev Container",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "dev",
+  "workspaceFolder": "/workspace",
+
+  // Features to install
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "installZsh": true,
+      "installOhMyZsh": true,
+      "upgradePackages": false
+    },
+    "ghcr.io/devcontainers/features/git:1": {
+      "version": "latest"
+    }
+  },
+
+  // VS Code settings
+  "customizations": {
+    "vscode": {
+      // Extensions to install
+      "extensions": [
+        // C++ Development
+        "ms-vscode.cpptools",
+        "ms-vscode.cpptools-extension-pack",
+        "ms-vscode.cmake-tools",
+        "llvm-vs-code-extensions.vscode-clangd",
+        "twxs.cmake",
+
+        // Debugging
+        "vadimcn.vscode-lldb",
+
+        // Code Quality
+        "notskm.clang-tidy",
+        "xaver.clang-format",
+
+        // Build Tools
+        "ms-vscode.makefile-tools",
+
+        // Git
+        "eamodio.gitlens",
+        "mhutchie.git-graph",
+
+        // YAML/JSON
+        "redhat.vscode-yaml",
+        "tamasfe.even-better-toml",
+
+        // TypeScript/Node.js (for DBAL development)
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+
+        // Docker
+        "ms-azuretools.vscode-docker",
+
+        // Utilities
+        "streetsidesoftware.code-spell-checker",
+        "wayou.vscode-todo-highlight",
+        "gruntfuggly.todo-tree"
+      ],
+
+      // Settings
+      "settings": {
+        // C++ IntelliSense
+        "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+        "C_Cpp.default.intelliSenseMode": "linux-gcc-x64",
+        "C_Cpp.default.compilerPath": "/usr/bin/g++-12",
+        "C_Cpp.default.cppStandard": "c++20",
+        "C_Cpp.default.cStandard": "c17",
+
+        // CMake
+        "cmake.configureOnOpen": true,
+        "cmake.buildDirectory": "${workspaceFolder}/_build",
+        "cmake.generator": "Ninja",
+        "cmake.exportCompileCommandsFile": true,
+
+        // Clang-Format
+        "editor.formatOnSave": true,
+        "C_Cpp.clang_format_path": "/usr/bin/clang-format-15",
+        "C_Cpp.clang_format_style": "file",
+
+        // Clang-Tidy
+        "clang-tidy.executable": "/usr/bin/clang-tidy-15",
+        "clang-tidy.lintLanguages": ["cpp", "c"],
+
+        // Terminal
+        "terminal.integrated.defaultProfile.linux": "zsh",
+        "terminal.integrated.profiles.linux": {
+          "zsh": {
+            "path": "/bin/zsh"
+          }
+        },
+
+        // Files
+        "files.associations": {
+          "*.hpp": "cpp",
+          "*.tpp": "cpp",
+          "conanfile.py": "python",
+          "conanfile.txt": "ini"
+        },
+
+        // Exclude from search
+        "search.exclude": {
+          "**/node_modules": true,
+          "**/_build": true,
+          "**/.conan2": true,
+          "**/.ccache": true
+        },
+
+        // File watchers
+        "files.watcherExclude": {
+          "**/_build/**": true,
+          "**/.conan2/**": true,
+          "**/.ccache/**": true,
+          "**/node_modules/**": true
+        }
+      }
+    }
+  },
+
+  // Ports to forward
+  "forwardPorts": [8080, 3000, 5432],
+  "portsAttributes": {
+    "8080": {
+      "label": "DBAL Daemon",
+      "onAutoForward": "notify"
+    },
+    "3000": {
+      "label": "Next.js Frontend",
+      "onAutoForward": "notify"
+    },
+    "5432": {
+      "label": "PostgreSQL",
+      "onAutoForward": "silent"
+    }
+  },
+
+  // Post-create command
+  "postCreateCommand": "echo 'Dev container ready! Run: conan install . --build=missing && cmake --preset conan-debug'",
+
+  // Run args
+  "runArgs": [
+    "--cap-add=SYS_PTRACE",
+    "--security-opt",
+    "seccomp=unconfined"
+  ],
+
+  // Mount type
+  "mounts": [
+    "source=${localEnv:HOME}/.gitconfig,target=/root/.gitconfig,type=bind,consistency=cached,readonly",
+    "source=${localEnv:HOME}/.ssh,target=/root/.ssh,type=bind,consistency=cached,readonly"
+  ],
+
+  // Remote user
+  "remoteUser": "root"
+}

@@ -1,0 +1,360 @@
+version: '3.8'
+
+services:
+  # C++ Development Container with Conan
+  dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: metabuilder-dev
+
+    # Keep container running
+    tty: true
+    stdin_open: true
+
+    # Explicit DNS servers (fixes DNS resolution issues on Docker Desktop for Mac)
+    dns:
+      - 8.8.8.8      # Google DNS primary
+      - 8.8.4.4      # Google DNS secondary
+      - 1.1.1.1      # Cloudflare DNS
+
+    # Mount entire project
+    volumes:
+      # Project source code
+      - ..:/workspace:cached
+
+      # Mount host Conan cache directly (bidirectional sync)
+      # This gives instant access to your host's Conan packages
+      # and persists any packages downloaded in the container
+      - ~/.conan2:/root/.conan2:cached
+
+      # Persist ccache between rebuilds
+      - ccache-cache:/workspace/.ccache
+
+      # Persist build artifacts
+      - build-cache:/workspace/_build
+
+      # Mount git config (optional - for commits inside container)
+      - ~/.gitconfig:/root/.gitconfig:ro
+
+      # Mount SSH keys (optional - for git operations)
+      - ~/.ssh:/root/.ssh:ro
+
+    # Environment variables for DBAL C++ daemon
+    environment:
+      # Paths
+      DBAL_SCHEMA_DIR: /workspace/dbal/shared/api/schema/entities
+      DBAL_TEMPLATE_DIR: /workspace/dbal/shared/api/schema/templates
+      DBAL_WORKFLOW_DIR: /workspace/workflow
+
+      # Database
+      DBAL_DB_TYPE: sqlite
+      DBAL_DB_PATH: /workspace/data/metabuilder.db
+
+      # PostgreSQL
+      DBAL_POSTGRES_HOST: postgres
+      DBAL_POSTGRES_PORT: 5432
+      DBAL_POSTGRES_USER: metabuilder
+      DBAL_POSTGRES_PASSWORD: metabuilder
+      DBAL_POSTGRES_DATABASE: metabuilder
+
+      # MySQL
+      DBAL_MYSQL_HOST: mysql
+      DBAL_MYSQL_PORT: 3306
+      DBAL_MYSQL_USER: metabuilder
+      DBAL_MYSQL_PASSWORD: metabuilder
+      DBAL_MYSQL_DATABASE: metabuilder
+
+      # MongoDB
+      DBAL_MONGODB_HOST: mongodb
+      DBAL_MONGODB_PORT: 27017
+      DBAL_MONGODB_USER: metabuilder
+      DBAL_MONGODB_PASSWORD: metabuilder
+      DBAL_MONGODB_DATABASE: metabuilder
+      DBAL_MONGODB_AUTH_SOURCE: admin
+
+      # Supabase (optional - for hosted testing)
+      # Set these in .env file or pass via command line
+      SUPABASE_URL: ${SUPABASE_URL:-https://your-project.supabase.co}
+      SUPABASE_KEY: ${SUPABASE_KEY:-your-anon-key}
+      SUPABASE_SERVICE_KEY: ${SUPABASE_SERVICE_KEY:-your-service-key}
+
+      # Server
+      DBAL_SERVER_HOST: 0.0.0.0
+      DBAL_SERVER_PORT: 8080
+      DBAL_SERVER_THREADS: 4
+
+      # Logging
+      DBAL_LOG_LEVEL: debug
+      DBAL_LOG_FILE: /workspace/logs/dbal.log
+      DBAL_LOG_TO_STDOUT: true
+
+      # Features
+      DBAL_ENABLE_CORS: true
+      DBAL_ENABLE_SWAGGER: true
+      DBAL_ENABLE_METRICS: true
+
+      # Connection Pool
+      DBAL_POOL_MIN_SIZE: 2
+      DBAL_POOL_MAX_SIZE: 10
+      DBAL_POOL_IDLE_TIMEOUT: 300
+
+      # Limits
+      DBAL_MAX_REQUEST_SIZE: 10485760
+      DBAL_REQUEST_TIMEOUT: 30
+      DBAL_MAX_BATCH_SIZE: 1000
+
+      # Development
+      NODE_ENV: development
+      CMAKE_BUILD_TYPE: Debug
+
+    # Expose ports
+    ports:
+      - "8080:8080"   # DBAL daemon
+      - "3000:3000"   # Next.js frontend
+      # PostgreSQL port not exposed to host (accessible internally at postgres:5432)
+
+    # Network
+    networks:
+      - metabuilder-network
+
+    # Depends on all databases
+    depends_on:
+      - postgres
+      - mysql
+      - mongodb
+
+    # Working directory
+    working_dir: /workspace
+
+    # Resource limits (optional - adjust based on your system)
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 8G
+        reservations:
+          cpus: '2.0'
+          memory: 4G
+
+  # PostgreSQL Database (optional - for production-like testing)
+  postgres:
+    image: postgres:15-alpine
+    container_name: metabuilder-postgres
+
+    environment:
+      POSTGRES_USER: metabuilder
+      POSTGRES_PASSWORD: metabuilder
+      POSTGRES_DB: metabuilder
+
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+    # No host port mapping - accessible internally at postgres:5432
+
+    networks:
+      - metabuilder-network
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U metabuilder"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # MySQL Database (for multi-backend testing)
+  mysql:
+    image: mysql:8.0
+    container_name: metabuilder-mysql
+
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: metabuilder
+      MYSQL_USER: metabuilder
+      MYSQL_PASSWORD: metabuilder
+
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+    networks:
+      - metabuilder-network
+
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpassword"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # MongoDB (for NoSQL backend testing)
+  mongodb:
+    image: mongo:7.0
+    container_name: metabuilder-mongodb
+
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: metabuilder
+      MONGO_INITDB_ROOT_PASSWORD: metabuilder
+      MONGO_INITDB_DATABASE: metabuilder
+
+    volumes:
+      - mongodb-data:/data/db
+
+    networks:
+      - metabuilder-network
+
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # CockroachDB (distributed SQL, PostgreSQL-compatible)
+  cockroachdb:
+    image: cockroachdb/cockroach:latest
+    container_name: metabuilder-cockroachdb
+    command: start-single-node --insecure
+
+    volumes:
+      - cockroachdb-data:/cockroach/cockroach-data
+
+    networks:
+      - metabuilder-network
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health?ready=1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis (in-memory key-value cache)
+  redis:
+    image: redis:7-alpine
+    container_name: metabuilder-redis
+
+    volumes:
+      - redis-data:/data
+
+    networks:
+      - metabuilder-network
+
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Cassandra (wide-column store)
+  cassandra:
+    image: cassandra:5.0
+    container_name: metabuilder-cassandra
+
+    environment:
+      CASSANDRA_CLUSTER_NAME: metabuilder
+      CASSANDRA_DC: datacenter1
+      CASSANDRA_ENDPOINT_SNITCH: GossipingPropertyFileSnitch
+
+    volumes:
+      - cassandra-data:/var/lib/cassandra
+
+    networks:
+      - metabuilder-network
+
+    healthcheck:
+      test: ["CMD-SHELL", "cqlsh -e 'describe cluster' || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+
+  # MariaDB (MySQL-compatible fork)
+  mariadb:
+    image: mariadb:11.4
+    container_name: metabuilder-mariadb
+
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: metabuilder
+      MYSQL_USER: metabuilder
+      MYSQL_PASSWORD: metabuilder
+
+    volumes:
+      - mariadb-data:/var/lib/mysql
+
+    networks:
+      - metabuilder-network
+
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # SurrealDB (multi-model database)
+  surrealdb:
+    image: surrealdb/surrealdb:latest
+    container_name: metabuilder-surrealdb
+    command: start --user root --pass root
+
+    volumes:
+      - surrealdb-data:/data
+
+    networks:
+      - metabuilder-network
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Elasticsearch (search and analytics engine)
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    container_name: metabuilder-elasticsearch
+
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: "false"
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+
+    ports:
+      - "9200:9200"
+
+    networks:
+      - metabuilder-network
+
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+# Named volumes for persistence
+volumes:
+  ccache-cache:
+    driver: local
+  build-cache:
+    driver: local
+  postgres-data:
+    driver: local
+  mysql-data:
+    driver: local
+  mongodb-data:
+    driver: local
+  cockroachdb-data:
+    driver: local
+  redis-data:
+    driver: local
+  cassandra-data:
+    driver: local
+  mariadb-data:
+    driver: local
+  surrealdb-data:
+    driver: local
+  elasticsearch-data:
+    driver: local
+
+# Network
+networks:
+  metabuilder-network:
+    driver: bridge

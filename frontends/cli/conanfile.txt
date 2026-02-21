@@ -1,0 +1,16 @@
+[requires]
+cpr/1.14.1
+lua/5.4.6
+sol2/3.5.0
+nlohmann_json/3.11.3
+
+[generators]
+CMakeDeps
+CMakeToolchain
+
+[options]
+cpr/*:ssl_backend=openssl
+lua/*:shared=False
+
+[tool_requires]
+cmake/3.30.0

@@ -1,0 +1,32 @@
+{
+  "id": "lazy-line-chart",
+  "type": "div",
+  "props": {
+    "className": "w-full"
+  },
+  "bindings": {
+    "style": {
+      "source": "height",
+      "transform": "data ? { height: typeof data === 'number' ? data + 'px' : data } : { height: '300px' }"
+    }
+  },
+  "children": [
+    {
+      "id": "lazy-line-chart-placeholder",
+      "type": "div",
+      "props": {
+        "className": "flex items-center justify-center h-full text-muted-foreground bg-muted/30 rounded-md"
+      },
+      "children": [
+        {
+          "id": "lazy-line-chart-text",
+          "type": "span",
+          "props": {
+            "className": "text-sm"
+          },
+          "children": "Line Chart (D3 required)"
+        }
+      ]
+    }
+  ]
+}
