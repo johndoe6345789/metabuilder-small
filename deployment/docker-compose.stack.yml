@@ -247,6 +247,18 @@ services:
     networks:
       - metabuilder
 
+  # DBAL config seeder — copies schemas and SQL templates into named volumes
+  dbal-init:
+    build:
+      context: ..
+      dockerfile: deployment/config/dbal/Dockerfile.init
+    container_name: metabuilder-dbal-init
+    volumes:
+      - dbal-schemas:/target/schemas/entities
+      - dbal-templates:/target/templates/sql
+    networks:
+      - metabuilder
+
   # DBAL Daemon - C++ backend
   dbal:
     build:
@@ -289,12 +301,13 @@ services:
       DBAL_BLOB_BACKEND: ${DBAL_BLOB_BACKEND:-filesystem}
       DBAL_BLOB_ROOT: /app/data/blobs
     volumes:
-      - ../dbal/shared/api/schema/entities:/app/schemas/entities:ro
-      - ../dbal/production/templates/sql:/app/templates/sql:ro
+      - dbal-schemas:/app/schemas/entities:ro
+      - dbal-templates:/app/templates/sql:ro
       - dbal-logs:/var/log/dbal
       - dbal-blobs:/app/data/blobs
-      - ~/.conan2:/root/.conan2:cached
     depends_on:
+      dbal-init:
+        condition: service_completed_successfully
       postgres:
         condition: service_healthy
       mysql:
@@ -471,16 +484,15 @@ services:
   # Gateway
   # ============================================================================
 
-  # nginx - Reverse proxy + welcome portal
+  # nginx - Reverse proxy + welcome portal (config baked into image)
   nginx:
-    image: nginx:alpine
+    build:
+      context: ..
+      dockerfile: deployment/config/nginx/Dockerfile
     container_name: metabuilder-nginx
     restart: unless-stopped
     ports:
       - "80:80"
-    volumes:
-      - ./config/nginx/production.conf:/etc/nginx/nginx.conf:ro
-      - ./portal:/usr/share/nginx/portal:ro
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://127.0.0.1/health"]
       interval: 30s
@@ -658,9 +670,11 @@ services:
   # Monitoring (--profile monitoring)
   # ============================================================================
 
-  # Prometheus - Metrics collection
+  # Prometheus - Metrics collection (config baked into image)
   prometheus:
-    image: prom/prometheus:latest
+    build:
+      context: ..
+      dockerfile: deployment/config/prometheus/Dockerfile
     container_name: metabuilder-prometheus
     restart: unless-stopped
     profiles: [monitoring]
@@ -672,8 +686,6 @@ services:
       - '--storage.tsdb.retention.time=30d'
       - '--web.enable-lifecycle'
     volumes:
-      - ./config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-      - ./config/prometheus/alerts.yml:/etc/prometheus/alerts.yml:ro
       - prometheus-data:/prometheus
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://127.0.0.1:9090/-/healthy"]
@@ -688,9 +700,11 @@ services:
           cpus: '1'
           memory: 1G
 
-  # Grafana - Metrics visualization
+  # Grafana - Metrics visualization (config baked into image)
   grafana:
-    image: grafana/grafana:latest
+    build:
+      context: ..
+      dockerfile: deployment/config/grafana/Dockerfile
     container_name: metabuilder-grafana
     restart: unless-stopped
     profiles: [monitoring]
@@ -703,7 +717,6 @@ services:
       GF_AUTH_ANONYMOUS_ENABLED: "false"
     volumes:
       - grafana-data:/var/lib/grafana
-      - ./config/grafana/provisioning:/etc/grafana/provisioning:ro
     depends_on:
       - prometheus
       - loki
@@ -720,9 +733,11 @@ services:
           cpus: '1'
           memory: 512M
 
-  # Loki - Log aggregation
+  # Loki - Log aggregation (config baked into image)
   loki:
-    image: grafana/loki:latest
+    build:
+      context: ..
+      dockerfile: deployment/config/loki/Dockerfile
     container_name: metabuilder-loki
     restart: unless-stopped
     profiles: [monitoring]
@@ -730,7 +745,6 @@ services:
       - "3100:3100"
     command: -config.file=/etc/loki/local-config.yaml
     volumes:
-      - ./config/loki/loki-config.yml:/etc/loki/local-config.yaml:ro
       - loki-data:/loki
     healthcheck:
       # loki uses a scratch-based image with no shell tools — check via /proc
@@ -743,15 +757,16 @@ services:
           cpus: '1'
           memory: 1G
 
-  # Promtail - Log shipper
+  # Promtail - Log shipper (config baked into image; host log paths are system mounts)
   promtail:
-    image: grafana/promtail:latest
+    build:
+      context: ..
+      dockerfile: deployment/config/promtail/Dockerfile
     container_name: metabuilder-promtail
     restart: unless-stopped
     profiles: [monitoring]
     command: -config.file=/etc/promtail/config.yml
     volumes:
-      - ./config/promtail/promtail-config.yml:/etc/promtail/config.yml:ro
       - /var/log:/var/log:ro
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
     depends_on:
@@ -877,9 +892,11 @@ services:
           cpus: '0.5'
           memory: 512M
 
-  # Alertmanager - Alert routing
+  # Alertmanager - Alert routing (config baked into image)
   alertmanager:
-    image: prom/alertmanager:latest
+    build:
+      context: ..
+      dockerfile: deployment/config/alertmanager/Dockerfile
     container_name: metabuilder-alertmanager
     restart: unless-stopped
     profiles: [monitoring]
@@ -889,7 +906,6 @@ services:
       - '--config.file=/etc/alertmanager/config.yml'
       - '--storage.path=/alertmanager'
     volumes:
-      - ./config/alertmanager/alertmanager.yml:/etc/alertmanager/config.yml:ro
       - alertmanager-data:/alertmanager
     healthcheck:
       test: ["CMD-SHELL", "wget --quiet --tries=1 --spider http://127.0.0.1:9093/-/healthy || exit 1"]
@@ -973,9 +989,11 @@ services:
           cpus: '1'
           memory: 1G
 
-  # HLS/DASH Streaming Server
+  # HLS/DASH Streaming Server (config baked into image)
   nginx-stream:
-    image: nginx:alpine
+    build:
+      context: ..
+      dockerfile: deployment/config/nginx/Dockerfile.stream
     container_name: metabuilder-nginx-stream
     restart: unless-stopped
     profiles: [media]
@@ -983,7 +1001,6 @@ services:
       - "8088:80"
     volumes:
       - hls-output:/data/hls:ro
-      - ../services/media_daemon/config/nginx-stream.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
       - media-daemon
     healthcheck:
@@ -1009,6 +1026,10 @@ volumes:
   mysql-data:
     driver: local
   mongodb-data:
+    driver: local
+  dbal-schemas:
+    driver: local
+  dbal-templates:
     driver: local
   dbal-logs:
     driver: local

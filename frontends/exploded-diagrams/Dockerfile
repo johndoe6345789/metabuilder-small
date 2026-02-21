@@ -33,5 +33,5 @@ EXPOSE 3000
 HEALTHCHECK --interval=15s --timeout=5s --start-period=30s --retries=3 \
     CMD wget --quiet --tries=1 --spider http://127.0.0.1:3000/diagrams || exit 1
 
-WORKDIR /app
+WORKDIR /app/frontends/exploded-diagrams
 CMD ["node", "server.js"]
