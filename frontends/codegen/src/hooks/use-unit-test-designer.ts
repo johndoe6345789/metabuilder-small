@@ -11,7 +11,7 @@ interface UseUnitTestDesignerArgs {
 
 export function useUnitTestDesigner({ tests, onTestsChange }: UseUnitTestDesignerArgs) {
   const [selectedTestId, setSelectedTestId] = useState<string | null>(tests[0]?.id || null)
-  const selectedTest = tests.find(t => t.id === selectedTestId) || null
+  const selectedTest = tests.find(t => t.id === selectedTestId)
 
   const handleAddTest = () => {
     const newTest: UnitTest = {

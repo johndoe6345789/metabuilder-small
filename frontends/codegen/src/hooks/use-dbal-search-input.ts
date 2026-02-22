@@ -4,7 +4,7 @@
  * Wraps useDBALSearch with input state and navigation mapping.
  */
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, ChangeEvent } from 'react'
 import { useDBALSearch, type DBALSearchResult } from '@/hooks/use-dbal-search'
 
 const SLICE_TO_PAGE: Record<string, string> = {
@@ -21,7 +21,7 @@ interface UseDBALSearchInputArgs {
 }
 
 export function useDBALSearchInput({ onNavigate }: UseDBALSearchInputArgs) {
-  const [query, setQuery] = useState('')
+  const [query, setQueryState] = useState('')
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const { results, loading, error } = useDBALSearch(query)
 
@@ -29,20 +29,22 @@ export function useDBALSearchInput({ onNavigate }: UseDBALSearchInputArgs) {
     (result: DBALSearchResult) => {
       const page = SLICE_TO_PAGE[result.sliceName] || 'dashboard'
       onNavigate(page)
-      setQuery('')
+      setQueryState('')
       setDropdownOpen(false)
     },
     [onNavigate]
   )
 
-  /** Accepts either a raw string OR a React ChangeEvent (from <input onChange>) */
-  const handleQueryChange = useCallback((valueOrEvent: string | { target: { value: string } }) => {
-    const value = typeof valueOrEvent === 'string'
-      ? valueOrEvent
-      : valueOrEvent?.target?.value ?? ''
-    setQuery(value)
+  /** Directly set the search query string */
+  const setQuery = useCallback((value: string) => {
+    setQueryState(value)
     setDropdownOpen(value.length >= 2)
   }, [])
+
+  /** Handle input change events from an <input onChange> handler */
+  const handleInputChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+    setQuery(e.target.value)
+  }, [setQuery])
 
   const handleBlur = useCallback(() => {
     // Delay to allow click on dropdown items
@@ -61,7 +63,8 @@ export function useDBALSearchInput({ onNavigate }: UseDBALSearchInputArgs) {
 
   return {
     query,
-    setQuery: handleQueryChange,
+    setQuery,
+    handleInputChange,
     results,
     loading,
     error,

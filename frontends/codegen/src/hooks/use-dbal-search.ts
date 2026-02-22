@@ -58,6 +58,7 @@ export function useDBALSearch(query: string, debounceMs = 300) {
       if (abortRef.current !== gen) return
 
       const merged: DBALSearchResult[] = []
+      const qLower = q.toLowerCase()
       for (let i = 0; i < SEARCHABLE_SLICES.length; i++) {
         const sliceName = SEARCHABLE_SLICES[i]
         const outcome = settled[i]
@@ -66,7 +67,7 @@ export function useDBALSearch(query: string, debounceMs = 300) {
         for (const record of outcome.value) {
           const r = record as Record<string, unknown>
           const title = extractTitle(r)
-          if (!title.toLowerCase().includes(q.toLowerCase())) continue
+          if (!title.toLowerCase().includes(qLower)) continue
 
           merged.push({
             id: `dbal-${sliceName}-${r.id ?? i}`,
