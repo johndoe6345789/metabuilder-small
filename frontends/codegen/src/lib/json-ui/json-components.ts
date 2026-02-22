@@ -523,6 +523,7 @@ import comprehensiveDemoPageDef from '@/components/json-definitions/comprehensiv
 import templateExplorerDef from '@/components/json-definitions/template-explorer.json'
 import projectManagerDef from '@/components/json-definitions/project-manager.json'
 import dbalSearchInputDef from '@/components/json-definitions/dbal-search-input.json'
+import headerSearchDef from '@/components/json-definitions/header-search.json'
 import quickSeedButtonDef from '@/components/json-definitions/quick-seed-button.json'
 import storageSettingsPanelDef from '@/components/json-definitions/storage-settings-panel.json'
 import featureToggleSettingsDef from '@/components/json-definitions/feature-toggle-settings.json'
