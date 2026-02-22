@@ -33,7 +33,7 @@
         {
           "id": "file-explorer-dialog",
           "type": "FileExplorerDialog",
-          "props": {
+          "bindings": {
             "onFileAdd": "onFileAdd"
           }
         }
@@ -49,7 +49,7 @@
         {
           "id": "file-explorer-items",
           "type": "FileExplorerList",
-          "props": {
+          "bindings": {
             "files": "files",
             "activeFileId": "activeFileId",
             "onFileSelect": "onFileSelect"

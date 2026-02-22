@@ -34,12 +34,13 @@ const isSupportedCondition = (condition: string) => {
     || /^data\.[a-zA-Z0-9_.]+\.length\s*>\s*.+$/.test(condition)
     || /^data\.[a-zA-Z0-9_.]+\s*===\s*['"].+['"]$/.test(condition)
     || /^data\.[a-zA-Z0-9_.]+\s*!=\s*null$/.test(condition)
+    || /^!?data\.[a-zA-Z0-9_.]+$/.test(condition)
   )
 }
 
 const normalizeCondition = (condition: string) => {
   const trimmed = condition.trim()
-  if (trimmed.startsWith('data.') || trimmed.startsWith('event.')) {
+  if (trimmed.startsWith('data.') || trimmed.startsWith('event.') || trimmed.startsWith('!data.') || trimmed.startsWith('!event.')) {
     return trimmed
   }
 
@@ -61,6 +62,18 @@ const normalizeCondition = (condition: string) => {
   const nullMatch = trimmed.match(/^([a-zA-Z0-9_.]+)\s*!=\s*null$/)
   if (nullMatch) {
     return `data.${nullMatch[1]} != null`
+  }
+
+  // Negated truthiness check: "!identifier.path"
+  const negatedMatch = trimmed.match(/^!([a-zA-Z0-9_.]+)$/)
+  if (negatedMatch) {
+    return `!data.${negatedMatch[1]}`
+  }
+
+  // Simple truthiness check: "identifier.path"
+  const truthyMatch = trimmed.match(/^([a-zA-Z0-9_.]+)$/)
+  if (truthyMatch && trimmed !== 'data' && trimmed !== 'event') {
+    return `data.${truthyMatch[1]}`
   }
 
   return trimmed

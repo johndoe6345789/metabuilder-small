@@ -126,10 +126,15 @@ import { ComponentTreeToolbar } from '@/components/component-tree-builder/Compon
 import { ComponentTreeView } from '@/components/component-tree-builder/ComponentTreeView'
 import { ComponentInspector } from '@/components/component-tree-builder/ComponentInspector'
 
+// MonacoEditorWrapper uses @monaco-editor/react which needs explicit registration
+// (same issue — require.context + next/dynamic resolves to () => null).
+import { MonacoEditorWrapper } from '@/components/ui/monaco-editor-wrapper'
+
 const componentTreeSubComponents: UIComponentRegistry = {
   ComponentTreeToolbar: ComponentTreeToolbar as unknown as ComponentType<any>,
   ComponentTreeView: ComponentTreeView as unknown as ComponentType<any>,
   ComponentInspector: ComponentInspector as unknown as ComponentType<any>,
+  MonacoEditorWrapper: MonacoEditorWrapper as unknown as ComponentType<any>,
 }
 
 // Lazy contexts — each file becomes its own async chunk, loaded on demand.
