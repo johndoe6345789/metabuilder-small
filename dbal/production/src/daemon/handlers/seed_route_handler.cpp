@@ -144,8 +144,14 @@ void SeedRouteHandler::handleSeed(
     applyCorsHeaders(request, response);
 
     if (!summary.success) {
-        // Partial failure — still return 200 with success=false so client gets details
-        // Only use 500 if the entire operation catastrophically failed
+        // For mixed outcomes, return 200 with success=false so the client can inspect
+        // per-entity results. This allows tooling to handle "partial success" cases
+        // (some rows inserted, some failed) without treating them as transport-level errors.
+        //
+        // If *no* rows were inserted and there were failures, then the seed operation
+        // effectively produced no useful work and is treated as a hard failure. In that
+        // case we escalate to HTTP 500 so automation/health checks can reliably detect
+        // that the seed run did not succeed at all.
         if (summary.total_inserted == 0 && summary.total_failed > 0) {
             response->setStatusCode(drogon::HttpStatusCode::k500InternalServerError);
         }

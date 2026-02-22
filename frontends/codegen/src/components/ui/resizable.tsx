@@ -23,10 +23,9 @@ function ResizablePanelGroup({
 }
 
 /**
- * Wraps react-resizable-panels v4 Panel.
- * v4 treats bare numbers as **pixels** — our JSON configs express sizes as
- * percentages (e.g. 20 means 20 %).  Convert them to percentage strings so
- * the library interprets them correctly.
+ * Converts a number to a percentage string for react-resizable-panels v4 compatibility.
+ * In v4, bare numbers are treated as **pixels**; passing a percentage string (e.g. "20%")
+ * ensures the library interprets the value as a percentage, not a pixel count.
  */
 function toPercent(v: number | string | undefined): string | undefined {
   if (v === undefined) return undefined

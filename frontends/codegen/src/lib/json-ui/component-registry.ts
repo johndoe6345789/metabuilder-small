@@ -236,6 +236,10 @@ const buildRegistryFromEntries = (
     }, {})
 }
 
+// Primitive HTML elements are stored as string literals (e.g. 'div').
+// React accepts strings as valid element types at runtime, but the registry
+// type expects ComponentType<any>, so `as any` is required to satisfy the
+// TypeScript type checker without wrapping every element in a function component.
 export const primitiveComponents: UIComponentRegistry = {
   div: 'div' as any,
   span: 'span' as any,
