@@ -22,7 +22,7 @@ export function useProjectManagerDropdown() {
   const [isLoading, setIsLoading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement | null>(null)
 
-  // Derive currentProject from Redux state — stable references from useKV
+  // Derive currentProject from Redux state — stable references from slices
   const currentProject = useMemo<Project>(
     () => ({
       name: projectState.nextjsConfig.appName,
@@ -80,7 +80,7 @@ export function useProjectManagerDropdown() {
       if (project.npmSettings) projectState.setNpmSettings(project.npmSettings)
       if (project.featureToggles) projectState.setFeatureToggles(project.featureToggles)
     },
-    // setters from useKV are stable — safe to list
+    // setters from Redux slices are stable — safe to list
     [projectState]
   )
 

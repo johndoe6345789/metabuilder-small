@@ -1,5 +1,5 @@
 import { useCallback } from 'react'
-import { useKV } from '@/hooks/use-kv'
+import { useUIState } from '@/hooks/use-ui-state'
 
 export interface IdeaGroup {
   id: string
@@ -9,7 +9,7 @@ export interface IdeaGroup {
 }
 
 export function useIdeaGroups() {
-  const [groups, setGroups] = useKV<IdeaGroup[]>('feature-idea-groups', [])
+  const [groups, setGroups] = useUIState<IdeaGroup[]>('feature-idea-groups', [])
 
   const addGroup = useCallback((group: IdeaGroup) => {
     setGroups((current) => [...(current || []), group])

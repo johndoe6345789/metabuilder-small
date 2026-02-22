@@ -1,5 +1,5 @@
 import { useCallback } from 'react'
-import { useKV } from '@/hooks/use-kv'
+import { useUIState } from '@/hooks/use-ui-state'
 import seedData from '@/data/feature-idea-cloud.json'
 
 export interface FeatureIdea {
@@ -26,7 +26,7 @@ const buildSeedIdeas = (): FeatureIdea[] => {
 const SEED_IDEAS = buildSeedIdeas()
 
 export function useFeatureIdeas() {
-  const [ideas, setIdeas] = useKV<FeatureIdea[]>('feature-ideas', SEED_IDEAS)
+  const [ideas, setIdeas] = useUIState<FeatureIdea[]>('feature-ideas', SEED_IDEAS)
 
   const addIdea = useCallback((idea: FeatureIdea) => {
     setIdeas((current) => [...(current || []), idea])

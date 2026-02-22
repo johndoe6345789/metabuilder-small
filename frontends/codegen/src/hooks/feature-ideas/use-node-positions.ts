@@ -1,8 +1,8 @@
 import { useCallback } from 'react'
-import { useKV } from '@/hooks/use-kv'
+import { useUIState } from '@/hooks/use-ui-state'
 
 export function useNodePositions() {
-  const [positions, setPositions] = useKV<Record<string, { x: number; y: number }>>('feature-idea-node-positions', {})
+  const [positions, setPositions] = useUIState<Record<string, { x: number; y: number }>>('feature-idea-node-positions', {})
 
   const updatePosition = useCallback((nodeId: string, position: { x: number; y: number }) => {
     setPositions((current) => ({

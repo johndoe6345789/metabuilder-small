@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react'
 import { templates, type TemplateType } from '@/config/templates'
 import { useAppDispatch, useAppSelector } from '@/store'
-import { setKV, deleteKV } from '@/store/slices/kvSlice'
+import { setUIState, deleteUIState } from '@/store/slices/uiStateSlice'
 import { toast } from '@/components/ui/sonner'
 import templateUi from '@/config/template-ui.json'
 
@@ -32,7 +32,7 @@ function formatToastDescription(actionType: 'replace' | 'merge', template: Templ
 
 export function useTemplateSelector() {
   const dispatch = useAppDispatch()
-  const kvData = useAppSelector((state) => state.kv.data)
+  const kvData = useAppSelector((state) => state.uiState.data)
   const [isLoading, setIsLoading] = useState(false)
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState>({
     open: false,
@@ -45,11 +45,11 @@ export function useTemplateSelector() {
     if (!template) return false
 
     for (const key of Object.keys(kvData)) {
-      dispatch(deleteKV(key))
+      dispatch(deleteUIState(key))
     }
 
     for (const [key, value] of Object.entries(template.data)) {
-      dispatch(setKV({ key, value }))
+      dispatch(setUIState({ key, value }))
     }
     return true
   }, [dispatch, kvData])
@@ -61,9 +61,9 @@ export function useTemplateSelector() {
     for (const [key, value] of Object.entries(template.data)) {
       const existing = kvData[key]
       if (existing && Array.isArray(existing) && Array.isArray(value)) {
-        dispatch(setKV({ key, value: [...existing, ...value] }))
+        dispatch(setUIState({ key, value: [...existing, ...value] }))
       } else {
-        dispatch(setKV({ key, value }))
+        dispatch(setUIState({ key, value }))
       }
     }
     return true

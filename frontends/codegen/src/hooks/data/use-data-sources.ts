@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react'
-import { useKV } from '@/hooks/use-kv'
+import { useUIState } from '@/hooks/use-ui-state'
 import { DataSource } from '@/types/json-ui'
 import { setNestedValue } from '@/lib/json-ui/utils'
 import { evaluateExpression, evaluateTemplate } from '@/lib/json-ui/expression-evaluator'
@@ -10,11 +10,11 @@ export function useDataSources(dataSources: DataSource[]) {
 
   const kvSources = dataSources.filter(ds => ds.type === 'kv')
   
-  const kvState0 = useKV(kvSources[0]?.key || 'ds-0', kvSources[0]?.defaultValue)
-  const kvState1 = useKV(kvSources[1]?.key || 'ds-1', kvSources[1]?.defaultValue)
-  const kvState2 = useKV(kvSources[2]?.key || 'ds-2', kvSources[2]?.defaultValue)
-  const kvState3 = useKV(kvSources[3]?.key || 'ds-3', kvSources[3]?.defaultValue)
-  const kvState4 = useKV(kvSources[4]?.key || 'ds-4', kvSources[4]?.defaultValue)
+  const kvState0 = useUIState(kvSources[0]?.key || 'ds-0', kvSources[0]?.defaultValue)
+  const kvState1 = useUIState(kvSources[1]?.key || 'ds-1', kvSources[1]?.defaultValue)
+  const kvState2 = useUIState(kvSources[2]?.key || 'ds-2', kvSources[2]?.defaultValue)
+  const kvState3 = useUIState(kvSources[3]?.key || 'ds-3', kvSources[3]?.defaultValue)
+  const kvState4 = useUIState(kvSources[4]?.key || 'ds-4', kvSources[4]?.defaultValue)
   
   const kvStates = [kvState0, kvState1, kvState2, kvState3, kvState4]
 

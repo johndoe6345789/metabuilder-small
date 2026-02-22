@@ -77,7 +77,7 @@ export const syncToDBALBulk = createAsyncThunk(
       if (state.workflows?.workflows) data.workflows = state.workflows.workflows
       if (state.lambdas?.lambdas) data.lambdas = state.lambdas.lambdas
       if (state.project) data.project = [state.project]
-      if (state.kv?.entries) data.kv = Object.values(state.kv.entries)
+      if (state.uiState?.data) data.uiState = Object.values(state.uiState.data)
 
       const result = await syncAllToDBAL(data)
       console.info(`[DBAL] Synced ${result.synced} records, ${result.failed} failed`)

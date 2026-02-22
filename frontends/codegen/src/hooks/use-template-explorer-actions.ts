@@ -27,7 +27,7 @@ const triggerJsonDownload = (data: TemplateData, filename: string) => {
 }
 
 export function useTemplateExplorerActions(selectedTemplate?: Template) {
-  const kvData = useAppSelector((state) => state.kv.data)
+  const kvData = useAppSelector((state) => state.uiState.data)
 
   const copyToClipboard = useCallback((text: string) => {
     navigator.clipboard.writeText(text)

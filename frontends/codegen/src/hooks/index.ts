@@ -2,7 +2,7 @@
 export * from './core/use-debounced-save'
 export * from './core/use-clipboard'
 export * from './core/use-library-loader'
-export * from './use-kv'
+export * from './use-ui-state'
 
 // UI hooks - re-exports from @metabuilder/hooks + codegen-specific
 export * from './ui'

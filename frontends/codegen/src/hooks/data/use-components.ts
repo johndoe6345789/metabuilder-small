@@ -1,30 +1,34 @@
-import { useKV } from '@/hooks/use-kv'
+import { useAppDispatch, useAppSelector } from '@/store'
+import { addComponent as addComponentAction, updateComponent as updateComponentAction, removeComponent, setComponents } from '@/store/slices/componentsSlice'
 import { useCallback } from 'react'
 import { ComponentNode } from '@/types/project'
 
 export function useComponents() {
-  const [components, setComponents] = useKV<ComponentNode[]>('project-components', [])
+  const dispatch = useAppDispatch()
+  const sliceComponents = useAppSelector((s) => s.components?.components ?? [])
+  const components = sliceComponents as unknown as ComponentNode[]
   
   const addComponent = useCallback((component: ComponentNode) => {
-    setComponents(current => [...(current || []), component])
-  }, [setComponents])
+    dispatch(addComponentAction(component as any))
+  }, [dispatch])
   
   const updateComponent = useCallback((componentId: string, updates: Partial<ComponentNode>) => {
-    setComponents(current =>
-      (current || []).map(c => c.id === componentId ? { ...c, ...updates } : c)
-    )
-  }, [setComponents])
+    const existing = components.find(c => c.id === componentId)
+    if (existing) {
+      dispatch(updateComponentAction({ ...existing, ...updates } as any))
+    }
+  }, [dispatch, components])
   
   const deleteComponent = useCallback((componentId: string) => {
-    setComponents(current => (current || []).filter(c => c.id !== componentId))
-  }, [setComponents])
+    dispatch(removeComponent(componentId))
+  }, [dispatch])
   
   const getComponent = useCallback((componentId: string) => {
-    return components?.find(c => c.id === componentId)
+    return components.find(c => c.id === componentId)
   }, [components])
   
   return {
-    components: components || [],
+    components,
     addComponent,
     updateComponent,
     deleteComponent,

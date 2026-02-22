@@ -1,7 +1,7 @@
 import { Project } from '@/types/project'
 import { useCallback } from 'react'
 import { useAppDispatch, useAppSelector } from '@/store'
-import { setKV, deleteKV } from '@/store/slices/kvSlice'
+import { setUIState, deleteUIState } from '@/store/slices/uiStateSlice'
 
 export interface SavedProject {
   id: string
@@ -19,7 +19,7 @@ const PROJECT_PREFIX = 'codeforge-project-'
 
 export function useProjectService() {
   const dispatch = useAppDispatch()
-  const kvData = useAppSelector((state) => state.kv.data)
+  const kvData = useAppSelector((state) => state.uiState.data)
 
   const getKV = useCallback(<T>(key: string): T | null => {
     const val = kvData[key]
@@ -27,11 +27,11 @@ export function useProjectService() {
   }, [kvData])
 
   const setKVValue = useCallback(<T>(key: string, value: T): void => {
-    dispatch(setKV({ key, value }))
+    dispatch(setUIState({ key, value }))
   }, [dispatch])
 
   const removeKV = useCallback((key: string): void => {
-    dispatch(deleteKV(key))
+    dispatch(deleteUIState(key))
   }, [dispatch])
 
   const listProjects = useCallback((): SavedProject[] => {

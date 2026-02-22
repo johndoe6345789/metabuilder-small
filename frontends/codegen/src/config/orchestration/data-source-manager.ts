@@ -1,9 +1,9 @@
-import { useKV } from '@/hooks/use-kv'
+import { useUIState } from '@/hooks/use-ui-state'
 import { DataSource } from './schema'
 import { useEffect, useState } from 'react'
 
 export function useDataSource(source: DataSource) {
-  const [kvData, setKvData] = useKV(source.key || source.id, source.defaultValue)
+  const [kvData, setKvData] = useUIState(source.key || source.id, source.defaultValue)
   const [apiData, setApiData] = useState<any>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<Error | null>(null)

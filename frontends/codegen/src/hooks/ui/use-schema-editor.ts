@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react'
-import { useKV } from '@/hooks/use-kv'
+import { useUIState } from '@/hooks/use-ui-state'
 import { toast } from '@/components/ui/sonner'
 import { UIComponent } from '@/types/json-ui'
 
@@ -10,7 +10,7 @@ export interface SchemaEditorState {
 }
 
 export function useSchemaEditor() {
-  const [components, setComponents, deleteComponents] = useKV<UIComponent[]>('schema-editor-components', [])
+  const [components, setComponents, deleteComponents] = useUIState<UIComponent[]>('schema-editor-components', [])
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [hoveredId, setHoveredId] = useState<string | null>(null)
 

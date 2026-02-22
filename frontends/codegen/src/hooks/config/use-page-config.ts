@@ -1,4 +1,4 @@
-import { useKV } from '../use-kv'
+import { useUIState } from '@/hooks/use-ui-state'
 import { PageConfig, PageConfigSchema } from '@/config/page-schema'
 import defaultPagesData from '@/config/default-pages.json'
 
@@ -7,7 +7,7 @@ const defaultPages = defaultPagesData as { pages: PageConfig[] }
 export function usePageConfig(pageId: string) {
   const defaultPage = defaultPages.pages.find((p) => p.id === pageId)
 
-  const [pageConfig, setPageConfig] = useKV<PageConfig | null>(
+  const [pageConfig, setPageConfig] = useUIState<PageConfig | null>(
     `page-config:${pageId}`,
     defaultPage || null,
   )
@@ -19,7 +19,7 @@ export function usePageConfig(pageId: string) {
 }
 
 export function usePageRegistry() {
-  const [pages, setPages] = useKV<PageConfig[]>(
+  const [pages, setPages] = useUIState<PageConfig[]>(
     'page-registry',
     defaultPages.pages,
   )

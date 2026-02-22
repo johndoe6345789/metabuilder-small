@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useKV } from '@/hooks/use-kv'
+import { useUIState } from '@/hooks/use-ui-state'
 import { useDBALSearch } from '@/hooks/use-dbal-search'
 import {
   BookOpen,
@@ -100,7 +100,7 @@ export function useGlobalSearchData({
   onFileSelect,
 }: UseGlobalSearchDataProps) {
   const [searchQuery, setSearchQuery] = useState('')
-  const [searchHistory, setSearchHistory] = useKV<SearchHistoryItem[]>('search-history', [])
+  const [searchHistory, setSearchHistory] = useUIState<SearchHistoryItem[]>('search-history', [])
   const { results: dbalResults } = useDBALSearch(searchQuery)
 
   useEffect(() => {

@@ -1,14 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
 import { toast } from '@/components/ui/sonner'
 import copy from '@/data/favicon-designer.json'
-import { useKV } from '@/hooks/use-kv'
+import { useUIState } from '@/hooks/use-ui-state'
 import { DEFAULT_DESIGN, PRESET_SIZES } from './constants'
 import { drawCanvas } from './canvasUtils'
 import { formatCopy } from './formatCopy'
 import { BrushEffect, FaviconDesign, FaviconElement } from './types'
 
 export const useFaviconDesigner = () => {
-  const [designs, setDesigns] = useKV<FaviconDesign[]>('favicon-designs', [DEFAULT_DESIGN])
+  const [designs, setDesigns] = useUIState<FaviconDesign[]>('favicon-designs', [DEFAULT_DESIGN])
   const [activeDesignId, setActiveDesignId] = useState<string>(DEFAULT_DESIGN.id)
   const [selectedElementId, setSelectedElementId] = useState<string | null>(null)
   const [isDrawing, setIsDrawing] = useState(false)
