@@ -23,6 +23,17 @@
       "description": "File tree navigation and management"
     },
     {
+      "name": "CodeEditor",
+      "path": "@/lib/json-ui/json-components",
+      "export": "CodeEditor",
+      "type": "feature",
+      "preload": false,
+      "category": "editor",
+      "dependencies": ["monaco-editor"],
+      "preloadDependencies": ["preloadMonacoEditor"],
+      "description": "Monaco-based code editor with file tabs"
+    },
+    {
       "name": "ModelDesigner",
       "path": "@/components/JSONModelDesigner",
       "export": "JSONModelDesigner",
@@ -33,7 +44,7 @@
     },
     {
       "name": "ComponentTreeBuilder",
-      "path": "@/components/ComponentTreeBuilder",
+      "path": "@/lib/json-ui/json-components",
       "export": "ComponentTreeBuilder",
       "type": "feature",
       "preload": false,
@@ -82,7 +93,7 @@
     },
     {
       "name": "PlaywrightDesigner",
-      "path": "@/components/PlaywrightDesigner",
+      "path": "@/lib/json-ui/json-components",
       "export": "PlaywrightDesigner",
       "type": "feature",
       "preload": false,
@@ -91,7 +102,7 @@
     },
     {
       "name": "StorybookDesigner",
-      "path": "@/components/StorybookDesigner",
+      "path": "@/lib/json-ui/json-components",
       "export": "StorybookDesigner",
       "type": "feature",
       "preload": false,
@@ -100,7 +111,7 @@
     },
     {
       "name": "UnitTestDesigner",
-      "path": "@/components/UnitTestDesigner",
+      "path": "@/lib/json-ui/json-components",
       "export": "UnitTestDesigner",
       "type": "feature",
       "preload": false,
@@ -118,7 +129,7 @@
     },
     {
       "name": "ProjectSettingsDesigner",
-      "path": "@/components/ProjectSettingsDesigner",
+      "path": "@/lib/json-ui/json-components",
       "export": "ProjectSettingsDesigner",
       "type": "feature",
       "preload": false,
@@ -163,7 +174,7 @@
     },
     {
       "name": "PWASettings",
-      "path": "@/components/PWASettings",
+      "path": "@/lib/json-ui/json-components",
       "export": "PWASettings",
       "type": "feature",
       "preload": false,
@@ -190,7 +201,7 @@
     },
     {
       "name": "TemplateSelector",
-      "path": "@/components/TemplateSelector",
+      "path": "@/lib/json-ui/json-components",
       "export": "TemplateSelector",
       "type": "feature",
       "preload": false,
@@ -199,7 +210,7 @@
     },
     {
       "name": "PersistenceDashboard",
-      "path": "@/components/PersistenceDashboard",
+      "path": "@/lib/json-ui/json-components",
       "export": "PersistenceDashboard",
       "type": "feature",
       "preload": false,
@@ -208,7 +219,7 @@
     },
     {
       "name": "PersistenceExample",
-      "path": "@/components/PersistenceExample",
+      "path": "@/lib/json-ui/json-components",
       "export": "PersistenceExample",
       "type": "feature",
       "preload": false,
@@ -262,7 +273,7 @@
     },
     {
       "name": "AtomicLibraryShowcase",
-      "path": "@/components/AtomicLibraryShowcase",
+      "path": "@/lib/json-ui/json-components",
       "export": "AtomicLibraryShowcase",
       "type": "feature",
       "preload": false,

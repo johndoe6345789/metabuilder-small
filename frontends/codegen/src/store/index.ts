@@ -9,7 +9,7 @@ import workflowsReducer from './slices/workflowsSlice'
 import lambdasReducer from './slices/lambdasSlice'
 import themeReducer from './slices/themeSlice'
 import settingsReducer from './slices/settingsSlice'
-import syncReducer from './slices/syncSlice'
+import dbalReducer from './slices/dbalSlice'
 import conflictsReducer from './slices/conflictsSlice'
 import kvReducer from './slices/kvSlice'
 import uiReducer from '@metabuilder/redux-slices/uiSlice'
@@ -27,7 +27,7 @@ const { store, persistor } = createPersistedStore({
     lambdas: lambdasReducer,
     theme: themeReducer,
     settings: settingsReducer,
-    sync: syncReducer,
+    dbal: dbalReducer,
     conflicts: conflictsReducer,
     kv: kvReducer,
     ui: uiReducer,

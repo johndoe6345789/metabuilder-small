@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useKV } from '@/hooks/use-kv'
+import { useDBALSearch } from '@/hooks/use-dbal-search'
 import {
   BookOpen,
   ChartBar,
@@ -100,6 +101,7 @@ export function useGlobalSearchData({
 }: UseGlobalSearchDataProps) {
   const [searchQuery, setSearchQuery] = useState('')
   const [searchHistory, setSearchHistory] = useKV<SearchHistoryItem[]>('search-history', [])
+  const { results: dbalResults } = useDBALSearch(searchQuery)
 
   useEffect(() => {
     if (!open) {
@@ -334,6 +336,28 @@ export function useGlobalSearchData({
     })
   }, [searchHistory, allResults])
 
+  const DBAL_SLICE_TO_PAGE: Record<string, string> = {
+    files: 'code',
+    models: 'models',
+    components: 'components',
+    componentTrees: 'component-trees',
+    workflows: 'workflows',
+    lambdas: 'lambdas',
+  }
+
+  const dbalSearchResults = useMemo<SearchResult[]>(() => {
+    if (!searchQuery.trim() || searchQuery.length < 2) return []
+    return dbalResults.map((r) => ({
+      id: r.id,
+      title: r.title,
+      subtitle: `${r.entityType} — ${r.subtitle}`,
+      category: 'DBAL',
+      icon: <Database size={18} weight="duotone" />,
+      action: () => onNavigate(DBAL_SLICE_TO_PAGE[r.sliceName] || 'database'),
+      tags: ['dbal', r.entityType, r.sliceName],
+    }))
+  }, [dbalResults, searchQuery, onNavigate])
+
   const groupedResults = useMemo(() => {
     const groups: Record<string, SearchResult[]> = {}
     filteredResults.forEach((result) => {
@@ -342,8 +366,12 @@ export function useGlobalSearchData({
       }
       groups[result.category].push(result)
     })
+    // Merge DBAL remote results into grouped output
+    if (dbalSearchResults.length > 0) {
+      groups['DBAL'] = dbalSearchResults
+    }
     return groups
-  }, [filteredResults])
+  }, [filteredResults, dbalSearchResults])
 
   const handleSelect = (result: SearchResult) => {
     addToHistory(searchQuery, result)

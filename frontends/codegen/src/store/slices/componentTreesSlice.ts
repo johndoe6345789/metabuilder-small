@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit'
-import { syncToFlask, fetchFromFlask } from '@/store/middleware/flaskSync'
+import { syncToDBAL, fetchFromDBAL, deleteFromDBAL } from '@/store/middleware/dbalSync'
 import { BASE_PATH } from '@/config/app-config'
 
 export interface ComponentTree {
@@ -60,7 +60,7 @@ export const loadComponentTrees = createAsyncThunk(
 export const saveComponentTree = createAsyncThunk(
   'componentTrees/saveTree',
   async (tree: ComponentTree) => {
-    await syncToFlask('componentTrees', tree.id, tree)
+    await syncToDBAL('componentTrees', tree.id, tree)
     return tree
   }
 )
@@ -68,15 +68,15 @@ export const saveComponentTree = createAsyncThunk(
 export const deleteComponentTree = createAsyncThunk(
   'componentTrees/deleteTree',
   async (treeId: string) => {
-    await syncToFlask('componentTrees', treeId, null, 'delete')
+    await deleteFromDBAL('componentTrees', treeId)
     return treeId
   }
 )
 
-export const syncTreeFromFlask = createAsyncThunk(
-  'componentTrees/syncFromFlask',
+export const syncTreeFromDBAL = createAsyncThunk(
+  'componentTrees/syncFromDBAL',
   async (treeId: string) => {
-    const tree = await fetchFromFlask('componentTrees', treeId)
+    const tree = await fetchFromDBAL('componentTrees', treeId)
     return tree
   }
 )
@@ -148,7 +148,7 @@ const componentTreesSlice = createSlice({
           state.activeTreeId = null
         }
       })
-      .addCase(syncTreeFromFlask.fulfilled, (state, action) => {
+      .addCase(syncTreeFromDBAL.fulfilled, (state, action) => {
         if (action.payload) {
           const index = state.trees.findIndex(t => t.id === action.payload.id)
           if (index !== -1) {

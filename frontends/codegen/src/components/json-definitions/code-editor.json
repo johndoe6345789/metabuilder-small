@@ -1,0 +1,112 @@
+{
+  "id": "code-editor-root",
+  "type": "div",
+  "props": { "className": "flex flex-col h-full" },
+  "children": [
+    {
+      "id": "empty-state",
+      "type": "div",
+      "conditional": { "if": "!editorState.hasFiles" },
+      "props": { "className": "flex flex-col items-center justify-center h-full gap-3 text-muted-foreground" },
+      "children": [
+        {
+          "id": "empty-icon",
+          "type": "FileCode",
+          "props": { "size": 48, "weight": "thin" }
+        },
+        {
+          "id": "empty-title",
+          "type": "p",
+          "props": { "className": "text-sm" },
+          "children": ["No files open"]
+        },
+        {
+          "id": "empty-subtitle",
+          "type": "p",
+          "props": { "className": "text-xs opacity-70" },
+          "children": ["Select a file from the explorer to start editing"]
+        }
+      ]
+    },
+    {
+      "id": "editor-with-tabs",
+      "type": "div",
+      "conditional": { "if": "editorState.hasFiles" },
+      "props": { "className": "flex flex-col h-full" },
+      "children": [
+        {
+          "id": "tab-bar",
+          "type": "div",
+          "props": { "className": "flex border-b border-border bg-muted/30 overflow-auto shrink-0" },
+          "children": [
+            {
+              "id": "tab-list",
+              "type": "list",
+              "bindings": {
+                "items": "editorState.tabs"
+              },
+              "itemTemplate": {
+                "id": "tab-item",
+                "type": "button",
+                "bindings": {
+                  "className": "item.className",
+                  "onClick": {
+                    "source": "item.onSelect",
+                    "transform": "item.onSelect"
+                  }
+                },
+                "children": [
+                  {
+                    "id": "tab-name",
+                    "type": "span",
+                    "bindings": { "children": "item.name" }
+                  },
+                  {
+                    "id": "tab-close",
+                    "type": "span",
+                    "conditional": { "if": "item.onClose" },
+                    "props": {
+                      "className": "opacity-50 cursor-pointer ml-1 hover:opacity-100"
+                    },
+                    "bindings": {
+                      "onClick": {
+                        "source": "item.onClose",
+                        "transform": "(e) => { e.stopPropagation(); item.onClose(); }"
+                      }
+                    },
+                    "children": ["×"]
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "editor-container",
+          "type": "div",
+          "props": { "className": "flex-1 min-h-0" },
+          "children": [
+            {
+              "id": "monaco-editor",
+              "type": "MonacoEditorWrapper",
+              "conditional": { "if": "editorState.activeFile" },
+              "bindings": {
+                "language": "editorState.language",
+                "value": "editorState.editorValue",
+                "onChange": {
+                  "source": "editorState.handleEditorChange",
+                  "transform": "editorState.handleEditorChange"
+                },
+                "options": "editorState.editorOptions"
+              },
+              "props": {
+                "height": "100%",
+                "theme": "vs-light"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

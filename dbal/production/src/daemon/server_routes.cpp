@@ -10,6 +10,7 @@
 #include "handlers/rpc_route_handler.hpp"
 #include "handlers/schema_route_handler.hpp"
 #include "handlers/admin_route_handler.hpp"
+#include "handlers/seed_route_handler.hpp"
 #include "handlers/batch_route_handler.hpp"
 #include "handlers/entity_route_handler_helpers.hpp"
 #include "bulk_handler.hpp"
@@ -217,6 +218,33 @@ void Server::registerRoutes() {
                 return;
             }
             admin_handler->handleTestConnection(req, std::move(callback));
+        },
+        {drogon::HttpMethod::Post, drogon::HttpMethod::Options}
+    );
+
+    // POST /admin/seed — load seed data into the database
+    // Requires ensureClient() since seed loading uses the DBAL client
+    drogon::app().registerHandler(
+        "/admin/seed",
+        [this](const drogon::HttpRequestPtr& req, DrogonCallback&& callback) {
+            auto client_ip = req->getPeerAddr().toIp();
+            if (!admin_limiter.allow(client_ip)) {
+                auto resp = drogon::HttpResponse::newHttpResponse();
+                resp->setStatusCode(drogon::k429TooManyRequests);
+                callback(resp);
+                return;
+            }
+            if (!ensureClient()) {
+                ::Json::Value body;
+                body["success"] = false;
+                body["error"] = "DBAL client is unavailable";
+                auto response = drogon::HttpResponse::newHttpJsonResponse(body);
+                response->setStatusCode(drogon::HttpStatusCode::k503ServiceUnavailable);
+                callback(response);
+                return;
+            }
+            auto seed_handler = std::make_shared<handlers::SeedRouteHandler>(*dbal_client_);
+            seed_handler->handleSeed(req, std::move(callback));
         },
         {drogon::HttpMethod::Post, drogon::HttpMethod::Options}
     );

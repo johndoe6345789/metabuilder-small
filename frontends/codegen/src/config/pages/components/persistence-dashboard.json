@@ -1,10 +1,9 @@
 {
   "type": "MetabuilderWidgetPersistenceDashboard",
-  "jsonCompatible": false,
-  "wrapperRequired": true,
+  "jsonCompatible": true,
   "load": {
-    "path": "@/components/PersistenceDashboard",
-    "export": "PersistenceDashboard"
+    "path": "@/lib/json-ui/json-components",
+    "export": "MetabuilderWidgetPersistenceDashboard"
   },
   "props": {}
 }

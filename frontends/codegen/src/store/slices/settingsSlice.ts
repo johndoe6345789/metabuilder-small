@@ -1,11 +1,11 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { syncToFlask } from '@/store/middleware/flaskSync'
+import { syncToDBAL } from '@/store/middleware/dbalSync'
 
 export interface Settings {
   autoSave: boolean
   autoSync: boolean
   syncInterval: number
-  flaskApiUrl: string
+  dbalApiUrl: string
   useIndexedDB: boolean
   theme: 'light' | 'dark' | 'system'
 }
@@ -21,7 +21,7 @@ const initialState: SettingsState = {
     autoSave: true,
     autoSync: true,
     syncInterval: 30000,
-    flaskApiUrl: 'http://localhost:5001',
+    dbalApiUrl: 'http://localhost:8080',
     useIndexedDB: true,
     theme: 'dark',
   },
@@ -38,22 +38,22 @@ const settingsSlice = createSlice({
         ...state.settings,
         ...action.payload,
       }
-      syncToFlask('settings', 'app', state.settings).catch(console.error)
+      syncToDBAL('settings', 'app', state.settings).catch(console.error)
     },
     setSettings: (state, action: PayloadAction<Settings>) => {
       state.settings = action.payload
     },
     toggleAutoSave: (state) => {
       state.settings.autoSave = !state.settings.autoSave
-      syncToFlask('settings', 'app', state.settings).catch(console.error)
+      syncToDBAL('settings', 'app', state.settings).catch(console.error)
     },
     toggleAutoSync: (state) => {
       state.settings.autoSync = !state.settings.autoSync
-      syncToFlask('settings', 'app', state.settings).catch(console.error)
+      syncToDBAL('settings', 'app', state.settings).catch(console.error)
     },
     setSyncInterval: (state, action: PayloadAction<number>) => {
       state.settings.syncInterval = action.payload
-      syncToFlask('settings', 'app', state.settings).catch(console.error)
+      syncToDBAL('settings', 'app', state.settings).catch(console.error)
     },
   },
 })

@@ -1,6 +1,6 @@
 {
   "title": "Persistence Middleware Example",
-  "description": "Demonstrates automatic persistence of Redux state to IndexedDB and Flask API",
+  "description": "Demonstrates automatic persistence of Redux state to IndexedDB and DBAL API",
   "editor": {
     "titleCreate": "Create File",
     "titleEdit": "Edit File",
@@ -16,8 +16,8 @@
   "info": {
     "automaticTitle": "Automatic Persistence",
     "automaticDescription": "Data is automatically saved to IndexedDB with 300ms debounce",
-    "flaskTitle": "Flask Sync",
-    "flaskDescription": "Changes are synced to Flask API backend automatically"
+    "dbalTitle": "DBAL Sync",
+    "dbalDescription": "Changes are synced to DBAL API backend automatically"
   },
   "files": {
     "title": "Saved Files",
@@ -41,14 +41,14 @@
       },
       {
         "title": "3. Auto-Sync",
-        "description": "After 300ms debounce, data is saved to IndexedDB and synced to Flask API"
+        "description": "After 300ms debounce, data is saved to IndexedDB and synced to DBAL API"
       }
     ]
   },
   "toasts": {
     "fileNameRequired": "File name is required",
     "saveSuccess": "File \"{{name}}\" saved automatically!",
-    "saveDescription": "Synced to IndexedDB and Flask API",
+    "saveDescription": "Synced to IndexedDB and DBAL API",
     "saveErrorTitle": "Failed to save file",
     "deleteSuccess": "File \"{{name}}\" deleted",
     "deleteDescription": "Automatically synced to storage",

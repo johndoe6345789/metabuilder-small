@@ -55,6 +55,8 @@ done
 # Pre-install Next.js SWC binary (avoids unreliable CDN download during next build)
 RUN npm install --no-save @next/swc-linux-arm64-musl @next/swc-linux-arm64-gnu 2>/dev/null || true
 
+ENV SKIP_ENV_VALIDATION=true
+ENV JWT_SECRET=build-placeholder
 RUN cd frontends/postgres && npx next build --webpack
 
 # --- Runtime stage ---

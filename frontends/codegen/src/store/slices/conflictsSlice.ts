@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit'
 import { ConflictItem, ConflictResolutionStrategy, ConflictResolutionResult, EntityType } from '@/types/conflicts'
-import { fetchAllFromFlask } from '@/store/middleware/flaskSync'
+import { fetchAllFromDBAL } from '@/store/middleware/dbalSync'
 
 interface ConflictsState {
   conflicts: ConflictItem[]
@@ -40,7 +40,7 @@ export const detectConflicts = createAsyncThunk(
   'conflicts/detectConflicts',
   async (_, { getState, rejectWithValue }) => {
     try {
-      const remoteData = await fetchAllFromFlask()
+      const remoteData = await fetchAllFromDBAL()
       const state = getState() as any
       const conflicts: ConflictItem[] = []
 

@@ -31,6 +31,7 @@ import type {
   ComponentBindingDialogProps,
   DataSourceEditorDialogProps,
   ComponentTreeProps,
+  ComponentTreeBuilderProps,
   TreeCardProps,
   FilterInputProps,
   CopyButtonProps,
@@ -251,6 +252,8 @@ import type {
   ComprehensiveDemoPageProps,
   TemplateExplorerProps,
   ProjectManagerProps,
+  DBALSearchInputProps,
+  QuickSeedButtonProps,
   StorageSettingsPanelProps,
   FeatureToggleSettingsProps,
   DocumentationViewProps,
@@ -260,6 +263,16 @@ import type {
   FaviconDesignerProps,
   FeatureIdeaCloudProps,
   NavigationGroupHeaderProps,
+  PersistenceDashboardProps,
+  CodeEditorProps,
+  PlaywrightDesignerProps,
+  UnitTestDesignerProps,
+  StorybookDesignerProps,
+  PWASettingsProps,
+  TemplateSelectorProps,
+  PersistenceExampleProps,
+  AtomicLibraryShowcaseProps,
+  ProjectSettingsDesignerProps,
 } from './interfaces'
 
 // Import JSON definitions
@@ -283,6 +296,7 @@ import dataSourceEditorDialogDef from '@/components/json-definitions/data-source
 import githubBuildStatusDef from '@/components/json-definitions/github-build-status.json'
 import saveIndicatorDef from '@/components/json-definitions/save-indicator.json'
 import componentTreeDef from '@/components/json-definitions/component-tree.json'
+import componentTreeBuilderDef from '@/components/json-definitions/component-tree-builder.json'
 import seedDataManagerDef from '@/components/json-definitions/seed-data-manager.json'
 import lazyD3BarChartDef from '@/components/json-definitions/lazy-d3-bar-chart.json'
 import storageSettingsDef from '@/components/json-definitions/storage-settings.json'
@@ -508,6 +522,8 @@ import dashboardDemoPageDef from '@/components/json-definitions/dashboard-demo-p
 import comprehensiveDemoPageDef from '@/components/json-definitions/comprehensive-demo-page.json'
 import templateExplorerDef from '@/components/json-definitions/template-explorer.json'
 import projectManagerDef from '@/components/json-definitions/project-manager.json'
+import dbalSearchInputDef from '@/components/json-definitions/dbal-search-input.json'
+import quickSeedButtonDef from '@/components/json-definitions/quick-seed-button.json'
 import storageSettingsPanelDef from '@/components/json-definitions/storage-settings-panel.json'
 import featureToggleSettingsDef from '@/components/json-definitions/feature-toggle-settings.json'
 import documentationViewDef from '@/components/json-definitions/documentation-view.json'
@@ -519,6 +535,16 @@ import featureIdeaCloudDef from '@/components/json-definitions/feature-idea-clou
 import lazyBarChartDef from '@/components/json-definitions/lazy-bar-chart.json'
 import lazyLineChartDef from '@/components/json-definitions/lazy-line-chart.json'
 import navigationGroupHeaderDef from '@/components/json-definitions/navigation-group-header.json'
+import persistenceDashboardDef from '@/components/json-definitions/persistence-dashboard.json'
+import codeEditorDef from '@/components/json-definitions/code-editor.json'
+import playwrightDesignerDef from '@/components/json-definitions/playwright-designer.json'
+import unitTestDesignerDef from '@/components/json-definitions/unit-test-designer.json'
+import storybookDesignerDef from '@/components/json-definitions/storybook-designer.json'
+import pwaSettingsDef from '@/components/json-definitions/pwa-settings.json'
+import templateSelectorDef from '@/components/json-definitions/template-selector.json'
+import persistenceExampleDef from '@/components/json-definitions/persistence-example.json'
+import projectSettingsDesignerDef from '@/components/json-definitions/project-settings-designer.json'
+import atomicLibraryShowcaseDef from '@/components/json-definitions/atomic-library-showcase.json'
 
 // Create pure JSON components (no hooks)
 export const MetabuilderWidgetBindingIndicator = createJsonComponent<BindingIndicatorProps>(bindingIndicatorDef)
@@ -652,6 +678,15 @@ export const MetabuilderWidgetComponentTree = createJsonComponentWithHooks<Compo
     treeData: {
       hookName: 'useComponentTree',
       args: (props) => [props.components || [], props.selectedId || null]
+    }
+  }
+})
+
+export const MetabuilderWidgetComponentTreeBuilder = createJsonComponentWithHooks<ComponentTreeBuilderProps>(componentTreeBuilderDef, {
+  hooks: {
+    builderState: {
+      hookName: 'useComponentTreeBuilder',
+      args: (props) => [{ components: props.components, onComponentsChange: props.onComponentsChange }]
     }
   }
 })
@@ -987,7 +1022,32 @@ export const MetabuilderWidgetJSONDemoPage = createJsonComponent<JSONDemoPagePro
 export const MetabuilderWidgetDashboardDemoPage = createJsonComponent<DashboardDemoPageProps>(dashboardDemoPageDef)
 export const MetabuilderWidgetComprehensiveDemoPage = createJsonComponent<ComprehensiveDemoPageProps>(comprehensiveDemoPageDef)
 export const MetabuilderWidgetTemplateExplorer = createJsonComponent<TemplateExplorerProps>(templateExplorerDef)
-export const MetabuilderWidgetProjectManager = createJsonComponent<ProjectManagerProps>(projectManagerDef)
+export const MetabuilderWidgetProjectManager = createJsonComponentWithHooks<ProjectManagerProps>(projectManagerDef, {
+  hooks: {
+    hookData: {
+      hookName: 'useProjectManagerDropdown',
+      args: () => []
+    }
+  }
+})
+
+export const MetabuilderWidgetDBALSearchInput = createJsonComponentWithHooks<DBALSearchInputProps>(dbalSearchInputDef, {
+  hooks: {
+    hookData: {
+      hookName: 'useDBALSearchInput',
+      args: (props) => [{ onNavigate: props.onNavigate || (() => {}) }]
+    }
+  }
+})
+
+export const MetabuilderWidgetQuickSeedButton = createJsonComponentWithHooks<QuickSeedButtonProps>(quickSeedButtonDef, {
+  hooks: {
+    hookData: {
+      hookName: 'useQuickSeed',
+      args: () => []
+    }
+  }
+})
 export const MetabuilderWidgetStorageSettingsPanel = createJsonComponent<StorageSettingsPanelProps>(storageSettingsPanelDef)
 export const MetabuilderWidgetFeatureToggleSettings = createJsonComponent<FeatureToggleSettingsProps>(featureToggleSettingsDef)
 
@@ -1049,4 +1109,157 @@ export const MetabuilderDataLazyBarChart = createJsonComponent<LazyBarChartProps
 export const MetabuilderDataLazyLineChart = createJsonComponent<LazyLineChartProps>(lazyLineChartDef)
 export const MetabuilderNavNavigationGroupHeader = createJsonComponent<NavigationGroupHeaderProps>(navigationGroupHeaderDef)
 
-// All components converted to pure JSON! 🎉
+export const MetabuilderWidgetPersistenceDashboard = createJsonComponentWithHooks<PersistenceDashboardProps>(
+  persistenceDashboardDef,
+  {
+    hooks: {
+      viewData: {
+        hookName: 'usePersistenceDashboardView',
+        args: () => []
+      }
+    }
+  }
+)
+
+// Converted TSX page-level components
+export const MetabuilderWidgetCodeEditor = createJsonComponentWithHooks<CodeEditorProps>(
+  codeEditorDef,
+  {
+    hooks: {
+      editorState: {
+        hookName: 'useCodeEditor',
+        args: (props) => [{ files: props.files, activeFileId: props.activeFileId, onFileChange: props.onFileChange, onFileSelect: props.onFileSelect, onFileClose: props.onFileClose }]
+      }
+    }
+  }
+)
+
+export const MetabuilderWidgetPlaywrightDesigner = createJsonComponentWithHooks<PlaywrightDesignerProps>(
+  playwrightDesignerDef,
+  {
+    hooks: {
+      designerState: {
+        hookName: 'usePlaywrightDesigner',
+        args: (props) => [props.tests, props.onTestsChange],
+        spread: true
+      }
+    }
+  }
+)
+
+export const MetabuilderWidgetUnitTestDesigner = createJsonComponentWithHooks<UnitTestDesignerProps>(
+  unitTestDesignerDef,
+  {
+    hooks: {
+      designerState: {
+        hookName: 'useUnitTestDesigner',
+        args: (props) => [{ tests: props.tests, onTestsChange: props.onTestsChange }]
+      }
+    }
+  }
+)
+
+export const MetabuilderWidgetStorybookDesigner = createJsonComponentWithHooks<StorybookDesignerProps>(
+  storybookDesignerDef,
+  {
+    hooks: {
+      designerState: {
+        hookName: 'useStorybookDesigner',
+        args: (props) => [{ stories: props.stories, onStoriesChange: props.onStoriesChange }]
+      }
+    }
+  }
+)
+
+export const MetabuilderWidgetPWASettings = createJsonComponentWithHooks<PWASettingsProps>(
+  pwaSettingsDef,
+  {
+    hooks: {
+      pwaState: {
+        hookName: 'usePWASettings',
+        args: () => []
+      }
+    }
+  }
+)
+
+export const MetabuilderWidgetTemplateSelector = createJsonComponentWithHooks<TemplateSelectorProps>(
+  templateSelectorDef,
+  {
+    hooks: {
+      selectorState: {
+        hookName: 'useTemplateSelector',
+        args: () => []
+      }
+    }
+  }
+)
+
+export const MetabuilderWidgetPersistenceExample = createJsonComponentWithHooks<PersistenceExampleProps>(
+  persistenceExampleDef,
+  {
+    hooks: {
+      exampleState: {
+        hookName: 'usePersistenceExample',
+        args: () => []
+      }
+    }
+  }
+)
+
+export const MetabuilderWidgetProjectSettingsDesigner = createJsonComponentWithHooks<ProjectSettingsDesignerProps>(
+  projectSettingsDesignerDef,
+  {
+    hooks: {
+      settingsState: {
+        hookName: 'useProjectSettingsView',
+        args: (props) => [{ nextjsConfig: props.nextjsConfig, npmSettings: props.npmSettings, onNextjsConfigChange: props.onNextjsConfigChange, onNpmSettingsChange: props.onNpmSettingsChange }],
+        spread: true
+      }
+    }
+  }
+)
+
+export const MetabuilderWidgetAtomicLibraryShowcase = createJsonComponentWithHooks<AtomicLibraryShowcaseProps>(
+  atomicLibraryShowcaseDef,
+  {
+    hooks: {
+      showcaseState: {
+        hookName: 'useAtomicLibraryShowcase',
+        args: () => []
+      }
+    }
+  }
+)
+
+// Unprefixed re-exports for component-registry resolution.
+// The registry resolves by export name (e.g. "JSONModelDesigner") but these
+// were only exported with the Metabuilder* prefix, causing pages to render blank.
+export {
+  MetabuilderWidgetJSONModelDesigner as JSONModelDesigner,
+  MetabuilderWidgetJSONComponentTreeManager as JSONComponentTreeManager,
+  MetabuilderWidgetJSONLambdaDesigner as JSONLambdaDesigner,
+  MetabuilderWidgetSassStylesShowcase as SassStylesShowcase,
+  MetabuilderWidgetFeatureToggleSettings as FeatureToggleSettings,
+  MetabuilderWidgetDocumentationView as DocumentationView,
+  MetabuilderWidgetFeatureIdeaCloud as FeatureIdeaCloud,
+  MetabuilderWidgetErrorPanel as ErrorPanel,
+  MetabuilderWidgetDockerBuildDebugger as DockerBuildDebugger,
+  MetabuilderWidgetDataBindingDesigner as DataBindingDesigner,
+  MetabuilderWidgetFaviconDesigner as FaviconDesigner,
+  MetabuilderWidgetJSONUIShowcasePage as JSONUIShowcasePage,
+  MetabuilderWidgetSchemaEditorPage as SchemaEditorPage,
+  MetabuilderWidgetAtomicComponentShowcase as AtomicComponentShowcase,
+  MetabuilderWidgetConflictResolutionPage as ConflictResolutionPage,
+  MetabuilderWidgetPersistenceDashboard as PersistenceDashboard,
+  MetabuilderWidgetComponentTreeBuilder as ComponentTreeBuilder,
+  MetabuilderWidgetCodeEditor as CodeEditor,
+  MetabuilderWidgetPlaywrightDesigner as PlaywrightDesigner,
+  MetabuilderWidgetUnitTestDesigner as UnitTestDesigner,
+  MetabuilderWidgetStorybookDesigner as StorybookDesigner,
+  MetabuilderWidgetPWASettings as PWASettings,
+  MetabuilderWidgetTemplateSelector as TemplateSelector,
+  MetabuilderWidgetPersistenceExample as PersistenceExample,
+  MetabuilderWidgetProjectSettingsDesigner as ProjectSettingsDesigner,
+  MetabuilderWidgetAtomicLibraryShowcase as AtomicLibraryShowcase,
+}

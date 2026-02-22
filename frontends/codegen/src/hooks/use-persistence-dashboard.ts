@@ -3,17 +3,17 @@ import { toast } from '@/components/ui/sonner'
 import { usePersistence } from '@/hooks/use-persistence'
 import { useAppDispatch } from '@/store'
 import {
-  syncToFlaskBulk,
-  syncFromFlaskBulk,
-  checkFlaskConnection,
-} from '@/store/slices/syncSlice'
+  syncToDBALBulk,
+  syncFromDBALBulk,
+  checkDBALConnection,
+} from '@/store/slices/dbalSlice'
 import copy from '@/data/persistence-dashboard.json'
 
-const useFlaskConnectionPolling = (dispatch: ReturnType<typeof useAppDispatch>) => {
+const useDBALConnectionPolling = (dispatch: ReturnType<typeof useAppDispatch>) => {
   useEffect(() => {
-    dispatch(checkFlaskConnection())
+    ;(dispatch as any)(checkDBALConnection())
     const interval = setInterval(() => {
-      dispatch(checkFlaskConnection())
+      ;(dispatch as any)(checkDBALConnection())
     }, 10000)
 
     return () => clearInterval(interval)
@@ -26,12 +26,12 @@ export function usePersistenceDashboard() {
   const [autoSyncEnabled, setAutoSyncEnabled] = useState(false)
   const [syncing, setSyncing] = useState(false)
 
-  useFlaskConnectionPolling(dispatch)
+  useDBALConnectionPolling(dispatch)
 
-  const handleSyncToFlask = async () => {
+  const handleSyncToDBAL = async () => {
     setSyncing(true)
     try {
-      await dispatch(syncToFlaskBulk()).unwrap()
+      await (dispatch as any)(syncToDBALBulk()).unwrap()
       toast.success(copy.toasts.syncToSuccess)
     } catch (error: any) {
       toast.error(copy.toasts.syncFailed.replace('{{error}}', String(error)))
@@ -40,10 +40,10 @@ export function usePersistenceDashboard() {
     }
   }
 
-  const handleSyncFromFlask = async () => {
+  const handleSyncFromDBAL = async () => {
     setSyncing(true)
     try {
-      await dispatch(syncFromFlaskBulk()).unwrap()
+      await (dispatch as any)(syncFromDBALBulk()).unwrap()
       toast.success(copy.toasts.syncFromSuccess)
     } catch (error: any) {
       toast.error(copy.toasts.syncFailed.replace('{{error}}', String(error)))
@@ -68,21 +68,21 @@ export function usePersistenceDashboard() {
   }
 
   const handleCheckConnection = () => {
-    dispatch(checkFlaskConnection())
+    ;(dispatch as any)(checkDBALConnection())
   }
 
   const flags = {
-    isConnected: status.flaskConnected,
+    isConnected: status.dbalConnected,
     isSyncing: syncing,
     hasError: Boolean(status.error),
-    canSyncToFlask: status.flaskConnected && !syncing,
-    canSyncFromFlask: status.flaskConnected && !syncing,
+    canSyncToDBAL: status.dbalConnected && !syncing,
+    canSyncFromDBAL: status.dbalConnected && !syncing,
     canTriggerManualSync: autoSyncStatus.enabled && !syncing,
   }
 
   const handlers = {
-    handleSyncToFlask,
-    handleSyncFromFlask,
+    handleSyncToDBAL,
+    handleSyncFromDBAL,
     handleManualSync,
     handleAutoSyncToggle,
     handleCheckConnection,

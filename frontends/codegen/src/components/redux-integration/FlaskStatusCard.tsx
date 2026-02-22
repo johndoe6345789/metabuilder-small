@@ -4,37 +4,34 @@ import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { ArrowsClockwise, CheckCircle, CloudArrowUp, XCircle } from '@metabuilder/fakemui/icons'
 import reduxIntegrationCopy from '@/data/redux-integration-demo.json'
-type FlaskStats = {
-  totalKeys: number
-  totalSizeBytes: number
-} | null
+import type { DBALConfigResponse } from '@/store/middleware/dbalSync'
 
-type FlaskStatusCardProps = {
-  flaskConnected: boolean
-  flaskStats: FlaskStats
+type DBALStatusCardProps = {
+  dbalConnected: boolean
+  dbalStats: DBALConfigResponse | null
   onCheckConnection: () => void
 }
 
-export function FlaskStatusCard({ flaskConnected, flaskStats, onCheckConnection }: FlaskStatusCardProps) {
-  const connectionLabel = flaskConnected
-    ? reduxIntegrationCopy.cards.flask.status.connected
-    : reduxIntegrationCopy.cards.flask.status.disconnected
+export function DBALStatusCard({ dbalConnected, dbalStats, onCheckConnection }: DBALStatusCardProps) {
+  const connectionLabel = dbalConnected
+    ? reduxIntegrationCopy.cards.dbal.status.connected
+    : reduxIntegrationCopy.cards.dbal.status.disconnected
 
   return (
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <CloudArrowUp className="w-5 h-5" />
-          {reduxIntegrationCopy.cards.flask.title}
+          {reduxIntegrationCopy.cards.dbal.title}
         </CardTitle>
-        <CardDescription>{reduxIntegrationCopy.cards.flask.description}</CardDescription>
+        <CardDescription>{reduxIntegrationCopy.cards.dbal.description}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
         <div className="flex justify-between items-center">
           <span className="text-sm text-muted-foreground">
-            {reduxIntegrationCopy.cards.flask.labels.connection}
+            {reduxIntegrationCopy.cards.dbal.labels.connection}
           </span>
-          {flaskConnected ? (
+          {dbalConnected ? (
             <Badge variant="default" className="bg-green-600">
               <CheckCircle className="w-3 h-3 mr-1" />
               {connectionLabel}
@@ -46,29 +43,26 @@ export function FlaskStatusCard({ flaskConnected, flaskStats, onCheckConnection 
             </Badge>
           )}
         </div>
-        {flaskStats && (
+        {dbalStats && (
           <>
             <div className="flex justify-between items-center">
               <span className="text-sm text-muted-foreground">
-                {reduxIntegrationCopy.cards.flask.labels.totalKeys}
+                Adapter
               </span>
-              <Badge variant="outline">{flaskStats.totalKeys}</Badge>
+              <Badge variant="outline">{dbalStats.adapter}</Badge>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-sm text-muted-foreground">
-                {reduxIntegrationCopy.cards.flask.labels.storageSize}
+                Status
               </span>
-              <Badge variant="outline">
-                {(flaskStats.totalSizeBytes / 1024).toFixed(2)}{' '}
-                {reduxIntegrationCopy.cards.flask.labels.storageUnit}
-              </Badge>
+              <Badge variant="outline">{dbalStats.status}</Badge>
             </div>
           </>
         )}
         <Separator />
         <Button onClick={onCheckConnection} variant="outline" size="sm" className="w-full">
           <ArrowsClockwise className="w-4 h-4 mr-2" />
-          {reduxIntegrationCopy.cards.flask.labels.checkConnection}
+          {reduxIntegrationCopy.cards.dbal.labels.checkConnection}
         </Button>
       </CardContent>
     </Card>

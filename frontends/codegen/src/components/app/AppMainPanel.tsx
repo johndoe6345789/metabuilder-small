@@ -61,6 +61,7 @@ export default function AppMainPanel({
         onExport={onExport}
         onPreview={onPreview}
         onShowErrors={onShowErrors}
+        onNavigate={navigateToPage}
       />
       <div className="flex-1 overflow-hidden">
         {children}

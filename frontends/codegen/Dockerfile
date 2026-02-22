@@ -1,4 +1,4 @@
-# Multi-stage build: deps cached separately from source changes
+# Dev server: deps cached separately from source changes
 # Context: monorepo root (..)
 FROM node:20-alpine AS deps
 WORKDIR /app
@@ -50,8 +50,8 @@ COPY frontends/exploded-diagrams/package.json ./frontends/exploded-diagrams/
 RUN npm install --ignore-scripts
 
 
-# --- Build stage ---
-FROM deps AS builder
+# --- Dev server stage ---
+FROM deps AS dev
 COPY . .
 
 RUN for ws in redux/core redux/slices redux/hooks redux/adapters \
@@ -60,27 +60,17 @@ RUN for ws in redux/core redux/slices redux/hooks redux/adapters \
     npm run build -w "$ws" --if-present 2>&1 || echo "WARN: $ws build failed (non-critical)"; \
 done
 
-# Pre-install Next.js SWC binary (avoids unreliable CDN download during next build)
-RUN npm install --no-save @next/swc-linux-arm64-musl @next/swc-linux-arm64-gnu 2>/dev/null || true
+# Clean any stale Turbopack cache so dev server compiles from fresh source
+RUN rm -rf frontends/codegen/.next
 
-RUN cd frontends/codegen && npx next build --turbopack
-
-# --- Runtime stage ---
-FROM node:20-alpine
-WORKDIR /app
-
-COPY --from=builder /app/frontends/codegen/.next/standalone ./
-COPY --from=builder /app/frontends/codegen/.next/static ./frontends/codegen/.next/static
-COPY --from=builder /app/frontends/codegen/public ./frontends/codegen/public
-
-ENV NODE_ENV=production
+ENV NODE_ENV=development
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
 EXPOSE 3000
 
-HEALTHCHECK --interval=15s --timeout=5s --start-period=20s --retries=3 \
+HEALTHCHECK --interval=15s --timeout=5s --start-period=30s --retries=3 \
     CMD wget --quiet --tries=1 --spider http://127.0.0.1:3000/codegen || exit 1
 
 WORKDIR /app/frontends/codegen
-CMD ["node", "server.js"]
+CMD ["npx", "next", "dev", "--turbopack", "-p", "3000"]

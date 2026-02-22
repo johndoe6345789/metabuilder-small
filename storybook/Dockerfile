@@ -61,17 +61,25 @@ RUN npm rebuild rollup 2>/dev/null || npm install @rollup/rollup-linux-arm64-mus
 
 RUN cd storybook && npx storybook build
 
-# --- Runtime stage ---
-FROM node:20-alpine
-WORKDIR /app
+# --- Runtime stage (nginx for correct subpath serving) ---
+FROM nginx:alpine
 
-RUN npm install -g serve
+# Place built storybook at /storybook/ subpath so asset URLs resolve correctly
+COPY --from=builder /app/storybook/storybook-static /usr/share/nginx/html/storybook
 
-COPY --from=builder /app/storybook/storybook-static ./storybook-static
+# nginx config: serve /storybook/ with SPA fallback
+RUN printf 'server {\n\
+  listen 3000;\n\
+  root /usr/share/nginx/html;\n\
+  location /storybook/ {\n\
+    try_files $uri $uri/ /storybook/index.html;\n\
+  }\n\
+  location = / { return 301 /storybook/; }\n\
+}\n' > /etc/nginx/conf.d/default.conf
 
 EXPOSE 3000
 
 HEALTHCHECK --interval=15s --timeout=5s --start-period=20s --retries=3 \
-    CMD wget --quiet --tries=1 --spider http://127.0.0.1:3000/ || exit 1
+    CMD wget --quiet --tries=1 --spider http://127.0.0.1:3000/storybook/ || exit 1
 
-CMD ["serve", "storybook-static", "-l", "3000", "--single"]
+CMD ["nginx", "-g", "daemon off;"]

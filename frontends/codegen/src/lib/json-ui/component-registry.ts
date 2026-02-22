@@ -241,6 +241,13 @@ export const primitiveComponents: UIComponentRegistry = {
   aside: 'aside' as any,
   nav: 'nav' as any,
   button: 'button' as any,
+  input: 'input' as any,
+  select: 'select' as any,
+  textarea: 'textarea' as any,
+  form: 'form' as any,
+  label: 'label' as any,
+  a: 'a' as any,
+  img: 'img' as any,
   list: 'div' as any,
 }
 

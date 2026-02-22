@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit'
-import { syncToFlask, fetchFromFlask } from '@/store/middleware/flaskSync'
+import { syncToDBAL, deleteFromDBAL } from '@/store/middleware/dbalSync'
 
 export interface Component {
   id: string
@@ -36,7 +36,7 @@ const initialState: ComponentsState = {
 export const saveComponent = createAsyncThunk(
   'components/saveComponent',
   async (component: Component) => {
-    await syncToFlask('components', component.id, component)
+    await syncToDBAL('components', component.id, component)
     return component
   }
 )
@@ -44,7 +44,7 @@ export const saveComponent = createAsyncThunk(
 export const deleteComponent = createAsyncThunk(
   'components/deleteComponent',
   async (componentId: string) => {
-    await syncToFlask('components', componentId, null, 'delete')
+    await deleteFromDBAL('components', componentId)
     return componentId
   }
 )
@@ -95,7 +95,7 @@ const componentsSlice = createSlice({
         }
       })
       .addMatcher(
-        (action) => action.type === 'sync/syncFromFlaskBulk/fulfilled',
+        (action) => action.type === 'dbal/syncFromDBALBulk/fulfilled',
         (state, action: any) => {
           if (action.payload?.data?.components) {
             state.components = action.payload.data.components

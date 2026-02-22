@@ -25,10 +25,6 @@
             "className": {
               "source": null,
               "transform": "'font-semibold text-sm uppercase tracking-wide flex items-center gap-2'"
-            },
-            "children": {
-              "source": null,
-              "transform": "'Files'"
             }
           },
           "children": [
@@ -39,7 +35,8 @@
                 "size": 18,
                 "weight": "duotone"
               }
-            }
+            },
+            "Files"
           ]
         },
         {

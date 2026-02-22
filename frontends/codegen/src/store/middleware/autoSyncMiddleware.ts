@@ -1,5 +1,5 @@
 import { Middleware } from '@reduxjs/toolkit'
-import { syncToFlaskBulk, checkFlaskConnection } from '../slices/syncSlice'
+import { syncToDBALBulk, checkDBALConnection } from '../slices/dbalSlice'
 import { RootState } from '../index'
 
 const itemChangeActionTypes = new Set([
@@ -9,6 +9,7 @@ const itemChangeActionTypes = new Set([
   'componentTrees/addTree', 'componentTrees/updateTree',
   'workflows/addWorkflow', 'workflows/updateWorkflow', 'workflows/removeWorkflow', 'workflows/setWorkflows',
   'lambdas/addLambda', 'lambdas/updateLambda', 'lambdas/deleteLambda', 'lambdas/setLambdas',
+  'kv/setEntry', 'kv/removeEntry',
 ])
 
 interface AutoSyncConfig {
@@ -26,7 +27,7 @@ export class AutoSyncManager {
     maxQueueSize: 50,
   }
 
-  private timer: ReturnType<typeof setTimeout> | null = null
+  private timer: ReturnType<typeof setInterval> | null = null
   private lastSyncTime = 0
   private changeCounter = 0
   private inFlight = false
@@ -35,7 +36,7 @@ export class AutoSyncManager {
 
   configure(config: Partial<AutoSyncConfig>) {
     this.config = { ...this.config, ...config }
-    
+
     if (this.config.enabled) {
       this.start()
     } else {
@@ -56,7 +57,7 @@ export class AutoSyncManager {
       }
     }, this.config.intervalMs)
 
-    this.dispatch(checkFlaskConnection())
+    this.dispatch(checkDBALConnection())
   }
 
   stop() {
@@ -86,7 +87,7 @@ export class AutoSyncManager {
 
     this.inFlight = true
     try {
-      await this.dispatch(syncToFlaskBulk())
+      await this.dispatch(syncToDBALBulk())
       this.lastSyncTime = Date.now()
       this.changeCounter = 0
     } catch (error) {
@@ -106,7 +107,7 @@ export class AutoSyncManager {
     if (this.inFlight) {
       this.pendingSync = true
     }
-    
+
     if (this.changeCounter >= this.config.maxQueueSize && this.config.syncOnChange) {
       this.performSync()
     }
@@ -121,7 +122,7 @@ export class AutoSyncManager {
       enabled: this.config.enabled,
       lastSyncTime: this.lastSyncTime,
       changeCounter: this.changeCounter,
-      nextSyncIn: this.config.enabled 
+      nextSyncIn: this.config.enabled
         ? Math.max(0, this.config.intervalMs - (Date.now() - this.lastSyncTime))
         : null,
     }
@@ -146,7 +147,7 @@ export const createAutoSyncMiddleware = (): Middleware => {
       if (action.type === 'settings/updateSettings' && action.payload?.autoSync !== undefined) {
         const state = storeAPI.getState() as RootState
         const { autoSync, autoSyncInterval } = (state.settings as any) || {}
-        
+
         autoSyncManager.configure({
           enabled: autoSync ?? false,
           intervalMs: autoSyncInterval ?? 30000,
