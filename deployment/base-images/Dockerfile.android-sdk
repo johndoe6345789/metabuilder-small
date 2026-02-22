@@ -40,18 +40,23 @@ RUN yes | sdkmanager --licenses > /dev/null 2>&1 && \
 
 # Gradle (used by gradlew wrappers — each project pins its own version).
 # Install Gradle ${GRADLE_VERSION} to /opt/gradle for system availability.
-RUN for i in 1 2 3 4 5; do \
+# Hard-fail if install fails — devcontainer COPY depends on /opt/gradle existing.
+RUN GRADLE_OK=false && \
+    for i in 1 2 3 4 5; do \
       wget -q https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip \
            -O /tmp/gradle.zip && \
       mkdir -p /opt/gradle && \
       unzip -q /tmp/gradle.zip -d /opt/gradle && \
-      rm /tmp/gradle.zip \
-      && break \
+      rm /tmp/gradle.zip && \
+      GRADLE_OK=true && break \
       || (echo "Gradle download failed (attempt $i/5), retrying in $((i*10))s..." \
           && rm -f /tmp/gradle.zip && sleep $((i*10))); \
     done && \
-    ls /opt/gradle/gradle-${GRADLE_VERSION}/bin/gradle || \
-      echo "Warning: Gradle ${GRADLE_VERSION} not at expected path (gradlew wrappers will still work)"
+    if [ "$GRADLE_OK" = "true" ] && [ -f /opt/gradle/gradle-${GRADLE_VERSION}/bin/gradle ]; then \
+      echo "Gradle ${GRADLE_VERSION} installed successfully"; \
+    else \
+      echo "ERROR: Gradle ${GRADLE_VERSION} install failed after 5 attempts" && exit 1; \
+    fi
 
 # ── Pre-download Gradle dependencies for both Android apps ────────────────────
 # Copy only build files (not source) to maximise layer cache hits.
