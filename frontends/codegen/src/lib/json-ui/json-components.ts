@@ -254,6 +254,7 @@ import type {
   ProjectManagerProps,
   DBALSearchInputProps,
   QuickSeedButtonProps,
+  HeaderSearchProps,
   StorageSettingsPanelProps,
   FeatureToggleSettingsProps,
   DocumentationViewProps,
