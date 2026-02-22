@@ -213,12 +213,12 @@ export function useProjectState() {
   ])
   const [theme, setThemeRaw] = useUIState<ThemeConfig>('project-theme', DEFAULT_THEME)
 
-  // ── Safe accessors (defensive — ensures arrays/objects) ───────────────
-  const safeFiles = Array.isArray(sliceFiles) ? sliceFiles as unknown as ProjectFile[] : DEFAULT_FILES
-  const safeModels = Array.isArray(sliceModels) ? sliceModels as unknown as PrismaModel[] : DEFAULT_MODELS
-  const safeComponents = Array.isArray(sliceComponents) ? sliceComponents as unknown as ComponentNode[] : DEFAULT_COMPONENTS
+  // ── Safe accessors (defensive — ensures arrays/objects, falls back to defaults when empty) ─
+  const safeFiles = (Array.isArray(sliceFiles) && sliceFiles.length > 0) ? sliceFiles as unknown as ProjectFile[] : DEFAULT_FILES
+  const safeModels = (Array.isArray(sliceModels) && sliceModels.length > 0) ? sliceModels as unknown as PrismaModel[] : DEFAULT_MODELS
+  const safeComponents = (Array.isArray(sliceComponents) && sliceComponents.length > 0) ? sliceComponents as unknown as ComponentNode[] : DEFAULT_COMPONENTS
   const safeComponentTrees = Array.isArray(componentTrees) ? componentTrees : []
-  const safeWorkflows = Array.isArray(sliceWorkflows) ? sliceWorkflows as unknown as Workflow[] : []
+  const safeWorkflows = (Array.isArray(sliceWorkflows) && sliceWorkflows.length > 0) ? sliceWorkflows as unknown as Workflow[] : DEFAULT_WORKFLOWS
   const safeLambdas = Array.isArray(sliceLambdas) ? sliceLambdas as unknown as Lambda[] : []
   const safeTheme = (theme && theme.variants && Array.isArray(theme.variants) && theme.variants.length > 0) ? theme : DEFAULT_THEME
   const safePlaywrightTests = Array.isArray(slicePlaywrightTests) ? slicePlaywrightTests : []
