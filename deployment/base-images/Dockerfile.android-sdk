@@ -1,6 +1,6 @@
 # metabuilder/base-android-sdk
 #
-# Android SDK 34 + Gradle 8.1.4 + all Gradle dependencies pre-downloaded
+# Android SDK 34 + Gradle 8.12 + all Gradle dependencies pre-downloaded
 # for repoforge and caproverforge Android apps.
 #
 # Build:  docker build -f Dockerfile.android-sdk -t metabuilder/base-android-sdk:latest ../../
@@ -9,9 +9,9 @@ FROM metabuilder/base-apt:latest
 
 ENV ANDROID_HOME=/opt/android-sdk \
     ANDROID_SDK_ROOT=/opt/android-sdk \
-    GRADLE_VERSION=8.1.4 \
-    GRADLE_HOME=/opt/gradle/gradle-8.1.4 \
-    PATH=/opt/android-sdk/cmdline-tools/latest/bin:/opt/android-sdk/platform-tools:/opt/gradle/gradle-8.1.4/bin:$PATH \
+    GRADLE_VERSION=8.12 \
+    GRADLE_HOME=/opt/gradle/gradle-8.12 \
+    PATH=/opt/android-sdk/cmdline-tools/latest/bin:/opt/android-sdk/platform-tools:/opt/gradle/gradle-8.12/bin:$PATH \
     JAVA_HOME=/usr/lib/jvm/java-17-openjdk-arm64
 
 # Android command-line tools (with retry — Google CDN is reliable but large)
@@ -107,4 +107,4 @@ RUN chmod +x gradlew && \
 WORKDIR /
 
 LABEL org.metabuilder.image="base-android-sdk" \
-      org.metabuilder.description="Android SDK 34 + Gradle 8.1.4 + pre-downloaded deps"
+      org.metabuilder.description="Android SDK 34 + Gradle 8.12 + pre-downloaded deps"
