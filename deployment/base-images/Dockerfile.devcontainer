@@ -27,19 +27,19 @@ COPY --from=metabuilder/base-node-deps:latest /usr/local/lib/node_modules /usr/l
 COPY --from=metabuilder/base-node-deps:latest /app/node_modules     /workspace/node_modules
 
 # ── Python packages (from base-pip-deps) ──────────────────────────────────────
+# Copy entire site-packages + all pip-installed binaries in one go.
+# Avoids hard-coding individual binary paths (gunicorn, celery, etc.).
 COPY --from=metabuilder/base-pip-deps:latest /usr/local/lib/python3.11 /usr/local/lib/python3.11
-COPY --from=metabuilder/base-pip-deps:latest /usr/local/bin/pip     /usr/local/bin/pip
-COPY --from=metabuilder/base-pip-deps:latest /usr/local/bin/gunicorn /usr/local/bin/gunicorn
-COPY --from=metabuilder/base-pip-deps:latest /usr/local/bin/celery  /usr/local/bin/celery
+COPY --from=metabuilder/base-pip-deps:latest /usr/local/bin/           /usr/local/bin/
 
 # ── Android SDK + Gradle (from base-android-sdk) ──────────────────────────────
-# Note: Gradle is used via gradlew wrapper (each project pins its own version).
-# Pre-downloaded Gradle caches are in /root/.gradle from the base image.
 COPY --from=metabuilder/base-android-sdk:latest /opt/android-sdk    /opt/android-sdk
+COPY --from=metabuilder/base-android-sdk:latest /opt/gradle         /opt/gradle
 COPY --from=metabuilder/base-android-sdk:latest /root/.gradle       /root/.gradle
 
 ENV ANDROID_HOME=/opt/android-sdk \
-    ANDROID_SDK_ROOT=/opt/android-sdk
+    ANDROID_SDK_ROOT=/opt/android-sdk \
+    GRADLE_HOME=/opt/gradle/gradle-8.12
 
 # ── Rust + Cargo ──────────────────────────────────────────────────────────────
 ENV CARGO_HOME=/opt/cargo \
@@ -111,7 +111,7 @@ COPY --from=metabuilder/base-android-sdk:latest /usr/lib/jvm /usr/lib/jvm
 ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-arm64
 
 # ── PATH consolidation ────────────────────────────────────────────────────────
-ENV PATH=/opt/android-sdk/cmdline-tools/latest/bin:/opt/android-sdk/platform-tools:/opt/cargo/bin:/opt/go/bin:/opt/gopath/bin:/usr/local/bin:$PATH
+ENV PATH=/opt/gradle/gradle-8.12/bin:/opt/android-sdk/cmdline-tools/latest/bin:/opt/android-sdk/platform-tools:/opt/cargo/bin:/opt/go/bin:/opt/gopath/bin:/usr/local/bin:$PATH
 
 WORKDIR /workspace
 
