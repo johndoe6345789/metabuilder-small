@@ -41,6 +41,8 @@ import { useProjectManagerDropdown } from '@/hooks/use-project-manager-dropdown'
 import { useDBALSearchInput } from '@/hooks/use-dbal-search-input'
 import { useQuickSeed } from '@/hooks/use-quick-seed'
 import { useSearchInput } from '@/hooks/use-search-input'
+import { useTranslation } from '@/hooks/use-translation'
+import { useTranslationEditor } from '@/hooks/use-translation-editor'
 
 export interface HookRegistry {
   [key: string]: (...args: any[]) => any
@@ -94,6 +96,8 @@ export const hooksRegistry: HookRegistry = {
   useDBALSearchInput,
   useQuickSeed,
   useSearchInput,
+  useTranslation,
+  useTranslationEditor,
 }
 
 /**

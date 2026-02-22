@@ -255,6 +255,7 @@ import type {
   DBALSearchInputProps,
   QuickSeedButtonProps,
   HeaderSearchProps,
+  TranslationEditorProps,
   StorageSettingsPanelProps,
   FeatureToggleSettingsProps,
   DocumentationViewProps,
@@ -525,6 +526,7 @@ import templateExplorerDef from '@/components/json-definitions/template-explorer
 import projectManagerDef from '@/components/json-definitions/project-manager.json'
 import dbalSearchInputDef from '@/components/json-definitions/dbal-search-input.json'
 import headerSearchDef from '@/components/json-definitions/header-search.json'
+import translationEditorDef from '@/components/json-definitions/translation-editor.json'
 import quickSeedButtonDef from '@/components/json-definitions/quick-seed-button.json'
 import storageSettingsPanelDef from '@/components/json-definitions/storage-settings-panel.json'
 import featureToggleSettingsDef from '@/components/json-definitions/feature-toggle-settings.json'
@@ -1059,6 +1061,15 @@ export const MetabuilderWidgetQuickSeedButton = createJsonComponentWithHooks<Qui
     }
   }
 })
+export const MetabuilderWidgetTranslationEditor = createJsonComponentWithHooks<TranslationEditorProps>(translationEditorDef, {
+  hooks: {
+    hookData: {
+      hookName: 'useTranslationEditor',
+      args: () => []
+    }
+  }
+})
+
 export const MetabuilderWidgetStorageSettingsPanel = createJsonComponent<StorageSettingsPanelProps>(storageSettingsPanelDef)
 export const MetabuilderWidgetFeatureToggleSettings = createJsonComponent<FeatureToggleSettingsProps>(featureToggleSettingsDef)
 
@@ -1274,4 +1285,5 @@ export {
   MetabuilderWidgetProjectSettingsDesigner as ProjectSettingsDesigner,
   MetabuilderWidgetAtomicLibraryShowcase as AtomicLibraryShowcase,
   MetabuilderWidgetHeaderSearch as HeaderSearch,
+  MetabuilderWidgetTranslationEditor as TranslationEditor,
 }

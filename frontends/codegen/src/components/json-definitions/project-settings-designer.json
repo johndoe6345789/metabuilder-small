@@ -77,6 +77,11 @@
                   "type": "TabsTrigger",
                   "props": { "value": "data" },
                   "bindings": { "children": "copy.tabs.data" }
+                },
+                {
+                  "type": "TabsTrigger",
+                  "props": { "value": "language" },
+                  "bindings": { "children": "copy.tabs.language" }
                 }
               ]
             }
@@ -146,6 +151,16 @@
                   "children": [
                     {
                       "type": "DataTab"
+                    }
+                  ]
+                },
+                {
+                  "id": "language-tab",
+                  "type": "TabsContent",
+                  "props": { "value": "language", "className": "mt-0" },
+                  "children": [
+                    {
+                      "type": "MetabuilderWidgetTranslationEditor"
                     }
                   ]
                 }

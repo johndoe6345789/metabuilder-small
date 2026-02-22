@@ -28,6 +28,7 @@ const ENTITY_MAP: Record<string, { entity: string; package: string }> = {
   settings: { entity: 'Settings', package: 'codeforge' },
   theme: { entity: 'Theme', package: 'codeforge' },
   kv: { entity: 'KVEntry', package: 'codeforge' },
+  translations: { entity: 'Translation', package: 'core' },
 }
 
 function entityUrl(sliceName: string, id?: string): string {

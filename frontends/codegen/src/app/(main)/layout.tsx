@@ -12,6 +12,7 @@ import {
   MetabuilderWidgetHeaderSearch,
 } from '@/lib/json-ui/json-components'
 import { Toaster } from '@/components/ui/sonner'
+import pkg from '../../../package.json'
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   const { theme, sidebarOpen, setSidebar, toggleTheme } = useUI()
@@ -95,6 +96,23 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
             <Typography variant="h6" component="h1" className={styles.appBarTitle}>
               CodeForge
             </Typography>
+            <span
+              style={{
+                fontSize: '10px',
+                fontWeight: 500,
+                color: 'var(--mat-sys-on-surface-variant)',
+                background: 'var(--mat-sys-surface-container)',
+                padding: '1px 6px',
+                borderRadius: '4px',
+                marginLeft: '6px',
+                letterSpacing: '0.3px',
+                lineHeight: '16px',
+                whiteSpace: 'nowrap',
+              }}
+              data-testid="app-version"
+            >
+              v{pkg.version}
+            </span>
           </Box>
         </Box>
         <Box className={styles.appBarActions} data-testid="header-actions" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>

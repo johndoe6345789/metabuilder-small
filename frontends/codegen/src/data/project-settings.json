@@ -7,7 +7,8 @@
     "nextjs": "Next.js Config",
     "packages": "NPM Packages",
     "scripts": "Scripts",
-    "data": "Data"
+    "data": "Data",
+    "language": "Language"
   },
   "nextjs": {
     "application": {

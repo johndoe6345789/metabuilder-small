@@ -82,8 +82,15 @@
             }
           },
           "children": [
-            { "id": "search-loading-text", "type": "span", "children": ["Searching DBAL..."] }
+            { "id": "search-loading-text", "type": "span", "children": ["Searching..."] }
           ]
+        },
+        {
+          "id": "search-results-list",
+          "type": "div",
+          "bindings": {
+            "children": { "source": "hookData.searchResultsContent" }
+          }
         }
       ]
     },

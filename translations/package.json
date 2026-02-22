@@ -12,7 +12,8 @@
     },
     "./en": "./en.json",
     "./es": "./es.json",
-    "./fr": "./fr.json"
+    "./fr": "./fr.json",
+    "./nl": "./nl.json"
   },
   "files": [
     "*.json",

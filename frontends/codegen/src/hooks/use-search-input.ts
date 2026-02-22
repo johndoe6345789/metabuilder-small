@@ -4,11 +4,15 @@
  * Returns categorized results for the inline header search dropdown.
  * Navigation and Redux entities are filtered client-side (instant).
  * DBAL results arrive asynchronously via useDBALSearch (300ms debounce).
+ *
+ * Returns a `searchResultsContent` React element because JSON definitions
+ * can't express render functions for dynamic lists.
  */
 
-import { useState, useCallback, useMemo } from 'react'
+import React, { useState, useCallback, useMemo } from 'react'
 import { useAppSelector } from '@/store'
 import { useDBALSearch, type DBALSearchResult } from '@/hooks/use-dbal-search'
+import { useTranslation } from '@/hooks/use-translation'
 import navigationData from '@/data/global-search.json'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -48,19 +52,56 @@ const SLICE_TO_PAGE: Record<string, string> = {
   lambdas: 'lambdas',
 }
 
+// ── Inline styles ───────────────────────────────────────────────────────────
+
+const categoryHeaderStyle: React.CSSProperties = {
+  padding: '6px 12px 4px',
+  fontSize: '10px',
+  fontWeight: 600,
+  textTransform: 'uppercase',
+  letterSpacing: '0.5px',
+  color: 'var(--mat-sys-on-surface-variant)',
+}
+
+const resultItemStyle: React.CSSProperties = {
+  padding: '6px 12px',
+  cursor: 'pointer',
+  fontSize: '12px',
+  borderBottom: '1px solid var(--mat-sys-outline-variant)',
+  transition: 'background 0.1s',
+}
+
+const resultTitleStyle: React.CSSProperties = {
+  color: 'var(--mat-sys-on-surface)',
+  fontWeight: 500,
+}
+
+const resultSubtitleStyle: React.CSSProperties = {
+  color: 'var(--mat-sys-on-surface-variant)',
+  fontSize: '11px',
+  marginTop: '1px',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  whiteSpace: 'nowrap',
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Hook
 // ─────────────────────────────────────────────────────────────────────────────
 
 interface UseSearchInputArgs {
   onNavigate: (page: string) => void
-  /** Optional i18n translate function for matching translated labels */
+  /** Optional external i18n translate function (falls back to internal useTranslation) */
   t?: (key: string, fallback?: string) => string
 }
 
-export function useSearchInput({ onNavigate, t }: UseSearchInputArgs) {
+export function useSearchInput({ onNavigate, t: externalT }: UseSearchInputArgs) {
   const [query, setQueryState] = useState('')
   const [dropdownOpen, setDropdownOpen] = useState(false)
+
+  // Internal i18n — used when no external t() is provided
+  const { t: internalT } = useTranslation()
+  const t = externalT || internalT
 
   // DBAL async results
   const { results: dbalResults, loading: dbalLoading } = useDBALSearch(query)
@@ -144,7 +185,7 @@ export function useSearchInput({ onNavigate, t }: UseSearchInputArgs) {
   const dbalCategory = useMemo<SearchCategory | null>(() => {
     if (dbalResults.length === 0) return null
     return {
-      label: 'DBAL',
+      label: 'Database',
       results: dbalResults.map((r: DBALSearchResult) => ({
         id: r.id,
         title: r.title,
@@ -199,6 +240,47 @@ export function useSearchInput({ onNavigate, t }: UseSearchInputArgs) {
     }
   }, [query, totalResults])
 
+  // ── React element for search results (JSON can't render dynamic lists) ─
+  const searchResultsContent = useMemo(() => {
+    if (categories.length === 0) return null
+
+    return React.createElement(
+      React.Fragment,
+      null,
+      categories.map((cat) =>
+        React.createElement(
+          'div',
+          { key: cat.label },
+          // Category header
+          React.createElement('div', { style: categoryHeaderStyle }, cat.label),
+          // Result items
+          ...cat.results.map((result) =>
+            React.createElement(
+              'div',
+              {
+                key: result.id,
+                style: resultItemStyle,
+                onMouseDown: (e: React.MouseEvent) => {
+                  e.preventDefault()
+                  handleSelect(result)
+                },
+                onMouseEnter: (e: React.MouseEvent) => {
+                  (e.currentTarget as HTMLElement).style.background =
+                    'var(--mat-sys-surface-container-highest)'
+                },
+                onMouseLeave: (e: React.MouseEvent) => {
+                  (e.currentTarget as HTMLElement).style.background = 'transparent'
+                },
+              },
+              React.createElement('div', { style: resultTitleStyle }, result.title),
+              React.createElement('div', { style: resultSubtitleStyle }, result.subtitle)
+            )
+          )
+        )
+      )
+    )
+  }, [categories, handleSelect])
+
   return {
     query,
     setQuery: handleQueryChange,
@@ -210,5 +292,6 @@ export function useSearchInput({ onNavigate, t }: UseSearchInputArgs) {
     handleSelect,
     handleBlur,
     handleFocus,
+    searchResultsContent,
   }
 }

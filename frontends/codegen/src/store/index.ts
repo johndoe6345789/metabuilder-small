@@ -12,6 +12,7 @@ import settingsReducer from './slices/settingsSlice'
 import dbalReducer from './slices/dbalSlice'
 import conflictsReducer from './slices/conflictsSlice'
 import kvReducer from './slices/kvSlice'
+import translationsReducer from './slices/translationsSlice'
 import uiReducer from '@metabuilder/redux-slices/uiSlice'
 import { createSyncMonitorMiddleware } from './middleware/syncMonitorMiddleware'
 import { createAutoSyncMiddleware } from './middleware/autoSyncMiddleware'
@@ -30,11 +31,12 @@ const { store, persistor } = createPersistedStore({
     dbal: dbalReducer,
     conflicts: conflictsReducer,
     kv: kvReducer,
+    translations: translationsReducer,
     ui: uiReducer,
   },
   persist: {
     key: 'codeforge',
-    whitelist: ['files', 'models', 'components', 'componentTrees', 'workflows', 'lambdas', 'theme', 'settings', 'project', 'kv'],
+    whitelist: ['files', 'models', 'components', 'componentTrees', 'workflows', 'lambdas', 'theme', 'settings', 'project', 'kv', 'translations'],
     throttle: 300,
   },
   middleware: (base) =>

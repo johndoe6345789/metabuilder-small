@@ -119,6 +119,19 @@ const fakeMuiLayoutComponents: UIComponentRegistry = {
   Separator: Separator as unknown as ComponentType<any>,
 }
 
+// Explicit component-tree-builder sub-components — require.context lazy loading
+// resolves these to () => null because the async dynamic import fails.
+// Register them directly so the JSON renderer can find them.
+import { ComponentTreeToolbar } from '@/components/component-tree-builder/ComponentTreeToolbar'
+import { ComponentTreeView } from '@/components/component-tree-builder/ComponentTreeView'
+import { ComponentInspector } from '@/components/component-tree-builder/ComponentInspector'
+
+const componentTreeSubComponents: UIComponentRegistry = {
+  ComponentTreeToolbar: ComponentTreeToolbar as unknown as ComponentType<any>,
+  ComponentTreeView: ComponentTreeView as unknown as ComponentType<any>,
+  ComponentInspector: ComponentInspector as unknown as ComponentType<any>,
+}
+
 // Lazy contexts — each file becomes its own async chunk, loaded on demand.
 // If one module has a bug, only that component fails (easier to debug).
 const atomContext = require.context('@/components/atoms', false, /\.tsx$/)
@@ -293,6 +306,7 @@ export const componentsComponents: UIComponentRegistry = buildRegistryFromEntrie
 export const uiComponentRegistry: UIComponentRegistry = {
   ...primitiveComponents,
   ...fakeMuiLayoutComponents,
+  ...componentTreeSubComponents,
   ...shadcnComponents,
   ...atomComponents,
   ...moleculeComponents,
