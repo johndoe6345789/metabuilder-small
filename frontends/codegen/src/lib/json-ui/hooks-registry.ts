@@ -40,6 +40,7 @@ import { useAtomicLibraryShowcase } from '@/hooks/use-atomic-library-showcase'
 import { useProjectManagerDropdown } from '@/hooks/use-project-manager-dropdown'
 import { useDBALSearchInput } from '@/hooks/use-dbal-search-input'
 import { useQuickSeed } from '@/hooks/use-quick-seed'
+import { useSearchInput } from '@/hooks/use-search-input'
 
 export interface HookRegistry {
   [key: string]: (...args: any[]) => any
@@ -92,6 +93,7 @@ export const hooksRegistry: HookRegistry = {
   useProjectManagerDropdown,
   useDBALSearchInput,
   useQuickSeed,
+  useSearchInput,
 }
 
 /**
