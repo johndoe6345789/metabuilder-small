@@ -79,7 +79,7 @@
                     },
                     {
                       "id": "search-input",
-                      "type": "MetabuilderWidgetSearchInput",
+                      "type": "MetabuilderWidgetHeaderSearch",
                       "events": {
                         "onNavigate": {
                           "type": "callback",

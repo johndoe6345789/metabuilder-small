@@ -9,7 +9,7 @@ import styles from '@metabuilder/scss/atoms/layout.module.scss'
 import navData from '@/data/navigation.json'
 import {
   MetabuilderWidgetProjectManager,
-  MetabuilderWidgetSearchInput,
+  MetabuilderWidgetHeaderSearch,
 } from '@/lib/json-ui/json-components'
 import { Toaster } from '@/components/ui/sonner'
 
