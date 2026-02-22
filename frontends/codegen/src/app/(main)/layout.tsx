@@ -99,7 +99,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
         </Box>
         <Box className={styles.appBarActions} data-testid="header-actions" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <MetabuilderWidgetProjectManager />
-          <MetabuilderWidgetSearchInput
+          <MetabuilderWidgetHeaderSearch
             onNavigate={handleNavigate}
           />
           <IconButton
