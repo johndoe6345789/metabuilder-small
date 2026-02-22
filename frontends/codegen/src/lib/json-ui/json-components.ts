@@ -1042,6 +1042,15 @@ export const MetabuilderWidgetDBALSearchInput = createJsonComponentWithHooks<DBA
   }
 })
 
+export const MetabuilderWidgetHeaderSearch = createJsonComponentWithHooks<HeaderSearchProps>(headerSearchDef, {
+  hooks: {
+    hookData: {
+      hookName: 'useSearchInput',
+      args: (props) => [{ onNavigate: props.onNavigate || (() => {}) }]
+    }
+  }
+})
+
 export const MetabuilderWidgetQuickSeedButton = createJsonComponentWithHooks<QuickSeedButtonProps>(quickSeedButtonDef, {
   hooks: {
     hookData: {
