@@ -106,3 +106,4 @@ bun.lockb
 # CodeQL local databases
 .codeql-dbs/
 .codeql-db/
+/.claude/worktrees
