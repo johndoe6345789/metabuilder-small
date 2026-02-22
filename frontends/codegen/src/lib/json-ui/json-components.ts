@@ -1273,4 +1273,5 @@ export {
   MetabuilderWidgetPersistenceExample as PersistenceExample,
   MetabuilderWidgetProjectSettingsDesigner as ProjectSettingsDesigner,
   MetabuilderWidgetAtomicLibraryShowcase as AtomicLibraryShowcase,
+  MetabuilderWidgetHeaderSearch as HeaderSearch,
 }
