@@ -1,54 +1,8 @@
-# Dev server: deps cached separately from source changes
+# Dev server: node_modules from base image, source copied fresh
 # Context: monorepo root (..)
-FROM node:20-alpine AS deps
-WORKDIR /app
-
-COPY package.json package-lock.json .npmrc ./
-
-# Workspace package.json files
-COPY types/package.json ./types/
-COPY interfaces/package.json ./interfaces/
-COPY translations/package.json ./translations/
-COPY workflow/package.json ./workflow/
-COPY hooks/package.json ./hooks/
-COPY components/package.json ./components/
-COPY components/fakemui/package.json ./components/fakemui/
-COPY config/package.json ./config/
-COPY scss/package.json ./scss/
-COPY storybook/package.json ./storybook/
-COPY frontends/nextjs/package.json ./frontends/nextjs/
-COPY frontends/dbal/package.json ./frontends/dbal/
-COPY redux/core/package.json ./redux/core/
-COPY redux/slices/package.json ./redux/slices/
-COPY redux/hooks/package.json ./redux/hooks/
-COPY redux/adapters/package.json ./redux/adapters/
-COPY redux/hooks-data/package.json ./redux/hooks-data/
-COPY redux/hooks-auth/package.json ./redux/hooks-auth/
-COPY redux/hooks-canvas/package.json ./redux/hooks-canvas/
-COPY redux/hooks-async/package.json ./redux/hooks-async/
-COPY redux/hooks-utils/package.json ./redux/hooks-utils/
-COPY redux/hooks-forms/package.json ./redux/hooks-forms/
-COPY redux/core-hooks/package.json ./redux/core-hooks/
-COPY redux/api-clients/package.json ./redux/api-clients/
-COPY redux/timing-utils/package.json ./redux/timing-utils/
-COPY redux/middleware/package.json ./redux/middleware/
-COPY redux/services/package.json ./redux/services/
-COPY redux/persist/package.json ./redux/persist/
-
-RUN npm config set fetch-retries 5 \
-    && npm config set fetch-retry-mintimeout 20000 \
-    && npm config set maxsockets 5 \
-    && npm ci --ignore-scripts
-
-COPY frontends/codegen/package.json ./frontends/codegen/
-COPY frontends/workflowui/package.json ./frontends/workflowui/
-COPY frontends/pastebin/package.json ./frontends/pastebin/
-COPY frontends/postgres/package.json ./frontends/postgres/
-COPY frontends/emailclient/package.json ./frontends/emailclient/
-COPY frontends/exploded-diagrams/package.json ./frontends/exploded-diagrams/
-
-RUN npm install --ignore-scripts
-
+# Requires: docker build -f deployment/base-images/Dockerfile.node-deps \
+#           -t metabuilder/base-node-deps:latest .
+FROM metabuilder/base-node-deps:latest AS deps
 
 # --- Dev server stage ---
 FROM deps AS dev
