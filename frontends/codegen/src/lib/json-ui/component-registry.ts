@@ -130,11 +130,23 @@ import { ComponentInspector } from '@/components/component-tree-builder/Componen
 // (same issue — require.context + next/dynamic resolves to () => null).
 import { MonacoEditorWrapper } from '@/components/ui/monaco-editor-wrapper'
 
+// File explorer components — next/dynamic fallback resolves to () => null
+// in Turbopack dev mode. Register explicitly so JSON renderer finds them.
+import { FileExplorerList } from '@/components/file-explorer/FileExplorerList'
+import { FileExplorerDialog } from '@/components/file-explorer/FileExplorerDialog'
+
+// ScrollArea from components/ui — should be in uiComponentMap via require.context
+// but Turbopack dev mode doesn't always resolve it. Explicit import is safe.
+import { ScrollArea } from '@/components/ui/scroll-area'
+
 const componentTreeSubComponents: UIComponentRegistry = {
   ComponentTreeToolbar: ComponentTreeToolbar as unknown as ComponentType<any>,
   ComponentTreeView: ComponentTreeView as unknown as ComponentType<any>,
   ComponentInspector: ComponentInspector as unknown as ComponentType<any>,
   MonacoEditorWrapper: MonacoEditorWrapper as unknown as ComponentType<any>,
+  FileExplorerList: FileExplorerList as unknown as ComponentType<any>,
+  FileExplorerDialog: FileExplorerDialog as unknown as ComponentType<any>,
+  ScrollArea: ScrollArea as unknown as ComponentType<any>,
 }
 
 // Lazy contexts — each file becomes its own async chunk, loaded on demand.

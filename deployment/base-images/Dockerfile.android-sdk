@@ -38,16 +38,20 @@ RUN yes | sdkmanager --licenses > /dev/null 2>&1 && \
       || (echo "sdkmanager failed (attempt $i/5), retrying in $((i*10))s..." && sleep $((i*10))); \
     done
 
-# Gradle 8.1.4 (matches repoforge)
+# Gradle (used by gradlew wrappers — each project pins its own version).
+# Install Gradle ${GRADLE_VERSION} to /opt/gradle for system availability.
 RUN for i in 1 2 3 4 5; do \
       wget -q https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip \
            -O /tmp/gradle.zip && \
+      mkdir -p /opt/gradle && \
       unzip -q /tmp/gradle.zip -d /opt/gradle && \
       rm /tmp/gradle.zip \
       && break \
       || (echo "Gradle download failed (attempt $i/5), retrying in $((i*10))s..." \
           && rm -f /tmp/gradle.zip && sleep $((i*10))); \
-    done
+    done && \
+    ls /opt/gradle/gradle-${GRADLE_VERSION}/bin/gradle || \
+      echo "Warning: Gradle ${GRADLE_VERSION} not at expected path (gradlew wrappers will still work)"
 
 # ── Pre-download Gradle dependencies for both Android apps ────────────────────
 # Copy only build files (not source) to maximise layer cache hits.
