@@ -11,6 +11,15 @@ const monorepoRoot = path.resolve(__dirname, '../..');
 const baseConfig: NextConfig = {
   basePath: '/postgres',
   output: 'standalone',
+  async redirects() {
+    return [
+      {
+        source: '/',
+        destination: '/admin/dashboard',
+        permanent: false,
+      },
+    ];
+  },
   devIndicators: {
     position: 'bottom-right',
   },

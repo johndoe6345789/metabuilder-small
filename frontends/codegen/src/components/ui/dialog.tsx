@@ -13,6 +13,7 @@ import { createPortal } from "react-dom"
 import { X } from "@metabuilder/fakemui/icons"
 
 import { cn } from "@/lib/utils"
+import { Slot } from "@/components/ui/slot"
 
 // --- Context ---
 
@@ -70,15 +71,18 @@ function DialogTrigger({
   ...props
 }: ComponentProps<"button"> & { asChild?: boolean }) {
   const { onOpenChange } = useDialogContext()
+  const handleClick = useCallback(() => onOpenChange(true), [onOpenChange])
+  const Comp = asChild ? Slot : "button"
+
   return (
-    <button
-      type="button"
+    <Comp
+      type={asChild ? undefined : "button"}
       data-slot="dialog-trigger"
-      onClick={() => onOpenChange(true)}
+      onClick={handleClick}
       {...props}
     >
       {children}
-    </button>
+    </Comp>
   )
 }
 
@@ -105,15 +109,18 @@ function DialogClose({
   ...props
 }: ComponentProps<"button"> & { asChild?: boolean }) {
   const { onOpenChange } = useDialogContext()
+  const handleClick = useCallback(() => onOpenChange(false), [onOpenChange])
+  const Comp = asChild ? Slot : "button"
+
   return (
-    <button
-      type="button"
+    <Comp
+      type={asChild ? undefined : "button"}
       data-slot="dialog-close"
-      onClick={() => onOpenChange(false)}
+      onClick={handleClick}
       {...props}
     >
       {children}
-    </button>
+    </Comp>
   )
 }
 

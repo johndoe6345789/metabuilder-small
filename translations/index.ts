@@ -11,8 +11,9 @@
 import en from './en.json';
 import es from './es.json';
 import fr from './fr.json';
+import nl from './nl.json';
 
-export { en, es, fr };
+export { en, es, fr, nl };
 
 /**
  * All available translations
@@ -21,12 +22,13 @@ export const translations = {
   en,
   es,
   fr,
+  nl,
 } as const;
 
 /**
  * Supported locale codes
  */
-export const supportedLocales = ['en', 'es', 'fr'] as const;
+export const supportedLocales = ['en', 'es', 'fr', 'nl'] as const;
 
 /**
  * Locale type
@@ -45,6 +47,7 @@ export const localeNames: Record<Locale, string> = {
   en: 'English',
   es: 'Español',
   fr: 'Français',
+  nl: 'Nederlands',
 };
 
 /**

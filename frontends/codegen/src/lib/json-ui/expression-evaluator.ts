@@ -236,6 +236,20 @@ export function evaluateCondition(
       return value != null
     }
 
+    // Negated truthiness: "!data.field.path"
+    const negatedTruthyMatch = condition.match(/^!data\.([a-zA-Z0-9_.]+)$/)
+    if (negatedTruthyMatch) {
+      const value = getNestedValue(data, negatedTruthyMatch[1])
+      return !value
+    }
+
+    // Simple truthiness: "data.field.path"
+    const truthyMatch = condition.match(/^data\.([a-zA-Z0-9_.]+)$/)
+    if (truthyMatch) {
+      const value = getNestedValue(data, truthyMatch[1])
+      return !!value
+    }
+
     // If no pattern matched, default to true (fail open)
     return true
   } catch {

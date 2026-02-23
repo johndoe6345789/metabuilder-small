@@ -1,41 +1,36 @@
 import { useAppDispatch, useAppSelector } from '@/store'
 import {
-  syncToFlaskBulk,
-  syncFromFlaskBulk,
-  checkFlaskConnection,
-  clearFlask,
-  resetSyncStatus,
-} from '@/store/slices/syncSlice'
+  syncToDBALBulk,
+  syncFromDBALBulk,
+  checkDBALConnection,
+  resetDBALStatus,
+} from '@/store/slices/dbalSlice'
 import { useCallback, useEffect } from 'react'
 
 export function useReduxSync() {
   const dispatch = useAppDispatch()
-  const status = useAppSelector((state) => state.sync.status)
-  const lastSyncedAt = useAppSelector((state) => state.sync.lastSyncedAt)
-  const flaskConnected = useAppSelector((state) => state.sync.flaskConnected)
-  const flaskStats = useAppSelector((state) => state.sync.flaskStats)
-  const error = useAppSelector((state) => state.sync.error)
+  const status = useAppSelector((state) => state.dbal.status)
+  const lastSyncedAt = useAppSelector((state) => state.dbal.lastSyncedAt)
+  const dbalConnected = useAppSelector((state) => state.dbal.dbalConnected)
+  const dbalStats = useAppSelector((state) => state.dbal.dbalConfig)
+  const error = useAppSelector((state) => state.dbal.error)
   const autoSync = useAppSelector((state) => state.settings.settings.autoSync)
   const syncInterval = useAppSelector((state) => state.settings.settings.syncInterval)
 
-  const syncToFlask = useCallback(() => {
-    dispatch(syncToFlaskBulk())
+  const syncToDBAL = useCallback(() => {
+    ;(dispatch as any)(syncToDBALBulk())
   }, [dispatch])
 
-  const syncFromFlask = useCallback(() => {
-    dispatch(syncFromFlaskBulk())
+  const syncFromDBAL = useCallback(() => {
+    ;(dispatch as any)(syncFromDBALBulk())
   }, [dispatch])
 
   const checkConnection = useCallback(() => {
-    dispatch(checkFlaskConnection())
-  }, [dispatch])
-
-  const clearFlaskData = useCallback(() => {
-    dispatch(clearFlask())
+    ;(dispatch as any)(checkDBALConnection())
   }, [dispatch])
 
   const reset = useCallback(() => {
-    dispatch(resetSyncStatus())
+    dispatch(resetDBALStatus())
   }, [dispatch])
 
   useEffect(() => {
@@ -43,25 +38,24 @@ export function useReduxSync() {
   }, [checkConnection])
 
   useEffect(() => {
-    if (autoSync && flaskConnected) {
+    if (autoSync && dbalConnected) {
       const interval = setInterval(() => {
-        syncToFlask()
+        syncToDBAL()
       }, syncInterval)
 
       return () => clearInterval(interval)
     }
-  }, [autoSync, flaskConnected, syncInterval, syncToFlask])
+  }, [autoSync, dbalConnected, syncInterval, syncToDBAL])
 
   return {
     status,
     lastSyncedAt,
-    flaskConnected,
-    flaskStats,
+    dbalConnected,
+    dbalStats,
     error,
-    syncToFlask,
-    syncFromFlask,
+    syncToDBAL,
+    syncFromDBAL,
     checkConnection,
-    clearFlaskData,
     reset,
   }
 }

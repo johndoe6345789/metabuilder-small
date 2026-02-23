@@ -1,35 +1,22 @@
 {
   "id": "file-explorer-container",
   "type": "div",
-  "bindings": {
-    "className": {
-      "source": null,
-      "transform": "'h-full flex flex-col border-r border-border bg-card'"
-    }
+  "props": {
+    "className": "h-full flex flex-col border-r border-border bg-card"
   },
   "children": [
     {
       "id": "file-explorer-header",
       "type": "div",
-      "bindings": {
-        "className": {
-          "source": null,
-          "transform": "'p-3 border-b border-border flex items-center justify-between'"
-        }
+      "props": {
+        "className": "p-3 border-b border-border flex items-center justify-between"
       },
       "children": [
         {
           "id": "file-explorer-title",
           "type": "h3",
-          "bindings": {
-            "className": {
-              "source": null,
-              "transform": "'font-semibold text-sm uppercase tracking-wide flex items-center gap-2'"
-            },
-            "children": {
-              "source": null,
-              "transform": "'Files'"
-            }
+          "props": {
+            "className": "font-semibold text-sm uppercase tracking-wide flex items-center gap-2"
           },
           "children": [
             {
@@ -39,13 +26,14 @@
                 "size": 18,
                 "weight": "duotone"
               }
-            }
+            },
+            "Files"
           ]
         },
         {
           "id": "file-explorer-dialog",
           "type": "FileExplorerDialog",
-          "props": {
+          "bindings": {
             "onFileAdd": "onFileAdd"
           }
         }
@@ -54,17 +42,14 @@
     {
       "id": "file-explorer-list",
       "type": "ScrollArea",
-      "bindings": {
-        "className": {
-          "source": null,
-          "transform": "'flex-1'"
-        }
+      "props": {
+        "className": "flex-1"
       },
       "children": [
         {
           "id": "file-explorer-items",
           "type": "FileExplorerList",
-          "props": {
+          "bindings": {
             "files": "files",
             "activeFileId": "activeFileId",
             "onFileSelect": "onFileSelect"

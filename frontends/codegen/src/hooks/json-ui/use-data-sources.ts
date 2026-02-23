@@ -1,12 +1,12 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import { useAppDispatch, useAppSelector } from '@/store'
-import { setKV } from '@/store/slices/kvSlice'
+import { setUIState } from '@/store/slices/uiStateSlice'
 import { DataSource } from '@/types/json-ui'
 import { evaluateExpression, evaluateTemplate } from '@/lib/json-ui/expression-evaluator'
 
 export function useDataSources(dataSources: DataSource[]) {
   const dispatch = useAppDispatch()
-  const kvData = useAppSelector((state) => state.kv.data)
+  const kvData = useAppSelector((state) => state.uiState.data)
   const [data, setData] = useState<Record<string, any>>({})
   const [loading, setLoading] = useState(true)
 
@@ -36,7 +36,7 @@ export function useDataSources(dataSources: DataSource[]) {
 
     const kvSource = dataSources.find((ds) => ds.id === id && ds.type === 'kv')
     if (kvSource && kvSource.key) {
-      dispatch(setKV({ key: kvSource.key, value }))
+      dispatch(setUIState({ key: kvSource.key, value }))
     }
   }, [dataSources, dispatch])
 

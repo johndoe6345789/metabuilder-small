@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit'
-import { syncToFlask, fetchFromFlask } from '@/store/middleware/flaskSync'
+import { syncToDBAL, deleteFromDBAL } from '@/store/middleware/dbalSync'
 
 export interface Model {
   id: string
@@ -33,7 +33,7 @@ const initialState: ModelsState = {
 export const saveModel = createAsyncThunk(
   'models/saveModel',
   async (model: Model) => {
-    await syncToFlask('models', model.id, model)
+    await syncToDBAL('models', model.id, model)
     return model
   }
 )
@@ -41,7 +41,7 @@ export const saveModel = createAsyncThunk(
 export const deleteModel = createAsyncThunk(
   'models/deleteModel',
   async (modelId: string) => {
-    await syncToFlask('models', modelId, null, 'delete')
+    await deleteFromDBAL('models', modelId)
     return modelId
   }
 )
@@ -92,7 +92,7 @@ const modelsSlice = createSlice({
         }
       })
       .addMatcher(
-        (action) => action.type === 'sync/syncFromFlaskBulk/fulfilled',
+        (action) => action.type === 'dbal/syncFromDBALBulk/fulfilled',
         (state, action: any) => {
           if (action.payload?.data?.models) {
             state.models = action.payload.data.models

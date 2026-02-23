@@ -1,4 +1,4 @@
-import { useKV } from '../use-kv'
+import { useUIState } from '@/hooks/use-ui-state'
 
 interface LayoutState {
   panelSizes?: number[]
@@ -7,7 +7,7 @@ interface LayoutState {
 }
 
 export function useLayoutState(pageId: string) {
-  const [layoutState, setLayoutState] = useKV<LayoutState>(
+  const [layoutState, setLayoutState] = useUIState<LayoutState>(
     `layout-state:${pageId}`,
     {}
   )

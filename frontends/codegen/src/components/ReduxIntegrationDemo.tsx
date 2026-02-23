@@ -5,7 +5,6 @@ import { useReduxComponentTrees } from '@/hooks/use-redux-component-trees'
 import { useReduxSync } from '@/hooks/use-redux-sync'
 import { useAppSelector } from '@/store'
 import { ComponentTreesCard } from '@/components/redux-integration/ComponentTreesCard'
-import { DangerZoneCard } from '@/components/redux-integration/DangerZoneCard'
 import { FilesCard } from '@/components/redux-integration/FilesCard'
 import { ReduxIntegrationHeader } from '@/components/redux-integration/ReduxIntegrationHeader'
 import { StatusCardsSection } from '@/components/redux-integration/StatusCardsSection'
@@ -17,12 +16,11 @@ export function ReduxIntegrationDemo() {
   const {
     status,
     lastSyncedAt,
-    flaskConnected,
-    flaskStats,
-    syncToFlask,
-    syncFromFlask,
+    dbalConnected,
+    dbalStats,
+    syncToDBAL,
+    syncFromDBAL,
     checkConnection,
-    clearFlaskData,
   } = useReduxSync()
   const settings = useAppSelector((state) => state.settings.settings)
 
@@ -50,18 +48,13 @@ export function ReduxIntegrationDemo() {
   }
 
   const handleSyncUp = () => {
-    syncToFlask()
+    syncToDBAL()
     toast.info(reduxIntegrationCopy.toast.syncUp)
   }
 
   const handleSyncDown = () => {
-    syncFromFlask()
+    syncFromDBAL()
     toast.info(reduxIntegrationCopy.toast.syncDown)
-  }
-
-  const handleClearFlask = () => {
-    clearFlaskData()
-    toast.warning(reduxIntegrationCopy.toast.clearFlask)
   }
 
   return (
@@ -71,8 +64,8 @@ export function ReduxIntegrationDemo() {
         <StatusCardsSection
           filesCount={files.length}
           treesCount={trees.length}
-          flaskConnected={flaskConnected}
-          flaskStats={flaskStats}
+          dbalConnected={dbalConnected}
+          dbalStats={dbalStats}
           status={status}
           lastSyncedAt={lastSyncedAt}
           autoSyncEnabled={settings.autoSync}
@@ -83,7 +76,6 @@ export function ReduxIntegrationDemo() {
         />
         <FilesCard files={files} onDeleteFile={handleDeleteFile} />
         <ComponentTreesCard trees={trees} />
-        <DangerZoneCard flaskConnected={flaskConnected} onClearFlask={handleClearFlask} />
       </div>
     </div>
   )

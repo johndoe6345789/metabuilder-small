@@ -1,86 +1,76 @@
-# Multi-stage build: deps cached separately from source changes
+# Dev server: node_modules from base image, source copied fresh
 # Context: monorepo root (..)
-FROM node:20-alpine AS deps
-WORKDIR /app
+# Requires: docker build -f deployment/base-images/Dockerfile.node-deps \
+#           -t metabuilder/base-node-deps:latest .
+FROM metabuilder/base-node-deps:latest AS deps
 
-COPY package.json package-lock.json .npmrc ./
+# --- Dev server stage ---
+FROM deps AS dev
 
-# Workspace package.json files
-COPY types/package.json ./types/
-COPY interfaces/package.json ./interfaces/
-COPY translations/package.json ./translations/
-COPY workflow/package.json ./workflow/
-COPY hooks/package.json ./hooks/
-COPY components/package.json ./components/
-COPY components/fakemui/package.json ./components/fakemui/
-COPY config/package.json ./config/
-COPY scss/package.json ./scss/
-COPY storybook/package.json ./storybook/
-COPY frontends/nextjs/package.json ./frontends/nextjs/
-COPY frontends/dbal/package.json ./frontends/dbal/
-COPY redux/core/package.json ./redux/core/
-COPY redux/slices/package.json ./redux/slices/
-COPY redux/hooks/package.json ./redux/hooks/
-COPY redux/adapters/package.json ./redux/adapters/
-COPY redux/hooks-data/package.json ./redux/hooks-data/
-COPY redux/hooks-auth/package.json ./redux/hooks-auth/
-COPY redux/hooks-canvas/package.json ./redux/hooks-canvas/
-COPY redux/hooks-async/package.json ./redux/hooks-async/
-COPY redux/hooks-utils/package.json ./redux/hooks-utils/
-COPY redux/hooks-forms/package.json ./redux/hooks-forms/
-COPY redux/core-hooks/package.json ./redux/core-hooks/
-COPY redux/api-clients/package.json ./redux/api-clients/
-COPY redux/timing-utils/package.json ./redux/timing-utils/
-COPY redux/middleware/package.json ./redux/middleware/
-COPY redux/services/package.json ./redux/services/
-COPY redux/persist/package.json ./redux/persist/
+# ── Shared packages (resolved by Turbopack aliases in next.config.js) ───────
+# Each COPY targets only the source tree that codegen actually imports.
+#
+# types + interfaces (TS type definitions)
+COPY types/ ./types/
+COPY interfaces/ ./interfaces/
 
-RUN npm config set fetch-retries 5 \
-    && npm config set fetch-retry-mintimeout 20000 \
-    && npm config set maxsockets 5 \
-    && npm ci --ignore-scripts
+# hooks (shared React hooks)
+COPY hooks/ ./hooks/
 
-COPY frontends/codegen/package.json ./frontends/codegen/
-COPY frontends/workflowui/package.json ./frontends/workflowui/
-COPY frontends/pastebin/package.json ./frontends/pastebin/
-COPY frontends/postgres/package.json ./frontends/postgres/
-COPY frontends/emailclient/package.json ./frontends/emailclient/
-COPY frontends/exploded-diagrams/package.json ./frontends/exploded-diagrams/
+# icons (Material Symbols SCSS + React icon components — used by scss/ and fakemui)
+COPY icons/ ./icons/
 
-RUN npm install --ignore-scripts
+# scss (Material 3 SCSS, theme, atoms — loaded by sassOptions.loadPaths)
+COPY scss/ ./scss/
 
+# translations (i18n strings)
+COPY translations/ ./translations/
 
-# --- Build stage ---
-FROM deps AS builder
-COPY . .
+# components + FakeMUI (UI component library)
+COPY components/ ./components/
 
+# workflow (DAG workflow engine — imported by components package)
+COPY workflow/ ./workflow/
+
+# ── Redux packages (all resolve to src/ via Turbopack aliases) ──────────────
+COPY redux/core/ ./redux/core/
+COPY redux/slices/ ./redux/slices/
+COPY redux/hooks/ ./redux/hooks/
+COPY redux/adapters/ ./redux/adapters/
+COPY redux/api-clients/ ./redux/api-clients/
+COPY redux/core-hooks/ ./redux/core-hooks/
+COPY redux/hooks-async/ ./redux/hooks-async/
+COPY redux/hooks-auth/ ./redux/hooks-auth/
+COPY redux/hooks-canvas/ ./redux/hooks-canvas/
+COPY redux/hooks-data/ ./redux/hooks-data/
+COPY redux/hooks-forms/ ./redux/hooks-forms/
+COPY redux/hooks-utils/ ./redux/hooks-utils/
+COPY redux/middleware/ ./redux/middleware/
+COPY redux/persist/ ./redux/persist/
+COPY redux/services/ ./redux/services/
+COPY redux/timing-utils/ ./redux/timing-utils/
+
+# ── CodeForge IDE (the app itself) ──────────────────────────────────────────
+COPY frontends/codegen/ ./frontends/codegen/
+
+# ── Pre-build workspace packages (some need tsc before Turbopack can use) ───
 RUN for ws in redux/core redux/slices redux/hooks redux/adapters \
     redux/hooks-async redux/api-clients redux/persist \
     components workflow; do \
     npm run build -w "$ws" --if-present 2>&1 || echo "WARN: $ws build failed (non-critical)"; \
 done
 
-# Pre-install Next.js SWC binary (avoids unreliable CDN download during next build)
-RUN npm install --no-save @next/swc-linux-arm64-musl @next/swc-linux-arm64-gnu 2>/dev/null || true
+# Clean any stale Turbopack cache so dev server compiles from fresh source
+RUN rm -rf frontends/codegen/.next
 
-RUN cd frontends/codegen && npx next build --turbopack
-
-# --- Runtime stage ---
-FROM node:20-alpine
-WORKDIR /app
-
-COPY --from=builder /app/frontends/codegen/.next/standalone ./
-COPY --from=builder /app/frontends/codegen/.next/static ./frontends/codegen/.next/static
-COPY --from=builder /app/frontends/codegen/public ./frontends/codegen/public
-
-ENV NODE_ENV=production
+ENV NODE_ENV=development
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
 EXPOSE 3000
 
-HEALTHCHECK --interval=15s --timeout=5s --start-period=20s --retries=3 \
+HEALTHCHECK --interval=15s --timeout=5s --start-period=30s --retries=3 \
     CMD wget --quiet --tries=1 --spider http://127.0.0.1:3000/codegen || exit 1
 
 WORKDIR /app/frontends/codegen
-CMD ["node", "server.js"]
+CMD ["npx", "next", "dev", "--turbopack", "-p", "3000"]

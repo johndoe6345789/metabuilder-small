@@ -1,12 +1,12 @@
 import { useCallback, useState } from 'react'
-import { useKV } from '@/hooks/use-kv'
+import { useUIState } from '@/hooks/use-ui-state'
 import { DockerError } from '@/types/docker'
 import { parseDockerLog } from '@/lib/docker-parser'
 import { toast } from '@/components/ui/sonner'
 import dockerBuildDebuggerText from '@/data/docker-build-debugger.json'
 
 export function useDockerBuildDebugger() {
-  const [logInput, setLogInput] = useKV<string>('docker-log-input', '')
+  const [logInput, setLogInput] = useUIState<string>('docker-log-input', '')
   const [parsedErrors, setParsedErrors] = useState<DockerError[]>([])
 
   const handleParse = useCallback(() => {

@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react'
-import { useKV } from '@/hooks/use-kv'
+import { useUIState } from '@/hooks/use-ui-state'
 
 export interface UseJSONDataOptions {
   key: string
@@ -10,7 +10,7 @@ export interface UseJSONDataOptions {
 export function useJSONData(options: UseJSONDataOptions) {
   const { key, defaultValue, persist = true } = options
 
-  const [kvValue, setKvValue] = useKV(key, defaultValue)
+  const [kvValue, setKvValue] = useUIState(key, defaultValue)
   const [localValue, setLocalValue] = useState(defaultValue)
 
   const value = persist ? kvValue : localValue

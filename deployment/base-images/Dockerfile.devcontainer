@@ -27,10 +27,10 @@ COPY --from=metabuilder/base-node-deps:latest /usr/local/lib/node_modules /usr/l
 COPY --from=metabuilder/base-node-deps:latest /app/node_modules     /workspace/node_modules
 
 # ── Python packages (from base-pip-deps) ──────────────────────────────────────
+# Copy entire site-packages + all pip-installed binaries in one go.
+# Avoids hard-coding individual binary paths (gunicorn, celery, etc.).
 COPY --from=metabuilder/base-pip-deps:latest /usr/local/lib/python3.11 /usr/local/lib/python3.11
-COPY --from=metabuilder/base-pip-deps:latest /usr/local/bin/pip     /usr/local/bin/pip
-COPY --from=metabuilder/base-pip-deps:latest /usr/local/bin/gunicorn /usr/local/bin/gunicorn
-COPY --from=metabuilder/base-pip-deps:latest /usr/local/bin/celery  /usr/local/bin/celery
+COPY --from=metabuilder/base-pip-deps:latest /usr/local/bin/           /usr/local/bin/
 
 # ── Android SDK + Gradle (from base-android-sdk) ──────────────────────────────
 COPY --from=metabuilder/base-android-sdk:latest /opt/android-sdk    /opt/android-sdk
@@ -39,7 +39,7 @@ COPY --from=metabuilder/base-android-sdk:latest /root/.gradle       /root/.gradl
 
 ENV ANDROID_HOME=/opt/android-sdk \
     ANDROID_SDK_ROOT=/opt/android-sdk \
-    GRADLE_HOME=/opt/gradle/gradle-8.1.4
+    GRADLE_HOME=/opt/gradle/gradle-8.12
 
 # ── Rust + Cargo ──────────────────────────────────────────────────────────────
 ENV CARGO_HOME=/opt/cargo \
@@ -99,7 +99,11 @@ ENV LIBGL_ALWAYS_SOFTWARE=1 \
     GALLIUM_DRIVER=softpipe \
     VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/lvp_icd.x86_64.json
 
-# ── oh-my-zsh + shell comforts ────────────────────────────────────────────────
+# ── zsh + oh-my-zsh + shell comforts ──────────────────────────────────────────
+# Install zsh first (required by oh-my-zsh and the SHELL directive below).
+RUN apt-get update && apt-get install -y --no-install-recommends zsh \
+    && rm -rf /var/lib/apt/lists/*
+
 RUN for i in 1 2 3 4 5; do \
       sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" \
         "" --unattended \
@@ -111,7 +115,7 @@ COPY --from=metabuilder/base-android-sdk:latest /usr/lib/jvm /usr/lib/jvm
 ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-arm64
 
 # ── PATH consolidation ────────────────────────────────────────────────────────
-ENV PATH=/opt/android-sdk/cmdline-tools/latest/bin:/opt/android-sdk/platform-tools:/opt/gradle/gradle-8.1.4/bin:/opt/cargo/bin:/opt/go/bin:/opt/gopath/bin:/usr/local/bin:$PATH
+ENV PATH=/opt/gradle/gradle-8.12/bin:/opt/android-sdk/cmdline-tools/latest/bin:/opt/android-sdk/platform-tools:/opt/cargo/bin:/opt/go/bin:/opt/gopath/bin:/usr/local/bin:$PATH
 
 WORKDIR /workspace
 

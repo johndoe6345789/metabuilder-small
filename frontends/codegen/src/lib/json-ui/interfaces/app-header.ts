@@ -14,4 +14,5 @@ export interface AppHeaderProps {
   onExport: () => void
   onPreview?: () => void
   onShowErrors: () => void
+  onNavigate?: (page: string) => void
 }

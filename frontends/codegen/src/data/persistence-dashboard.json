@@ -16,7 +16,7 @@
       "localStorageLabel": "Local Storage:",
       "localStorageValue": "IndexedDB",
       "remoteStorageLabel": "Remote Storage:",
-      "remoteStorageConnected": "Flask API",
+      "remoteStorageConnected": "DBAL API",
       "remoteStorageDisconnected": "Offline",
       "lastSyncLabel": "Last Sync:"
     },
@@ -38,8 +38,8 @@
     },
     "manualSync": {
       "title": "Manual Sync Operations",
-      "pushButton": "Push to Flask",
-      "pullButton": "Pull from Flask",
+      "pushButton": "Push to DBAL",
+      "pullButton": "Pull from DBAL",
       "triggerButton": "Trigger Auto-Sync",
       "checkButton": "Check Connection"
     },
@@ -54,12 +54,12 @@
           "description": "All Redux state changes are automatically persisted to IndexedDB with a 300ms debounce."
         },
         {
-          "title": "Flask Sync:",
-          "description": "When connected, data is synced bidirectionally with the Flask API backend."
+          "title": "DBAL Sync:",
+          "description": "When connected, data is synced bidirectionally with the DBAL C++ daemon."
         },
         {
           "title": "Auto-Sync:",
-          "description": "Enable auto-sync to automatically push changes to Flask at regular intervals (default: 30s)."
+          "description": "Enable auto-sync to automatically push changes to DBAL at regular intervals (default: 30s)."
         },
         {
           "title": "Conflict Resolution:",
@@ -69,8 +69,8 @@
     }
   },
   "toasts": {
-    "syncToSuccess": "Successfully synced to Flask",
-    "syncFromSuccess": "Successfully synced from Flask",
+    "syncToSuccess": "Successfully synced to DBAL",
+    "syncFromSuccess": "Successfully synced from DBAL",
     "syncFailed": "Sync failed: {{error}}",
     "autoSyncEnabled": "Auto-sync enabled",
     "autoSyncDisabled": "Auto-sync disabled",

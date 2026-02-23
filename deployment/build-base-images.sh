@@ -17,6 +17,18 @@
 #   ./build-base-images.sh apt node     Build specific images (skip if exist)
 #   ./build-base-images.sh --list       List available images
 
+# Require bash 4+ for associative arrays (macOS ships 3.2)
+if ((BASH_VERSINFO[0] < 4)); then
+    for candidate in /opt/homebrew/bin/bash /usr/local/bin/bash; do
+        if [[ -x "$candidate" ]] && "$candidate" -c '((BASH_VERSINFO[0]>=4))' 2>/dev/null; then
+            exec "$candidate" "$0" "$@"
+        fi
+    done
+    echo "Error: bash 4+ required (found bash $BASH_VERSION)"
+    echo "Install with: brew install bash"
+    exit 1
+fi
+
 set -e
 
 RED='\033[0;31m'

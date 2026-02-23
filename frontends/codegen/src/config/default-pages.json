@@ -18,7 +18,7 @@
       "title": "Code Editor",
       "description": "Edit project files with AI assistance",
       "icon": "Code",
-      "component": "CodeEditorPage",
+      "component": "MetabuilderWidgetCodeEditor",
       "layout": {
         "type": "split",
         "direction": "horizontal",
@@ -26,13 +26,13 @@
         "panels": [
           {
             "id": "file-tree",
-            "component": "FileExplorer",
+            "component": "MetabuilderWidgetFileExplorer",
             "minSize": 15,
             "maxSize": 40
           },
           {
             "id": "editor",
-            "component": "CodeEditor",
+            "component": "MetabuilderWidgetCodeEditor",
             "minSize": 60
           }
         ]
@@ -49,9 +49,9 @@
     {
       "id": "models",
       "title": "Database Models",
-      "description": "Design Prisma database schemas",
+      "description": "Design database schemas",
       "icon": "Database",
-      "component": "ModelDesigner",
+      "component": "MetabuilderWidgetJSONModelDesigner",
       "layout": {
         "type": "single"
       },
@@ -68,7 +68,7 @@
       "title": "Components",
       "description": "Build React component structures",
       "icon": "Cube",
-      "component": "ComponentTreeBuilder",
+      "component": "MetabuilderWidgetComponentTreeBuilder",
       "layout": {
         "type": "single"
       },
@@ -84,7 +84,7 @@
       "title": "Component Trees",
       "description": "Manage multiple component hierarchies",
       "icon": "TreeStructure",
-      "component": "ComponentTreeManager",
+      "component": "MetabuilderWidgetJSONComponentTreeManager",
       "layout": {
         "type": "single"
       },
@@ -97,7 +97,7 @@
       "title": "Workflows",
       "description": "Design automation workflows visually",
       "icon": "Flow",
-      "component": "WorkflowDesigner",
+      "component": "MetabuilderWidgetJSONWorkflowDesigner",
       "layout": {
         "type": "single"
       },
@@ -110,7 +110,7 @@
       "title": "Lambdas",
       "description": "Create serverless functions",
       "icon": "Lightning",
-      "component": "LambdaDesigner",
+      "component": "MetabuilderWidgetJSONLambdaDesigner",
       "layout": {
         "type": "single"
       },
@@ -123,7 +123,7 @@
       "title": "Styling",
       "description": "Configure Material UI themes",
       "icon": "Palette",
-      "component": "StyleDesigner",
+      "component": "MetabuilderWidgetJSONStyleDesigner",
       "layout": {
         "type": "single"
       },
@@ -139,7 +139,7 @@
       "title": "Favicon Designer",
       "description": "Design custom favicons with drawing tools",
       "icon": "Image",
-      "component": "FaviconDesigner",
+      "component": "MetabuilderWidgetFaviconDesigner",
       "layout": {
         "type": "single"
       },
@@ -152,7 +152,7 @@
       "title": "Feature Ideas",
       "description": "Brainstorm and connect ideas visually",
       "icon": "Lightbulb",
-      "component": "FeatureIdeaCloud",
+      "component": "MetabuilderWidgetFeatureIdeaCloud",
       "layout": {
         "type": "single"
       },
@@ -167,7 +167,7 @@
       "title": "Flask API",
       "description": "Design Python Flask backends",
       "icon": "Flask",
-      "component": "FlaskDesigner",
+      "component": "MetabuilderWidgetJSONFlaskDesigner",
       "layout": {
         "type": "single"
       }
@@ -177,7 +177,7 @@
       "title": "E2E Tests",
       "description": "Design Playwright tests",
       "icon": "TestTube",
-      "component": "PlaywrightDesigner",
+      "component": "MetabuilderWidgetPlaywrightDesigner",
       "layout": {
         "type": "single"
       },
@@ -190,7 +190,7 @@
       "title": "Storybook",
       "description": "Document component stories",
       "icon": "Book",
-      "component": "StorybookDesigner",
+      "component": "MetabuilderWidgetStorybookDesigner",
       "layout": {
         "type": "single"
       },
@@ -203,7 +203,7 @@
       "title": "Unit Tests",
       "description": "Create unit test suites",
       "icon": "FileCode",
-      "component": "UnitTestDesigner",
+      "component": "MetabuilderWidgetUnitTestDesigner",
       "layout": {
         "type": "single"
       },
@@ -216,7 +216,7 @@
       "title": "Error Repair",
       "description": "Auto-detect and fix code errors",
       "icon": "Wrench",
-      "component": "ErrorPanel",
+      "component": "MetabuilderWidgetErrorPanel",
       "layout": {
         "type": "single"
       },
@@ -230,7 +230,7 @@
       "title": "Documentation",
       "description": "View project documentation",
       "icon": "FileText",
-      "component": "DocumentationView",
+      "component": "MetabuilderWidgetDocumentationView",
       "layout": {
         "type": "single"
       }
@@ -240,7 +240,7 @@
       "title": "JSON Conversion Showcase",
       "description": "JSON conversion showcase overview",
       "icon": "BookOpen",
-      "component": "JSONConversionShowcase",
+      "component": "MetabuilderWidgetJSONConversionShowcase",
       "layout": {
         "type": "single"
       }
@@ -261,7 +261,7 @@
       "title": "Sass Styles",
       "description": "Explore custom Sass components",
       "icon": "Palette",
-      "component": "SassStylesShowcase",
+      "component": "MetabuilderWidgetSassStylesShowcase",
       "layout": {
         "type": "single"
       }
@@ -271,7 +271,7 @@
       "title": "Project Settings",
       "description": "Configure Next.js and npm",
       "icon": "Gear",
-      "component": "ProjectSettingsDesigner",
+      "component": "MetabuilderWidgetProjectSettingsDesigner",
       "layout": {
         "type": "single"
       }
@@ -281,7 +281,7 @@
       "title": "PWA Settings",
       "description": "Progressive Web App configuration",
       "icon": "DeviceMobile",
-      "component": "PWASettings",
+      "component": "MetabuilderWidgetPWASettings",
       "layout": {
         "type": "single"
       }
@@ -291,7 +291,7 @@
       "title": "Feature Toggles",
       "description": "Enable or disable application features",
       "icon": "ToggleRight",
-      "component": "FeatureToggleSettings",
+      "component": "MetabuilderWidgetFeatureToggleSettings",
       "layout": {
         "type": "single"
       }

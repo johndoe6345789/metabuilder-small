@@ -9,9 +9,12 @@ import workflowsReducer from './slices/workflowsSlice'
 import lambdasReducer from './slices/lambdasSlice'
 import themeReducer from './slices/themeSlice'
 import settingsReducer from './slices/settingsSlice'
-import syncReducer from './slices/syncSlice'
+import dbalReducer from './slices/dbalSlice'
 import conflictsReducer from './slices/conflictsSlice'
-import kvReducer from './slices/kvSlice'
+import testsReducer from './slices/testsSlice'
+import configReducer from './slices/configSlice'
+import uiStateReducer from './slices/uiStateSlice'
+import translationsReducer from './slices/translationsSlice'
 import uiReducer from '@metabuilder/redux-slices/uiSlice'
 import { createSyncMonitorMiddleware } from './middleware/syncMonitorMiddleware'
 import { createAutoSyncMiddleware } from './middleware/autoSyncMiddleware'
@@ -27,14 +30,17 @@ const { store, persistor } = createPersistedStore({
     lambdas: lambdasReducer,
     theme: themeReducer,
     settings: settingsReducer,
-    sync: syncReducer,
+    dbal: dbalReducer,
     conflicts: conflictsReducer,
-    kv: kvReducer,
+    tests: testsReducer,
+    config: configReducer,
+    uiState: uiStateReducer,
+    translations: translationsReducer,
     ui: uiReducer,
   },
   persist: {
     key: 'codeforge',
-    whitelist: ['files', 'models', 'components', 'componentTrees', 'workflows', 'lambdas', 'theme', 'settings', 'project', 'kv'],
+    whitelist: ['files', 'models', 'components', 'componentTrees', 'workflows', 'lambdas', 'theme', 'settings', 'project', 'tests', 'config', 'uiState', 'translations'],
     throttle: 300,
   },
   middleware: (base) =>

@@ -18,13 +18,36 @@ NC='\033[0m'
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 COMPOSE_FILE="$SCRIPT_DIR/docker-compose.stack.yml"
 
-# Check that base images exist — app builds depend on them.
-check_base_images() {
+# Ensure base-node-deps exists — all frontend Dockerfiles depend on it.
+# Other base images (apt, conan, pip, android-sdk) are only needed for
+# C++ daemons, dev containers, and workflow plugins.
+ensure_node_deps_base() {
+    if docker image inspect "metabuilder/base-node-deps:latest" &>/dev/null; then
+        echo -e "${GREEN}Base image metabuilder/base-node-deps:latest exists${NC}"
+        return 0
+    fi
+
+    echo -e "${YELLOW}Building metabuilder/base-node-deps (required by all Node.js frontends)...${NC}"
+    local REPO_ROOT
+    REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+    docker build \
+        -f "$SCRIPT_DIR/base-images/Dockerfile.node-deps" \
+        -t metabuilder/base-node-deps:latest \
+        "$REPO_ROOT"
+
+    if [ $? -ne 0 ]; then
+        echo -e "${RED}Failed to build base-node-deps — cannot proceed with app builds${NC}"
+        exit 1
+    fi
+    echo -e "${GREEN}Built metabuilder/base-node-deps:latest${NC}"
+}
+
+# Check optional base images (warn only, don't block)
+check_optional_bases() {
     local missing=()
     local bases=(
         "metabuilder/base-apt:latest"
         "metabuilder/base-conan-deps:latest"
-        "metabuilder/base-node-deps:latest"
         "metabuilder/base-pip-deps:latest"
         "metabuilder/base-android-sdk:latest"
     )
@@ -34,18 +57,17 @@ check_base_images() {
         fi
     done
     if [ ${#missing[@]} -gt 0 ]; then
-        echo -e "${YELLOW}Warning: base images not built yet:${NC}"
+        echo -e "${YELLOW}Optional base images not built (C++ daemons, dev container):${NC}"
         for img in "${missing[@]}"; do
             echo "  - $img"
         done
-        echo -e "${YELLOW}Run first:${NC}  ./build-base-images.sh"
-        echo ""
-        echo "Continuing anyway (app builds will download deps themselves)..."
+        echo -e "${YELLOW}Build with:${NC}  ./build-base-images.sh"
         echo ""
     fi
 }
 
-check_base_images
+ensure_node_deps_base
+check_optional_bases
 
 PARALLEL=true
 FORCE=false

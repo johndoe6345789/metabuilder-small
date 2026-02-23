@@ -12,4 +12,4 @@ export {
   triggerAutoSync,
 } from './autoSyncMiddleware'
 
-export { syncToFlask, fetchFromFlask, syncAllToFlask, fetchAllFromFlask } from './flaskSync'
+export { syncToDBAL, fetchFromDBAL, syncAllToDBAL, fetchAllFromDBAL } from './dbalSync'

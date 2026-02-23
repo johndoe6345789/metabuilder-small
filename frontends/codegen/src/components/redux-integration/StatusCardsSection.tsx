@@ -1,19 +1,15 @@
 import { IndexedDbStatusCard } from '@/components/redux-integration/IndexedDbStatusCard'
-import { FlaskStatusCard } from '@/components/redux-integration/FlaskStatusCard'
+import { DBALStatusCard } from '@/components/redux-integration/FlaskStatusCard'
 import { SyncStatusCard } from '@/components/redux-integration/SyncStatusCard'
-import { SyncStatus } from '@/store/slices/syncSlice'
-
-type FlaskStats = {
-  totalKeys: number
-  totalSizeBytes: number
-} | null
+import { DBALSyncStatus } from '@/store/slices/dbalSlice'
+import type { DBALConfigResponse } from '@/store/middleware/dbalSync'
 
 type StatusCardsSectionProps = {
   filesCount: number
   treesCount: number
-  flaskConnected: boolean
-  flaskStats: FlaskStats
-  status: SyncStatus
+  dbalConnected: boolean
+  dbalStats: DBALConfigResponse | null
+  status: DBALSyncStatus
   lastSyncedAt: number | null
   autoSyncEnabled: boolean
   onCreateTestFile: () => void
@@ -25,8 +21,8 @@ type StatusCardsSectionProps = {
 export function StatusCardsSection({
   filesCount,
   treesCount,
-  flaskConnected,
-  flaskStats,
+  dbalConnected,
+  dbalStats,
   status,
   lastSyncedAt,
   autoSyncEnabled,
@@ -42,16 +38,16 @@ export function StatusCardsSection({
         treesCount={treesCount}
         onCreateTestFile={onCreateTestFile}
       />
-      <FlaskStatusCard
-        flaskConnected={flaskConnected}
-        flaskStats={flaskStats}
+      <DBALStatusCard
+        dbalConnected={dbalConnected}
+        dbalStats={dbalStats}
         onCheckConnection={onCheckConnection}
       />
       <SyncStatusCard
         status={status}
         lastSyncedAt={lastSyncedAt}
         autoSyncEnabled={autoSyncEnabled}
-        flaskConnected={flaskConnected}
+        dbalConnected={dbalConnected}
         onSyncUp={onSyncUp}
         onSyncDown={onSyncDown}
       />

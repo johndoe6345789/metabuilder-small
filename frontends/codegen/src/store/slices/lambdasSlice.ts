@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { syncToFlask } from '@/store/middleware/flaskSync'
+import { syncToDBAL, deleteFromDBAL } from '@/store/middleware/dbalSync'
 
 export interface Lambda {
   id: string
@@ -37,13 +37,13 @@ const lambdasSlice = createSlice({
     },
     addLambda: (state, action: PayloadAction<Lambda>) => {
       state.lambdas.push(action.payload)
-      syncToFlask('lambdas', action.payload.id, action.payload).catch(console.error)
+      syncToDBAL('lambdas', action.payload.id, action.payload).catch(console.error)
     },
     updateLambda: (state, action: PayloadAction<Lambda>) => {
       const index = state.lambdas.findIndex(l => l.id === action.payload.id)
       if (index !== -1) {
         state.lambdas[index] = action.payload
-        syncToFlask('lambdas', action.payload.id, action.payload).catch(console.error)
+        syncToDBAL('lambdas', action.payload.id, action.payload).catch(console.error)
       }
     },
     deleteLambda: (state, action: PayloadAction<string>) => {
@@ -51,7 +51,7 @@ const lambdasSlice = createSlice({
       if (state.activeLambdaId === action.payload) {
         state.activeLambdaId = null
       }
-      syncToFlask('lambdas', action.payload, null, 'delete').catch(console.error)
+      deleteFromDBAL('lambdas', action.payload).catch(console.error)
     },
     setLambdas: (state, action: PayloadAction<Lambda[]>) => {
       state.lambdas = action.payload

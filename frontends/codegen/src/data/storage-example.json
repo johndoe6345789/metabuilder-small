@@ -1,6 +1,6 @@
 {
   "title": "Storage Example",
-  "description": "Demonstrates IndexedDB storage with Flask backend fallback",
+  "description": "Demonstrates IndexedDB storage with DBAL backend fallback",
   "counter": {
     "title": "Simple Counter (useStorage)",
     "incrementButton": "Increment",
@@ -12,7 +12,7 @@
     "addButton": "Add",
     "emptyState": "No todos yet. Add one above!",
     "deleteButton": "Delete",
-    "footer": "Todos are stored in IndexedDB with Flask backend fallback"
+    "footer": "Todos are stored in IndexedDB with DBAL backend fallback"
   },
   "howItWorks": {
     "title": "How It Works",
@@ -22,8 +22,8 @@
         "description": "Data is first saved to IndexedDB for fast, structured storage with indexes"
       },
       {
-        "title": "2. Fallback: Flask Backend",
-        "description": "If IndexedDB fails or is unavailable, Flask backend is used automatically"
+        "title": "2. Fallback: DBAL Backend",
+        "description": "If IndexedDB fails or is unavailable, DBAL backend is used automatically"
       },
       {
         "title": "3. Sync Both",

@@ -2,13 +2,13 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { AutoSyncManager } from './autoSyncMiddleware'
 
-const { syncToFlaskBulkMock } = vi.hoisted(() => ({
-  syncToFlaskBulkMock: vi.fn(() => ({ type: 'sync/bulk' })),
+const { syncToDBALBulkMock } = vi.hoisted(() => ({
+  syncToDBALBulkMock: vi.fn(() => ({ type: 'dbal/bulk' })),
 }))
 
-vi.mock('../slices/syncSlice', () => ({
-  syncToFlaskBulk: syncToFlaskBulkMock,
-  checkFlaskConnection: vi.fn(() => ({ type: 'sync/check' })),
+vi.mock('../slices/dbalSlice', () => ({
+  syncToDBALBulk: syncToDBALBulkMock,
+  checkDBALConnection: vi.fn(() => ({ type: 'dbal/check' })),
 }))
 
 const nextTick = () => new Promise(resolve => setTimeout(resolve, 0))
@@ -51,7 +51,7 @@ describe('AutoSyncManager', () => {
     manager = new AutoSyncManager()
     dispatchMock = vi.fn()
     manager.setDispatch(dispatchMock)
-    syncToFlaskBulkMock.mockClear()
+    syncToDBALBulkMock.mockClear()
   })
 
   afterEach(() => {

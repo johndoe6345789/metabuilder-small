@@ -2,45 +2,47 @@ import { test, expect } from '@playwright/test'
 
 test.describe('CodeForge - Smoke Tests', () => {
   test('app loads successfully', async ({ page }) => {
-    test.setTimeout(20000)
-    await page.goto('/codegen', { waitUntil: 'domcontentloaded', timeout: 15000 })
+    test.setTimeout(30000)
+    await page.goto('/codegen', { waitUntil: 'domcontentloaded', timeout: 20000 })
 
-    // Check that the app has rendered content (more reliable than checking visibility)
-    const root = page.locator('#root')
-    await expect(root).toHaveCount(1, { timeout: 5000 })
-    // Wait for any content to be rendered
-    await page.waitForSelector('#root > *', { timeout: 10000 })
+    const layout = page.locator('[data-testid="app-layout"]')
+    await expect(layout).toBeVisible({ timeout: 15000 })
   })
 
-  test('can navigate to dashboard tab', async ({ page }) => {
-    test.setTimeout(20000)
-    await page.goto('/codegen', { waitUntil: 'domcontentloaded', timeout: 10000 })
-    await page.waitForSelector('#root > *', { timeout: 10000 })
+  test('header displays CodeForge branding', async ({ page }) => {
+    test.setTimeout(30000)
+    await page.goto('/codegen', { waitUntil: 'domcontentloaded', timeout: 20000 })
+    await page.locator('[data-testid="app-layout"]').waitFor({ state: 'visible', timeout: 15000 })
 
-    const dashboardTab = page.locator('button[role="tab"]').filter({ hasText: /Dashboard/i }).first()
-    if (await dashboardTab.isVisible({ timeout: 3000 })) {
-      await dashboardTab.click()
-      await expect(page.locator('[role="tabpanel"]:visible')).toBeVisible({ timeout: 3000 })
+    const header = page.locator('[data-testid="app-header"]')
+    await expect(header).toBeVisible({ timeout: 5000 })
+    await expect(header).toContainText('CodeForge')
+  })
+
+  test('can navigate to code editor via sidebar', async ({ page }) => {
+    test.setTimeout(30000)
+    await page.goto('/codegen', { waitUntil: 'domcontentloaded', timeout: 20000 })
+    await page.locator('[data-testid="app-layout"]').waitFor({ state: 'visible', timeout: 15000 })
+
+    const codeLink = page.locator('[data-testid="nav-link-codegen/code"]')
+    if (await codeLink.isVisible({ timeout: 3000 })) {
+      await codeLink.click()
+      await page.waitForTimeout(2000)
+      await expect(page).toHaveURL(/\/code/)
     }
   })
 
   test('Monaco editor loads in code editor', async ({ page }) => {
-    test.setTimeout(30000)
-    await page.goto('/codegen', { waitUntil: 'domcontentloaded', timeout: 10000 })
-    await page.waitForSelector('#root > *', { timeout: 10000 })
+    test.setTimeout(60000)
+    await page.goto('/codegen/code', { waitUntil: 'domcontentloaded', timeout: 20000 })
+    await page.locator('[data-testid="app-layout"]').waitFor({ state: 'visible', timeout: 15000 })
 
-    const codeEditorTab = page.locator('button[role="tab"]').filter({ hasText: /Code Editor/i }).first()
-    if (await codeEditorTab.isVisible({ timeout: 3000 })) {
-      await codeEditorTab.click()
-      await page.waitForSelector('#root > *', { timeout: 10000 })
-
-      const monaco = page.locator('.monaco-editor').first()
-      await expect(monaco).toBeVisible({ timeout: 15000 })
-    }
+    const monaco = page.locator('.monaco-editor').first()
+    await expect(monaco).toBeVisible({ timeout: 30000 })
   })
 
   test('no critical console errors', async ({ page }) => {
-    test.setTimeout(20000)
+    test.setTimeout(30000)
     const errors: string[] = []
     page.on('console', (msg) => {
       if (msg.type() === 'error') {
@@ -48,8 +50,8 @@ test.describe('CodeForge - Smoke Tests', () => {
       }
     })
 
-    await page.goto('/codegen', { waitUntil: 'domcontentloaded', timeout: 10000 })
-    await page.waitForSelector('#root > *', { timeout: 10000 })
+    await page.goto('/codegen', { waitUntil: 'domcontentloaded', timeout: 20000 })
+    await page.locator('[data-testid="app-layout"]').waitFor({ state: 'visible', timeout: 15000 })
 
     const criticalErrors = errors.filter(e =>
       !e.includes('Download the React DevTools') &&

@@ -2,7 +2,7 @@
 export * from './core/use-debounced-save'
 export * from './core/use-clipboard'
 export * from './core/use-library-loader'
-export * from './use-kv'
+export * from './use-ui-state'
 
 // UI hooks - re-exports from @metabuilder/hooks + codegen-specific
 export * from './ui'
@@ -64,3 +64,7 @@ export { useDocumentationView } from './use-documentation-view'
 export { useDockerBuildDebugger } from './use-docker-build-debugger'
 export { useDataBindingDesigner } from './use-data-binding-designer'
 export { useErrorPanelMain } from './use-error-panel-main'
+export { usePersistenceDashboardView } from './use-persistence-dashboard-view'
+export { useProjectSettingsView } from './use-project-settings-view'
+export { useTranslation } from './use-translation'
+export { useTranslationEditor } from './use-translation-editor'

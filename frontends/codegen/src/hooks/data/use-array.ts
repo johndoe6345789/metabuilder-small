@@ -1,8 +1,8 @@
-import { useKV } from '@/hooks/use-kv'
+import { useUIState } from '@/hooks/use-ui-state'
 import { useCallback } from 'react'
 
 export function useArray<T>(key: string, defaultValue: T[] = []) {
-  const [items, setItems] = useKV<T[]>(key, defaultValue)
+  const [items, setItems] = useUIState<T[]>(key, defaultValue)
   const safeItems = items || []
 
   const add = useCallback((item: T) => {

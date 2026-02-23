@@ -12,8 +12,8 @@ FROM node:20-alpine
 WORKDIR /app
 
 # Copy ONLY package manifests — source changes won't bust this cache layer.
-# Root manifest + lock file
-COPY package.json package-lock.json ./
+# Root manifest + lock file + registry config
+COPY package.json package-lock.json .npmrc ./
 
 # All workspace package manifests (alphabetical)
 COPY components/package.json                          ./components/
@@ -52,11 +52,21 @@ COPY types/package.json                                ./types/
 COPY workflow/package.json                             ./workflow/
 
 # Install all workspace deps with retry (npm registry can be flaky too)
-RUN for i in 1 2 3 4 5; do \
-      npm ci --prefer-offline 2>/dev/null || npm ci \
-      && break \
-      || (echo "npm ci failed (attempt $i/5), retrying in $((i*10))s..." && sleep $((i*10))); \
-    done
+RUN npm config set fetch-retries 5 \
+    && npm config set fetch-retry-mintimeout 20000 \
+    && npm config set maxsockets 5 \
+    && for i in 1 2 3 4 5; do \
+         npm ci --prefer-offline 2>/dev/null || npm ci \
+         && break \
+         || (echo "npm ci failed (attempt $i/5), retrying in $((i*10))s..." && sleep $((i*10))); \
+       done
+
+# Pre-install Next.js SWC binaries (avoids unreliable CDN download during
+# next build in every frontend — installed once here, reused by all).
+RUN npm install --no-save \
+      @next/swc-linux-arm64-musl \
+      @next/swc-linux-arm64-gnu \
+      2>/dev/null || true
 
 LABEL org.metabuilder.image="base-node-deps" \
-      org.metabuilder.description="All npm workspace dependencies pre-installed"
+      org.metabuilder.description="All npm workspace dependencies + Next.js SWC pre-installed"

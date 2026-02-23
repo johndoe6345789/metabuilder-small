@@ -1,5 +1,5 @@
 import { useCallback } from 'react'
-import { useKV } from '@/hooks/use-kv'
+import { useUIState } from '@/hooks/use-ui-state'
 import { Edge, MarkerType } from 'reactflow'
 import { toast } from '@/components/ui/sonner'
 
@@ -28,7 +28,7 @@ export const CONNECTION_STYLE = {
 }
 
 export function useIdeaConnections() {
-  const [edges, setEdges] = useKV<Edge<IdeaEdgeData>[]>('feature-idea-edges', DEFAULT_EDGES)
+  const [edges, setEdges] = useUIState<Edge<IdeaEdgeData>[]>('feature-idea-edges', DEFAULT_EDGES)
 
   const validateAndRemoveConflicts = useCallback((
     currentEdges: Edge<IdeaEdgeData>[],

@@ -22,7 +22,7 @@ WORKDIR /app
 
 COPY --from=builder /app/frontends/exploded-diagrams/.next/standalone ./
 COPY --from=builder /app/frontends/exploded-diagrams/.next/static ./.next/static
-COPY --from=builder /app/frontends/exploded-diagrams/public ./frontends/exploded-diagrams/public
+COPY --from=builder /app/frontends/exploded-diagrams/public ./public
 
 ENV NODE_ENV=production
 ENV PORT=3000

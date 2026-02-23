@@ -26,6 +26,7 @@ export function JSONUIRenderer({
   if (exceeded) {
     return <DepthLimitFallback componentId={component.id} />
   }
+
   const renderChildren = (
     children: UIComponent[] | string | undefined,
     renderContext: Record<string, unknown>
@@ -226,7 +227,7 @@ export function JSONUIRenderer({
     }
 
     const Component = getUIComponent(component.type)
-    
+
     if (!Component) {
       console.warn(`Component type "${component.type}" not found in registry`)
       return null

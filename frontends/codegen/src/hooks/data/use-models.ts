@@ -1,30 +1,34 @@
-import { useKV } from '@/hooks/use-kv'
+import { useAppDispatch, useAppSelector } from '@/store'
+import { addModel as addModelAction, updateModel as updateModelAction, removeModel, setModels } from '@/store/slices/modelsSlice'
 import { useCallback } from 'react'
 import { PrismaModel } from '@/types/project'
 
 export function useModels() {
-  const [models, setModels] = useKV<PrismaModel[]>('project-models', [])
+  const dispatch = useAppDispatch()
+  const sliceModels = useAppSelector((s) => s.models?.models ?? [])
+  const models = sliceModels as unknown as PrismaModel[]
   
   const addModel = useCallback((model: PrismaModel) => {
-    setModels(current => [...(current || []), model])
-  }, [setModels])
+    dispatch(addModelAction(model as any))
+  }, [dispatch])
   
   const updateModel = useCallback((modelId: string, updates: Partial<PrismaModel>) => {
-    setModels(current =>
-      (current || []).map(m => m.id === modelId ? { ...m, ...updates } : m)
-    )
-  }, [setModels])
+    const existing = models.find(m => m.id === modelId)
+    if (existing) {
+      dispatch(updateModelAction({ ...existing, ...updates } as any))
+    }
+  }, [dispatch, models])
   
   const deleteModel = useCallback((modelId: string) => {
-    setModels(current => (current || []).filter(m => m.id !== modelId))
-  }, [setModels])
+    dispatch(removeModel(modelId))
+  }, [dispatch])
   
   const getModel = useCallback((modelId: string) => {
-    return models?.find(m => m.id === modelId)
+    return models.find(m => m.id === modelId)
   }, [models])
   
   return {
-    models: models || [],
+    models,
     addModel,
     updateModel,
     deleteModel,
