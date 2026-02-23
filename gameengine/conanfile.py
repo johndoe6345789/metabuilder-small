@@ -24,7 +24,6 @@ class SDL3CppConan(ConanFile):
         "rapidjson/cci.20230929",
         "nlohmann_json/3.11.3",
         "lunasvg/3.0.1",
-        "libvips/8.16.0",
         "freetype/2.13.2",
         "ffmpeg/8.0.1",
         "cairo/1.18.0",
