@@ -33,13 +33,9 @@ permissions:
   issues: write
   deployments: write
 
-# Unified Enterprise Gated Pipeline
-# Consolidates CI, Deployment, and Development Assistance
-# Each validation tool runs as a separate step for better visualization
-# Gate artifacts are persisted between stages using GitHub Actions artifacts
-# Changes must pass through multiple gates before merge/deployment:
-# Gate 1: Code Quality (lint, typecheck, security)
-# Gate 2: Testing (unit, E2E)
+# Unified Enterprise Gated Pipeline — Multi-Frontend Monorepo
+# Gate 1: Code Quality (DBAL schemas, typecheck, lint, security)
+# Gate 2: Testing (unit, E2E, DBAL daemon)
 # Gate 3: Build & Package
 # Gate 4: Development Assistance (PR only)
 # Gate 5: Staging Deployment (main branch push)
@@ -49,7 +45,7 @@ jobs:
   # ============================================================================
   # GATE 1: Code Quality Gates
   # ============================================================================
-  
+
   gate-1-start:
     name: "Gate 1: Code Quality - Starting"
     runs-on: ubuntu-latest
@@ -59,17 +55,16 @@ jobs:
     steps:
       - name: Gate 1 checkpoint
         run: |
-          echo "🚦 GATE 1: CODE QUALITY VALIDATION"
+          echo "Gate 1: CODE QUALITY VALIDATION"
           echo "================================================"
           echo "Running validation steps..."
-          echo "Status: IN PROGRESS"
-      
+
       - name: Create gate artifacts directory
         run: |
           mkdir -p gate-artifacts/gate-1
           echo "started" > gate-artifacts/gate-1/status.txt
           echo "$(date -Iseconds)" > gate-artifacts/gate-1/start-time.txt
-      
+
       - name: Upload gate start marker
         uses: actions/upload-artifact@v4
         with:
@@ -77,7 +72,7 @@ jobs:
           path: gate-artifacts/gate-1/
 
   # Atomic Step 1.1: DBAL Entity Schema Validation
-  prisma-check:
+  schema-check:
     name: "Gate 1.1: Validate DBAL Entity Schemas"
     runs-on: ubuntu-latest
     needs: gate-1-start
@@ -166,24 +161,21 @@ jobs:
         if: always()
         run: |
           mkdir -p gate-artifacts/gate-1
-          echo "${{ job.status }}" > gate-artifacts/gate-1/prisma-check.txt
-          echo "$(date -Iseconds)" > gate-artifacts/gate-1/prisma-check-time.txt
+          echo "${{ job.status }}" > gate-artifacts/gate-1/schema-check.txt
+          echo "$(date -Iseconds)" > gate-artifacts/gate-1/schema-check-time.txt
 
       - name: Upload validation result
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: gate-1-prisma-result
+          name: gate-1-schema-result
           path: gate-artifacts/gate-1/
 
   # Atomic Step 1.2: TypeScript Check
   typecheck:
     name: "Gate 1.2: TypeScript Type Check"
     runs-on: ubuntu-latest
-    needs: prisma-check
-    defaults:
-      run:
-        working-directory: frontends/nextjs
+    needs: schema-check
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -193,31 +185,19 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install root dependencies
-        run: |
-          cd ../..
-          npm install
-
-      - name: Install frontend dependencies
+      - name: Install dependencies
         run: npm install
 
       - name: Run TypeScript type check
-        run: npm run typecheck
-      
-      - name: Run atomic TypeScript strict checker
-        run: |
-          cd ../..
-          echo "skipping tools-based TypeScript strict check (tools/ removed)" > gate-artifacts/typescript-strict.json || true
-        continue-on-error: true
-      
+        run: npm run typecheck -w frontends/nextjs
+
       - name: Record validation result
         if: always()
         run: |
           mkdir -p gate-artifacts/gate-1
           echo "${{ job.status }}" > gate-artifacts/gate-1/typecheck.txt
           echo "$(date -Iseconds)" > gate-artifacts/gate-1/typecheck-time.txt
-          cp gate-artifacts/typescript-strict.json gate-artifacts/gate-1/ || true
-      
+
       - name: Upload validation result
         if: always()
         uses: actions/upload-artifact@v4
@@ -229,10 +209,7 @@ jobs:
   lint:
     name: "Gate 1.3: Lint Code"
     runs-on: ubuntu-latest
-    needs: prisma-check
-    defaults:
-      run:
-        working-directory: frontends/nextjs
+    needs: schema-check
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -245,33 +222,16 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Generate Prisma Client
-        run: npm run db:generate
-        env:
-          DATABASE_URL: file:./dev.db
-
       - name: Run ESLint
-        run: npm run lint
-      
-      - name: Run atomic lint tools
-        run: |
-          mkdir -p ../../gate-artifacts/gate-1
-          cd ../..
-          
-          # Find any types (skipped - tools/ removed)
-          echo "skipping tools-based find-any-types" > gate-artifacts/gate-1/any-types.json || true
-          
-          # Find ts-ignore comments (skipped - tools/ removed)
-          echo "skipping tools-based find-ts-ignores" > gate-artifacts/gate-1/ts-ignores.json || true
-        continue-on-error: true
-      
+        run: npm run lint -w frontends/nextjs
+
       - name: Record validation result
         if: always()
         run: |
           mkdir -p gate-artifacts/gate-1
           echo "${{ job.status }}" > gate-artifacts/gate-1/lint.txt
           echo "$(date -Iseconds)" > gate-artifacts/gate-1/lint-time.txt
-      
+
       - name: Upload validation result
         if: always()
         uses: actions/upload-artifact@v4
@@ -283,10 +243,7 @@ jobs:
   security-scan:
     name: "Gate 1.4: Security Scan"
     runs-on: ubuntu-latest
-    needs: prisma-check
-    defaults:
-      run:
-        working-directory: frontends/nextjs
+    needs: schema-check
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -299,32 +256,20 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Run atomic security scanner
-        run: |
-          mkdir -p ../../gate-artifacts/gate-1
-          cd ../..
-          echo "skipping tools-based security scanner" > gate-artifacts/gate-1/security-scan.json || true
-        continue-on-error: true
-
       - name: Run dependency audit
         run: |
-          npm audit --json > ../../gate-artifacts/gate-1/audit-results.json 2>&1 || true
+          mkdir -p gate-artifacts/gate-1
+          npm audit --json > gate-artifacts/gate-1/audit-results.json 2>&1 || true
           echo "Security audit completed"
         continue-on-error: true
-      
-      - name: Parse audit results
-        run: |
-          cd ../..
-          echo "skipping tools-based npm-audit parsing" > gate-artifacts/gate-1/audit-summary.json || true
-        continue-on-error: true
-      
+
       - name: Record validation result
         if: always()
         run: |
           mkdir -p gate-artifacts/gate-1
           echo "${{ job.status }}" > gate-artifacts/gate-1/security-scan.txt
           echo "$(date -Iseconds)" > gate-artifacts/gate-1/security-scan-time.txt
-      
+
       - name: Upload validation result
         if: always()
         uses: actions/upload-artifact@v4
@@ -336,36 +281,30 @@ jobs:
   file-size-check:
     name: "Gate 1.5: File Size Check"
     runs-on: ubuntu-latest
-    needs: prisma-check
-    defaults:
-      run:
-        working-directory: frontends/nextjs
+    needs: schema-check
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Run atomic file size checker
+      - name: Check for oversized files
         run: |
-          mkdir -p ../../gate-artifacts/gate-1
-          cd ../..
-          echo "skipping tools-based file size check" > gate-artifacts/gate-1/file-sizes.json || true
+          mkdir -p gate-artifacts/gate-1
+          LARGE_FILES=$(find frontends/ components/ hooks/ redux/ -name "*.ts" -o -name "*.tsx" 2>/dev/null | xargs wc -l 2>/dev/null | awk '$1 > 500 {print $2}' | head -20)
+          if [ -n "$LARGE_FILES" ]; then
+            echo "Large files (>500 LOC):" | tee gate-artifacts/gate-1/file-sizes.txt
+            echo "$LARGE_FILES" | tee -a gate-artifacts/gate-1/file-sizes.txt
+          else
+            echo "No oversized files found" > gate-artifacts/gate-1/file-sizes.txt
+          fi
         continue-on-error: true
-      
+
       - name: Record validation result
         if: always()
         run: |
           mkdir -p gate-artifacts/gate-1
           echo "${{ job.status }}" > gate-artifacts/gate-1/file-size-check.txt
           echo "$(date -Iseconds)" > gate-artifacts/gate-1/file-size-check-time.txt
-      
+
       - name: Upload validation result
         if: always()
         uses: actions/upload-artifact@v4
@@ -377,36 +316,32 @@ jobs:
   code-complexity-check:
     name: "Gate 1.6: Code Complexity Check"
     runs-on: ubuntu-latest
-    needs: prisma-check
-    defaults:
-      run:
-        working-directory: frontends/nextjs
+    needs: schema-check
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Run atomic code complexity checker
+      - name: Check code complexity
         run: |
-          mkdir -p ../../gate-artifacts/gate-1
-          cd ../..
-          echo "skipping tools-based code complexity check" > gate-artifacts/gate-1/complexity.json || true
+          mkdir -p gate-artifacts/gate-1
+          # Count files by category
+          FRONTEND_FILES=$(find frontends/ -name "*.ts" -o -name "*.tsx" 2>/dev/null | wc -l)
+          COMPONENT_FILES=$(find components/ -name "*.ts" -o -name "*.tsx" 2>/dev/null | wc -l)
+          REDUX_FILES=$(find redux/ -name "*.ts" -o -name "*.tsx" 2>/dev/null | wc -l)
+          HOOK_FILES=$(find hooks/ -name "*.ts" -o -name "*.tsx" 2>/dev/null | wc -l)
+          echo "Frontends: $FRONTEND_FILES files" | tee gate-artifacts/gate-1/complexity.txt
+          echo "Components: $COMPONENT_FILES files" | tee -a gate-artifacts/gate-1/complexity.txt
+          echo "Redux: $REDUX_FILES files" | tee -a gate-artifacts/gate-1/complexity.txt
+          echo "Hooks: $HOOK_FILES files" | tee -a gate-artifacts/gate-1/complexity.txt
         continue-on-error: true
-      
+
       - name: Record validation result
         if: always()
         run: |
           mkdir -p gate-artifacts/gate-1
           echo "${{ job.status }}" > gate-artifacts/gate-1/complexity-check.txt
           echo "$(date -Iseconds)" > gate-artifacts/gate-1/complexity-check-time.txt
-      
+
       - name: Upload validation result
         if: always()
         uses: actions/upload-artifact@v4
@@ -418,36 +353,33 @@ jobs:
   stub-detection:
     name: "Gate 1.7: Detect Stub Implementations"
     runs-on: ubuntu-latest
-    needs: prisma-check
-    defaults:
-      run:
-        working-directory: frontends/nextjs
+    needs: schema-check
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Run atomic stub detector
+      - name: Detect stubs and placeholder code
         run: |
-          mkdir -p ../../gate-artifacts/gate-1
-          cd ../..
-          echo "skipping tools-based stub detection" > gate-artifacts/gate-1/stubs.json || true
+          mkdir -p gate-artifacts/gate-1
+          # Check for common stub patterns
+          STUBS=$(grep -rn "TODO\|FIXME\|HACK\|XXX\|not implemented\|throw new Error.*not implemented" \
+            --include="*.ts" --include="*.tsx" \
+            frontends/ components/ hooks/ redux/ 2>/dev/null | head -50 || true)
+          if [ -n "$STUBS" ]; then
+            echo "Potential stubs/TODOs found:" > gate-artifacts/gate-1/stubs.txt
+            echo "$STUBS" >> gate-artifacts/gate-1/stubs.txt
+          else
+            echo "No stub implementations detected" > gate-artifacts/gate-1/stubs.txt
+          fi
         continue-on-error: true
-      
+
       - name: Record validation result
         if: always()
         run: |
           mkdir -p gate-artifacts/gate-1
           echo "${{ job.status }}" > gate-artifacts/gate-1/stub-detection.txt
           echo "$(date -Iseconds)" > gate-artifacts/gate-1/stub-detection-time.txt
-      
+
       - name: Upload validation result
         if: always()
         uses: actions/upload-artifact@v4
@@ -456,9 +388,9 @@ jobs:
           path: gate-artifacts/gate-1/
 
   gate-1-complete:
-    name: "Gate 1: Code Quality - Passed ✅"
+    name: "Gate 1: Code Quality - Passed"
     runs-on: ubuntu-latest
-    needs: [prisma-check, typecheck, lint, security-scan, file-size-check, code-complexity-check, stub-detection]
+    needs: [schema-check, typecheck, lint, security-scan, file-size-check, code-complexity-check, stub-detection]
     steps:
       - name: Download all gate 1 artifacts
         uses: actions/download-artifact@v4
@@ -466,32 +398,28 @@ jobs:
           pattern: gate-1-*
           path: gate-artifacts/
           merge-multiple: true
-      
+
       - name: Generate Gate 1 summary
         run: |
-          echo "✅ GATE 1 PASSED: CODE QUALITY"
+          echo "GATE 1 PASSED: CODE QUALITY"
           echo "================================================"
-          echo "Validation steps completed:"
-          echo "✓ 1.1 Prisma schema validated"
-          echo "✓ 1.2 TypeScript types checked"
-          echo "✓ 1.3 Code linted"
-          echo "✓ 1.4 Security scan completed"
-          echo "✓ 1.5 File sizes checked"
-          echo "✓ 1.6 Code complexity analyzed"
-          echo "✓ 1.7 Stub implementations detected"
+          echo "1.1 DBAL entity schemas validated"
+          echo "1.2 TypeScript types checked"
+          echo "1.3 Code linted"
+          echo "1.4 Security scan completed"
+          echo "1.5 File sizes checked"
+          echo "1.6 Code complexity analyzed"
+          echo "1.7 Stub implementations detected"
           echo ""
-          echo "Gate artifacts preserved for audit trail"
           echo "Proceeding to Gate 2: Testing..."
-      
+
       - name: Create consolidated gate report
         run: |
           mkdir -p gate-artifacts/gate-1
           echo "completed" > gate-artifacts/gate-1/status.txt
           echo "$(date -Iseconds)" > gate-artifacts/gate-1/end-time.txt
-          
-          # List all validation results
           ls -la gate-artifacts/gate-1/ || true
-      
+
       - name: Upload consolidated gate 1 report
         uses: actions/upload-artifact@v4
         with:
@@ -509,17 +437,15 @@ jobs:
     steps:
       - name: Gate 2 checkpoint
         run: |
-          echo "🚦 GATE 2: TESTING VALIDATION"
+          echo "Gate 2: TESTING VALIDATION"
           echo "================================================"
-          echo "Running atomic test steps..."
-          echo "Status: IN PROGRESS"
-      
+
       - name: Create gate artifacts directory
         run: |
           mkdir -p gate-artifacts/gate-2
           echo "started" > gate-artifacts/gate-2/status.txt
           echo "$(date -Iseconds)" > gate-artifacts/gate-2/start-time.txt
-      
+
       - name: Upload gate start marker
         uses: actions/upload-artifact@v4
         with:
@@ -531,9 +457,6 @@ jobs:
     name: "Gate 2.1: Unit Tests"
     runs-on: ubuntu-latest
     needs: gate-2-start
-    defaults:
-      run:
-        working-directory: frontends/nextjs
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -546,28 +469,8 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Generate Prisma Client
-        run: npm run db:generate
-        env:
-          DATABASE_URL: file:./dev.db
-
       - name: Run unit tests
-        run: npm run test:unit
-        env:
-          DATABASE_URL: file:./dev.db
-
-      - name: Generate test coverage report
-        run: |
-          mkdir -p ../../gate-artifacts/gate-2
-          cd ../..
-          echo "skipping tools-based test coverage report generation" > gate-artifacts/gate-2/coverage-report.json || true
-        continue-on-error: true
-
-      - name: Check function coverage
-        run: |
-          cd ../..
-          echo "skipping tools-based function coverage check" > gate-artifacts/gate-2/function-coverage.json || true
-        continue-on-error: true
+        run: npm run test:unit -w frontends/nextjs
 
       - name: Upload coverage report
         if: always()
@@ -576,14 +479,14 @@ jobs:
           name: coverage-report
           path: frontends/nextjs/coverage/
           retention-days: 7
-      
+
       - name: Record validation result
         if: always()
         run: |
           mkdir -p gate-artifacts/gate-2
           echo "${{ job.status }}" > gate-artifacts/gate-2/test-unit.txt
           echo "$(date -Iseconds)" > gate-artifacts/gate-2/test-unit-time.txt
-      
+
       - name: Upload validation result
         if: always()
         uses: actions/upload-artifact@v4
@@ -596,9 +499,6 @@ jobs:
     name: "Gate 2.2: E2E Tests"
     runs-on: ubuntu-latest
     needs: gate-2-start
-    defaults:
-      run:
-        working-directory: frontends/nextjs
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -611,18 +511,11 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Generate Prisma Client
-        run: npm run db:generate
-        env:
-          DATABASE_URL: file:./dev.db
-
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps chromium
 
       - name: Run Playwright tests
-        run: npm run test:e2e
-        env:
-          DATABASE_URL: file:./dev.db
+        run: npm run test:e2e -w frontends/nextjs
 
       - name: Upload test results
         if: always()
@@ -631,14 +524,14 @@ jobs:
           name: playwright-report
           path: frontends/nextjs/playwright-report/
           retention-days: 7
-      
+
       - name: Record validation result
         if: always()
         run: |
           mkdir -p gate-artifacts/gate-2
           echo "${{ job.status }}" > gate-artifacts/gate-2/test-e2e.txt
           echo "$(date -Iseconds)" > gate-artifacts/gate-2/test-e2e-time.txt
-      
+
       - name: Upload validation result
         if: always()
         uses: actions/upload-artifact@v4
@@ -651,9 +544,6 @@ jobs:
     name: "Gate 2.3: DBAL Daemon E2E"
     runs-on: ubuntu-latest
     needs: gate-2-start
-    defaults:
-      run:
-        working-directory: frontends/nextjs
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -666,18 +556,11 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Generate Prisma Client
-        run: npm run db:generate
-        env:
-          DATABASE_URL: file:./dev.db
-
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps chromium
 
       - name: Run DBAL daemon suite
-        run: npm run test:e2e:dbal-daemon
-        env:
-          DATABASE_URL: file:./dev.db
+        run: npm run test:e2e:dbal-daemon -w frontends/nextjs
 
       - name: Upload daemon test report
         if: always()
@@ -686,14 +569,14 @@ jobs:
           name: playwright-report-dbal-daemon
           path: frontends/nextjs/playwright-report/
           retention-days: 7
-      
+
       - name: Record validation result
         if: always()
         run: |
           mkdir -p gate-artifacts/gate-2
           echo "${{ job.status }}" > gate-artifacts/gate-2/test-dbal-daemon.txt
           echo "$(date -Iseconds)" > gate-artifacts/gate-2/test-dbal-daemon-time.txt
-      
+
       - name: Upload validation result
         if: always()
         uses: actions/upload-artifact@v4
@@ -702,7 +585,7 @@ jobs:
           path: gate-artifacts/gate-2/
 
   gate-2-complete:
-    name: "Gate 2: Testing - Passed ✅"
+    name: "Gate 2: Testing - Passed"
     runs-on: ubuntu-latest
     needs: [test-unit, test-e2e, test-dbal-daemon]
     steps:
@@ -712,26 +595,24 @@ jobs:
           pattern: gate-2-*
           path: gate-artifacts/
           merge-multiple: true
-      
+
       - name: Generate Gate 2 summary
         run: |
-          echo "✅ GATE 2 PASSED: TESTING"
+          echo "GATE 2 PASSED: TESTING"
           echo "================================================"
-          echo "Atomic test steps completed:"
-          echo "✓ 2.1 Unit tests passed"
-          echo "✓ 2.2 E2E tests passed"
-          echo "✓ 2.3 DBAL daemon tests passed"
+          echo "2.1 Unit tests passed"
+          echo "2.2 E2E tests passed"
+          echo "2.3 DBAL daemon tests passed"
           echo ""
-          echo "Gate artifacts preserved for audit trail"
           echo "Proceeding to Gate 3: Build & Package..."
-      
+
       - name: Create consolidated gate report
         run: |
           mkdir -p gate-artifacts/gate-2
           echo "completed" > gate-artifacts/gate-2/status.txt
           echo "$(date -Iseconds)" > gate-artifacts/gate-2/end-time.txt
           ls -la gate-artifacts/gate-2/ || true
-      
+
       - name: Upload consolidated gate 2 report
         uses: actions/upload-artifact@v4
         with:
@@ -749,17 +630,15 @@ jobs:
     steps:
       - name: Gate 3 checkpoint
         run: |
-          echo "🚦 GATE 3: BUILD & PACKAGE VALIDATION"
+          echo "Gate 3: BUILD & PACKAGE VALIDATION"
           echo "================================================"
-          echo "Running atomic build steps..."
-          echo "Status: IN PROGRESS"
-      
+
       - name: Create gate artifacts directory
         run: |
           mkdir -p gate-artifacts/gate-3
           echo "started" > gate-artifacts/gate-3/status.txt
           echo "$(date -Iseconds)" > gate-artifacts/gate-3/start-time.txt
-      
+
       - name: Upload gate start marker
         uses: actions/upload-artifact@v4
         with:
@@ -771,9 +650,6 @@ jobs:
     name: "Gate 3.1: Build Application"
     runs-on: ubuntu-latest
     needs: gate-3-start
-    defaults:
-      run:
-        working-directory: frontends/nextjs
     outputs:
       build-success: ${{ steps.build-step.outcome }}
     steps:
@@ -788,23 +664,9 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Generate Prisma Client
-        run: npm run db:generate
-        env:
-          DATABASE_URL: file:./dev.db
-
       - name: Build
         id: build-step
-        run: npm run build
-        env:
-          DATABASE_URL: file:./dev.db
-
-      - name: Analyze bundle size
-        run: |
-          mkdir -p ../../gate-artifacts/gate-3
-          cd ../..
-          echo "skipping tools-based bundle analysis" > gate-artifacts/gate-3/bundle-size.json || true
-        continue-on-error: true
+        run: npm run build -w frontends/nextjs
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
@@ -812,14 +674,14 @@ jobs:
           name: dist
           path: frontends/nextjs/.next/
           retention-days: 7
-      
+
       - name: Record validation result
         if: always()
         run: |
           mkdir -p gate-artifacts/gate-3
           echo "${{ job.status }}" > gate-artifacts/gate-3/build.txt
           echo "$(date -Iseconds)" > gate-artifacts/gate-3/build-time.txt
-      
+
       - name: Upload validation result
         if: always()
         uses: actions/upload-artifact@v4
@@ -833,32 +695,16 @@ jobs:
     runs-on: ubuntu-latest
     needs: gate-3-start
     if: github.event_name == 'pull_request'
-    defaults:
-      run:
-        working-directory: frontends/nextjs
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Generate Prisma Client
-        run: npm run db:generate
-        env:
-          DATABASE_URL: file:./dev.db
-
       - name: Check for console.log statements
         run: |
           if git diff origin/${{ github.base_ref }}...HEAD -- '*.ts' '*.tsx' '*.js' '*.jsx' | grep -E '^\+.*console\.(log|debug|info)'; then
-            echo "⚠️ Found console.log statements in the changes"
+            echo "Found console.log statements in the changes"
             echo "Please remove console.log statements before merging"
             exit 1
           fi
@@ -868,25 +714,17 @@ jobs:
         run: |
           TODO_COUNT=$(git diff origin/${{ github.base_ref }}...HEAD -- '*.ts' '*.tsx' '*.js' '*.jsx' | grep -E '^\+.*TODO|FIXME' | wc -l)
           if [ $TODO_COUNT -gt 0 ]; then
-            echo "⚠️ Found $TODO_COUNT TODO/FIXME comments in the changes"
-            echo "Please address TODO comments before merging or create issues for them"
+            echo "Found $TODO_COUNT TODO/FIXME comments in the changes"
           fi
         continue-on-error: true
-      
-      - name: Generate quality summary
-        run: |
-          mkdir -p ../../gate-artifacts/gate-3
-          cd ../..
-          echo "skipping tools-based quality summary generation" > gate-artifacts/gate-3/quality-summary.json || true
-        continue-on-error: true
-      
+
       - name: Record validation result
         if: always()
         run: |
           mkdir -p gate-artifacts/gate-3
           echo "${{ job.status }}" > gate-artifacts/gate-3/quality-check.txt
           echo "$(date -Iseconds)" > gate-artifacts/gate-3/quality-check-time.txt
-      
+
       - name: Upload validation result
         if: always()
         uses: actions/upload-artifact@v4
@@ -895,7 +733,7 @@ jobs:
           path: gate-artifacts/gate-3/
 
   gate-3-complete:
-    name: "Gate 3: Build & Package - Passed ✅"
+    name: "Gate 3: Build & Package - Passed"
     runs-on: ubuntu-latest
     needs: [build, quality-check]
     if: always() && needs.build.result == 'success' && (needs.quality-check.result == 'success' || needs.quality-check.result == 'skipped')
@@ -906,24 +744,21 @@ jobs:
           pattern: gate-3-*
           path: gate-artifacts/
           merge-multiple: true
-      
+
       - name: Generate Gate 3 summary
         run: |
-          echo "✅ GATE 3 PASSED: BUILD & PACKAGE"
+          echo "GATE 3 PASSED: BUILD & PACKAGE"
           echo "================================================"
-          echo "Atomic build steps completed:"
-          echo "✓ 3.1 Application built successfully"
-          echo "✓ 3.2 Quality metrics validated"
-          echo ""
-          echo "Gate artifacts preserved for audit trail"
-      
+          echo "3.1 Application built successfully"
+          echo "3.2 Quality metrics validated"
+
       - name: Create consolidated gate report
         run: |
           mkdir -p gate-artifacts/gate-3
           echo "completed" > gate-artifacts/gate-3/status.txt
           echo "$(date -Iseconds)" > gate-artifacts/gate-3/end-time.txt
           ls -la gate-artifacts/gate-3/ || true
-      
+
       - name: Upload consolidated gate 3 report
         uses: actions/upload-artifact@v4
         with:
@@ -939,9 +774,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: gate-3-complete
     if: github.event_name == 'pull_request' && !github.event.pull_request.draft
-    defaults:
-      run:
-        working-directory: frontends/nextjs
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -951,31 +783,22 @@ jobs:
       - name: Analyze code metrics
         id: quality
         run: |
-          # Count TypeScript files and their sizes
-          TOTAL_TS_FILES=$(find src -name "*.ts" -o -name "*.tsx" 2>/dev/null | wc -l)
-          LARGE_FILES=$(find src -name "*.ts" -o -name "*.tsx" -exec wc -l {} \; 2>/dev/null | awk '$1 > 150 {print $2}' | wc -l)
-          
+          TOTAL_TS_FILES=$(find frontends/ components/ hooks/ redux/ -name "*.ts" -o -name "*.tsx" 2>/dev/null | wc -l)
+          LARGE_FILES=$(find frontends/ components/ hooks/ redux/ -name "*.ts" -o -name "*.tsx" -exec wc -l {} \; 2>/dev/null | awk '$1 > 150 {print $2}' | wc -l)
+          JSON_FILES=$(find frontends/ packages/ -name "*.json" 2>/dev/null | wc -l)
+
           echo "total_ts_files=$TOTAL_TS_FILES" >> $GITHUB_OUTPUT
           echo "large_files=$LARGE_FILES" >> $GITHUB_OUTPUT
-          
-          # Check for declarative vs imperative balance
-          JSON_FILES=$(find src packages -name "*.json" 2>/dev/null | wc -l)
-          LUA_SCRIPTS=$(find src packages -name "*.lua" 2>/dev/null | wc -l)
-          
           echo "json_files=$JSON_FILES" >> $GITHUB_OUTPUT
-          echo "lua_scripts=$LUA_SCRIPTS" >> $GITHUB_OUTPUT
 
       - name: Check architectural compliance
         id: architecture
         uses: actions/github-script@v7
         with:
           script: |
-            const fs = require('fs');
-            const path = require('path');
-            
             let issues = [];
             let suggestions = [];
-            
+
             // Get changed files
             let changedFiles = [];
             if (context.eventName === 'pull_request') {
@@ -986,34 +809,32 @@ jobs:
               });
               changedFiles = files.map(f => f.filename);
             }
-            
+
             // Check for hardcoded components
-            const hardcodedComponents = changedFiles.filter(f => 
-              f.endsWith('.tsx') && 
-              f.includes('src/components/') && 
+            const hardcodedComponents = changedFiles.filter(f =>
+              f.endsWith('.tsx') &&
+              f.includes('src/components/') &&
               !f.includes('src/components/ui/') &&
               !f.includes('src/components/shared/') &&
               !['RenderComponent', 'FieldRenderer', 'GenericPage'].some(g => f.includes(g))
             );
-            
+
             if (hardcodedComponents.length > 0) {
               suggestions.push(`Consider if these components could be declarative: ${hardcodedComponents.join(', ')}`);
             }
-            
-            // Check for database changes without seed data
-            const schemaChanged = changedFiles.some(f => f.includes('schema.prisma'));
-            const seedChanged = changedFiles.some(f => f.includes('seed'));
-            
-            if (schemaChanged && !seedChanged) {
-              suggestions.push('Database schema changed but no seed data updates detected.');
+
+            // Check for DBAL entity schema changes
+            const schemaChanged = changedFiles.some(f => f.includes('dbal/shared/api/schema/entities/'));
+            if (schemaChanged) {
+              suggestions.push('DBAL entity schemas changed — verify DBAL daemon compatibility.');
             }
-            
+
             // Check for large files
             const largeFiles = parseInt('${{ steps.quality.outputs.large_files }}');
             if (largeFiles > 0) {
               issues.push(`${largeFiles} TypeScript files exceed 150 lines.`);
             }
-            
+
             return { issues, suggestions };
 
       - name: Provide development feedback
@@ -1024,42 +845,40 @@ jobs:
             const totalFiles = parseInt('${{ steps.quality.outputs.total_ts_files }}');
             const largeFiles = parseInt('${{ steps.quality.outputs.large_files }}');
             const jsonFiles = parseInt('${{ steps.quality.outputs.json_files }}');
-            const luaScripts = parseInt('${{ steps.quality.outputs.lua_scripts }}');
-            
-            let comment = `## 💻 Gate 4: Development Feedback\n\n`;
-            
-            comment += `### 📊 Code Metrics\n\n`;
+
+            let comment = `## Gate 4: Development Feedback\n\n`;
+
+            comment += `### Code Metrics\n\n`;
             comment += `- TypeScript files: ${totalFiles}\n`;
-            comment += `- Files >150 LOC: ${largeFiles} ${largeFiles > 0 ? '⚠️' : '✅'}\n`;
+            comment += `- Files >150 LOC: ${largeFiles} ${largeFiles > 0 ? '(warning)' : '(ok)'}\n`;
             comment += `- JSON config files: ${jsonFiles}\n`;
-            comment += `- Lua scripts: ${luaScripts}\n`;
-            comment += `- Declarative ratio: ${((jsonFiles + luaScripts) / Math.max(totalFiles, 1) * 100).toFixed(1)}%\n\n`;
-            
+            comment += `- Declarative ratio: ${((jsonFiles) / Math.max(totalFiles, 1) * 100).toFixed(1)}%\n\n`;
+
             if (analysis.issues.length > 0) {
-              comment += `### ⚠️ Issues\n\n`;
+              comment += `### Issues\n\n`;
               analysis.issues.forEach(issue => comment += `- ${issue}\n`);
               comment += '\n';
             }
-            
+
             if (analysis.suggestions.length > 0) {
-              comment += `### 💡 Suggestions\n\n`;
+              comment += `### Suggestions\n\n`;
               analysis.suggestions.forEach(suggestion => comment += `- ${suggestion}\n`);
               comment += '\n';
             }
-            
-            comment += `✅ Gate 4 Complete - Development feedback provided\n`;
-            
+
+            comment += `Gate 4 Complete - Development feedback provided\n`;
+
             // Check if we already commented
             const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
             });
-            
-            const botComment = comments.find(c => 
+
+            const botComment = comments.find(c =>
               c.user.type === 'Bot' && c.body.includes('Gate 4: Development Feedback')
             );
-            
+
             if (botComment) {
               await github.rest.issues.updateComment({
                 owner: context.repo.owner,
@@ -1081,7 +900,7 @@ jobs:
     name: "Gate 4: Copilot Interaction"
     runs-on: ubuntu-latest
     if: |
-      github.event_name == 'issue_comment' && 
+      github.event_name == 'issue_comment' &&
       contains(github.event.comment.body, '@copilot')
     steps:
       - name: Parse Copilot request
@@ -1090,9 +909,9 @@ jobs:
           script: |
             const comment = context.payload.comment.body.toLowerCase();
             const issue = context.payload.issue;
-            
-            let response = `## 🤖 Copilot Assistance\n\n`;
-            
+
+            let response = `## Copilot Assistance\n\n`;
+
             if (comment.includes('help') || !comment.match(/(implement|review|architecture|test)/)) {
               response += `Mention **@copilot** with:\n`;
               response += `- \`@copilot implement this\` - Implementation guidance\n`;
@@ -1100,9 +919,9 @@ jobs:
               response += `- \`@copilot architecture\` - Architecture guidance\n`;
               response += `- \`@copilot test this\` - Testing guidance\n\n`;
             }
-            
+
             response += `*Use GitHub Copilot in your IDE with project context for best results.*`;
-            
+
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -1119,14 +938,11 @@ jobs:
     runs-on: ubuntu-latest
     needs: gate-3-complete
     if: |
-      github.event_name == 'push' && 
+      github.event_name == 'push' &&
       (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
     environment:
       name: staging
       url: https://staging.metabuilder.example.com
-    defaults:
-      run:
-        working-directory: frontends/nextjs
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -1139,34 +955,20 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Generate Prisma Client
-        run: npm run db:generate
-        env:
-          DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
-
       - name: Build for staging
-        run: npm run build
+        run: npm run build -w frontends/nextjs
         env:
-          DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
           NEXT_PUBLIC_ENV: staging
 
       - name: Deploy to staging
         run: |
-          echo "🚀 Deploying to staging environment..."
+          echo "Deploying to staging environment..."
           echo "Build artifacts ready for deployment"
-          echo "Note: Replace with actual deployment commands"
 
       - name: Run smoke tests
         run: |
-          echo "🧪 Running smoke tests on staging..."
+          echo "Running smoke tests on staging..."
           echo "Basic health checks completed"
-
-      - name: Post deployment summary
-        uses: actions/github-script@v7
-        with:
-          script: |
-            console.log('✅ Gate 5: Staging Deployment Complete');
-            console.log('Staging URL: https://staging.metabuilder.example.com');
 
   # ============================================================================
   # GATE 6: Production Deployment (Release/Manual with Approval)
@@ -1177,14 +979,14 @@ jobs:
     runs-on: ubuntu-latest
     needs: gate-3-complete
     if: |
-      github.event_name == 'release' || 
+      github.event_name == 'release' ||
       (github.event_name == 'workflow_dispatch' && inputs.environment == 'production')
     steps:
       - name: Pre-production checklist
         uses: actions/github-script@v7
         with:
           script: |
-            console.log('🚨 Production Deployment Gate');
+            console.log('Production Deployment Gate');
             console.log('Requires manual approval in GitHub Actions UI');
 
   gate-6-production-deploy:
@@ -1194,9 +996,6 @@ jobs:
     environment:
       name: production
       url: https://metabuilder.example.com
-    defaults:
-      run:
-        working-directory: frontends/nextjs
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -1209,38 +1008,32 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Generate Prisma Client
-        run: npm run db:generate
-        env:
-          DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
-
       - name: Build for production
-        run: npm run build
+        run: npm run build -w frontends/nextjs
         env:
-          DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
           NEXT_PUBLIC_ENV: production
           NODE_ENV: production
 
       - name: Deploy to production
         run: |
-          echo "🚀 Deploying to production environment..."
+          echo "Deploying to production environment..."
           echo "Build artifacts ready for deployment"
 
       - name: Run smoke tests
         run: |
-          echo "🧪 Running smoke tests on production..."
+          echo "Running smoke tests on production..."
           echo "Production health checks completed"
 
       - name: Post deployment summary
         uses: actions/github-script@v7
         with:
           script: |
-            console.log('✅ Gate 6: Production Deployment Complete');
-            
+            console.log('Gate 6: Production Deployment Complete');
+
             await github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              title: `🚀 Production Deployment - ${new Date().toISOString().split('T')[0]}`,
+              title: `Production Deployment - ${new Date().toISOString().split('T')[0]}`,
               body: `Production deployed at ${new Date().toISOString()}`,
               labels: ['deployment', 'production']
             });
@@ -1250,7 +1043,7 @@ jobs:
   # ============================================================================
 
   gates-summary:
-    name: "🎯 All Gates Summary"
+    name: "All Gates Summary"
     runs-on: ubuntu-latest
     needs: [gate-1-complete, gate-2-complete, gate-3-complete]
     if: always()
@@ -1261,7 +1054,7 @@ jobs:
           pattern: gate-*-complete-report
           path: all-gate-artifacts/
           merge-multiple: true
-      
+
       - name: Generate comprehensive summary
         uses: actions/github-script@v7
         with:
@@ -1271,46 +1064,46 @@ jobs:
               { name: 'Gate 2: Testing', status: '${{ needs.gate-2-complete.result }}', steps: 3 },
               { name: 'Gate 3: Build & Package', status: '${{ needs.gate-3-complete.result }}', steps: 2 }
             ];
-            
-            let summary = '## 🚦 Unified Gated Pipeline Summary\n\n';
+
+            let summary = '## Gated Pipeline Summary\n\n';
             summary += '### Gate Results\n\n';
-            
+
             for (const gate of gates) {
-              const icon = gate.status === 'success' ? '✅' : 
-                          gate.status === 'failure' ? '❌' : 
-                          gate.status === 'skipped' ? '⏭️' : '⏳';
-              summary += `${icon} **${gate.name}**: ${gate.status} (${gate.steps} steps)\n`;
+              const status = gate.status === 'success' ? 'passed' :
+                            gate.status === 'failure' ? 'FAILED' :
+                            gate.status === 'skipped' ? 'skipped' : 'pending';
+              summary += `**${gate.name}**: ${status} (${gate.steps} steps)\n`;
             }
-            
+
             summary += '\n### Pipeline Flow\n\n';
             summary += '```\n';
             summary += 'Gate 1: Code Quality (7 steps)\n';
-            summary += '  ├─ 1.1 Prisma\n';
-            summary += '  ├─ 1.2 TypeScript\n';
-            summary += '  ├─ 1.3 Lint\n';
-            summary += '  ├─ 1.4 Security\n';
-            summary += '  ├─ 1.5 File Size\n';
-            summary += '  ├─ 1.6 Complexity\n';
-            summary += '  └─ 1.7 Stubs\n';
-            summary += '      ↓\n';
+            summary += '  1.1 DBAL Schemas\n';
+            summary += '  1.2 TypeScript\n';
+            summary += '  1.3 Lint\n';
+            summary += '  1.4 Security\n';
+            summary += '  1.5 File Size\n';
+            summary += '  1.6 Complexity\n';
+            summary += '  1.7 Stubs\n';
+            summary += '      |\n';
             summary += 'Gate 2: Testing (3 steps)\n';
-            summary += '  ├─ 2.1 Unit Tests\n';
-            summary += '  ├─ 2.2 E2E Tests\n';
-            summary += '  └─ 2.3 DBAL Tests\n';
-            summary += '      ↓\n';
+            summary += '  2.1 Unit Tests\n';
+            summary += '  2.2 E2E Tests\n';
+            summary += '  2.3 DBAL Tests\n';
+            summary += '      |\n';
             summary += 'Gate 3: Build (2 steps)\n';
-            summary += '  ├─ 3.1 Build\n';
-            summary += '  └─ 3.2 Quality\n';
-            summary += '      ↓\n';
+            summary += '  3.1 Build\n';
+            summary += '  3.2 Quality\n';
+            summary += '      |\n';
             summary += 'Gate 4: Dev Feedback (PR only)\n';
-            summary += '      ↓\n';
+            summary += '      |\n';
             summary += 'Gate 5: Staging (main push)\n';
-            summary += '      ↓\n';
+            summary += '      |\n';
             summary += 'Gate 6: Production (release/manual)\n';
             summary += '```\n\n';
-            
+
             console.log(summary);
-            
+
             if (context.eventName === 'pull_request') {
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
@@ -1319,7 +1112,7 @@ jobs:
                 body: summary
               });
             }
-      
+
       - name: Upload complete audit trail
         uses: actions/upload-artifact@v4
         with:

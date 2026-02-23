@@ -4,7 +4,8 @@
 #           -t metabuilder/base-node-deps:latest .
 
 # --- Build stage ---
-FROM metabuilder/base-node-deps:latest AS builder
+ARG BASE_IMAGE=metabuilder/base-node-deps:latest
+FROM ${BASE_IMAGE} AS builder
 
 # ── Shared packages (resolved by transpilePackages + webpack aliases) ────────
 # Each COPY targets only the source tree that pastebin actually imports.
