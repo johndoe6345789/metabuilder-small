@@ -5,10 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "next dev --turbopack",
-    "prebuild": "mkdir -p ../../node_modules/.prisma/client && echo 'module.exports={PrismaClient:function(){return{}}}' > ../../node_modules/.prisma/client/default.js && echo 'module.exports={}' > ../../node_modules/.prisma/client/index-browser.js",
     "build": "next build --webpack",
     "start": "next start",
-    "db:generate": "node ../../dbal/shared/tools/codegen/gen_prisma_schema.js && npx prisma generate --schema=../../dbal/shared/prisma/schema.prisma",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write \"src/**/*.{ts,tsx}\"",
