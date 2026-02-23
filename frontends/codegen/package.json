@@ -11,8 +11,8 @@
     "prebuild": "npm run components:generate-types",
     "lint": "eslint . --fix && npm run lint:schemas",
     "lint:schemas": "npm run lint:schemas:components && npm run lint:schemas:pages",
-    "lint:schemas:components": "npx tsx scripts/validate-component-schemas.ts",
-    "lint:schemas:pages": "npx tsx scripts/validate-page-schemas.ts",
+    "lint:schemas:components": "npx tsx scripts/validate-json-schemas.ts",
+    "lint:schemas:pages": "npx tsx scripts/validate-json-registry.ts",
     "test": "vitest",
     "audit:json": "npx tsx scripts/audit-json-components.ts",
     "components:generate-types": "npx tsx scripts/generate-json-ui-component-types.ts"
