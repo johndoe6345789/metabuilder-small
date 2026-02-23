@@ -21,7 +21,7 @@ const nextConfig: NextConfig = {
       path.join(monorepoRoot, 'scss/m3-scss'),
     ],
   },
-  transpilePackages: ['@metabuilder/fakemui', '@metabuilder/redux-persist'],
+  transpilePackages: ['@metabuilder/fakemui', '@metabuilder/redux-persist', '@metabuilder/service-adapters'],
   
   // Experimental features
   experimental: {
@@ -122,6 +122,8 @@ const nextConfig: NextConfig = {
       ...config.resolve.alias,
       '@metabuilder/components': path.resolve(projectDir, 'src/lib/components-shim.ts'),
       '@dbal-ui': path.resolve(projectDir, '../../dbal/shared/ui'),
+      // Resolve service-adapters to source (dist/ is not pre-built)
+      '@metabuilder/service-adapters': path.resolve(monorepoRoot, 'redux/adapters/src'),
       '.prisma/client/default': prismaStub,
       '.prisma/client/index-browser': prismaStub,
       '.prisma/client': prismaStub,
