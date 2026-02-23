@@ -488,7 +488,7 @@ export class WorkflowLoaderV2 {
         return result.value
       } else {
         // Create error result for failed validation
-        const workflow = workflows[index]
+        const _workflow = workflows[index]
         return {
           valid: false,
           errors: [

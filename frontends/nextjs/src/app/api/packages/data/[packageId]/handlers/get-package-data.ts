@@ -38,7 +38,7 @@ export async function GET(
     }
     
     // Parse the JSON data field
-    const data = packageData.data ? JSON.parse(String(packageData.data)) : null
+    const data = packageData.data ? JSON.parse(packageData.data as string) : null
     
     return NextResponse.json({ data })
   } catch (error) {
