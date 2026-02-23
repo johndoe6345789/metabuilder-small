@@ -1,4 +1,4 @@
-import{j as e}from"./iframe-cDlrmD96.js";import{useMDXComponents as r}from"./index-DSqSpRQq.js";import{M as l}from"./blocks-CtvNV7Qk.js";import"./preload-helper-D1UD9lgW.js";import"./index-CBoh8Zel.js";function i(s){const n={code:"code",h1:"h1",h2:"h2",h3:"h3",li:"li",ol:"ol",p:"p",pre:"pre",strong:"strong",ul:"ul",...r(),...s.components};return e.jsxs(e.Fragment,{children:[e.jsx(l,{title:"Developer/Styles System"}),`
+import{j as e}from"./iframe-C03bZBvv.js";import{useMDXComponents as r}from"./index-BIeM4Pvv.js";import{M as l}from"./blocks-DwHosmsX.js";import"./preload-helper-D1UD9lgW.js";import"./index-SocMimkG.js";function i(s){const n={code:"code",h1:"h1",h2:"h2",h3:"h3",li:"li",ol:"ol",p:"p",pre:"pre",strong:"strong",ul:"ul",...r(),...s.components};return e.jsxs(e.Fragment,{children:[e.jsx(l,{title:"Developer/Styles System"}),`
 `,e.jsx(n.h1,{id:"styles-system-v2",children:"Styles System V2"}),`
 `,e.jsx(n.h2,{id:"overview",children:"Overview"}),`
 `,e.jsxs(n.p,{children:["MetaBuilder uses an ",e.jsx(n.strong,{children:"abstract styling system"})," (V2 schema) where CSS is treated as a deterministic function:"]}),`

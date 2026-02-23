@@ -1,4 +1,4 @@
-import{j as e}from"./iframe-cDlrmD96.js";import{useMDXComponents as r}from"./index-DSqSpRQq.js";import{M as c}from"./blocks-CtvNV7Qk.js";import"./preload-helper-D1UD9lgW.js";import"./index-CBoh8Zel.js";function i(s){const n={code:"code",h1:"h1",h2:"h2",h3:"h3",li:"li",ol:"ol",p:"p",pre:"pre",strong:"strong",ul:"ul",...r(),...s.components};return e.jsxs(e.Fragment,{children:[e.jsx(c,{title:"Introduction"}),`
+import{j as e}from"./iframe-C03bZBvv.js";import{useMDXComponents as r}from"./index-BIeM4Pvv.js";import{M as c}from"./blocks-DwHosmsX.js";import"./preload-helper-D1UD9lgW.js";import"./index-SocMimkG.js";function i(s){const n={code:"code",h1:"h1",h2:"h2",h3:"h3",li:"li",ol:"ol",p:"p",pre:"pre",strong:"strong",ul:"ul",...r(),...s.components};return e.jsxs(e.Fragment,{children:[e.jsx(c,{title:"Introduction"}),`
 `,e.jsx(n.h1,{id:"metabuilder-package-storybook",children:"MetaBuilder Package Storybook"}),`
 `,e.jsxs(n.p,{children:["This Storybook renders ",e.jsx(n.strong,{children:"MetaBuilder packages backed by JSON scripts"})," from the MetaBuilder platform without running the actual application."]}),`
 `,e.jsx(n.h2,{id:"quick-start",children:"Quick Start"}),`
