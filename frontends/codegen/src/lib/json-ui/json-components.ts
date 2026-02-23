@@ -1010,14 +1010,14 @@ export const MetabuilderWidgetErrorPanel = createJsonComponent<ErrorPanelProps>(
 export const MetabuilderWidgetPreviewDialog = createJsonComponent<PreviewDialogProps>(previewDialogDef)
 export const MetabuilderWidgetNotFoundPage = createJsonComponent<NotFoundPageProps>(notFoundPageDef)
 export const MetabuilderWidgetGlobalSearch = createJsonComponent<GlobalSearchProps>(globalSearchDef)
-export const FileExplorer = createJsonComponent<FileExplorerProps>(fileExplorerDef)
-export const JSONFlaskDesigner = createJsonComponent<JSONFlaskDesignerProps>(jsonFlaskDesignerDef)
-export const JSONStyleDesigner = createJsonComponent<JSONStyleDesignerProps>(jsonStyleDesignerDef)
+export const MetabuilderWidgetFileExplorer = createJsonComponent<FileExplorerProps>(fileExplorerDef)
+export const MetabuilderWidgetJSONFlaskDesigner = createJsonComponent<JSONFlaskDesignerProps>(jsonFlaskDesignerDef)
+export const MetabuilderWidgetJSONStyleDesigner = createJsonComponent<JSONStyleDesignerProps>(jsonStyleDesignerDef)
 export const MetabuilderWidgetComponentTreeDemoPage = createJsonComponent<ComponentTreeDemoPageProps>(componentTreeDemoPageDef)
-export const JSONConversionShowcase = createJsonComponent<JSONConversionShowcaseProps>(jsonConversionShowcaseDef)
+export const MetabuilderWidgetJSONConversionShowcase = createJsonComponent<JSONConversionShowcaseProps>(jsonConversionShowcaseDef)
 export const MetabuilderWidgetJSONLambdaDesigner = createJsonComponent<JSONLambdaDesignerProps>(jsonLambdaDesignerDef)
 export const MetabuilderWidgetJSONModelDesigner = createJsonComponent<JSONModelDesignerProps>(jsonModelDesignerDef)
-export const JSONWorkflowDesigner = createJsonComponent<JSONWorkflowDesignerProps>(jsonWorkflowDesignerDef)
+export const MetabuilderWidgetJSONWorkflowDesigner = createJsonComponent<JSONWorkflowDesignerProps>(jsonWorkflowDesignerDef)
 export const MetabuilderWidgetJSONComponentTreeManager = createJsonComponent<JSONComponentTreeManagerProps>(jsonComponentTreeManagerDef)
 export const MetabuilderWidgetSassStylesShowcase = createJsonComponent<SassStylesShowcaseProps>(sassStylesShowcaseDef)
 export const MetabuilderWidgetAtomicComponentShowcase = createJsonComponent<AtomicComponentShowcaseProps>(atomicComponentShowcaseDef)
@@ -1100,7 +1100,7 @@ export const MetabuilderWidgetDataBindingDesigner = createJsonComponentWithHooks
   }
 })
 
-export const ErrorPanelMain = createJsonComponentWithHooks<ErrorPanelMainProps>(errorPanelMainDef, {
+export const MetabuilderWidgetErrorPanelMain = createJsonComponentWithHooks<ErrorPanelMainProps>(errorPanelMainDef, {
   hooks: {
     panelState: {
       hookName: 'useErrorPanelMain',
@@ -1254,36 +1254,3 @@ export const MetabuilderWidgetAtomicLibraryShowcase = createJsonComponentWithHoo
   }
 )
 
-// Unprefixed re-exports for component-registry resolution.
-// The registry resolves by export name (e.g. "JSONModelDesigner") but these
-// were only exported with the Metabuilder* prefix, causing pages to render blank.
-export {
-  MetabuilderWidgetJSONModelDesigner as JSONModelDesigner,
-  MetabuilderWidgetJSONComponentTreeManager as JSONComponentTreeManager,
-  MetabuilderWidgetJSONLambdaDesigner as JSONLambdaDesigner,
-  MetabuilderWidgetSassStylesShowcase as SassStylesShowcase,
-  MetabuilderWidgetFeatureToggleSettings as FeatureToggleSettings,
-  MetabuilderWidgetDocumentationView as DocumentationView,
-  MetabuilderWidgetFeatureIdeaCloud as FeatureIdeaCloud,
-  MetabuilderWidgetErrorPanel as ErrorPanel,
-  MetabuilderWidgetDockerBuildDebugger as DockerBuildDebugger,
-  MetabuilderWidgetDataBindingDesigner as DataBindingDesigner,
-  MetabuilderWidgetFaviconDesigner as FaviconDesigner,
-  MetabuilderWidgetJSONUIShowcasePage as JSONUIShowcasePage,
-  MetabuilderWidgetSchemaEditorPage as SchemaEditorPage,
-  MetabuilderWidgetAtomicComponentShowcase as AtomicComponentShowcase,
-  MetabuilderWidgetConflictResolutionPage as ConflictResolutionPage,
-  MetabuilderWidgetPersistenceDashboard as PersistenceDashboard,
-  MetabuilderWidgetComponentTreeBuilder as ComponentTreeBuilder,
-  MetabuilderWidgetCodeEditor as CodeEditor,
-  MetabuilderWidgetPlaywrightDesigner as PlaywrightDesigner,
-  MetabuilderWidgetUnitTestDesigner as UnitTestDesigner,
-  MetabuilderWidgetStorybookDesigner as StorybookDesigner,
-  MetabuilderWidgetPWASettings as PWASettings,
-  MetabuilderWidgetTemplateSelector as TemplateSelector,
-  MetabuilderWidgetPersistenceExample as PersistenceExample,
-  MetabuilderWidgetProjectSettingsDesigner as ProjectSettingsDesigner,
-  MetabuilderWidgetAtomicLibraryShowcase as AtomicLibraryShowcase,
-  MetabuilderWidgetHeaderSearch as HeaderSearch,
-  MetabuilderWidgetTranslationEditor as TranslationEditor,
-}

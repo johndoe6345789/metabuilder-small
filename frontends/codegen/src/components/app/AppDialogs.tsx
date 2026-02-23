@@ -13,7 +13,9 @@ import type {
   Workflow,
 } from '@/types/project'
 
-const { GlobalSearch, KeyboardShortcutsDialog, PreviewDialog } = DialogRegistry
+const GlobalSearch = DialogRegistry['MetabuilderWidgetGlobalSearch']
+const KeyboardShortcutsDialog = DialogRegistry['KeyboardShortcutsDialog']
+const PreviewDialog = DialogRegistry['MetabuilderWidgetPreviewDialog']
 const { PWAInstallPrompt } = PWARegistry
 
 interface AppDialogsProps {
