@@ -33,10 +33,6 @@ jobs:
             context: .
             dockerfile: ./frontends/nextjs/Dockerfile
             platforms: linux/amd64,linux/arm64
-          - image: dbal-daemon
-            context: ./dbal/production
-            dockerfile: ./dbal/production/build-config/Dockerfile
-            platforms: linux/amd64,linux/arm64
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -100,7 +96,7 @@ jobs:
     if: github.event_name != 'pull_request'
     strategy:
       matrix:
-        image: [nextjs-app, dbal-daemon]
+        image: [nextjs-app]
     steps:
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
@@ -130,7 +126,7 @@ jobs:
 
       - name: Create and push manifest for all images
         run: |
-          for image in nextjs-app dbal-daemon; do
+          for image in nextjs-app; do
             docker manifest create \
               ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/$image:${{ github.ref_name }} \
               --amend ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/$image:${{ github.ref_name }}-amd64 \
