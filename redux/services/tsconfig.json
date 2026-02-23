@@ -12,8 +12,9 @@
     "declarationMap": true,
     "sourceMap": true,
     "outDir": "./dist",
-    "rootDir": "./src"
+    "rootDir": ".",
+    "resolveJsonModule": true
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "types/**/*", "db/**/*", "data/**/*"],
   "exclude": ["node_modules", "dist"]
 }

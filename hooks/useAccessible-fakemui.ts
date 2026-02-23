@@ -19,10 +19,10 @@ export {
   useFocusManagement,
   useLiveRegion,
   useFocusTrap,
-} from '../../../hooks/useAccessible'
+} from './useAccessible'
 
 export type {
   AccessibilityFeature,
   AccessibilityComponent,
   AccessibilityAction,
-} from '../../../hooks/useAccessible'
+} from './useAccessible'

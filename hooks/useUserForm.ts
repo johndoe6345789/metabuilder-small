@@ -89,7 +89,7 @@ export function useUserForm(options?: UseUserFormOptions): UseUserFormReturn {
   const isDirty = JSON.stringify(formData) !== JSON.stringify(initialFormData)
 
   // Determine if form is valid (no errors and all required fields filled)
-  const isValid = Object.keys(errors).length === 0 && formData.username && formData.email
+  const isValid = Object.keys(errors).length === 0 && !!formData.username && !!formData.email
 
   /**
    * Update a single form field

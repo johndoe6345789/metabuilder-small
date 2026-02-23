@@ -68,7 +68,7 @@ export function useWorkspace() {
 
   const [isInitialized, setIsInitialized] = useState(false);
   const retryCountRef = useRef(0);
-  const retryTimerRef = useRef<ReturnType<typeof setTimeout>>();
+  const retryTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const MAX_RETRIES = 3;
 
   const getTenantId = useCallback(() => {

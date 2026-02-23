@@ -192,7 +192,7 @@ export function useBlobStorage(config: DBALClientConfig = {}): UseBlobStorageRet
         const body =
           data instanceof Blob || data instanceof File
             ? data
-            : new Blob([data])
+            : new Blob([data as BlobPart])
 
         const response = await fetch(url, {
           method: 'PUT',
