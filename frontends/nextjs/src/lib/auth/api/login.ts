@@ -69,7 +69,7 @@ export async function login(identifier: string, password: string): Promise<Login
     const credResult = await db.credentials.list({ filter: { username: user.username } })
     const credential = (credResult.data[0] as DbalCredentialRecord | undefined) ?? null
     
-    if (!credential || !credential.passwordHash) {
+    if (!credential?.passwordHash) {
       return {
         success: false,
         user: null,

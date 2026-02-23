@@ -1,4 +1,4 @@
-import { createPersistedStore, PERSIST_ACTIONS } from '@metabuilder/redux-persist'
+import { createPersistedStore } from '@metabuilder/redux-persist'
 import {
   coreReducers,
   createLoggingMiddleware,

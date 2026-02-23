@@ -11,12 +11,11 @@
  * - Comprehensive error handling
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
 import { v4 as uuidv4 } from 'uuid'
 import {
   MultiTenantContextBuilder,
-  createContextFromRequest,
-  canUserAccessWorkflow,
   sanitizeContextForLogging,
   type RequestContext,
   type ExtendedWorkflowContext,
@@ -669,9 +668,9 @@ async function verifyUserAuth(req: NextRequest): Promise<AuthenticatedUser | nul
  * Mock implementation - replace with actual webhook verification
  */
 async function verifyWebhookSignature(
-  webhookId: string,
-  signature: string,
-  body: string
+  _webhookId: string,
+  _signature: string,
+  _body: string
 ): Promise<boolean> {
   // In production, verify HMAC signature
   // const secret = await getWebhookSecret(webhookId)

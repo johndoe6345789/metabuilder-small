@@ -61,10 +61,6 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { authenticate } from '@/lib/middleware/auth-middleware'
 import { applyRateLimit } from '@/lib/middleware/rate-limit'
-import { db } from '@/lib/db-client'
-import { getWorkflowLoader } from '@/lib/workflow/workflow-loader-v2'
-import { getWorkflowErrorHandler } from '@/lib/workflow/workflow-error-handler'
-import { createContextFromRequest } from '@/lib/workflow/multi-tenant-context'
 import { v4 as uuidv4 } from 'uuid'
 
 interface RouteParams {
@@ -209,7 +205,7 @@ export async function POST(
     let body: any
     try {
       body = await request.json()
-    } catch (error) {
+    } catch (_error) {
       return NextResponse.json(
         { error: 'Bad Request', message: 'Invalid JSON in request body' },
         { status: 400 }
