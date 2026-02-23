@@ -118,7 +118,7 @@ jobs:
             type=ref,event=pr
             type=semver,pattern={{version}},prefix=workflowui-v
             type=semver,pattern={{major}}.{{minor}},prefix=workflowui-v
-            type=sha,prefix={{branch}}-
+            type=sha,prefix=sha-
             type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Build and push Docker image
