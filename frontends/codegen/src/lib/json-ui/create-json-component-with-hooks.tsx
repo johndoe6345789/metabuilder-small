@@ -1,4 +1,4 @@
-import { ComponentRenderer } from './component-renderer'
+import { JSONUIRenderer } from './renderer'
 import { getHook } from './hooks-registry'
 
 /**
@@ -19,7 +19,6 @@ export function createJsonComponentWithHooks<TProps = any>(
   }
 ) {
   return function JsonComponent(props: TProps) {
-    // Execute hooks if defined
     const hookResults: Record<string, any> = {}
 
     if (options?.hooks) {
@@ -40,17 +39,15 @@ export function createJsonComponentWithHooks<TProps = any>(
       }
     }
 
-    // Merge hook results with props for data binding
     const dataWithHooks = {
       ...props,
       ...hookResults,
     }
 
     return (
-      <ComponentRenderer
+      <JSONUIRenderer
         component={jsonDefinition}
-        data={dataWithHooks}
-        context={{}}
+        dataMap={dataWithHooks as Record<string, unknown>}
       />
     )
   }

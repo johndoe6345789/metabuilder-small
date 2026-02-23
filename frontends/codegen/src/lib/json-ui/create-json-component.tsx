@@ -1,4 +1,4 @@
-import { ComponentRenderer } from './component-renderer'
+import { JSONUIRenderer } from './renderer'
 
 /**
  * Creates a React component from a JSON definition
@@ -9,10 +9,9 @@ export function createJsonComponent<TProps = any>(
 ) {
   return function JsonComponent(props: TProps) {
     return (
-      <ComponentRenderer
+      <JSONUIRenderer
         component={jsonDefinition}
-        data={props}
-        context={{}}
+        dataMap={props as Record<string, unknown>}
       />
     )
   }

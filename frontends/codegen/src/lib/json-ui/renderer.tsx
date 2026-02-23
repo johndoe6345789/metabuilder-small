@@ -12,13 +12,21 @@ import { getUIComponent } from './component-registry'
 import { resolveDataBinding } from './utils'
 import { evaluateConditionExpression } from './expression-helpers'
 import { cn } from '@/lib/utils'
+import { MAX_LOOP_ITERATIONS } from './constants'
+import { useRenderDepth, DepthLimitFallback } from './render-depth'
 
-export function JSONUIRenderer({ 
-  component, 
-  dataMap = {}, 
-  onAction, 
-  context = {} 
+export function JSONUIRenderer({
+  component,
+  dataMap = {},
+  onAction,
+  context = {},
 }: JSONUIRendererProps) {
+  const { exceeded, DepthProvider } = useRenderDepth()
+
+  if (exceeded) {
+    return <DepthLimitFallback componentId={component.id} />
+  }
+
   const renderChildren = (
     children: UIComponent[] | string | undefined,
     renderContext: Record<string, unknown>
@@ -45,12 +53,14 @@ export function JSONUIRenderer({
     }
 
     return (
-      <JSONUIRenderer
-        component={node}
-        dataMap={dataMap}
-        onAction={onAction}
-        context={renderContext}
-      />
+      <DepthProvider>
+        <JSONUIRenderer
+          component={node}
+          dataMap={dataMap}
+          onAction={onAction}
+          context={renderContext}
+        />
+      </DepthProvider>
     )
   }
 
@@ -217,7 +227,7 @@ export function JSONUIRenderer({
     }
 
     const Component = getUIComponent(component.type)
-    
+
     if (!Component) {
       console.warn(`Component type "${component.type}" not found in registry`)
       return null
@@ -238,7 +248,11 @@ export function JSONUIRenderer({
   }
 
   if (component.loop) {
-    const items = resolveDataBinding(component.loop.source, dataMap, context) || []
+    const rawItems = resolveDataBinding(component.loop.source, dataMap, context) || []
+    if (rawItems.length > MAX_LOOP_ITERATIONS) {
+      console.warn(`Loop "${component.id}" has ${rawItems.length} items, capped to ${MAX_LOOP_ITERATIONS}`)
+    }
+    const items = rawItems.length > MAX_LOOP_ITERATIONS ? rawItems.slice(0, MAX_LOOP_ITERATIONS) : rawItems
     const Component = getUIComponent(component.type)
 
     if (!Component) {
