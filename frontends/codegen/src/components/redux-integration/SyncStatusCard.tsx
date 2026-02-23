@@ -4,13 +4,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Separator } from '@/components/ui/separator'
 import { ArrowsClockwise, CheckCircle, Clock, CloudArrowDown, CloudArrowUp, XCircle } from '@metabuilder/fakemui/icons'
 import reduxIntegrationCopy from '@/data/redux-integration-demo.json'
-import { SyncStatus } from '@/store/slices/syncSlice'
+import { DBALSyncStatus } from '@/store/slices/dbalSlice'
 
 type SyncStatusCardProps = {
-  status: SyncStatus
+  status: DBALSyncStatus
   lastSyncedAt: number | null
   autoSyncEnabled: boolean
-  flaskConnected: boolean
+  dbalConnected: boolean
   onSyncUp: () => void
   onSyncDown: () => void
 }
@@ -19,7 +19,7 @@ export function SyncStatusCard({
   status,
   lastSyncedAt,
   autoSyncEnabled,
-  flaskConnected,
+  dbalConnected,
   onSyncUp,
   onSyncDown,
 }: SyncStatusCardProps) {
@@ -94,7 +94,7 @@ export function SyncStatusCard({
             variant="outline"
             size="sm"
             className="flex-1"
-            disabled={!flaskConnected || status === 'syncing'}
+            disabled={!dbalConnected || status === 'syncing'}
           >
             <CloudArrowUp className="w-4 h-4 mr-1" />
             {reduxIntegrationCopy.cards.sync.labels.push}
@@ -104,7 +104,7 @@ export function SyncStatusCard({
             variant="outline"
             size="sm"
             className="flex-1"
-            disabled={!flaskConnected || status === 'syncing'}
+            disabled={!dbalConnected || status === 'syncing'}
           >
             <CloudArrowDown className="w-4 h-4 mr-1" />
             {reduxIntegrationCopy.cards.sync.labels.pull}

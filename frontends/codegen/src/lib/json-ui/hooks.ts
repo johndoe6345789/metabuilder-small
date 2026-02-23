@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { useKV } from '@/hooks/use-kv'
+import { useUIState } from '@/hooks/use-ui-state'
 import type { DataSourceConfig } from './schema'
 
 export function useJSONDataSource<T = unknown>(
@@ -11,7 +11,7 @@ export function useJSONDataSource<T = unknown>(
   const defaultValue =
     config.type === 'static' ? config.config : config.config?.defaultValue
 
-  const [kvValue, setKVValue] = useKV<T>(
+  const [kvValue, setKVValue] = useUIState<T>(
     kvConfig?.key || id,
     (kvConfig?.defaultValue ?? defaultValue) as T
   )

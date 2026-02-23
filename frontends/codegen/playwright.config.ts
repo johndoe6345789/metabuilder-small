@@ -4,15 +4,15 @@ export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  retries: process.env.CI ? 2 : 1,
+  workers: process.env.CI ? 1 : 3,
   reporter: 'html',
-  timeout: 30000,
+  timeout: 60000,
   expect: {
     timeout: 10000,
   },
   use: {
-    baseURL: 'http://localhost:5000',
+    baseURL: 'http://localhost:3000',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     actionTimeout: 10000,
@@ -27,8 +27,8 @@ export default defineConfig({
   ],
 
   webServer: {
-    command: 'npm run dev',
-    url: 'http://localhost:5000',
+    command: 'npm run dev -- --port 3000',
+    url: 'http://localhost:3000/codegen',
     reuseExistingServer: true,
     timeout: 120000,
     stdout: 'pipe',

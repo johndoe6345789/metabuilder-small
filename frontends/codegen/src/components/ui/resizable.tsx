@@ -6,11 +6,13 @@ import { cn } from "@/lib/utils"
 
 function ResizablePanelGroup({
   className,
+  direction,
   ...props
-}: ComponentProps<typeof Group>) {
+}: ComponentProps<typeof Group> & { direction?: "horizontal" | "vertical" }) {
   return (
     <Group
       data-slot="resizable-panel-group"
+      orientation={direction ?? props.orientation ?? "horizontal"}
       className={cn(
         "flex h-full w-full data-[panel-group-direction=vertical]:flex-col",
         className
@@ -20,10 +22,34 @@ function ResizablePanelGroup({
   )
 }
 
+/**
+ * Converts a number to a percentage string for react-resizable-panels v4 compatibility.
+ * In v4, bare numbers are treated as **pixels**; passing a percentage string (e.g. "20%")
+ * ensures the library interprets the value as a percentage, not a pixel count.
+ */
+function toPercent(v: number | string | undefined): string | undefined {
+  if (v === undefined) return undefined
+  if (typeof v === "number") return `${v}%`
+  return v
+}
+
 function ResizablePanel({
+  defaultSize,
+  minSize,
+  maxSize,
+  collapsedSize,
   ...props
 }: ComponentProps<typeof Panel>) {
-  return <Panel data-slot="resizable-panel" {...props} />
+  return (
+    <Panel
+      data-slot="resizable-panel"
+      defaultSize={toPercent(defaultSize)}
+      minSize={toPercent(minSize)}
+      maxSize={toPercent(maxSize)}
+      collapsedSize={toPercent(collapsedSize)}
+      {...props}
+    />
+  )
 }
 
 function ResizableHandle({

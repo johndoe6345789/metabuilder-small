@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { ComponentTree } from '@/types/project'
 import componentTreesData from '@/config/component-trees'
 import { useAppDispatch, useAppSelector } from '@/store'
-import { setKV } from '@/store/slices/kvSlice'
+import { setUIState } from '@/store/slices/uiStateSlice'
 
 type ComponentTreeLoaderOptions = {
   autoLoad?: boolean
@@ -10,7 +10,7 @@ type ComponentTreeLoaderOptions = {
 
 export function useComponentTreeLoader({ autoLoad = true }: ComponentTreeLoaderOptions = {}) {
   const dispatch = useAppDispatch()
-  const storedTrees = useAppSelector((state) => state.kv.data['project-component-trees']) as ComponentTree[] | undefined
+  const storedTrees = useAppSelector((state) => state.uiState.data['project-component-trees']) as ComponentTree[] | undefined
   const [isLoaded, setIsLoaded] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<Error | null>(null)
@@ -25,7 +25,7 @@ export function useComponentTreeLoader({ autoLoad = true }: ComponentTreeLoaderO
     const existingTrees = storedTrees
 
     if (!existingTrees || !Array.isArray(existingTrees) || existingTrees.length === 0) {
-      dispatch(setKV({ key: 'project-component-trees', value: componentTreesData.all }))
+      dispatch(setUIState({ key: 'project-component-trees', value: componentTreesData.all }))
     } else {
       const newTrees = componentTreesData.all.filter(
         newTree => !existingTrees.some(existingTree => existingTree.id === newTree.id)
@@ -33,7 +33,7 @@ export function useComponentTreeLoader({ autoLoad = true }: ComponentTreeLoaderO
 
       if (newTrees.length > 0) {
         const mergedTrees = [...existingTrees, ...newTrees]
-        dispatch(setKV({ key: 'project-component-trees', value: mergedTrees }))
+        dispatch(setUIState({ key: 'project-component-trees', value: mergedTrees }))
       }
     }
 
@@ -62,7 +62,7 @@ export function useComponentTreeLoader({ autoLoad = true }: ComponentTreeLoaderO
 
   const reloadFromJSON = useCallback(() => {
     setIsLoading(true)
-    dispatch(setKV({ key: 'project-component-trees', value: componentTreesData.all }))
+    dispatch(setUIState({ key: 'project-component-trees', value: componentTreesData.all }))
     loadedRef.current = true
     setIsLoaded(true)
     setIsLoading(false)

@@ -26,6 +26,23 @@ import { useDataBindingDesigner } from '@/hooks/use-data-binding-designer'
 import { useErrorPanelMain } from '@/hooks/use-error-panel-main'
 import { useFaviconDesigner } from '@/components/FaviconDesigner/useFaviconDesigner'
 import { useFeatureIdeaCloud } from '@/hooks/use-feature-idea-cloud'
+import { usePersistenceDashboardView } from '@/hooks/use-persistence-dashboard-view'
+import { useComponentTreeBuilder } from '@/hooks/use-component-tree-builder'
+import { useCodeEditor } from '@/hooks/use-code-editor'
+import { usePlaywrightDesigner } from '@/hooks/use-playwright-designer'
+import { useUnitTestDesigner } from '@/hooks/use-unit-test-designer'
+import { useStorybookDesigner } from '@/hooks/use-storybook-designer'
+import { usePWASettings } from '@/hooks/use-pwa-settings'
+import { useTemplateSelector } from '@/hooks/use-template-selector'
+import { usePersistenceExample } from '@/hooks/use-persistence-example'
+import { useProjectSettingsView } from '@/hooks/use-project-settings-view'
+import { useAtomicLibraryShowcase } from '@/hooks/use-atomic-library-showcase'
+import { useProjectManagerDropdown } from '@/hooks/use-project-manager-dropdown'
+import { useDBALSearchInput } from '@/hooks/use-dbal-search-input'
+import { useQuickSeed } from '@/hooks/use-quick-seed'
+import { useSearchInput } from '@/hooks/use-search-input'
+import { useTranslation } from '@/hooks/use-translation'
+import { useTranslationEditor } from '@/hooks/use-translation-editor'
 
 export interface HookRegistry {
   [key: string]: (...args: any[]) => any
@@ -64,7 +81,23 @@ export const hooksRegistry: HookRegistry = {
   useErrorPanelMain,
   useFaviconDesigner,
   useFeatureIdeaCloud,
-  // Add more hooks here as needed
+  usePersistenceDashboardView,
+  useComponentTreeBuilder,
+  useCodeEditor,
+  usePlaywrightDesigner,
+  useUnitTestDesigner,
+  useStorybookDesigner,
+  usePWASettings,
+  useTemplateSelector,
+  usePersistenceExample,
+  useProjectSettingsView,
+  useAtomicLibraryShowcase,
+  useProjectManagerDropdown,
+  useDBALSearchInput,
+  useQuickSeed,
+  useSearchInput,
+  useTranslation,
+  useTranslationEditor,
 }
 
 /**

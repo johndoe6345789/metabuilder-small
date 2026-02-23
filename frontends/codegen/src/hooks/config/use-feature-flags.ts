@@ -1,7 +1,7 @@
-import { useKV } from '../use-kv'
+import { useUIState } from '@/hooks/use-ui-state'
 
 export function useFeatureFlags() {
-  const [featureFlags, setFeatureFlags] = useKV<Record<string, boolean>>(
+  const [featureFlags, setFeatureFlags] = useUIState<Record<string, boolean>>(
     'feature-flags',
     {}
   )

@@ -54,15 +54,20 @@ COPY workflow/plugins/python/requirements-packagerepo.txt                      /
 COPY workflow/plugins/python/requirements-testing.txt                          /deps/workflow/requirements-testing.txt
 COPY workflow/plugins/python/requirements-dev.txt                              /deps/workflow/requirements-dev.txt
 
-# Install everything in one pass — pip deduplicates automatically.
-# Retry loop handles PyPI connection drops.
+# Install in two passes:
+# 1. Main deps (everything except cadquerywrapper which has native dep conflicts)
+# 2. cadquerywrapper best-effort (cadquery-ocp may not resolve on all platforms)
 RUN for i in 1 2 3 4 5; do \
       pip install --no-cache-dir \
-        $(find /deps -name '*.txt' -exec echo "-r {}" \;) \
+        $(find /deps -name '*.txt' -not -path '*/cadquerywrapper/*' -exec echo "-r {}" \;) \
       && break \
       || (echo "pip install failed (attempt $i/5), retrying in $((i*10))s..." && sleep $((i*10))); \
-    done \
-    && rm -rf /deps
+    done && \
+    pip install --no-cache-dir \
+      -r /deps/cadquerywrapper/requirements.txt \
+      -r /deps/cadquerywrapper/requirements-dev.txt \
+      2>/dev/null || echo "WARN: cadquerywrapper deps failed (cadquery-ocp platform issue)" && \
+    rm -rf /deps
 
 LABEL org.metabuilder.image="base-pip-deps" \
       org.metabuilder.description="All Python pip dependencies pre-installed"

@@ -1,10 +1,7 @@
 import path from 'path'
 import { fileURLToPath } from 'url'
-import { createRequire } from 'module'
-
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
-const require = createRequire(import.meta.url)
 const monorepoRoot = path.resolve(__dirname, '../..')
 
 /** @type {import('next').NextConfig} */
@@ -139,6 +136,7 @@ const nextConfig = {
     root: monorepoRoot,
   },
   webpack: (config, { webpack }) => {
+    const stubScss = path.resolve(__dirname, 'app/lib/empty.module.scss')
     config.plugins.push(
       new webpack.NormalModuleReplacementPlugin(
         /\.module\.scss$/,
@@ -146,7 +144,7 @@ const nextConfig = {
           if (resource.context?.includes('fakemui') ||
               resource.context?.includes('components/dist') ||
               resource.context?.includes('components\\dist')) {
-            resource.request = require.resolve('./app/lib/empty-css-module.js')
+            resource.request = stubScss
           }
         }
       )

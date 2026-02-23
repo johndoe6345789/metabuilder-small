@@ -1,7 +1,7 @@
 {
   "page": {
     "title": "Redux Integration Demo",
-    "description": "Comprehensive Redux Toolkit integration with IndexedDB and Flask API synchronization"
+    "description": "Comprehensive Redux Toolkit integration with IndexedDB and DBAL API synchronization"
   },
   "cards": {
     "indexedDb": {
@@ -13,8 +13,8 @@
         "createTestFile": "Create Test File"
       }
     },
-    "flask": {
-      "title": "Flask API Status",
+    "dbal": {
+      "title": "DBAL API Status",
       "description": "Remote server connection",
       "labels": {
         "connection": "Connection",
@@ -52,7 +52,7 @@
   },
   "files": {
     "title": "Files in Redux Store",
-    "description": "Files managed by Redux and synced with IndexedDB/Flask",
+    "description": "Files managed by Redux and synced with IndexedDB/DBAL",
     "empty": "No files yet. Create a test file to get started.",
     "updatedLabel": "Updated"
   },
@@ -64,13 +64,13 @@
   "danger": {
     "title": "Danger Zone",
     "description": "Irreversible operations - use with caution",
-    "clearButton": "Clear Flask Storage"
+    "clearButton": "Clear DBAL Storage"
   },
   "toast": {
     "createTestFile": "Test file created and saved to IndexedDB",
     "deleteFile": "File deleted from IndexedDB",
-    "syncUp": "Syncing to Flask API...",
-    "syncDown": "Syncing from Flask API...",
-    "clearFlask": "Clearing Flask storage..."
+    "syncUp": "Syncing to DBAL API...",
+    "syncDown": "Syncing from DBAL API...",
+    "clearDBAL": "Clearing DBAL storage..."
   }
 }

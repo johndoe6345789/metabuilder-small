@@ -1,36 +1,41 @@
-import { useKV } from '@/hooks/use-kv'
+import { useAppDispatch, useAppSelector } from '@/store'
+import { addFile as addFileAction, updateFile as updateFileAction, removeFile, setFiles } from '@/store/slices/filesSlice'
 import { useCallback } from 'react'
 import { ProjectFile } from '@/types/project'
 
 export function useFiles() {
-  const [files, setFiles] = useKV<ProjectFile[]>('project-files', [])
+  const dispatch = useAppDispatch()
+  const sliceFiles = useAppSelector((s) => s.files?.files ?? [])
+  const files = sliceFiles as unknown as ProjectFile[]
   
   const addFile = useCallback((file: ProjectFile) => {
-    setFiles(current => [...(current || []), file])
-  }, [setFiles])
+    dispatch(addFileAction(file as any))
+  }, [dispatch])
   
   const updateFile = useCallback((fileId: string, updates: Partial<ProjectFile>) => {
-    setFiles(current => 
-      (current || []).map(f => f.id === fileId ? { ...f, ...updates } : f)
-    )
-  }, [setFiles])
+    const existing = files.find(f => f.id === fileId)
+    if (existing) {
+      dispatch(updateFileAction({ ...existing, ...updates } as any))
+    }
+  }, [dispatch, files])
   
   const deleteFile = useCallback((fileId: string) => {
-    setFiles(current => (current || []).filter(f => f.id !== fileId))
-  }, [setFiles])
+    dispatch(removeFile(fileId))
+  }, [dispatch])
   
   const getFile = useCallback((fileId: string) => {
-    return files?.find(f => f.id === fileId)
+    return files.find(f => f.id === fileId)
   }, [files])
   
   const updateFileContent = useCallback((fileId: string, content: string) => {
-    setFiles(current =>
-      (current || []).map(f => f.id === fileId ? { ...f, content } : f)
-    )
-  }, [setFiles])
+    const existing = files.find(f => f.id === fileId)
+    if (existing) {
+      dispatch(updateFileAction({ ...existing, content } as any))
+    }
+  }, [dispatch, files])
   
   return {
-    files: files || [],
+    files,
     addFile,
     updateFile,
     deleteFile,

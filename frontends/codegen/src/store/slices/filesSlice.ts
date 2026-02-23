@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit'
-import { syncToFlask, fetchFromFlask } from '@/store/middleware/flaskSync'
+import { syncToDBAL, fetchFromDBAL, deleteFromDBAL } from '@/store/middleware/dbalSync'
 
 export interface FileItem {
   id: string
@@ -27,7 +27,7 @@ const initialState: FilesState = {
 export const saveFile = createAsyncThunk(
   'files/saveFile',
   async (file: FileItem) => {
-    await syncToFlask('files', file.id, file)
+    await syncToDBAL('files', file.id, file)
     return file
   }
 )
@@ -35,15 +35,15 @@ export const saveFile = createAsyncThunk(
 export const deleteFile = createAsyncThunk(
   'files/deleteFile',
   async (fileId: string) => {
-    await syncToFlask('files', fileId, null, 'delete')
+    await deleteFromDBAL('files', fileId)
     return fileId
   }
 )
 
-export const syncFileFromFlask = createAsyncThunk(
-  'files/syncFromFlask',
+export const syncFileFromDBAL = createAsyncThunk(
+  'files/syncFromDBAL',
   async (fileId: string) => {
-    return await fetchFromFlask('files', fileId)
+    return await fetchFromDBAL('files', fileId)
   }
 )
 
@@ -92,7 +92,7 @@ const filesSlice = createSlice({
           state.activeFileId = null
         }
       })
-      .addCase(syncFileFromFlask.fulfilled, (state, action) => {
+      .addCase(syncFileFromDBAL.fulfilled, (state, action) => {
         if (action.payload) {
           const index = state.files.findIndex(f => f.id === action.payload.id)
           if (index !== -1) {
@@ -103,7 +103,7 @@ const filesSlice = createSlice({
         }
       })
       .addMatcher(
-        (action) => action.type === 'sync/syncFromFlaskBulk/fulfilled',
+        (action) => action.type === 'dbal/syncFromDBALBulk/fulfilled',
         (state, action: any) => {
           if (action.payload?.data?.files) {
             state.files = action.payload.data.files

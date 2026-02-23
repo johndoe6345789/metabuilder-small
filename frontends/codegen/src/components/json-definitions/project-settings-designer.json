@@ -1,0 +1,199 @@
+{
+  "id": "project-settings-designer",
+  "type": "div",
+  "props": { "className": "h-full flex flex-col" },
+  "children": [
+    {
+      "id": "header-section",
+      "type": "div",
+      "props": { "className": "p-6 border-b border-border" },
+      "children": [
+        {
+          "id": "header-row",
+          "type": "div",
+          "props": { "className": "flex items-center gap-3" },
+          "children": [
+            {
+              "id": "icon-wrapper",
+              "type": "div",
+              "props": { "className": "w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center" },
+              "children": [
+                {
+                  "type": "Cube",
+                  "props": { "size": 24, "weight": "duotone", "className": "text-white" }
+                }
+              ]
+            },
+            {
+              "id": "header-text",
+              "type": "div",
+              "children": [
+                {
+                  "type": "h2",
+                  "props": { "className": "text-lg font-bold" },
+                  "bindings": { "children": "copy.header.title" }
+                },
+                {
+                  "type": "p",
+                  "props": { "className": "text-sm text-muted-foreground" },
+                  "bindings": { "children": "copy.header.description" }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tabs-section",
+      "type": "Tabs",
+      "props": { "defaultValue": "nextjs", "className": "flex-1 flex flex-col" },
+      "children": [
+        {
+          "id": "tabs-border",
+          "type": "div",
+          "props": { "className": "border-b border-border px-6" },
+          "children": [
+            {
+              "id": "tabs-list",
+              "type": "TabsList",
+              "children": [
+                {
+                  "type": "TabsTrigger",
+                  "props": { "value": "nextjs" },
+                  "bindings": { "children": "copy.tabs.nextjs" }
+                },
+                {
+                  "type": "TabsTrigger",
+                  "props": { "value": "packages" },
+                  "bindings": { "children": "copy.tabs.packages" }
+                },
+                {
+                  "type": "TabsTrigger",
+                  "props": { "value": "scripts" },
+                  "bindings": { "children": "copy.tabs.scripts" }
+                },
+                {
+                  "type": "TabsTrigger",
+                  "props": { "value": "data" },
+                  "bindings": { "children": "copy.tabs.data" }
+                },
+                {
+                  "type": "TabsTrigger",
+                  "props": { "value": "language" },
+                  "bindings": { "children": "copy.tabs.language" }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "scroll-area",
+          "type": "ScrollArea",
+          "props": { "className": "flex-1" },
+          "children": [
+            {
+              "id": "tab-content-wrapper",
+              "type": "div",
+              "props": { "className": "p-6" },
+              "children": [
+                {
+                  "id": "nextjs-tab",
+                  "type": "TabsContent",
+                  "props": { "value": "nextjs", "className": "mt-0" },
+                  "children": [
+                    {
+                      "type": "NextJsConfigTab",
+                      "bindings": {
+                        "nextjsConfig": "nextjsConfig",
+                        "onNextjsConfigChange": "onNextjsConfigChange"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "id": "packages-tab",
+                  "type": "TabsContent",
+                  "props": { "value": "packages", "className": "mt-0" },
+                  "children": [
+                    {
+                      "type": "PackagesTab",
+                      "bindings": {
+                        "npmSettings": "npmSettings",
+                        "onNpmSettingsChange": "onNpmSettingsChange",
+                        "onAddPackage": "handleAddPackage",
+                        "onEditPackage": "handleEditPackage",
+                        "onDeletePackage": "handleDeletePackage"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "id": "scripts-tab",
+                  "type": "TabsContent",
+                  "props": { "value": "scripts", "className": "mt-0" },
+                  "children": [
+                    {
+                      "type": "ScriptsTab",
+                      "bindings": {
+                        "npmSettings": "npmSettings",
+                        "onAddScript": "handleAddScript",
+                        "onEditScript": "handleEditScript",
+                        "onDeleteScript": "handleDeleteScript"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "id": "data-tab",
+                  "type": "TabsContent",
+                  "props": { "value": "data", "className": "mt-0" },
+                  "children": [
+                    {
+                      "type": "DataTab"
+                    }
+                  ]
+                },
+                {
+                  "id": "language-tab",
+                  "type": "TabsContent",
+                  "props": { "value": "language", "className": "mt-0" },
+                  "children": [
+                    {
+                      "type": "MetabuilderWidgetTranslationEditor"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "package-dialog",
+      "type": "PackageDialog",
+      "bindings": {
+        "open": "packageDialogOpen",
+        "onOpenChange": "setPackageDialogOpen",
+        "editingPackage": "editingPackage",
+        "setEditingPackage": "setEditingPackage",
+        "onSave": "handleSavePackage"
+      }
+    },
+    {
+      "id": "script-dialog",
+      "type": "ScriptDialog",
+      "bindings": {
+        "open": "scriptDialogOpen",
+        "onOpenChange": "setScriptDialogOpen",
+        "scriptKey": "scriptKey",
+        "scriptValue": "scriptValue",
+        "setScriptKey": "setScriptKey",
+        "setScriptValue": "setScriptValue",
+        "editingScriptKey": "editingScriptKey",
+        "onSave": "handleSaveScript"
+      }
+    }
+  ]
+}

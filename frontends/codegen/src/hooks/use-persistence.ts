@@ -16,7 +16,7 @@ interface PersistenceStatus {
   lastSyncTime: number | null
   syncStatus: 'idle' | 'syncing' | 'success' | 'error'
   error: string | null
-  flaskConnected: boolean
+  dbalConnected: boolean
 }
 
 interface SyncMetrics {
@@ -35,7 +35,7 @@ interface AutoSyncStatus {
 }
 
 export function usePersistence() {
-  const syncState = useAppSelector((state) => state.sync)
+  const syncState = useAppSelector((state) => state.dbal)
   const [metrics, setMetrics] = useState<SyncMetrics>(getSyncMetrics())
   const [autoSyncStatus, setAutoSyncStatus] = useState<AutoSyncStatus>(getAutoSyncStatus())
 
@@ -59,7 +59,7 @@ export function usePersistence() {
     lastSyncTime: syncState.lastSyncedAt,
     syncStatus: syncState.status,
     error: syncState.error,
-    flaskConnected: syncState.flaskConnected,
+    dbalConnected: syncState.dbalConnected,
   }
 
   const resetMetrics = () => {

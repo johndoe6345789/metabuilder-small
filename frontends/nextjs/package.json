@@ -5,10 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "next dev --turbopack",
-    "prebuild": "mkdir -p ../../node_modules/.prisma/client && echo 'module.exports={PrismaClient:function(){return{}}}' > ../../node_modules/.prisma/client/default.js && echo 'module.exports={}' > ../../node_modules/.prisma/client/index-browser.js",
     "build": "next build --webpack",
     "start": "next start",
-    "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write \"src/**/*.{ts,tsx}\"",

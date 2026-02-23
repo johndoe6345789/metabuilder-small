@@ -99,8 +99,8 @@ export const createSyncMonitorMiddleware = (): Middleware => {
       'workflows/deleteWorkflow',
       'lambdas/saveLambda',
       'lambdas/deleteLambda',
-      'sync/syncToFlaskBulk',
-      'sync/syncFromFlaskBulk',
+      'dbal/syncToDBALBulk',
+      'dbal/syncFromDBALBulk',
     ]
 
     const isPendingAction = asyncThunkActions.some((prefix) => action.type === `${prefix}/pending`)

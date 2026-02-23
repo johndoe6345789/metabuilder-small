@@ -63,6 +63,9 @@ prisma/dev.db-journal
 *.sqlite
 *.sqlite3
 
+# Generated Prisma schema (produced by dbal/shared/tools/codegen/gen_prisma_schema.js)
+dbal/shared/prisma/
+
 # Testing
 /test-results/
 /playwright-report/

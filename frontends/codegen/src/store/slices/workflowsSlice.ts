@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit'
-import { syncToFlask, fetchFromFlask } from '@/store/middleware/flaskSync'
+import { syncToDBAL, deleteFromDBAL } from '@/store/middleware/dbalSync'
 
 export interface Workflow {
   id: string
@@ -42,7 +42,7 @@ const initialState: WorkflowsState = {
 export const saveWorkflow = createAsyncThunk(
   'workflows/saveWorkflow',
   async (workflow: Workflow) => {
-    await syncToFlask('workflows', workflow.id, workflow)
+    await syncToDBAL('workflows', workflow.id, workflow)
     return workflow
   }
 )
@@ -50,7 +50,7 @@ export const saveWorkflow = createAsyncThunk(
 export const deleteWorkflow = createAsyncThunk(
   'workflows/deleteWorkflow',
   async (workflowId: string) => {
-    await syncToFlask('workflows', workflowId, null, 'delete')
+    await deleteFromDBAL('workflows', workflowId)
     return workflowId
   }
 )
@@ -101,7 +101,7 @@ const workflowsSlice = createSlice({
         }
       })
       .addMatcher(
-        (action) => action.type === 'sync/syncFromFlaskBulk/fulfilled',
+        (action) => action.type === 'dbal/syncFromDBALBulk/fulfilled',
         (state, action: any) => {
           if (action.payload?.data?.workflows) {
             state.workflows = action.payload.data.workflows

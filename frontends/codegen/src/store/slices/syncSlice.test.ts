@@ -1,40 +1,51 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const {
-  mockFetchAllFromFlask,
+  mockFetchAllFromDBAL,
 } = vi.hoisted(() => {
   return {
-    mockFetchAllFromFlask: vi.fn<[], Promise<Record<string, any>>>(),
+    mockFetchAllFromDBAL: vi.fn(),
   }
 })
 
-vi.mock('@/store/middleware/flaskSync', () => ({
-  fetchAllFromFlask: mockFetchAllFromFlask
+vi.mock('@/store/middleware/dbalSync', () => ({
+  fetchAllFromDBAL: mockFetchAllFromDBAL,
+  getDBALHealth: vi.fn(),
+  getDBALConfig: vi.fn(),
+  getDBALAdapters: vi.fn(),
+  syncAllToDBAL: vi.fn(),
+  testDBALConnection: vi.fn(),
+  switchDBALAdapter: vi.fn(),
+  seedDBAL: vi.fn(),
 }))
 
-import { syncFromFlaskBulk } from './syncSlice'
+import { syncFromDBALBulk } from './dbalSlice'
 
-describe('syncFromFlaskBulk', () => {
+describe('syncFromDBALBulk', () => {
   const dispatch = vi.fn()
   const getState = vi.fn()
 
   beforeEach(() => {
-    mockFetchAllFromFlask.mockReset()
+    mockFetchAllFromDBAL.mockReset()
     dispatch.mockReset()
     getState.mockReset()
   })
 
-  it('ignores invalid keys from Flask', async () => {
-    mockFetchAllFromFlask.mockResolvedValue({
-      'unknown:1': { id: '1' },
-      'files': { id: 'missing-colon' },
-      'models:': { id: 'empty-id' },
-      'components:abc:extra': { id: 'abc' }
+  it('returns empty arrays when DBAL has no data', async () => {
+    mockFetchAllFromDBAL.mockResolvedValue({
+      files: [],
+      models: [],
+      components: [],
+      workflows: [],
+      componentTrees: [],
+      lambdas: [],
+      project: [],
+      kv: [],
     })
 
-    const action = await syncFromFlaskBulk()(dispatch, getState, undefined)
+    const action = await syncFromDBALBulk()(dispatch, getState, undefined)
 
-    expect(action.type).toBe('sync/syncFromFlaskBulk/fulfilled')
+    expect(action.type).toBe('dbal/syncFromDBALBulk/fulfilled')
     const payload = action.payload as any
     expect(payload.data.files).toHaveLength(0)
     expect(payload.data.models).toHaveLength(0)
@@ -42,18 +53,24 @@ describe('syncFromFlaskBulk', () => {
     expect(payload.data.workflows).toHaveLength(0)
   })
 
-  it('organizes valid keys into data arrays', async () => {
+  it('organizes DBAL records into data collections', async () => {
     const file = { id: 'file-1', name: 'File 1' }
     const model = { id: 'model-1', name: 'Model 1' }
 
-    mockFetchAllFromFlask.mockResolvedValue({
-      'files:file-1': file,
-      'models:model-1': model
+    mockFetchAllFromDBAL.mockResolvedValue({
+      files: [file],
+      models: [model],
+      components: [],
+      workflows: [],
+      componentTrees: [],
+      lambdas: [],
+      project: [],
+      kv: [],
     })
 
-    const action = await syncFromFlaskBulk()(dispatch, getState, undefined)
+    const action = await syncFromDBALBulk()(dispatch, getState, undefined)
 
-    expect(action.type).toBe('sync/syncFromFlaskBulk/fulfilled')
+    expect(action.type).toBe('dbal/syncFromDBALBulk/fulfilled')
     const payload = action.payload as any
     expect(payload.data.files).toEqual([file])
     expect(payload.data.models).toEqual([model])
@@ -66,14 +83,20 @@ describe('syncFromFlaskBulk', () => {
     const file1 = { id: 'keep', name: 'Keep' }
     const file2 = { id: 'new', name: 'New' }
 
-    mockFetchAllFromFlask.mockResolvedValue({
-      'files:keep': file1,
-      'files:new': file2,
+    mockFetchAllFromDBAL.mockResolvedValue({
+      files: [file1, file2],
+      models: [],
+      components: [],
+      workflows: [],
+      componentTrees: [],
+      lambdas: [],
+      project: [],
+      kv: [],
     })
 
-    const action = await syncFromFlaskBulk()(dispatch, getState, undefined)
+    const action = await syncFromDBALBulk()(dispatch, getState, undefined)
 
-    expect(action.type).toBe('sync/syncFromFlaskBulk/fulfilled')
+    expect(action.type).toBe('dbal/syncFromDBALBulk/fulfilled')
     const payload = action.payload as any
     expect(payload.data.files).toHaveLength(2)
     expect(payload.data.files).toContainEqual(file1)

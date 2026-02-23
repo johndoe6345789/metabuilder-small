@@ -32,7 +32,7 @@
         { "href": "/json-ui", "label": "JSON UI", "icon": "data_object" },
         { "href": "/schema-editor", "label": "Schema Editor", "icon": "edit_note" },
         { "href": "/data-binding", "label": "Data Binding", "icon": "link" },
-        { "href": "/flask", "label": "Flask API", "icon": "api" }
+        { "href": "/database", "label": "Database", "icon": "database" }
       ]
     },
     {

@@ -119,6 +119,36 @@ const fakeMuiLayoutComponents: UIComponentRegistry = {
   Separator: Separator as unknown as ComponentType<any>,
 }
 
+// Explicit component-tree-builder sub-components — require.context lazy loading
+// resolves these to () => null because the async dynamic import fails.
+// Register them directly so the JSON renderer can find them.
+import { ComponentTreeToolbar } from '@/components/component-tree-builder/ComponentTreeToolbar'
+import { ComponentTreeView } from '@/components/component-tree-builder/ComponentTreeView'
+import { ComponentInspector } from '@/components/component-tree-builder/ComponentInspector'
+
+// MonacoEditorWrapper uses @monaco-editor/react which needs explicit registration
+// (same issue — require.context + next/dynamic resolves to () => null).
+import { MonacoEditorWrapper } from '@/components/ui/monaco-editor-wrapper'
+
+// File explorer components — next/dynamic fallback resolves to () => null
+// in Turbopack dev mode. Register explicitly so JSON renderer finds them.
+import { FileExplorerList } from '@/components/file-explorer/FileExplorerList'
+import { FileExplorerDialog } from '@/components/file-explorer/FileExplorerDialog'
+
+// ScrollArea from components/ui — should be in uiComponentMap via require.context
+// but Turbopack dev mode doesn't always resolve it. Explicit import is safe.
+import { ScrollArea } from '@/components/ui/scroll-area'
+
+const componentTreeSubComponents: UIComponentRegistry = {
+  ComponentTreeToolbar: ComponentTreeToolbar as unknown as ComponentType<any>,
+  ComponentTreeView: ComponentTreeView as unknown as ComponentType<any>,
+  ComponentInspector: ComponentInspector as unknown as ComponentType<any>,
+  MonacoEditorWrapper: MonacoEditorWrapper as unknown as ComponentType<any>,
+  FileExplorerList: FileExplorerList as unknown as ComponentType<any>,
+  FileExplorerDialog: FileExplorerDialog as unknown as ComponentType<any>,
+  ScrollArea: ScrollArea as unknown as ComponentType<any>,
+}
+
 // Lazy contexts — each file becomes its own async chunk, loaded on demand.
 // If one module has a bug, only that component fails (easier to debug).
 const atomContext = require.context('@/components/atoms', false, /\.tsx$/)
@@ -223,6 +253,10 @@ const buildRegistryFromEntries = (
     }, {})
 }
 
+// Primitive HTML elements are stored as string literals (e.g. 'div').
+// React accepts strings as valid element types at runtime, but the registry
+// type expects ComponentType<any>, so `as any` is required to satisfy the
+// TypeScript type checker without wrapping every element in a function component.
 export const primitiveComponents: UIComponentRegistry = {
   div: 'div' as any,
   span: 'span' as any,
@@ -241,6 +275,13 @@ export const primitiveComponents: UIComponentRegistry = {
   aside: 'aside' as any,
   nav: 'nav' as any,
   button: 'button' as any,
+  input: 'input' as any,
+  select: 'select' as any,
+  textarea: 'textarea' as any,
+  form: 'form' as any,
+  label: 'label' as any,
+  a: 'a' as any,
+  img: 'img' as any,
   list: 'div' as any,
 }
 
@@ -286,6 +327,7 @@ export const componentsComponents: UIComponentRegistry = buildRegistryFromEntrie
 export const uiComponentRegistry: UIComponentRegistry = {
   ...primitiveComponents,
   ...fakeMuiLayoutComponents,
+  ...componentTreeSubComponents,
   ...shadcnComponents,
   ...atomComponents,
   ...moleculeComponents,

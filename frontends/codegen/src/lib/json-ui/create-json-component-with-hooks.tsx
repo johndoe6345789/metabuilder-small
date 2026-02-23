@@ -12,6 +12,8 @@ export function createJsonComponentWithHooks<TProps = any>(
       [key: string]: {
         hookName: string
         args?: (props: TProps) => any[]
+        selector?: (result: any) => any
+        spread?: boolean
       }
     }
   }
@@ -24,7 +26,15 @@ export function createJsonComponentWithHooks<TProps = any>(
         const hook = getHook(hookConfig.hookName)
         if (hook) {
           const args = hookConfig.args ? hookConfig.args(props) : []
-          hookResults[resultKey] = hook(...args)
+          let result = hook(...args)
+          if (hookConfig.selector) {
+            result = hookConfig.selector(result)
+          }
+          if (hookConfig.spread && result && typeof result === 'object') {
+            Object.assign(hookResults, result)
+          } else {
+            hookResults[resultKey] = result
+          }
         }
       }
     }

@@ -1,6 +1,6 @@
 import { useCRUD, useSearchFilter } from '@/hooks/data'
 import { useToggle, useDialog } from '@/hooks/ui'
-import { useKV } from '@/hooks/use-kv'
+import { useUIState } from '@/hooks/use-ui-state'
 import { Button } from '@/components/ui/button'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { MetabuilderWidgetSearchInput as SearchInput } from '@/lib/json-ui/json-components'
@@ -17,7 +17,7 @@ interface Task {
 }
 
 export function AtomicComponentDemo() {
-  const [tasks, setTasks] = useKV<Task[]>('demo-tasks', [
+  const [tasks, setTasks] = useUIState<Task[]>('demo-tasks', [
     { id: 1, title: 'Build component library', status: 'active', priority: 'high' },
     { id: 2, title: 'Write documentation', status: 'pending', priority: 'medium' },
     { id: 3, title: 'Create examples', status: 'success', priority: 'low' },

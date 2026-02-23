@@ -78,6 +78,16 @@
                       }
                     },
                     {
+                      "id": "search-input",
+                      "type": "MetabuilderWidgetHeaderSearch",
+                      "events": {
+                        "onNavigate": {
+                          "type": "callback",
+                          "name": "onNavigate"
+                        }
+                      }
+                    },
+                    {
                       "id": "toolbar-actions",
                       "type": "ToolbarActions",
                       "bindings": {

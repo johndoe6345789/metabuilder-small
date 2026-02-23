@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit'
-import { syncToFlask, fetchFromFlask } from '@/store/middleware/flaskSync'
+import { syncToDBAL, fetchFromDBAL, deleteFromDBAL } from '@/store/middleware/dbalSync'
 
 export interface Project {
   id: string
@@ -35,7 +35,7 @@ export const createProject = createAsyncThunk(
       createdAt: Date.now(),
       updatedAt: Date.now(),
     }
-    await syncToFlask('projects', project.id, project)
+    await syncToDBAL('projects', project.id, project)
     return project
   }
 )
@@ -43,7 +43,7 @@ export const createProject = createAsyncThunk(
 export const saveProject = createAsyncThunk(
   'project/saveProject',
   async (project: Project) => {
-    await syncToFlask('projects', project.id, project)
+    await syncToDBAL('projects', project.id, project)
     return project
   }
 )
@@ -51,15 +51,15 @@ export const saveProject = createAsyncThunk(
 export const deleteProject = createAsyncThunk(
   'project/deleteProject',
   async (projectId: string) => {
-    await syncToFlask('projects', projectId, null, 'delete')
+    await deleteFromDBAL('projects', projectId)
     return projectId
   }
 )
 
-export const syncProjectFromFlask = createAsyncThunk(
-  'project/syncFromFlask',
+export const syncProjectFromDBAL = createAsyncThunk(
+  'project/syncFromDBAL',
   async (projectId: string) => {
-    return await fetchFromFlask('projects', projectId)
+    return await fetchFromDBAL('projects', projectId)
   }
 )
 
@@ -114,7 +114,7 @@ const projectSlice = createSlice({
           state.currentProject = null
         }
       })
-      .addCase(syncProjectFromFlask.fulfilled, (state, action) => {
+      .addCase(syncProjectFromDBAL.fulfilled, (state, action) => {
         if (action.payload) {
           const index = state.projects.findIndex(p => p.id === action.payload.id)
           if (index !== -1) {

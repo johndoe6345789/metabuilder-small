@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { syncToFlask } from '@/store/middleware/flaskSync'
+import { syncToDBAL, deleteFromDBAL } from '@/store/middleware/dbalSync'
 
 export interface Theme {
   id: string
@@ -53,7 +53,7 @@ const themeSlice = createSlice({
   reducers: {
     setCurrentTheme: (state, action: PayloadAction<Theme>) => {
       state.currentTheme = action.payload
-      syncToFlask('theme', 'current', action.payload).catch(console.error)
+      syncToDBAL('theme', 'current', action.payload).catch(console.error)
     },
     updateThemeColors: (state, action: PayloadAction<Partial<ThemeColors>>) => {
       if (state.currentTheme) {
@@ -62,7 +62,7 @@ const themeSlice = createSlice({
           ...action.payload,
         }
         state.currentTheme.updatedAt = Date.now()
-        syncToFlask('theme', 'current', state.currentTheme).catch(console.error)
+        syncToDBAL('theme', 'current', state.currentTheme).catch(console.error)
       }
     },
     updateThemeTypography: (state, action: PayloadAction<Partial<ThemeTypography>>) => {
@@ -72,19 +72,19 @@ const themeSlice = createSlice({
           ...action.payload,
         }
         state.currentTheme.updatedAt = Date.now()
-        syncToFlask('theme', 'current', state.currentTheme).catch(console.error)
+        syncToDBAL('theme', 'current', state.currentTheme).catch(console.error)
       }
     },
     addTheme: (state, action: PayloadAction<Theme>) => {
       state.themes.push(action.payload)
-      syncToFlask('theme', action.payload.id, action.payload).catch(console.error)
+      syncToDBAL('theme', action.payload.id, action.payload).catch(console.error)
     },
     deleteTheme: (state, action: PayloadAction<string>) => {
       state.themes = state.themes.filter(t => t.id !== action.payload)
       if (state.currentTheme?.id === action.payload) {
         state.currentTheme = null
       }
-      syncToFlask('theme', action.payload, null, 'delete').catch(console.error)
+      deleteFromDBAL('theme', action.payload).catch(console.error)
     },
     setThemes: (state, action: PayloadAction<Theme[]>) => {
       state.themes = action.payload

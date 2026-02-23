@@ -2,16 +2,37 @@
 
 import { useEffect } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { Box, IconButton, Typography } from '@metabuilder/fakemui'
 import { useUI, useResponsiveSidebar } from '@metabuilder/hooks'
 import styles from '@metabuilder/scss/atoms/layout.module.scss'
 import navData from '@/data/navigation.json'
+import {
+  MetabuilderWidgetProjectManager,
+  MetabuilderWidgetHeaderSearch,
+} from '@/lib/json-ui/json-components'
+import { Toaster } from '@/components/ui/sonner'
+import pkg from '../../../package.json'
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   const { theme, sidebarOpen, setSidebar, toggleTheme } = useUI()
   const { isMobile } = useResponsiveSidebar(sidebarOpen, setSidebar)
   const pathname = usePathname()
+  const router = useRouter()
+
+  const handleNavigate = (page: string) => {
+    const routeMap: Record<string, string> = {
+      dashboard: '/codegen',
+      code: '/codegen/code',
+      models: '/codegen/models',
+      components: '/codegen/components',
+      'component-trees': '/codegen/component-trees',
+      workflows: '/codegen/workflows',
+      lambdas: '/codegen/lambdas',
+      database: '/codegen/database',
+    }
+    router.push(routeMap[page] || `/codegen/${page}`)
+  }
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme)
@@ -75,9 +96,30 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
             <Typography variant="h6" component="h1" className={styles.appBarTitle}>
               CodeForge
             </Typography>
+            <span
+              style={{
+                fontSize: '10px',
+                fontWeight: 500,
+                color: 'var(--mat-sys-on-surface-variant)',
+                background: 'var(--mat-sys-surface-container)',
+                padding: '1px 6px',
+                borderRadius: '4px',
+                marginLeft: '6px',
+                letterSpacing: '0.3px',
+                lineHeight: '16px',
+                whiteSpace: 'nowrap',
+              }}
+              data-testid="app-version"
+            >
+              v{pkg.version}
+            </span>
           </Box>
         </Box>
-        <Box className={styles.appBarActions} data-testid="header-actions">
+        <Box className={styles.appBarActions} data-testid="header-actions" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <MetabuilderWidgetProjectManager />
+          <MetabuilderWidgetHeaderSearch
+            onNavigate={handleNavigate}
+          />
           <IconButton
             color="inherit"
             onClick={toggleTheme}
@@ -130,6 +172,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
           {children}
         </main>
       </div>
+      <Toaster />
     </div>
   )
 }

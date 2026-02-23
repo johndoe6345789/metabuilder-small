@@ -1,4 +1,4 @@
-import { useKV } from '@/hooks/use-kv'
+import { useUIState } from '@/hooks/use-ui-state'
 import { useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 
@@ -11,7 +11,7 @@ export interface NavigationHistoryItem {
 const MAX_HISTORY_LENGTH = 10
 
 export function useNavigationHistory() {
-  const [history, setHistory] = useKV<NavigationHistoryItem[]>('navigation-history', [])
+  const [history, setHistory] = useUIState<NavigationHistoryItem[]>('navigation-history', [])
   const pathname = usePathname()
 
   useEffect(() => {
