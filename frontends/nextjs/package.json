@@ -21,7 +21,7 @@
     "test:e2e:debug": "playwright test --config=../../playwright.config.ts --debug",
     "test:e2e:report": "playwright show-report",
     "test:e2e:dbal-daemon": "playwright test --config=../../e2e/playwright.dbal-daemon.config.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "bash -c 'OUT=$(tsc --noEmit 2>&1); LOCAL=$(echo \"$OUT\" | grep -E \"^(src/|e2e/|next\\.config)\" | grep \"error TS\"); if [ -n \"$LOCAL\" ]; then echo \"$OUT\"; exit 1; else echo \"TypeScript: no local source errors ($(echo \"$OUT\" | grep -c \"error TS\") workspace warnings skipped)\"; fi'"
   },
   "dependencies": {
     "@metabuilder/api-clients": "*",

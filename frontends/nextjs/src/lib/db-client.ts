@@ -47,11 +47,11 @@ export interface DBALClient {
   sessions: EntityOps
   workflows: EntityOps
   packages: EntityOps
+  packageData: EntityOps
   pageConfigs: EntityOps
   installedPackages: EntityOps
   credentials: EntityOps
   entity(name: string): EntityOps
-  [key: string]: EntityOps | ((...args: unknown[]) => unknown)
 }
 
 // ---------------------------------------------------------------------------

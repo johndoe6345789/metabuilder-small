@@ -96,7 +96,6 @@
       ".": "^7.0.1",
       "eslint": "$eslint"
     },
-    "ajv": "^8.18.0",
     "hono": "^4.12.0",
     "@storybook/react-vite": {
       "vite": "^7.3.1"

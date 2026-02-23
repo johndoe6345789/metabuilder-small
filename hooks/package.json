@@ -4,7 +4,7 @@
   "type": "module",
   "description": "Comprehensive collection of 100+ production-ready React hooks for MetaBuilder",
   "main": "index.ts",
-  "types": "index.d.ts",
+  "types": "index.ts",
   "scripts": {
     "build": "tsc --declaration --emitDeclarationOnly",
     "lint": "eslint .",

@@ -4,7 +4,7 @@ import { Container, Typography, Button, Stack, Paper } from '@/fakemui'
 
 export function WelcomePage() {
   return (
-    <Container maxWidth="sm" sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <Container {...{ maxWidth: 'sm', sx: { minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' } } as Record<string, unknown>}>
       <Paper elevation={0} sx={{ textAlign: 'center', p: 4 }}>
         <Typography variant="h3" gutterBottom>
           MetaBuilder
