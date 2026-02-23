@@ -12,7 +12,7 @@ export default defineConfig({
     timeout: 10000,
   },
   use: {
-    baseURL: 'http://localhost:5000',
+    baseURL: 'http://localhost:3000/codegen/',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     actionTimeout: 10000,
@@ -28,7 +28,7 @@ export default defineConfig({
 
   webServer: {
     command: 'npm run dev',
-    url: 'http://localhost:5000',
+    url: 'http://localhost:3000/codegen',
     reuseExistingServer: true,
     timeout: 120000,
     stdout: 'pipe',

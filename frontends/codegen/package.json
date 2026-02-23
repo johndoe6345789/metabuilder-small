@@ -11,11 +11,11 @@
     "prebuild": "npm run components:generate-types",
     "lint": "eslint . --fix && npm run lint:schemas",
     "lint:schemas": "npm run lint:schemas:components && npm run lint:schemas:pages",
-    "lint:schemas:components": "cd scripts && npx tsx validate-component-schemas.ts",
-    "lint:schemas:pages": "cd scripts && npx tsx validate-page-schemas.ts",
+    "lint:schemas:components": "npx tsx scripts/validate-component-schemas.ts",
+    "lint:schemas:pages": "npx tsx scripts/validate-page-schemas.ts",
     "test": "vitest",
-    "audit:json": "cd scripts && npx tsx audit-json-components.ts",
-    "components:generate-types": "cd scripts && npx tsx generate-json-ui-component-types.ts"
+    "audit:json": "npx tsx scripts/audit-json-components.ts",
+    "components:generate-types": "npx tsx scripts/generate-json-ui-component-types.ts"
   },
   "dependencies": {
     "@metabuilder/api-clients": "*",
