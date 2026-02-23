@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test'
 test.describe('CodeForge - Core Functionality', () => {
   test.beforeEach(async ({ page }) => {
     test.setTimeout(20000)
-    await page.goto('./', { waitUntil: 'domcontentloaded', timeout: 10000 })
+    await page.goto('/codegen', { waitUntil: 'domcontentloaded', timeout: 10000 })
     await page.waitForSelector('#root > *', { timeout: 10000 })
   })
 
@@ -38,7 +38,7 @@ test.describe('CodeForge - Core Functionality', () => {
 test.describe('CodeForge - Code Editor', () => {
   test('should display Monaco editor', async ({ page }) => {
     test.setTimeout(30000)
-    await page.goto('./', { waitUntil: 'domcontentloaded', timeout: 10000 })
+    await page.goto('/codegen', { waitUntil: 'domcontentloaded', timeout: 10000 })
     await page.waitForSelector('#root > *', { timeout: 10000 })
 
     const codeEditorTab = page.locator('button[role="tab"]').filter({ hasText: /Code Editor/i }).first()
@@ -56,7 +56,7 @@ test.describe('CodeForge - Responsive Design', () => {
   test('should work on mobile viewport', async ({ page }) => {
     test.setTimeout(20000)
     await page.setViewportSize({ width: 375, height: 667 })
-    await page.goto('./', { waitUntil: 'domcontentloaded', timeout: 10000 })
+    await page.goto('/codegen', { waitUntil: 'domcontentloaded', timeout: 10000 })
 
     await page.waitForSelector('#root > *', { timeout: 10000 })
   })
@@ -64,7 +64,7 @@ test.describe('CodeForge - Responsive Design', () => {
   test('should work on tablet viewport', async ({ page }) => {
     test.setTimeout(20000)
     await page.setViewportSize({ width: 768, height: 1024 })
-    await page.goto('./', { waitUntil: 'domcontentloaded', timeout: 10000 })
+    await page.goto('/codegen', { waitUntil: 'domcontentloaded', timeout: 10000 })
 
     await page.waitForSelector('#root > *', { timeout: 10000 })
   })

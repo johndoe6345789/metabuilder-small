@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test'
 test.describe('CodeForge - Smoke Tests', () => {
   test('app loads successfully', async ({ page }) => {
     test.setTimeout(20000)
-    await page.goto('./', { waitUntil: 'domcontentloaded', timeout: 15000 })
+    await page.goto('/codegen', { waitUntil: 'domcontentloaded', timeout: 15000 })
 
     // Check that the app has rendered content (more reliable than checking visibility)
     const root = page.locator('#root')
@@ -14,7 +14,7 @@ test.describe('CodeForge - Smoke Tests', () => {
 
   test('can navigate to dashboard tab', async ({ page }) => {
     test.setTimeout(20000)
-    await page.goto('./', { waitUntil: 'domcontentloaded', timeout: 10000 })
+    await page.goto('/codegen', { waitUntil: 'domcontentloaded', timeout: 10000 })
     await page.waitForSelector('#root > *', { timeout: 10000 })
 
     const dashboardTab = page.locator('button[role="tab"]').filter({ hasText: /Dashboard/i }).first()
@@ -26,7 +26,7 @@ test.describe('CodeForge - Smoke Tests', () => {
 
   test('Monaco editor loads in code editor', async ({ page }) => {
     test.setTimeout(30000)
-    await page.goto('./', { waitUntil: 'domcontentloaded', timeout: 10000 })
+    await page.goto('/codegen', { waitUntil: 'domcontentloaded', timeout: 10000 })
     await page.waitForSelector('#root > *', { timeout: 10000 })
 
     const codeEditorTab = page.locator('button[role="tab"]').filter({ hasText: /Code Editor/i }).first()
@@ -48,7 +48,7 @@ test.describe('CodeForge - Smoke Tests', () => {
       }
     })
 
-    await page.goto('./', { waitUntil: 'domcontentloaded', timeout: 10000 })
+    await page.goto('/codegen', { waitUntil: 'domcontentloaded', timeout: 10000 })
     await page.waitForSelector('#root > *', { timeout: 10000 })
 
     const criticalErrors = errors.filter(e =>

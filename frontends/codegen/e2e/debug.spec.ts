@@ -14,7 +14,7 @@ test('debug page load', async ({ page }) => {
     pageErrors.push(error)
   })
 
-  await page.goto('./', { waitUntil: 'networkidle', timeout: 15000 })
+  await page.goto('/codegen', { waitUntil: 'networkidle', timeout: 15000 })
 
   // Wait a bit
   await page.waitForTimeout(2000)
