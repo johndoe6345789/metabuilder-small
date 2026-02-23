@@ -5,7 +5,49 @@
 
 # --- Build stage ---
 FROM metabuilder/base-node-deps:latest AS builder
-COPY . .
+
+# ── Shared packages (resolved by transpilePackages + webpack aliases) ────────
+# Each COPY targets only the source tree that postgres actually imports.
+#
+# hooks (shared React hooks)
+COPY hooks/ ./hooks/
+
+# icons (React icon components — imported by components/fakemui)
+COPY icons/ ./icons/
+
+# scss (Material 3 SCSS, theme, atoms — loaded by sassOptions.includePaths)
+COPY scss/ ./scss/
+
+# components + FakeMUI (UI component library)
+COPY components/ ./components/
+
+# ── Redux packages (all — small TS source, avoids transitive dep breakage) ───
+COPY redux/core/ ./redux/core/
+COPY redux/slices/ ./redux/slices/
+COPY redux/hooks/ ./redux/hooks/
+COPY redux/adapters/ ./redux/adapters/
+COPY redux/api-clients/ ./redux/api-clients/
+COPY redux/core-hooks/ ./redux/core-hooks/
+COPY redux/email/ ./redux/email/
+COPY redux/hooks-async/ ./redux/hooks-async/
+COPY redux/hooks-auth/ ./redux/hooks-auth/
+COPY redux/hooks-canvas/ ./redux/hooks-canvas/
+COPY redux/hooks-data/ ./redux/hooks-data/
+COPY redux/hooks-forms/ ./redux/hooks-forms/
+COPY redux/hooks-utils/ ./redux/hooks-utils/
+COPY redux/middleware/ ./redux/middleware/
+COPY redux/persist/ ./redux/persist/
+COPY redux/services/ ./redux/services/
+COPY redux/timing-utils/ ./redux/timing-utils/
+
+# types (transitive dependency via hooks)
+COPY types/ ./types/
+
+# workflow (DAG engine — imported by components package)
+COPY workflow/ ./workflow/
+
+# ── Postgres Dashboard (the app itself) ──────────────────────────────────────
+COPY frontends/postgres/ ./frontends/postgres/
 
 # Build workspace library packages
 RUN for ws in redux/core redux/slices redux/hooks redux/adapters \

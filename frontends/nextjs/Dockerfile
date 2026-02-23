@@ -5,7 +5,49 @@
 
 # --- Build stage ---
 FROM metabuilder/base-node-deps:latest AS builder
-COPY . .
+
+# ── Shared packages (resolved by transpilePackages + webpack aliases) ────────
+# Each COPY targets only the source tree that nextjs actually imports.
+#
+# hooks (shared React hooks)
+COPY hooks/ ./hooks/
+
+# icons (React icon components — imported by components/fakemui)
+COPY icons/ ./icons/
+
+# scss (Material 3 SCSS, theme, atoms — loaded by sassOptions)
+COPY scss/ ./scss/
+
+# components + FakeMUI (UI component library)
+COPY components/ ./components/
+
+# workflow (DAG engine — type imports + components package)
+COPY workflow/ ./workflow/
+
+# DBAL shared UI (imported via @dbal-ui alias in next.config.ts)
+COPY dbal/shared/ui/ ./dbal/shared/ui/
+
+# ── Redux packages (all — small TS source, avoids transitive dep breakage) ───
+COPY redux/core/ ./redux/core/
+COPY redux/slices/ ./redux/slices/
+COPY redux/hooks/ ./redux/hooks/
+COPY redux/adapters/ ./redux/adapters/
+COPY redux/api-clients/ ./redux/api-clients/
+COPY redux/core-hooks/ ./redux/core-hooks/
+COPY redux/email/ ./redux/email/
+COPY redux/hooks-async/ ./redux/hooks-async/
+COPY redux/hooks-auth/ ./redux/hooks-auth/
+COPY redux/hooks-canvas/ ./redux/hooks-canvas/
+COPY redux/hooks-data/ ./redux/hooks-data/
+COPY redux/hooks-forms/ ./redux/hooks-forms/
+COPY redux/hooks-utils/ ./redux/hooks-utils/
+COPY redux/middleware/ ./redux/middleware/
+COPY redux/persist/ ./redux/persist/
+COPY redux/services/ ./redux/services/
+COPY redux/timing-utils/ ./redux/timing-utils/
+
+# ── Frontend App (the app itself) ────────────────────────────────────────────
+COPY frontends/nextjs/ ./frontends/nextjs/
 
 # Build workspace library packages
 RUN for ws in redux/core redux/slices redux/hooks redux/adapters \
