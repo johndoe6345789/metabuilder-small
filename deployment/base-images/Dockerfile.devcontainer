@@ -99,7 +99,11 @@ ENV LIBGL_ALWAYS_SOFTWARE=1 \
     GALLIUM_DRIVER=softpipe \
     VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/lvp_icd.x86_64.json
 
-# ── oh-my-zsh + shell comforts ────────────────────────────────────────────────
+# ── zsh + oh-my-zsh + shell comforts ──────────────────────────────────────────
+# Install zsh first (required by oh-my-zsh and the SHELL directive below).
+RUN apt-get update && apt-get install -y --no-install-recommends zsh \
+    && rm -rf /var/lib/apt/lists/*
+
 RUN for i in 1 2 3 4 5; do \
       sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" \
         "" --unattended \
