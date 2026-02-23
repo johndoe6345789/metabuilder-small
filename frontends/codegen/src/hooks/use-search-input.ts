@@ -43,6 +43,9 @@ interface NavigationMeta {
 
 const NAV_ITEMS = navigationData as NavigationMeta[]
 
+/** Stable empty array — avoids new [] on every selector call triggering re-renders */
+const EMPTY_ARRAY: readonly Record<string, unknown>[] = []
+
 const SLICE_TO_PAGE: Record<string, string> = {
   files: 'code',
   models: 'models',
@@ -107,11 +110,12 @@ export function useSearchInput({ onNavigate, t: externalT }: UseSearchInputArgs)
   const { results: dbalResults, loading: dbalLoading } = useDBALSearch(query)
 
   // Redux entities for client-side search
-  const files = useAppSelector((s) => s.files?.items ?? [])
-  const models = useAppSelector((s) => s.models?.items ?? [])
-  const components = useAppSelector((s) => s.components?.items ?? [])
-  const workflows = useAppSelector((s) => s.workflows?.items ?? [])
-  const lambdas = useAppSelector((s) => s.lambdas?.items ?? [])
+  // Use EMPTY_ARRAY fallback to keep stable references when slices are empty/undefined
+  const files = useAppSelector((s) => s.files?.items ?? EMPTY_ARRAY)
+  const models = useAppSelector((s) => s.models?.items ?? EMPTY_ARRAY)
+  const components = useAppSelector((s) => s.components?.items ?? EMPTY_ARRAY)
+  const workflows = useAppSelector((s) => s.workflows?.items ?? EMPTY_ARRAY)
+  const lambdas = useAppSelector((s) => s.lambdas?.items ?? EMPTY_ARRAY)
 
   // ── Client-side search (instant) ────────────────────────────────────────
   const localCategories = useMemo<SearchCategory[]>(() => {
