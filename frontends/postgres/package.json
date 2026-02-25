@@ -48,7 +48,7 @@
     "@metabuilder/hooks": "file:../../hooks",
     "@mui/icons-material": "^7.3.8",
     "@mui/material": "^7.3.8",
-    "@storybook/react-vite": "10.2.11",
+    "@storybook/react-vite": "10.2.12",
     "@t3-oss/env-nextjs": "^0.13.10",
     "bcryptjs": "^3.0.3",
     "drizzle-orm": "^0.45.1",
