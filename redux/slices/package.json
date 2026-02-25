@@ -3,11 +3,11 @@
   "version": "0.1.0",
   "type": "module",
   "description": "Redux slices for workflow state management",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
+      "types": "./src/index.ts",
       "import": "./dist/index.js",
       "default": "./dist/index.js"
     },
@@ -84,20 +84,20 @@
   },
   "typesVersions": {
     "*": {
-      "canvasSlice": ["dist/slices/canvasSlice.d.ts"],
-      "canvasItemsSlice": ["dist/slices/canvasItemsSlice.d.ts"],
-      "editorSlice": ["dist/slices/editorSlice.d.ts"],
-      "uiSlice": ["dist/slices/uiSlice.d.ts"],
-      "workflowSlice": ["dist/slices/workflowSlice.d.ts"],
-      "connectionSlice": ["dist/slices/connectionSlice.d.ts"],
-      "authSlice": ["dist/slices/authSlice.d.ts"],
-      "projectSlice": ["dist/slices/projectSlice.d.ts"],
-      "nodesSlice": ["dist/slices/nodesSlice.d.ts"],
-      "workspaceSlice": ["dist/slices/workspaceSlice.d.ts"],
-      "collaborationSlice": ["dist/slices/collaborationSlice.d.ts"],
-      "realtimeSlice": ["dist/slices/realtimeSlice.d.ts"],
-      "documentationSlice": ["dist/slices/documentationSlice.d.ts"],
-      "asyncDataSlice": ["dist/slices/asyncDataSlice.d.ts"]
+      "canvasSlice": ["src/slices/canvasSlice.ts"],
+      "canvasItemsSlice": ["src/slices/canvasItemsSlice.ts"],
+      "editorSlice": ["src/slices/editorSlice.ts"],
+      "uiSlice": ["src/slices/uiSlice.ts"],
+      "workflowSlice": ["src/slices/workflowSlice.ts"],
+      "connectionSlice": ["src/slices/connectionSlice.ts"],
+      "authSlice": ["src/slices/authSlice.ts"],
+      "projectSlice": ["src/slices/projectSlice.ts"],
+      "nodesSlice": ["src/slices/nodesSlice.ts"],
+      "workspaceSlice": ["src/slices/workspaceSlice.ts"],
+      "collaborationSlice": ["src/slices/collaborationSlice.ts"],
+      "realtimeSlice": ["src/slices/realtimeSlice.ts"],
+      "documentationSlice": ["src/slices/documentationSlice.ts"],
+      "asyncDataSlice": ["src/slices/asyncDataSlice.ts"]
     }
   },
   "scripts": {

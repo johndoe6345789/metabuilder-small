@@ -110,3 +110,4 @@ bun.lockb
 .codeql-dbs/
 .codeql-db/
 /.claude/worktrees
+*.tsbuildinfo

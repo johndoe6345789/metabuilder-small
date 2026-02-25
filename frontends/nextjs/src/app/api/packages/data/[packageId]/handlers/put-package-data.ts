@@ -60,7 +60,7 @@ export async function PUT(
     const ops = db.entity('PackageData')
     const existing = await ops.list({ filter: { packageId: resolvedParams.packageId } })
     if (existing.data.length > 0 && existing.data[0]?.id) {
-      await ops.update(String(existing.data[0].id), { data: dataJson })
+      await ops.update(existing.data[0].id as string, { data: dataJson })
     } else {
       await ops.create({ packageId: resolvedParams.packageId, data: dataJson })
     }

@@ -47,11 +47,11 @@ export interface DBALClient {
   sessions: EntityOps
   workflows: EntityOps
   packages: EntityOps
+  packageData: EntityOps
   pageConfigs: EntityOps
   installedPackages: EntityOps
   credentials: EntityOps
   entity(name: string): EntityOps
-  [key: string]: EntityOps | ((...args: unknown[]) => unknown)
 }
 
 // ---------------------------------------------------------------------------
@@ -108,7 +108,7 @@ function createOps(entityName: string): EntityOps {
       const params = new URLSearchParams()
       if (options?.filter) {
         for (const [k, v] of Object.entries(options.filter)) {
-          if (v !== undefined && v !== null) params.set(k, String(v))
+          if (v !== undefined && v !== null) params.set(k, String(v as string | number | boolean))
         }
       }
       if (options?.limit !== undefined) params.set('_limit', String(options.limit))

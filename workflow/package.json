@@ -2,33 +2,33 @@
   "name": "@metabuilder/workflow",
   "version": "3.0.0",
   "description": "Enterprise-grade DAG workflow engine with N8N-style architecture",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/executor/ts/index.js",
+  "types": "dist/executor/ts/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "import": "./dist/executor/ts/index.js",
+      "require": "./dist/executor/ts/index.js",
+      "types": "./dist/executor/ts/index.d.ts"
     },
     "./executor": {
-      "import": "./dist/executor/dag-executor.js",
-      "require": "./dist/executor/dag-executor.js",
-      "types": "./dist/executor/dag-executor.d.ts"
+      "import": "./dist/executor/ts/executor/dag-executor.js",
+      "require": "./dist/executor/ts/executor/dag-executor.js",
+      "types": "./dist/executor/ts/executor/dag-executor.d.ts"
     },
     "./types": {
-      "import": "./dist/types.js",
-      "require": "./dist/types.js",
-      "types": "./dist/types.d.ts"
+      "import": "./dist/executor/ts/types.js",
+      "require": "./dist/executor/ts/types.js",
+      "types": "./dist/executor/ts/types.d.ts"
     },
     "./registry": {
-      "import": "./dist/registry/node-executor-registry.js",
-      "require": "./dist/registry/node-executor-registry.js",
-      "types": "./dist/registry/node-executor-registry.d.ts"
+      "import": "./dist/executor/ts/registry/node-executor-registry.js",
+      "require": "./dist/executor/ts/registry/node-executor-registry.js",
+      "types": "./dist/executor/ts/registry/node-executor-registry.d.ts"
     },
     "./plugins": {
-      "import": "./dist/plugins/index.js",
-      "require": "./dist/plugins/index.js",
-      "types": "./dist/plugins/index.d.ts"
+      "import": "./dist/executor/ts/plugins/index.js",
+      "require": "./dist/executor/ts/plugins/index.js",
+      "types": "./dist/executor/ts/plugins/index.d.ts"
     }
   },
   "scripts": {

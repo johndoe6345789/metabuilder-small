@@ -174,7 +174,7 @@ export function usePackageActions(
         }))
 
         onSuccessFn?.(data)
-        onSuccess?.(data as PackageInfo, operationName as any)
+        onSuccess?.(data as unknown as PackageInfo, operationName as 'install' | 'uninstall' | 'enable' | 'disable')
 
         return data
       } catch (err) {
@@ -185,8 +185,8 @@ export function usePackageActions(
 
         const error = err instanceof Error ? (err as PackageError) : new Error(String(err))
         if (!(error as PackageError).code) {
-          (error as PackageError).code = PackageErrorCode.NETWORK_ERROR
-          (error as PackageError).name = 'PackageError'
+          ;(error as PackageError).code = PackageErrorCode.NETWORK_ERROR
+          ;(error as PackageError).name = 'PackageError'
         }
 
         setState((prev) => ({

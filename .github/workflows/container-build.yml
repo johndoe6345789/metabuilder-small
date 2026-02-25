@@ -23,26 +23,80 @@ permissions:
   id-token: write
 
 jobs:
-  build-and-push:
-    name: Build and Push Docker Images
+  # Step 1: Build the base-node-deps image that all frontends depend on
+  build-base:
+    name: Build Base Node Dependencies
     runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata for base image
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/base-node-deps
+          tags: |
+            type=raw,value=latest
+            type=sha,prefix=sha-
+
+      - name: Build and push base-node-deps
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./deployment/base-images/Dockerfile.node-deps
+          push: ${{ github.event_name != 'pull_request' }}
+          load: ${{ github.event_name == 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha,scope=base-node-deps
+          cache-to: type=gha,mode=max,scope=base-node-deps
+
+  # Step 2: Build all frontend app images (depend on base-node-deps from GHCR)
+  # Only runs on push events where base image was pushed to GHCR
+  build-and-push:
+    name: Build ${{ matrix.image }}
+    runs-on: ubuntu-latest
+    needs: build-base
+    if: github.event_name != 'pull_request'
     strategy:
+      fail-fast: false
       matrix:
         include:
           - image: nextjs-app
             context: .
             dockerfile: ./frontends/nextjs/Dockerfile
-            platforms: linux/amd64,linux/arm64
-          - image: dbal-daemon
-            context: ./dbal/production
-            dockerfile: ./dbal/production/build-config/Dockerfile
-            platforms: linux/amd64,linux/arm64
+          - image: codegen
+            context: .
+            dockerfile: ./frontends/codegen/Dockerfile
+          - image: pastebin
+            context: .
+            dockerfile: ./frontends/pastebin/Dockerfile
+          - image: emailclient
+            context: .
+            dockerfile: ./frontends/emailclient/Dockerfile
+          - image: postgres-dashboard
+            context: .
+            dockerfile: ./frontends/postgres/Dockerfile
+          - image: workflowui
+            context: .
+            dockerfile: ./frontends/workflowui/Dockerfile
+          - image: exploded-diagrams
+            context: .
+            dockerfile: ./frontends/exploded-diagrams/Dockerfile
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -65,7 +119,7 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
-            type=sha,prefix={{branch}}-
+            type=sha,prefix=sha-
             type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Build and push Docker image
@@ -74,13 +128,13 @@ jobs:
         with:
           context: ${{ matrix.context }}
           file: ${{ matrix.dockerfile }}
-          platforms: ${{ matrix.platforms }}
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=${{ matrix.image }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.image }}
           build-args: |
+            BASE_IMAGE=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/base-node-deps:latest
             BUILD_DATE=${{ github.event.head_commit.timestamp }}
             VCS_REF=${{ github.sha }}
             VERSION=${{ steps.meta.outputs.version }}
@@ -93,14 +147,16 @@ jobs:
           subject-digest: ${{ steps.build.outputs.digest }}
           push-to-registry: true
 
+  # Step 3: Security scan pushed images
   security-scan:
-    name: Security Scan Images
+    name: Security Scan ${{ matrix.image }}
     runs-on: ubuntu-latest
     needs: build-and-push
     if: github.event_name != 'pull_request'
     strategy:
+      fail-fast: false
       matrix:
-        image: [nextjs-app, dbal-daemon]
+        image: [nextjs-app, codegen, pastebin, emailclient, postgres-dashboard, workflowui, exploded-diagrams]
     steps:
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
@@ -114,26 +170,3 @@ jobs:
         with:
           sarif_file: 'trivy-results-${{ matrix.image }}.sarif'
           category: container-${{ matrix.image }}
-
-  publish-manifest:
-    name: Create Multi-Arch Manifest
-    runs-on: ubuntu-latest
-    needs: build-and-push
-    if: github.event_name != 'pull_request'
-    steps:
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Create and push manifest for all images
-        run: |
-          for image in nextjs-app dbal-daemon; do
-            docker manifest create \
-              ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/$image:${{ github.ref_name }} \
-              --amend ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/$image:${{ github.ref_name }}-amd64 \
-              --amend ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/$image:${{ github.ref_name }}-arm64
-            docker manifest push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/$image:${{ github.ref_name }}
-          done
