@@ -1,12 +1,12 @@
 # metabuilder/base-apt
 #
-# Ubuntu 22.04 with every apt package used across all MetaBuilder Dockerfiles.
+# Ubuntu 24.04 with every apt package used across all MetaBuilder Dockerfiles.
 # Build once — all Ubuntu-based app images FROM this and skip apt entirely.
 #
 # Build:  docker build -f Dockerfile.apt -t metabuilder/base-apt:latest ../../
 # ~5 min cold, instant on cache hit.
 
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 
 ENV DEBIAN_FRONTEND=noninteractive TZ=UTC
 
@@ -23,10 +23,10 @@ RUN for i in 1 2 3 4 5; do \
         pkg-config \
         gcc \
         g++ \
-        clang-15 \
-        clang-tidy-15 \
-        clang-format-15 \
-        lldb-15 \
+        clang-18 \
+        clang-tidy-18 \
+        clang-format-18 \
+        lldb-18 \
         lld \
         \
         # ── Python ────────────────────────────────────────────────────────
