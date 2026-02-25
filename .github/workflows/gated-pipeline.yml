@@ -3,11 +3,15 @@ name: Enterprise Gated Pipeline
 on:
   push:
     branches: [ main, master, develop ]
+    tags:
+      - 'v*.*.*'
   pull_request:
     branches: [ main, master, develop ]
-    types: [opened, synchronize, ready_for_review]
+    types: [opened, synchronize, ready_for_review, edited, reopened]
   release:
     types: [published]
+  issues:
+    types: [opened, edited, reopened]
   issue_comment:
     types: [created]
   workflow_dispatch:
@@ -24,6 +28,15 @@ on:
         required: false
         type: boolean
         default: false
+      run_codeql:
+        description: 'Run CodeQL semantic analysis'
+        required: false
+        type: boolean
+        default: false
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
 
 permissions:
   contents: read
@@ -32,16 +45,214 @@ permissions:
   statuses: write
   issues: write
   deployments: write
+  packages: write
+  id-token: write
+  security-events: write
 
-# Unified Enterprise Gated Pipeline — Multi-Frontend Monorepo
-# Gate 1: Code Quality (DBAL schemas, typecheck, lint, security)
-# Gate 2: Testing (unit, E2E, DBAL daemon)
-# Gate 3: Build & Package
-# Gate 4: Development Assistance (PR only)
-# Gate 5: Staging Deployment (main branch push)
-# Gate 6: Production Deployment (release or manual with approval)
+# ════════════════════════════════════════════════════════════════════════════════
+# Unified Enterprise Gated Pipeline — One YML to Rule Them All
+# ════════════════════════════════════════════════════════════════════════════════
+#
+# Standalone (event-guarded, run independently of gates):
+#   - Triage: Auto-label issues and PRs (issues/PR events only)
+#   - CodeQL: Semantic code analysis (manual dispatch only)
+#
+# Sequential Gates (fan-out/fan-in):
+#   Gate 1: Code Quality (DBAL schemas, typecheck, lint, security)
+#   Gate 2: Testing (unit with coverage, E2E, DBAL daemon)
+#   Gate 3: Build & Package
+#   Gate 4: Development Assistance (PR only)
+#   Gate 5: Staging Deployment (main branch push)
+#   Gate 6: Production Deployment (release or manual with approval)
+#   Gate 7: Container Build & Push (push/tag/dispatch, not PRs)
+# ════════════════════════════════════════════════════════════════════════════════
 
 jobs:
+  # ============================================================================
+  # TRIAGE: Auto-label Issues and PRs (standalone, event-guarded)
+  # ============================================================================
+
+  triage-issue:
+    name: "Triage: Auto-Label Issue"
+    if: github.event_name == 'issues'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Categorize and label issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const title = (issue.title || '').toLowerCase();
+            const body = (issue.body || '').toLowerCase();
+            const text = `${title}\n${body}`;
+
+            const labels = new Set();
+            const missing = [];
+
+            const typeMatchers = [
+              { regex: /bug|error|crash|broken|fail/, label: 'bug' },
+              { regex: /feature|enhancement|add|new|implement/, label: 'enhancement' },
+              { regex: /document|readme|docs|guide/, label: 'documentation' },
+              { regex: /test|testing|spec|e2e/, label: 'testing' },
+              { regex: /security|vulnerability|exploit|xss|sql/, label: 'security' },
+              { regex: /performance|slow|optimize|speed/, label: 'performance' },
+            ];
+
+            for (const match of typeMatchers) {
+              if (text.match(match.regex)) {
+                labels.add(match.label);
+              }
+            }
+
+            const areaMatchers = [
+              { regex: /frontend|react|next|ui|component|browser/, label: 'area: frontend' },
+              { regex: /api|backend|service|server/, label: 'area: backend' },
+              { regex: /database|prisma|schema|sql/, label: 'area: database' },
+              { regex: /workflow|github actions|ci|pipeline/, label: 'area: workflows' },
+              { regex: /docs|readme|guide/, label: 'area: documentation' },
+            ];
+
+            for (const match of areaMatchers) {
+              if (text.match(match.regex)) {
+                labels.add(match.label);
+              }
+            }
+
+            if (text.match(/critical|urgent|asap|blocker/)) {
+              labels.add('priority: high');
+            } else if (text.match(/minor|low|nice to have/)) {
+              labels.add('priority: low');
+            } else {
+              labels.add('priority: medium');
+            }
+
+            if (text.match(/beginner|easy|simple|starter/) || labels.size <= 2) {
+              labels.add('good first issue');
+            }
+
+            const reproductionHints = ['steps to reproduce', 'expected', 'actual'];
+            for (const hint of reproductionHints) {
+              if (!body.includes(hint)) {
+                missing.push(hint);
+              }
+            }
+
+            const supportInfo = body.includes('version') || body.match(/v\d+\.\d+/);
+            if (!supportInfo) {
+              missing.push('version information');
+            }
+
+            if (labels.size > 0) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                labels: Array.from(labels),
+              }).catch(e => console.log('Some labels may not exist:', e.message));
+            }
+
+            const checklist = missing.map(item => `- [ ] Add ${item}`).join('\n') || '- [x] Description includes key details.';
+            const summary = Array.from(labels).map(l => `- ${l}`).join('\n') || '- No labels inferred yet.';
+
+            const comment = [
+              'Thanks for reporting an issue! Quick triage:',
+              '',
+              '**Proposed labels:**',
+              summary,
+              '',
+              '**Missing details:**',
+              checklist,
+              '',
+              'Adding the missing details will help reviewers respond faster.',
+            ].join('\n');
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              body: comment,
+            });
+
+  triage-pr:
+    name: "Triage: Auto-Label PR"
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Analyze PR files and label
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pr.number,
+            });
+
+            const labels = new Set();
+
+            const fileFlags = {
+              workflows: files.some(f => f.filename.includes('.github/workflows')),
+              docs: files.some(f => f.filename.match(/\.(md|mdx)$/) || f.filename.startsWith('docs/')),
+              frontend: files.some(f => f.filename.includes('frontends/nextjs')),
+              db: files.some(f => f.filename.includes('prisma/') || f.filename.includes('dbal/')),
+              tests: files.some(f => f.filename.match(/(test|spec)\.[jt]sx?/)),
+            };
+
+            if (fileFlags.workflows) labels.add('area: workflows');
+            if (fileFlags.docs) labels.add('area: documentation');
+            if (fileFlags.frontend) labels.add('area: frontend');
+            if (fileFlags.db) labels.add('area: database');
+            if (fileFlags.tests) labels.add('tests');
+
+            const totalChanges = files.reduce((sum, f) => sum + f.additions + f.deletions, 0);
+            const highRiskPaths = files.filter(f => f.filename.includes('.github/workflows') || f.filename.includes('prisma/'));
+
+            let riskLabel = 'risk: low';
+            if (highRiskPaths.length > 0 || totalChanges >= 400) {
+              riskLabel = 'risk: high';
+            } else if (totalChanges >= 150) {
+              riskLabel = 'risk: medium';
+            }
+            labels.add(riskLabel);
+
+            const missing = [];
+            const body = (pr.body || '').toLowerCase();
+            if (!body.includes('test')) missing.push('Test plan');
+            if (fileFlags.frontend && !body.includes('screenshot')) missing.push('Screenshots for UI changes');
+            if (!body.match(/#\d+|https:\/\/github\.com/)) missing.push('Linked issue reference');
+
+            if (labels.size > 0) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+                labels: Array.from(labels),
+              }).catch(e => console.log('Some labels may not exist:', e.message));
+            }
+
+            const labelSummary = Array.from(labels).map(l => `- ${l}`).join('\n');
+            const missingList = missing.length ? missing.map(item => `- [ ] ${item}`).join('\n') : '- [x] Description includes required context.';
+
+            const comment = [
+              '**Automated PR triage**',
+              '',
+              '**Proposed labels:**',
+              labelSummary,
+              '',
+              '**Description check:**',
+              missingList,
+              '',
+              'If any labels look incorrect, feel free to adjust them.',
+            ].join('\n');
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pr.number,
+              body: comment,
+            });
+
   # ============================================================================
   # GATE 1: Code Quality Gates
   # ============================================================================
@@ -486,17 +697,38 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Run unit tests
+      - name: Run unit tests with coverage
         run: |
           cd frontends/nextjs
-          npx vitest run 2>&1 | tee /tmp/vitest-out.txt || true
+          npx vitest run --coverage --coverage.reporter=text --coverage.reporter=json-summary 2>&1 | tee /tmp/vitest-out.txt || true
           FAILED=$(grep -oP '\d+ failed' /tmp/vitest-out.txt | head -1 | grep -oP '\d+' || echo "0")
           PASSED=$(grep -oP '\d+ passed' /tmp/vitest-out.txt | head -1 | grep -oP '\d+' || echo "0")
           echo "Tests: $PASSED passed, $FAILED failed"
-          # Allow up to 20 pre-existing failures
           if [ "$FAILED" -gt 20 ]; then
             echo "::error::Too many test failures ($FAILED > 20 threshold)"
             exit 1
+          fi
+
+      - name: Check coverage thresholds
+        run: |
+          cd frontends/nextjs
+          if [ -f coverage/coverage-summary.json ]; then
+            python3 -c "
+          import json, sys
+          with open('coverage/coverage-summary.json') as f:
+              data = json.load(f)
+          total = data['total']
+          for metric in ['lines', 'functions', 'branches', 'statements']:
+              pct = total[metric]['pct']
+              print(f'{metric}: {pct}%')
+          lines_pct = total['lines']['pct']
+          if lines_pct < 10:
+              print(f'::error::Line coverage {lines_pct}% is below 10% minimum')
+              sys.exit(1)
+          print(f'Coverage gate passed: {lines_pct}% lines covered')
+          "
+          else
+            echo "::warning::No coverage report generated — coverage check skipped"
           fi
 
       - name: Upload coverage report
@@ -546,7 +778,7 @@ jobs:
           if [ -f e2e/playwright.config.ts ]; then
             npx playwright test --config=e2e/playwright.config.ts 2>&1 || true
           else
-            echo "::warning::No playwright.config.ts found — skipping E2E tests"
+            echo "::warning::No playwright.config.ts found — E2E tests not configured"
           fi
 
       - name: Upload test results
@@ -596,7 +828,7 @@ jobs:
           if [ -f e2e/playwright.dbal-daemon.config.ts ]; then
             npx playwright test --config=e2e/playwright.dbal-daemon.config.ts 2>&1 || true
           else
-            echo "::warning::No DBAL daemon playwright config found — skipping"
+            echo "::warning::No DBAL daemon playwright config found — tests not configured"
           fi
 
       - name: Upload daemon test report
@@ -1079,6 +1311,431 @@ jobs:
             });
 
   # ============================================================================
+  # GATE 7: Container Build & Push (push/tag/dispatch only, not PRs)
+  # ════════════════════════════════════════════════════════════════════════════
+  # Tiered base images respecting the dependency DAG:
+  #   Tier 1 (independent):  base-apt, base-node-deps, base-pip-deps
+  #   Tier 2 (← base-apt):  base-conan-deps, base-android-sdk
+  #   Tier 3 (← all above): devcontainer
+  # App images build after T1, pulling base images from GHCR.
+  # ════════════════════════════════════════════════════════════════════════════
+  # ============================================================================
+
+  # ── Tier 1: Independent base images ─────────────────────────────────────────
+  container-base-tier1:
+    name: "Gate 7 T1: ${{ matrix.image }}"
+    runs-on: ubuntu-latest
+    needs: gate-3-complete
+    if: github.event_name != 'pull_request' && github.event_name != 'issues' && github.event_name != 'issue_comment'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - image: base-apt
+            dockerfile: ./deployment/base-images/Dockerfile.apt
+            platforms: linux/amd64,linux/arm64
+          - image: base-node-deps
+            dockerfile: ./deployment/base-images/Dockerfile.node-deps
+            platforms: linux/amd64,linux/arm64
+          - image: base-pip-deps
+            dockerfile: ./deployment/base-images/Dockerfile.pip-deps
+            platforms: linux/amd64,linux/arm64
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels)
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/${{ matrix.image }}
+          tags: |
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push Docker image
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ${{ matrix.dockerfile }}
+          platforms: ${{ matrix.platforms }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha,scope=${{ matrix.image }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.image }}
+          build-args: |
+            BUILD_DATE=${{ github.event.head_commit.timestamp }}
+            VCS_REF=${{ github.sha }}
+
+      - name: Generate artifact attestation
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/${{ matrix.image }}
+          subject-digest: ${{ steps.build.outputs.digest }}
+          push-to-registry: true
+
+  # ── Tier 2: Images depending on base-apt ────────────────────────────────────
+  container-base-tier2:
+    name: "Gate 7 T2: ${{ matrix.image }}"
+    runs-on: ubuntu-latest
+    needs: container-base-tier1
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - image: base-conan-deps
+            dockerfile: ./deployment/base-images/Dockerfile.conan-deps
+            platforms: linux/amd64,linux/arm64
+          - image: base-android-sdk
+            dockerfile: ./deployment/base-images/Dockerfile.android-sdk
+            platforms: linux/amd64,linux/arm64
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels)
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/${{ matrix.image }}
+          tags: |
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push Docker image
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ${{ matrix.dockerfile }}
+          platforms: ${{ matrix.platforms }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha,scope=${{ matrix.image }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.image }}
+          build-args: |
+            BASE_REGISTRY=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+            BUILD_DATE=${{ github.event.head_commit.timestamp }}
+            VCS_REF=${{ github.sha }}
+
+      - name: Generate artifact attestation
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/${{ matrix.image }}
+          subject-digest: ${{ steps.build.outputs.digest }}
+          push-to-registry: true
+
+  # ── Tier 3: Devcontainer (depends on all base images) ──────────────────────
+  container-base-tier3:
+    name: "Gate 7 T3: devcontainer"
+    runs-on: ubuntu-latest
+    needs: container-base-tier2
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels)
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/devcontainer
+          tags: |
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push Docker image
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./deployment/base-images/Dockerfile.devcontainer
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha,scope=devcontainer
+          cache-to: type=gha,mode=max,scope=devcontainer
+          build-args: |
+            BASE_REGISTRY=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+            BUILD_DATE=${{ github.event.head_commit.timestamp }}
+            VCS_REF=${{ github.sha }}
+
+      - name: Generate artifact attestation
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/devcontainer
+          subject-digest: ${{ steps.build.outputs.digest }}
+          push-to-registry: true
+
+  # ── App images (pull base images from GHCR) ────────────────────────────────
+  container-build-apps:
+    name: "Gate 7 App: ${{ matrix.image }}"
+    runs-on: ubuntu-latest
+    needs: [container-base-tier1]
+    if: ${{ !failure() }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - image: nextjs-app
+            context: .
+            dockerfile: ./frontends/nextjs/Dockerfile
+          - image: codegen
+            context: .
+            dockerfile: ./frontends/codegen/Dockerfile
+          - image: pastebin
+            context: .
+            dockerfile: ./frontends/pastebin/Dockerfile
+          - image: emailclient
+            context: .
+            dockerfile: ./frontends/emailclient/Dockerfile
+          - image: postgres-dashboard
+            context: .
+            dockerfile: ./frontends/postgres/Dockerfile
+          - image: workflowui
+            context: .
+            dockerfile: ./frontends/workflowui/Dockerfile
+          - image: exploded-diagrams
+            context: .
+            dockerfile: ./frontends/exploded-diagrams/Dockerfile
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels)
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/${{ matrix.image }}
+          tags: |
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=sha,prefix=sha-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push Docker image
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.context }}
+          file: ${{ matrix.dockerfile }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha,scope=${{ matrix.image }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.image }}
+          build-args: |
+            BASE_REGISTRY=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+            BUILD_DATE=${{ github.event.head_commit.timestamp }}
+            VCS_REF=${{ github.sha }}
+            VERSION=${{ steps.meta.outputs.version }}
+
+      - name: Generate artifact attestation
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/${{ matrix.image }}
+          subject-digest: ${{ steps.build.outputs.digest }}
+          push-to-registry: true
+
+  # ── Container security scanning ────────────────────────────────────────────
+  container-security-scan:
+    name: "Gate 7 Scan: ${{ matrix.image }}"
+    runs-on: ubuntu-latest
+    needs: [container-base-tier3, container-build-apps]
+    if: ${{ !failure() }}
+    strategy:
+      fail-fast: false
+      matrix:
+        image:
+          - base-apt
+          - base-node-deps
+          - base-pip-deps
+          - base-conan-deps
+          - base-android-sdk
+          - devcontainer
+          - nextjs-app
+          - codegen
+          - pastebin
+          - emailclient
+          - postgres-dashboard
+          - workflowui
+          - exploded-diagrams
+    steps:
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/${{ matrix.image }}:${{ github.ref_name }}
+          format: 'sarif'
+          output: 'trivy-results-${{ matrix.image }}.sarif'
+
+      - name: Upload Trivy results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-results-${{ matrix.image }}.sarif'
+          category: container-${{ matrix.image }}
+
+  # ── Multi-arch manifests ────────────────────────────────────────────────────
+  container-publish-manifest:
+    name: "Gate 7: Multi-Arch Manifests"
+    runs-on: ubuntu-latest
+    needs: [container-base-tier3, container-build-apps]
+    if: ${{ !failure() }}
+    env:
+      REF_NAME: ${{ github.ref_name }}
+    steps:
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create and push manifests for all images
+        run: |
+          for image in base-apt base-node-deps base-pip-deps base-conan-deps base-android-sdk devcontainer; do
+            docker manifest create \
+              "$REGISTRY/$IMAGE_NAME/$image:$REF_NAME" \
+              --amend "$REGISTRY/$IMAGE_NAME/$image:${REF_NAME}-amd64" \
+              --amend "$REGISTRY/$IMAGE_NAME/$image:${REF_NAME}-arm64"
+            docker manifest push "$REGISTRY/$IMAGE_NAME/$image:$REF_NAME"
+          done
+
+  # ============================================================================
+  # CodeQL Semantic Analysis (manual dispatch only)
+  # ============================================================================
+
+  codeql-analyze:
+    name: "CodeQL: ${{ matrix.language }}"
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' && inputs.run_codeql == true
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ['javascript-typescript', 'python', 'cpp', 'go']
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          queries: security-and-quality
+
+      - name: Setup Node.js
+        if: matrix.language == 'javascript-typescript'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Setup Python
+        if: matrix.language == 'python'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Setup Go
+        if: matrix.language == 'go'
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{ matrix.language }}"
+          upload: true
+          wait-for-processing: true
+
+  codeql-summary:
+    name: "CodeQL: Summary"
+    needs: codeql-analyze
+    runs-on: ubuntu-latest
+    if: always() && github.event_name == 'workflow_dispatch' && inputs.run_codeql == true
+    steps:
+      - name: Summary Report
+        run: |
+          echo "## CodeQL Analysis Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Available Features" >> $GITHUB_STEP_SUMMARY
+          echo "- **Code Search**: Use GitHub Advanced Search with CodeQL queries" >> $GITHUB_STEP_SUMMARY
+          echo "- **Security Tab**: View findings in repository Security tab" >> $GITHUB_STEP_SUMMARY
+          echo "- **API Access**: Query databases via CodeQL CLI or VS Code extension" >> $GITHUB_STEP_SUMMARY
+
+  # ============================================================================
   # Summary Report
   # ============================================================================
 
@@ -1117,29 +1774,29 @@ jobs:
 
             summary += '\n### Pipeline Flow\n\n';
             summary += '```\n';
+            summary += 'Standalone: Triage (issues/PRs) | CodeQL (dispatch)\n';
+            summary += '      |\n';
             summary += 'Gate 1: Code Quality (7 steps)\n';
-            summary += '  1.1 DBAL Schemas\n';
-            summary += '  1.2 TypeScript\n';
-            summary += '  1.3 Lint\n';
-            summary += '  1.4 Security\n';
-            summary += '  1.5 File Size\n';
-            summary += '  1.6 Complexity\n';
-            summary += '  1.7 Stubs\n';
+            summary += '  1.1 DBAL Schemas  1.2 TypeScript  1.3 Lint\n';
+            summary += '  1.4 Security  1.5 File Size  1.6 Complexity  1.7 Stubs\n';
             summary += '      |\n';
             summary += 'Gate 2: Testing (3 steps)\n';
-            summary += '  2.1 Unit Tests\n';
-            summary += '  2.2 E2E Tests\n';
-            summary += '  2.3 DBAL Tests\n';
+            summary += '  2.1 Unit Tests (+ coverage)  2.2 E2E  2.3 DBAL\n';
             summary += '      |\n';
             summary += 'Gate 3: Build (2 steps)\n';
-            summary += '  3.1 Build\n';
-            summary += '  3.2 Quality\n';
+            summary += '  3.1 Build  3.2 Quality\n';
             summary += '      |\n';
             summary += 'Gate 4: Dev Feedback (PR only)\n';
             summary += '      |\n';
             summary += 'Gate 5: Staging (main push)\n';
             summary += '      |\n';
             summary += 'Gate 6: Production (release/manual)\n';
+            summary += '      |\n';
+            summary += 'Gate 7: Containers (push/tag/dispatch)\n';
+            summary += '  T1: base-apt, node-deps, pip-deps\n';
+            summary += '  T2: conan-deps, android-sdk\n';
+            summary += '  T3: devcontainer\n';
+            summary += '  Apps: 7 images -> Trivy scan -> Multi-arch manifests\n';
             summary += '```\n\n';
 
             console.log(summary);
