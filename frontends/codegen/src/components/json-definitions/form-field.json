@@ -1,6 +1,6 @@
 {
   "id": "form-field-root",
-  "type": "MetabuilderFormFormField",
+  "type": "div",
   "bindings": {
     "className": "data.className",
     "control": "data.control",

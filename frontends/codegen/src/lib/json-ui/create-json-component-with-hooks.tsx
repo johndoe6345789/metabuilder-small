@@ -1,5 +1,7 @@
+import { useContext } from 'react'
 import { JSONUIRenderer } from './renderer'
 import { getHook } from './hooks-registry'
+import { ActiveJsonDefs } from './create-json-component'
 
 /**
  * Creates a React component from a JSON definition with hook support
@@ -18,7 +20,20 @@ export function createJsonComponentWithHooks<TProps = any>(
     }
   }
 ) {
+  const defId = jsonDefinition?.id || jsonDefinition?.type || 'unknown'
+
   return function JsonComponent(props: TProps) {
+    const activeDefs = useContext(ActiveJsonDefs)
+
+    if (activeDefs.has(defId)) {
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn(
+          `[JSON-UI] Circular JSON definition detected: "${defId}". Breaking cycle.`
+        )
+      }
+      return null
+    }
+
     const hookResults: Record<string, any> = {}
 
     if (options?.hooks) {
@@ -44,11 +59,16 @@ export function createJsonComponentWithHooks<TProps = any>(
       ...hookResults,
     }
 
+    const nextDefs = new Set(activeDefs)
+    nextDefs.add(defId)
+
     return (
-      <JSONUIRenderer
-        component={jsonDefinition}
-        dataMap={dataWithHooks as Record<string, unknown>}
-      />
+      <ActiveJsonDefs.Provider value={nextDefs}>
+        <JSONUIRenderer
+          component={jsonDefinition}
+          dataMap={dataWithHooks as Record<string, unknown>}
+        />
+      </ActiveJsonDefs.Provider>
     )
   }
 }

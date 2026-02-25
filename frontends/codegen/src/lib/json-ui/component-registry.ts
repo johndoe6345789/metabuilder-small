@@ -392,11 +392,14 @@ function resolveIconComponent(type: string): ComponentType<any> | null {
 }
 
 export function getUIComponent(type: string): ComponentType<any> | string | null {
-  return resolveWrapperComponent(type) ?? uiComponentRegistry[type] ?? uiComponentMap[type] ?? resolveIconComponent(type) ?? resolveJsonComponent(type) ?? null
+  // JSON components must resolve BEFORE icons — resolveIconComponent is a
+  // catch-all that wraps any unknown type in a dynamic(() => null) from the
+  // icon module, which would shadow the real JSON component definitions.
+  return resolveWrapperComponent(type) ?? uiComponentRegistry[type] ?? uiComponentMap[type] ?? resolveJsonComponent(type) ?? resolveIconComponent(type) ?? null
 }
 
 export function hasComponent(type: string): boolean {
-  return Boolean(resolveWrapperComponent(type) ?? uiComponentRegistry[type] ?? uiComponentMap[type] ?? resolveIconComponent(type) ?? resolveJsonComponent(type))
+  return Boolean(resolveWrapperComponent(type) ?? uiComponentRegistry[type] ?? uiComponentMap[type] ?? resolveJsonComponent(type) ?? resolveIconComponent(type))
 }
 
 export function getDeprecatedComponentInfo(type: string): DeprecatedComponentInfo | null {

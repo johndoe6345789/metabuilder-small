@@ -13,7 +13,7 @@ import { resolveDataBinding } from './utils'
 import { evaluateConditionExpression } from './expression-helpers'
 import { cn } from '@/lib/utils'
 import { MAX_LOOP_ITERATIONS } from './constants'
-import { useRenderDepth, DepthLimitFallback } from './render-depth'
+import { useRenderDepth, DepthLimitFallback, trackRender } from './render-depth'
 
 export function JSONUIRenderer({
   component,
@@ -22,6 +22,9 @@ export function JSONUIRenderer({
   context = {},
 }: JSONUIRendererProps) {
   const { exceeded, DepthProvider } = useRenderDepth()
+
+  // Frame budget: stop all rendering if we've exceeded MAX_RENDERS_PER_FRAME
+  if (trackRender()) return null
 
   if (exceeded) {
     return <DepthLimitFallback componentId={component.id} />
@@ -169,7 +172,7 @@ export function JSONUIRenderer({
             if (!conditionMet) return
           }
           const eventPayload = typeof event === 'object' && event !== null
-            ? Object.assign(event, renderContext)
+            ? { ...event, ...renderContext }
             : event
           onAction?.(handler.actions, eventPayload)
         }
@@ -206,6 +209,16 @@ export function JSONUIRenderer({
   }
 
   const renderWithContext = (renderContext: Record<string, unknown>) => {
+    // Simple visibility gate — two forms:
+    //   Object binding: { "source": "hookData.open" } → resolveDataBinding
+    //   String expression: "isScanning", "item.id === selectedId" → evaluateConditionExpression
+    if (component.condition) {
+      const visible = typeof component.condition === 'string'
+        ? evaluateConditionExpression(component.condition, { ...dataMap, ...renderContext }, { label: `condition (${component.id})` })
+        : resolveDataBinding(component.condition, dataMap, renderContext)
+      if (!visible) return null
+    }
+
     if (component.conditional) {
       const conditionMet = evaluateConditionExpression(component.conditional.if, { ...dataMap, ...renderContext }, { label: `component conditional (${component.id})` })
       if (conditionMet) {
@@ -236,18 +249,37 @@ export function JSONUIRenderer({
     const props = resolveProps(renderContext)
     applyEventHandlers(props, renderContext)
 
+    // Only pass rendered children when the schema defines them.
+    // When component.children is undefined/empty, let React use props.children
+    // (e.g. <h2 children="Data Models" />) instead of overriding with null.
+    const renderedChildren = renderChildren(component.children, renderContext)
+
     if (typeof Component === 'string') {
-      return React.createElement(Component, props, renderChildren(component.children, renderContext))
+      if (renderedChildren !== null) {
+        return React.createElement(Component, props, renderedChildren)
+      }
+      return React.createElement(Component, props)
     }
 
-    return (
-      <Component {...props}>
-        {renderChildren(component.children, renderContext)}
-      </Component>
-    )
+    if (renderedChildren !== null) {
+      return (
+        <Component {...props}>
+          {renderedChildren}
+        </Component>
+      )
+    }
+    return <Component {...props} />
   }
 
   if (component.loop) {
+    // Check condition gate before entering loop (mirrors renderWithContext)
+    if (component.condition) {
+      const visible = typeof component.condition === 'string'
+        ? evaluateConditionExpression(component.condition, { ...dataMap, ...context }, { label: `loop condition (${component.id})` })
+        : resolveDataBinding(component.condition, dataMap, context)
+      if (!visible) return null
+    }
+
     const rawItems = resolveDataBinding(component.loop.source, dataMap, context) || []
     if (rawItems.length > MAX_LOOP_ITERATIONS) {
       console.warn(`Loop "${component.id}" has ${rawItems.length} items, capped to ${MAX_LOOP_ITERATIONS}`)

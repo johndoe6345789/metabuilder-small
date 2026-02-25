@@ -2,7 +2,6 @@ import { useCallback, useMemo } from 'react'
 import { Action, PageSchema } from '@/types/json-ui'
 import { useDataSources } from '@/hooks/data/use-data-sources'
 import { useActionExecutor } from '@/hooks/ui/use-action-executor'
-import { useAppSelector } from '@/store'
 import { JSONUIRenderer } from './renderer'
 
 interface PageRendererProps {
@@ -14,8 +13,7 @@ interface PageRendererProps {
 
 export function PageRenderer({ schema, onCustomAction, data: externalData, functions }: PageRendererProps) {
   const { data: sourceData, updateData, updatePath } = useDataSources(schema.dataSources)
-  const state = useAppSelector((rootState) => rootState)
-  const mergedData = useMemo(() => ({ ...sourceData, ...externalData, ...state }), [externalData, sourceData, state])
+  const mergedData = useMemo(() => ({ ...sourceData, ...externalData }), [externalData, sourceData])
   const executeCustomAction = useCallback(async (action: Action, event?: any) => {
     if (onCustomAction) {
       await onCustomAction(action, event)

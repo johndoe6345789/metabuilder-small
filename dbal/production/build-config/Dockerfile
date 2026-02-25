@@ -1,6 +1,6 @@
 # Multi-stage build for DBAL C++ daemon
 # Context: dbal/production/ (set by docker-compose)
-# Requires: metabuilder/base-apt:latest (Ubuntu 22.04 + build tools)
+# Requires: metabuilder/base-apt:latest (Ubuntu 24.04 + build tools)
 
 ARG BUILD_TYPE=Release
 
@@ -11,31 +11,32 @@ ARG BUILD_TYPE
 
 WORKDIR /dbal
 
-# Install Conan and detect profile
-RUN pip3 install conan \
+# Install Conan and detect profile (--break-system-packages for PEP 668 on Ubuntu 24.04)
+RUN pip3 install --break-system-packages conan \
     && conan profile detect --force
 
 # Copy dependency manifest first (layer caching)
 COPY build-config/conanfile.py ./build-config/conanfile.py
 
-# Install C++ dependencies via Conan
+# Install C++ dependencies via Conan (absolute output path for reliability)
 RUN cd build-config \
     && conan install . \
-       --output-folder=../build \
+       --output-folder=/dbal/build \
        --build=missing \
        -s build_type=${BUILD_TYPE} \
-       -s compiler.cppstd=20
+       -s compiler.cppstd=20 \
+    && ls -la /dbal/build/conan_toolchain.cmake
 
 # Copy source code and build files
 COPY CMakeLists.txt ./
 COPY src/ ./src/
 COPY include/ ./include/
 
-# Build with CMake
-RUN cd build \
-    && cmake .. \
+# Build with CMake (use absolute path for toolchain file)
+RUN cd /dbal/build \
+    && cmake /dbal \
        -DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
-       -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake \
+       -DCMAKE_TOOLCHAIN_FILE=/dbal/build/conan_toolchain.cmake \
        -G Ninja \
     && cmake --build . --parallel \
     && strip dbal_daemon

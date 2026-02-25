@@ -118,8 +118,9 @@ export function evaluateExpression(
     if (expression === 'null') return null
     if (expression === 'undefined') return undefined
 
-    // If no pattern matched, return the expression as-is
-    return expression
+    // If no pattern matched, warn and return undefined
+    console.warn(`[JSON-UI] Unrecognized expression: "${expression}"`)
+    return undefined
   } catch {
     return undefined
   }
