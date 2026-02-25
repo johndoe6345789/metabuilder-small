@@ -1,12 +1,17 @@
 import { useState, useCallback, useEffect, useMemo, useRef } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import { useUIState } from '@/hooks/use-ui-state'
 import { DataSource } from '@/types/json-ui'
 import { setNestedValue } from '@/lib/json-ui/utils'
 import { evaluateExpression, evaluateTemplate } from '@/lib/json-ui/expression-evaluator'
 
 export function useDataSources(dataSources: DataSource[]) {
-  const [data, setData] = useState<Record<string, any>>({})
-  const [loading, setLoading] = useState(true)
+  const [localOverrides, setLocalOverrides] = useState<Record<string, any>>({})
+
+  const kvSources = useMemo(
+    () => dataSources.filter(ds => ds.type === 'kv'),
+    [dataSources]
+  )
 
   // Memoize kvSources to prevent new array reference each render
   const kvSources = useMemo(
@@ -65,29 +70,78 @@ export function useDataSources(dataSources: DataSource[]) {
   const derivedData = useMemo(() => {
     const derivedSources = dataSources.filter(ds => ds.expression || ds.valueTemplate)
     const result: Record<string, any> = {}
+  const kv0 = kvState0[0]
+  const kv1 = kvState1[0]
+  const kv2 = kvState2[0]
+  const kv3 = kvState3[0]
+  const kv4 = kvState4[0]
+  const kvValues = [kv0, kv1, kv2, kv3, kv4]
+
+  const kvSetters = useMemo(
+    () => [kvState0[1], kvState1[1], kvState2[1], kvState3[1], kvState4[1]],
+    [kvState0[1], kvState1[1], kvState2[1], kvState3[1], kvState4[1]]
+  )
+
+  const baseData = useMemo(() => {
+    const result: Record<string, any> = {}
+
+    dataSources.forEach((source) => {
+      if (source.type === 'kv') {
+        const kvIndex = kvSources.indexOf(source)
+        if (kvIndex !== -1) {
+          result[source.id] = kvValues[kvIndex]
+        }
+      } else if (source.type === 'static') {
+        result[source.id] = source.defaultValue
+      }
+    })
+
+    return result
+  }, [dataSources, kvSources, kv0, kv1, kv2, kv3, kv4])
+
+  const data = useMemo(
+    () => (Object.keys(localOverrides).length > 0
+      ? { ...baseData, ...localOverrides }
+      : baseData),
+    [baseData, localOverrides]
+  )
+
+  const derivedSources = useMemo(
+    () => dataSources.filter(ds => ds.expression || ds.valueTemplate),
+    [dataSources]
+  )
+
+  const allData = useMemo(() => {
+    if (derivedSources.length === 0) return data
+
+    const result: Record<string, any> = { ...data }
 
     derivedSources.forEach(source => {
       const deps = source.dependencies || []
-      const hasAllDeps = deps.every(dep => dep in data)
+      const hasAllDeps = deps.every(dep => dep in result)
 
       if (hasAllDeps) {
         const evaluationContext = { data }
         result[source.id] = source.expression
+        const evaluationContext = { data: result }
+        const derivedValue = source.expression
           ? evaluateExpression(source.expression, evaluationContext)
           : source.valueTemplate
             ? evaluateTemplate(source.valueTemplate, evaluationContext)
             : source.defaultValue
+        result[source.id] = derivedValue
       }
     })
 
     return result
   }, [data, dataSources])
+  }, [data, derivedSources])
 
   const mergedData = useMemo(() => ({ ...data, ...derivedData }), [data, derivedData])
 
   const updateData = useCallback((sourceId: string, value: any) => {
     const source = dataSources.find(ds => ds.id === sourceId)
-    
+
     if (!source) {
       console.warn(`Data source ${sourceId} not found`)
       return
@@ -95,46 +149,45 @@ export function useDataSources(dataSources: DataSource[]) {
 
     if (source.type === 'kv') {
       const kvIndex = kvSources.indexOf(source)
-      if (kvIndex !== -1 && kvStates[kvIndex]) {
-        kvStates[kvIndex][1](value)
+      if (kvIndex !== -1) {
+        kvSetters[kvIndex](value)
       }
+    } else {
+      setLocalOverrides(prev => ({ ...prev, [sourceId]: value }))
     }
-
-    setData(prev => ({ ...prev, [sourceId]: value }))
-  }, [dataSources, kvSources, kvStates])
+  }, [dataSources, kvSources, kvSetters])
 
   const updatePath = useCallback((sourceId: string, path: string, value: any) => {
     const source = dataSources.find(ds => ds.id === sourceId)
-    
+
     if (!source) {
       console.warn(`Data source ${sourceId} not found`)
       return
     }
 
-    setData(prev => {
-      const sourceData = prev[sourceId]
-      if (!sourceData || typeof sourceData !== 'object') {
-        return prev
+    const currentData = allData[sourceId]
+    if (!currentData || typeof currentData !== 'object') {
+      return
+    }
+
+    const newData = Array.isArray(currentData) ? [...currentData] : { ...currentData }
+    setNestedValue(newData, path, value)
+
+    if (source.type === 'kv') {
+      const kvIndex = kvSources.indexOf(source)
+      if (kvIndex !== -1) {
+        kvSetters[kvIndex](newData)
       }
-
-      const newData = Array.isArray(sourceData) ? [...sourceData] : { ...sourceData }
-      setNestedValue(newData, path, value)
-
-      if (source.type === 'kv') {
-        const kvIndex = kvSources.indexOf(source)
-        if (kvIndex !== -1 && kvStates[kvIndex]) {
-          kvStates[kvIndex][1](newData)
-        }
-      }
-
-      return { ...prev, [sourceId]: newData }
-    })
-  }, [dataSources, kvSources, kvStates])
+    } else {
+      setLocalOverrides(prev => ({ ...prev, [sourceId]: newData }))
+    }
+  }, [dataSources, kvSources, kvSetters, allData])
 
   return {
     data: mergedData,
+    data: allData,
     updateData,
     updatePath,
-    loading,
+    loading: false,
   }
 }

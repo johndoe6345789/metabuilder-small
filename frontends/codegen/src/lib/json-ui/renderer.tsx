@@ -15,6 +15,9 @@ import { cn } from '@/lib/utils'
 import { MAX_LOOP_ITERATIONS } from './constants'
 import { useRenderDepth, DepthLimitFallback, trackRender } from './render-depth'
 
+const warnedComponentTypes = new Set<string>()
+const warnedLoopIds = new Set<string>()
+
 export function JSONUIRenderer({
   component,
   dataMap = {},
@@ -242,7 +245,10 @@ export function JSONUIRenderer({
     const Component = getUIComponent(component.type)
 
     if (!Component) {
-      console.warn(`Component type "${component.type}" not found in registry`)
+      if (!warnedComponentTypes.has(component.type)) {
+        warnedComponentTypes.add(component.type)
+        console.warn(`Component type "${component.type}" not found in registry`)
+      }
       return null
     }
 
@@ -281,14 +287,18 @@ export function JSONUIRenderer({
     }
 
     const rawItems = resolveDataBinding(component.loop.source, dataMap, context) || []
-    if (rawItems.length > MAX_LOOP_ITERATIONS) {
+    if (rawItems.length > MAX_LOOP_ITERATIONS && !warnedLoopIds.has(component.id)) {
+      warnedLoopIds.add(component.id)
       console.warn(`Loop "${component.id}" has ${rawItems.length} items, capped to ${MAX_LOOP_ITERATIONS}`)
     }
     const items = rawItems.length > MAX_LOOP_ITERATIONS ? rawItems.slice(0, MAX_LOOP_ITERATIONS) : rawItems
     const Component = getUIComponent(component.type)
 
     if (!Component) {
-      console.warn(`Component type "${component.type}" not found in registry`)
+      if (!warnedComponentTypes.has(component.type)) {
+        warnedComponentTypes.add(component.type)
+        console.warn(`Component type "${component.type}" not found in registry`)
+      }
       return null
     }
 
