@@ -19,11 +19,8 @@ COPY deployment/docker/email-service/requirements.txt .
 # Create virtual environment and install dependencies
 RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
-RUN for i in 1 2 3 4 5; do \
-      pip install --no-cache-dir --upgrade pip setuptools wheel && \
-      pip install --no-cache-dir -r requirements.txt && break \
-      || (echo "pip failed (attempt $i/5), retrying in $((i*10))s..." && sleep $((i*10))); \
-    done
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
+    pip install --no-cache-dir -r requirements.txt
 
 # Runtime stage
 FROM python:3.11-slim
@@ -77,6 +74,7 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
 EXPOSE 5000
 
 # Run gunicorn with 4 workers for production
+# Logs go to stdout/stderr so docker logs captures them
 CMD ["gunicorn", \
      "--bind", "0.0.0.0:5000", \
      "--workers", "4", \
@@ -85,7 +83,7 @@ CMD ["gunicorn", \
      "--max-requests", "10000", \
      "--max-requests-jitter", "1000", \
      "--timeout", "120", \
-     "--access-logfile", "/app/logs/access.log", \
-     "--error-logfile", "/app/logs/error.log", \
+     "--access-logfile", "-", \
+     "--error-logfile", "-", \
      "--log-level", "info", \
      "app:app"]

@@ -3,14 +3,16 @@
 import os
 import logging
 
-from flask import Flask, jsonify
+from flask import Flask
 from flask_cors import CORS
-from flask_sqlalchemy import SQLAlchemy
 
-db = SQLAlchemy()
+from src.extensions import db
+
+logger = logging.getLogger(__name__)
 
 
 def create_app():
+    """Application factory for the email service."""
     app = Flask(__name__)
 
     # Configuration
@@ -45,7 +47,10 @@ def create_app():
     app.register_blueprint(sync_bp, url_prefix="/api/sync")
 
     with app.app_context():
-        db.create_all()
+        try:
+            db.create_all()
+        except Exception as exc:
+            logger.warning("db.create_all() deferred – DB not ready yet: %s", exc)
 
     return app
 

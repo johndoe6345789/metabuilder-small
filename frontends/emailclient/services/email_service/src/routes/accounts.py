@@ -2,7 +2,7 @@
 
 import logging
 from flask import Blueprint, jsonify, request
-from app import db
+from src.extensions import db
 from src.models.account import EmailAccount
 
 logger = logging.getLogger(__name__)

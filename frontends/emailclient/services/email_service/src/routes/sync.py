@@ -6,7 +6,7 @@ from datetime import datetime
 from imapclient import IMAPClient
 
 from flask import Blueprint, jsonify, request
-from app import db
+from src.extensions import db
 from src.models.account import EmailAccount
 from src.models.message import EmailMessage
 

@@ -42,7 +42,13 @@ mkdir -p /var/spool/postfix/private 2>/dev/null || true
 chown -R vmail:mail /var/mail
 chmod 700 /var/mail/vmail
 chown -R dovecot:dovecot /var/run/dovecot
+chmod 750 /var/run/dovecot
 chown -R dovecot:dovecot /var/log/dovecot
+
+# Remove stale auth-token-secret.dat from previous runs to prevent
+# "Compromised token secret file" errors on container restart
+rm -f /var/run/dovecot/auth-token-secret.dat
+rm -f /run/dovecot/auth-token-secret.dat
 
 log_info "Directory initialization complete"
 
@@ -54,9 +60,16 @@ log_info "Directory initialization complete"
 if [ -n "$DOVECOT_USERS" ]; then
   log_info "Setting up virtual users from environment..."
   echo "$DOVECOT_USERS" > /etc/dovecot/dovecot-users
-  chmod 600 /etc/dovecot/dovecot-users
-  chown vmail:mail /etc/dovecot/dovecot-users
+  # dovecot auth process runs as dovecot:dovecot (uid=90, gid=101)
+  # File must be readable by the dovecot group for auth lookups
+  chown root:dovecot /etc/dovecot/dovecot-users
+  chmod 640 /etc/dovecot/dovecot-users
   log_info "Virtual users configured"
+else
+  # Ensure the COPY'd dovecot-users file has correct permissions
+  # in case a volume mount replaced it
+  chown root:dovecot /etc/dovecot/dovecot-users
+  chmod 640 /etc/dovecot/dovecot-users
 fi
 
 ##
