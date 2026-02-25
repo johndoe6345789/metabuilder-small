@@ -33,6 +33,17 @@ on:
         required: false
         type: boolean
         default: false
+      codeql_languages:
+        description: 'CodeQL languages to analyze'
+        required: false
+        type: choice
+        options:
+          - all
+          - javascript-typescript
+          - python
+          - cpp
+          - go
+        default: all
 
 env:
   REGISTRY: ghcr.io
@@ -1378,7 +1389,7 @@ jobs:
           context: .
           file: ${{ matrix.dockerfile }}
           platforms: ${{ matrix.platforms }}
-          push: true
+          push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha,scope=${{ matrix.image }}
@@ -1446,7 +1457,7 @@ jobs:
           context: .
           file: ${{ matrix.dockerfile }}
           platforms: ${{ matrix.platforms }}
-          push: true
+          push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha,scope=${{ matrix.image }}
@@ -1505,7 +1516,7 @@ jobs:
           context: .
           file: ./deployment/base-images/Dockerfile.devcontainer
           platforms: linux/amd64,linux/arm64
-          push: true
+          push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha,scope=devcontainer
@@ -1527,7 +1538,7 @@ jobs:
     name: "Gate 7 App: ${{ matrix.image }}"
     runs-on: ubuntu-latest
     needs: [container-base-tier1]
-    if: ${{ !failure() }}
+    if: github.event_name != 'pull_request' && github.event_name != 'issues' && github.event_name != 'issue_comment' && !failure()
     strategy:
       fail-fast: false
       matrix:
@@ -1586,7 +1597,7 @@ jobs:
         with:
           context: ${{ matrix.context }}
           file: ${{ matrix.dockerfile }}
-          push: true
+          push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha,scope=${{ matrix.image }}
@@ -1609,7 +1620,7 @@ jobs:
     name: "Gate 7 Scan: ${{ matrix.image }}"
     runs-on: ubuntu-latest
     needs: [container-base-tier3, container-build-apps]
-    if: ${{ !failure() }}
+    if: github.event_name != 'pull_request' && github.event_name != 'issues' && github.event_name != 'issue_comment' && !failure()
     strategy:
       fail-fast: false
       matrix:
@@ -1646,7 +1657,7 @@ jobs:
     name: "Gate 7: Multi-Arch Manifests"
     runs-on: ubuntu-latest
     needs: [container-base-tier3, container-build-apps]
-    if: ${{ !failure() }}
+    if: github.event_name != 'pull_request' && github.event_name != 'issues' && github.event_name != 'issue_comment' && !failure()
     env:
       REF_NAME: ${{ github.ref_name }}
     steps:
@@ -1679,7 +1690,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: ['javascript-typescript', 'python', 'cpp', 'go']
+        language: ${{ inputs.codeql_languages == 'all' && fromJSON('["javascript-typescript","python","cpp","go"]') || fromJSON(format('["{0}"]', inputs.codeql_languages)) }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -1691,6 +1702,7 @@ jobs:
         with:
           languages: ${{ matrix.language }}
           queries: security-and-quality
+          config-file: ./.github/codeql/codeql-config.yml
 
       - name: Setup Node.js
         if: matrix.language == 'javascript-typescript'
