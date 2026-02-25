@@ -29,11 +29,7 @@ export function resolveDataBinding(
       return getNestedValue(bindingsSource, binding.slice('bindings.'.length))
     }
     if (binding.includes('.')) {
-      const resolved = getNestedValue(mergedContext, binding)
-      if (resolved === undefined && process.env.NODE_ENV === 'development') {
-        console.debug(`[Binding] "${binding}" → undefined (available keys: ${Object.keys(mergedContext).join(', ')})`)
-      }
-      return resolved
+      return getNestedValue(mergedContext, binding)
     }
     return mergedContext[binding]
   }
