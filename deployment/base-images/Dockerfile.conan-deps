@@ -95,24 +95,9 @@ RUN mkdir -p /tmp/media-build && \
       || (echo "conan install (media-daemon) failed attempt $i/5, retrying in $((i*10))s..." && sleep $((i*10))); \
     done
 
-# ── Docker dev container ──────────────────────────────────────────────────────
-COPY dockerconan/conanfile.py /deps/dockerconan/conanfile.py
-
-RUN mkdir -p /tmp/dockerconan-build && \
-    for i in 1 2 3 4 5; do \
-      conan install /deps/dockerconan/ \
-        --output-folder=/tmp/dockerconan-build \
-        --build=missing \
-        -s build_type=Release \
-        -c tools.system.package_manager:mode=install \
-        -c tools.system.package_manager:mode=install \
-      && break \
-      || (echo "conan install (dockerconan) failed attempt $i/5, retrying in $((i*10))s..." && sleep $((i*10))); \
-    done
-
 # Clean up tmp build dirs (keep only the Conan package cache in /root/.conan2)
 RUN rm -rf /tmp/dbal-build /tmp/qt6-build /tmp/cli-build \
-           /tmp/gameengine-build /tmp/media-build /tmp/dockerconan-build
+           /tmp/gameengine-build /tmp/media-build
 
 LABEL org.metabuilder.image="base-conan-deps" \
       org.metabuilder.description="Pre-built Conan C++ packages (DBAL, Qt6, CLI)"
