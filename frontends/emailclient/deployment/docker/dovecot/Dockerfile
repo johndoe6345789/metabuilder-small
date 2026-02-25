@@ -39,10 +39,16 @@ COPY dovecot-local.conf /etc/dovecot/conf.d/99-local.conf
 COPY dovecot-users /etc/dovecot/dovecot-users
 
 # Fix permissions on configuration files
+# dovecot-users must be readable by the dovecot auth process (uid=90 dovecot)
+# Using root:dovecot ownership with 640 so both root and dovecot group can read
 RUN chmod 644 /etc/dovecot/dovecot.conf \
     && chmod 644 /etc/dovecot/conf.d/99-local.conf \
-    && chown vmail:mail /etc/dovecot/dovecot-users \
-    && chmod 600 /etc/dovecot/dovecot-users
+    && chown root:dovecot /etc/dovecot/dovecot-users \
+    && chmod 640 /etc/dovecot/dovecot-users
+
+# Ensure /var/run/dovecot is owned by dovecot for auth-token-secret.dat
+RUN chown -R dovecot:dovecot /var/run/dovecot \
+    && chmod 750 /var/run/dovecot
 
 # Health check - verify dovecot master process is running
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \

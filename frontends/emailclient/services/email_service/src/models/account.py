@@ -1,7 +1,7 @@
 """Email account model."""
 
 from datetime import datetime
-from app import db
+from src.extensions import db
 
 
 class EmailAccount(db.Model):
