@@ -1,4 +1,7 @@
 {
-  "id": "json-component-tree-manager",
-  "type": "MetabuilderWidgetJSONComponentTreeManager"
+  "id": "json-component-tree-manager-root",
+  "type": "div",
+  "props": {
+    "className": "h-full w-full"
+  }
 }

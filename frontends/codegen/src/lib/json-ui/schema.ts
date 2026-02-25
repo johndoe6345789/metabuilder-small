@@ -85,6 +85,7 @@ export const UIComponentSchema: any = z.object({
     DataBindingSchema,
   ]).optional(),
   events: z.union([z.array(EventHandlerSchema), JSONEventMapSchema]).optional(),
+  condition: z.union([z.string(), DataBindingSchema]).optional(),
   conditional: ConditionalSchema.optional(),
   loop: z.object({
     source: z.string(),

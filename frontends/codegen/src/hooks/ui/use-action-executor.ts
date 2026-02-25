@@ -54,7 +54,7 @@ export function useActionExecutor(context: JSONUIContext) {
         case 'create': {
           if (!action.target) return
           const currentData = data[action.target] || []
-          
+
           let newValue
           if (action.expression) {
             // New: JSON expression
@@ -66,7 +66,7 @@ export function useActionExecutor(context: JSONUIContext) {
             // Fallback: static value
             newValue = action.value
           }
-          
+
           updateData(action.target, [...currentData, newValue])
           break
         }
@@ -74,7 +74,7 @@ export function useActionExecutor(context: JSONUIContext) {
         case 'update': {
           const targetParts = getTargetParts(action.target)
           if (!targetParts) return
-          
+
           let newValue
           if (action.expression) {
             newValue = evaluateExpression(action.expression, evaluationContext)
@@ -85,7 +85,9 @@ export function useActionExecutor(context: JSONUIContext) {
           }
 
           if (targetParts.path) {
-            updatePath(targetParts.sourceId, targetParts.path, newValue)
+            if (updatePath) {
+              updatePath(targetParts.sourceId, targetParts.path, newValue)
+            }
           } else {
             updateData(targetParts.sourceId, newValue)
           }
@@ -95,7 +97,7 @@ export function useActionExecutor(context: JSONUIContext) {
         case 'delete': {
           if (!action.target) return
           const currentData = data[action.target] || []
-          
+
           let selectorValue
           if (action.expression) {
             selectorValue = evaluateExpression(action.expression, evaluationContext)
@@ -120,7 +122,7 @@ export function useActionExecutor(context: JSONUIContext) {
         case 'set-value': {
           const targetParts = getTargetParts(action.target)
           if (!targetParts) return
-          
+
           let newValue
           if (action.expression) {
             newValue = evaluateExpression(action.expression, evaluationContext)
@@ -131,7 +133,9 @@ export function useActionExecutor(context: JSONUIContext) {
           }
 
           if (targetParts.path) {
-            updatePath(targetParts.sourceId, targetParts.path, newValue)
+            if (updatePath) {
+              updatePath(targetParts.sourceId, targetParts.path, newValue)
+            }
           } else {
             updateData(targetParts.sourceId, newValue)
           }
@@ -148,7 +152,9 @@ export function useActionExecutor(context: JSONUIContext) {
           const nextValue = !currentValue
 
           if (targetParts.path) {
-            updatePath(targetParts.sourceId, targetParts.path, nextValue)
+            if (updatePath) {
+              updatePath(targetParts.sourceId, targetParts.path, nextValue)
+            }
           } else {
             updateData(targetParts.sourceId, nextValue)
           }
@@ -166,7 +172,9 @@ export function useActionExecutor(context: JSONUIContext) {
           const nextValue = (currentValue || 0) + amount
 
           if (targetParts.path) {
-            updatePath(targetParts.sourceId, targetParts.path, nextValue)
+            if (updatePath) {
+              updatePath(targetParts.sourceId, targetParts.path, nextValue)
+            }
           } else {
             updateData(targetParts.sourceId, nextValue)
           }
@@ -184,7 +192,9 @@ export function useActionExecutor(context: JSONUIContext) {
           const nextValue = (currentValue || 0) - amount
 
           if (targetParts.path) {
-            updatePath(targetParts.sourceId, targetParts.path, nextValue)
+            if (updatePath) {
+              updatePath(targetParts.sourceId, targetParts.path, nextValue)
+            }
           } else {
             updateData(targetParts.sourceId, nextValue)
           }
@@ -194,7 +204,7 @@ export function useActionExecutor(context: JSONUIContext) {
         case 'show-toast': {
           const message = action.message || 'Action completed'
           const variant = action.variant || 'success'
-          
+
           switch (variant) {
             case 'success':
               toast.success(message)

@@ -17,6 +17,11 @@
       "defaultValue": null
     },
     {
+      "id": "selectedModel",
+      "type": "static",
+      "defaultValue": null
+    },
+    {
       "id": "createDialogOpen",
       "type": "static",
       "defaultValue": false
@@ -25,23 +30,6 @@
       "id": "newModelName",
       "type": "static",
       "defaultValue": ""
-    },
-    {
-      "id": "selectedModel",
-      "type": "static",
-      "expression": "data.models.find(id === data.selectedModelId)",
-      "dependencies": [
-        "models",
-        "selectedModelId"
-      ]
-    },
-    {
-      "id": "modelCount",
-      "type": "static",
-      "expression": "data.models.length",
-      "dependencies": [
-        "models"
-      ]
     }
   ],
   "components": [
@@ -49,14 +37,14 @@
       "id": "root",
       "type": "div",
       "props": {
-        "className": "h-full flex bg-gradient-to-br from-background via-background to-primary/5"
+        "className": "h-full flex"
       },
       "children": [
         {
           "id": "sidebar",
           "type": "div",
           "props": {
-            "className": "w-80 border-r border-border bg-card/50 backdrop-blur flex flex-col"
+            "className": "w-72 border-r border-border bg-card/50 flex flex-col"
           },
           "children": [
             {
@@ -67,7 +55,7 @@
               },
               "children": [
                 {
-                  "id": "header-content",
+                  "id": "header-row",
                   "type": "div",
                   "props": {
                     "className": "flex items-center justify-between mb-3"
@@ -75,31 +63,32 @@
                   "children": [
                     {
                       "id": "header-title",
-                      "type": "MetabuilderDisplayHeading",
+                      "type": "h2",
                       "props": {
-                        "className": "text-xl font-bold",
+                        "className": "text-lg font-bold",
                         "children": "Data Models"
                       }
                     },
                     {
-                      "id": "model-count-badge",
-                      "type": "MetabuilderDisplayBadge",
+                      "id": "model-count",
+                      "type": "span",
                       "props": {
-                        "variant": "secondary"
+                        "className": "text-xs bg-secondary text-secondary-foreground px-2 py-0.5 rounded-full"
                       },
                       "bindings": {
                         "children": {
-                          "source": "modelCount"
+                          "source": "models",
+                          "path": "length"
                         }
                       }
                     }
                   ]
                 },
                 {
-                  "id": "create-button",
-                  "type": "MetabuilderFormButton",
+                  "id": "create-btn",
+                  "type": "button",
                   "props": {
-                    "className": "w-full",
+                    "className": "w-full h-9 px-4 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors",
                     "children": "Create Model"
                   },
                   "events": [
@@ -107,7 +96,7 @@
                       "event": "click",
                       "actions": [
                         {
-                          "id": "open-create-dialog",
+                          "id": "open-create",
                           "type": "set-value",
                           "target": "createDialogOpen",
                           "value": true
@@ -119,12 +108,216 @@
               ]
             },
             {
+              "id": "create-form-wrapper",
+              "type": "div",
+              "conditional": {
+                "if": "createDialogOpen",
+                "then": {
+                  "id": "create-form",
+                  "type": "div",
+                  "props": {
+                    "className": "p-4 border-b border-border bg-accent/30 space-y-3"
+                  },
+                  "children": [
+                    {
+                      "id": "form-title",
+                      "type": "p",
+                      "props": {
+                        "className": "text-sm font-semibold",
+                        "children": "New Model"
+                      }
+                    },
+                    {
+                      "id": "name-input",
+                      "type": "input",
+                      "props": {
+                        "type": "text",
+                        "placeholder": "Model name...",
+                        "className": "flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                      },
+                      "bindings": {
+                        "value": {
+                          "source": "newModelName"
+                        }
+                      },
+                      "events": [
+                        {
+                          "event": "change",
+                          "actions": [
+                            {
+                              "id": "update-name",
+                              "type": "set-value",
+                              "target": "newModelName",
+                              "expression": "event.target.value"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "form-btns",
+                      "type": "div",
+                      "props": {
+                        "className": "flex gap-2"
+                      },
+                      "children": [
+                        {
+                          "id": "confirm-btn",
+                          "type": "button",
+                          "props": {
+                            "className": "flex-1 h-8 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90",
+                            "children": "Create"
+                          },
+                          "events": [
+                            {
+                              "event": "click",
+                              "actions": [
+                                {
+                                  "id": "do-create",
+                                  "type": "create",
+                                  "target": "models",
+                                  "valueTemplate": {
+                                    "id": "Date.now()",
+                                    "name": "data.newModelName",
+                                    "fields": [],
+                                    "dbName": "''"
+                                  }
+                                },
+                                {
+                                  "id": "reset-name",
+                                  "type": "set-value",
+                                  "target": "newModelName",
+                                  "value": ""
+                                },
+                                {
+                                  "id": "close-form",
+                                  "type": "set-value",
+                                  "target": "createDialogOpen",
+                                  "value": false
+                                },
+                                {
+                                  "id": "toast-created",
+                                  "type": "show-toast",
+                                  "message": "Model created",
+                                  "variant": "success"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "id": "cancel-btn",
+                          "type": "button",
+                          "props": {
+                            "className": "flex-1 h-8 rounded-md border border-input bg-background text-sm font-medium hover:bg-accent hover:text-accent-foreground",
+                            "children": "Cancel"
+                          },
+                          "events": [
+                            {
+                              "event": "click",
+                              "actions": [
+                                {
+                                  "id": "close-cancel",
+                                  "type": "set-value",
+                                  "target": "createDialogOpen",
+                                  "value": false
+                                },
+                                {
+                                  "id": "reset-cancel-name",
+                                  "type": "set-value",
+                                  "target": "newModelName",
+                                  "value": ""
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
               "id": "model-list",
               "type": "div",
               "props": {
-                "className": "flex-1 overflow-auto p-4 space-y-2"
+                "className": "flex-1 overflow-auto p-3 space-y-1"
               },
-              "children": []
+              "loop": {
+                "source": "models",
+                "itemVar": "model",
+                "indexVar": "modelIndex"
+              },
+              "children": [
+                {
+                  "id": "model-item",
+                  "type": "button",
+                  "props": {
+                    "className": "w-full text-left p-3 rounded-lg border border-border hover:bg-accent/50 transition-colors cursor-pointer"
+                  },
+                  "children": [
+                    {
+                      "id": "model-name",
+                      "type": "div",
+                      "props": {
+                        "className": "font-medium text-sm"
+                      },
+                      "bindings": {
+                        "children": {
+                          "source": "model",
+                          "path": "name"
+                        }
+                      }
+                    },
+                    {
+                      "id": "model-meta",
+                      "type": "div",
+                      "props": {
+                        "className": "text-xs text-muted-foreground mt-1"
+                      },
+                      "children": [
+                        {
+                          "id": "field-count",
+                          "type": "span",
+                          "bindings": {
+                            "children": {
+                              "source": "model",
+                              "path": "fields.length"
+                            }
+                          }
+                        },
+                        {
+                          "id": "field-label",
+                          "type": "span",
+                          "props": {
+                            "children": " fields"
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "events": [
+                    {
+                      "event": "click",
+                      "actions": [
+                        {
+                          "id": "select-id",
+                          "type": "set-value",
+                          "target": "selectedModelId",
+                          "expression": "event.model.id"
+                        },
+                        {
+                          "id": "select-model",
+                          "type": "set-value",
+                          "target": "selectedModel",
+                          "expression": "event.model"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
             }
           ]
         },
@@ -136,15 +329,18 @@
           },
           "children": [
             {
-              "id": "model-selection-state",
+              "id": "content-switch",
               "type": "div",
+              "props": {
+                "className": "flex-1"
+              },
               "conditional": {
                 "if": "selectedModel != null",
                 "then": {
                   "id": "model-editor",
                   "type": "div",
                   "props": {
-                    "className": "flex-1 p-6 overflow-auto"
+                    "className": "h-full p-6 overflow-auto"
                   },
                   "children": [
                     {
@@ -155,10 +351,10 @@
                       },
                       "children": [
                         {
-                          "id": "model-name",
-                          "type": "MetabuilderDisplayHeading",
+                          "id": "model-heading",
+                          "type": "h1",
                           "props": {
-                            "className": "text-3xl font-bold mb-2"
+                            "className": "text-2xl font-bold mb-1"
                           },
                           "bindings": {
                             "children": {
@@ -168,10 +364,10 @@
                           }
                         },
                         {
-                          "id": "model-description",
-                          "type": "MetabuilderDisplayText",
+                          "id": "model-desc",
+                          "type": "p",
                           "props": {
-                            "className": "text-muted-foreground"
+                            "className": "text-muted-foreground text-sm"
                           },
                           "bindings": {
                             "children": {
@@ -184,39 +380,185 @@
                     },
                     {
                       "id": "fields-card",
-                      "type": "MetabuilderLayoutCard",
+                      "type": "div",
+                      "props": {
+                        "className": "rounded-lg border border-border bg-card shadow-sm"
+                      },
                       "children": [
                         {
                           "id": "fields-header",
-                          "type": "MetabuilderLayoutCardHeader",
+                          "type": "div",
+                          "props": {
+                            "className": "p-4 border-b border-border"
+                          },
                           "children": [
                             {
                               "id": "fields-title",
-                              "type": "CardTitle",
+                              "type": "h3",
                               "props": {
+                                "className": "text-lg font-semibold",
                                 "children": "Model Fields"
                               }
                             },
                             {
-                              "id": "fields-description",
-                              "type": "CardDescription",
+                              "id": "fields-desc",
+                              "type": "p",
                               "props": {
-                                "children": "Define the fields and their types for this model"
+                                "className": "text-sm text-muted-foreground mt-1",
+                                "children": "Fields defined for this data model"
                               }
                             }
                           ]
                         },
                         {
-                          "id": "fields-content",
-                          "type": "MetabuilderDataCardContent",
+                          "id": "fields-body",
+                          "type": "div",
+                          "props": {
+                            "className": "p-4"
+                          },
                           "children": [
                             {
-                              "id": "fields-placeholder",
+                              "id": "fields-table-head",
                               "type": "div",
                               "props": {
-                                "className": "text-center text-muted-foreground py-8 border-2 border-dashed border-border rounded-lg",
-                                "children": "Add fields to define your data model"
-                              }
+                                "className": "grid grid-cols-4 gap-3 px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border"
+                              },
+                              "children": [
+                                {
+                                  "id": "th-name",
+                                  "type": "span",
+                                  "props": { "children": "Name" }
+                                },
+                                {
+                                  "id": "th-type",
+                                  "type": "span",
+                                  "props": { "children": "Type" }
+                                },
+                                {
+                                  "id": "th-required",
+                                  "type": "span",
+                                  "props": { "children": "Required" }
+                                },
+                                {
+                                  "id": "th-attrs",
+                                  "type": "span",
+                                  "props": { "children": "Attributes" }
+                                }
+                              ]
+                            },
+                            {
+                              "id": "fields-rows",
+                              "type": "div",
+                              "props": {
+                                "className": "divide-y divide-border/50"
+                              },
+                              "loop": {
+                                "source": {
+                                  "source": "selectedModel",
+                                  "path": "fields"
+                                },
+                                "itemVar": "field",
+                                "indexVar": "fieldIndex"
+                              },
+                              "children": [
+                                {
+                                  "id": "field-row",
+                                  "type": "div",
+                                  "props": {
+                                    "className": "grid grid-cols-4 gap-3 px-3 py-2.5 text-sm hover:bg-accent/30 rounded transition-colors"
+                                  },
+                                  "children": [
+                                    {
+                                      "id": "field-name",
+                                      "type": "span",
+                                      "props": {
+                                        "className": "font-medium"
+                                      },
+                                      "bindings": {
+                                        "children": {
+                                          "source": "field",
+                                          "path": "name"
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "id": "field-type",
+                                      "type": "span",
+                                      "props": {
+                                        "className": "text-xs border border-border rounded px-2 py-0.5 inline-flex items-center w-fit"
+                                      },
+                                      "bindings": {
+                                        "children": {
+                                          "source": "field",
+                                          "path": "type"
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "id": "field-required",
+                                      "type": "div",
+                                      "conditional": {
+                                        "if": "field.isRequired",
+                                        "then": {
+                                          "id": "req-yes",
+                                          "type": "span",
+                                          "props": {
+                                            "className": "text-xs bg-primary text-primary-foreground px-2 py-0.5 rounded",
+                                            "children": "Required"
+                                          }
+                                        },
+                                        "else": {
+                                          "id": "req-no",
+                                          "type": "span",
+                                          "props": {
+                                            "className": "text-xs text-muted-foreground",
+                                            "children": "Optional"
+                                          }
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "id": "field-attrs",
+                                      "type": "div",
+                                      "props": {
+                                        "className": "flex gap-1 flex-wrap"
+                                      },
+                                      "children": [
+                                        {
+                                          "id": "attr-id-wrap",
+                                          "type": "div",
+                                          "conditional": {
+                                            "if": "field.isId",
+                                            "then": {
+                                              "id": "attr-id",
+                                              "type": "span",
+                                              "props": {
+                                                "className": "text-xs bg-secondary text-secondary-foreground px-1.5 py-0.5 rounded",
+                                                "children": "@id"
+                                              }
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "id": "attr-unique-wrap",
+                                          "type": "div",
+                                          "conditional": {
+                                            "if": "field.isUnique",
+                                            "then": {
+                                              "id": "attr-unique",
+                                              "type": "span",
+                                              "props": {
+                                                "className": "text-xs bg-secondary text-secondary-foreground px-1.5 py-0.5 rounded",
+                                                "children": "@unique"
+                                              }
+                                            }
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
                             }
                           ]
                         }
@@ -228,37 +570,37 @@
                   "id": "empty-state",
                   "type": "div",
                   "props": {
-                    "className": "flex-1 flex items-center justify-center"
+                    "className": "h-full flex items-center justify-center"
                   },
                   "children": [
                     {
-                      "id": "empty-state-content",
+                      "id": "empty-content",
                       "type": "div",
                       "props": {
                         "className": "text-center space-y-4"
                       },
                       "children": [
                         {
-                          "id": "empty-state-title",
-                          "type": "MetabuilderDisplayHeading",
+                          "id": "empty-title",
+                          "type": "h2",
                           "props": {
                             "className": "text-2xl font-bold text-muted-foreground",
                             "children": "No Model Selected"
                           }
                         },
                         {
-                          "id": "empty-state-description",
-                          "type": "MetabuilderDisplayText",
+                          "id": "empty-desc",
+                          "type": "p",
                           "props": {
                             "className": "text-muted-foreground",
                             "children": "Select a model from the sidebar or create a new one"
                           }
                         },
                         {
-                          "id": "empty-state-button",
-                          "type": "MetabuilderFormButton",
+                          "id": "empty-cta",
+                          "type": "button",
                           "props": {
-                            "variant": "default",
+                            "className": "h-10 px-6 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90",
                             "children": "Create Your First Model"
                           },
                           "events": [
@@ -266,7 +608,7 @@
                               "event": "click",
                               "actions": [
                                 {
-                                  "id": "open-create-from-empty",
+                                  "id": "open-from-empty",
                                   "type": "set-value",
                                   "target": "createDialogOpen",
                                   "value": true

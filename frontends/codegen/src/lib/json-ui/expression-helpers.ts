@@ -245,7 +245,10 @@ export const evaluateConditionExpression = (
   if (!condition) return true
   const normalized = normalizeCondition(condition)
   if (!isSupportedCondition(normalized)) {
-    return true // fail open
+    if (typeof console !== 'undefined') {
+      console.warn(`[JSON-UI] Unsupported condition "${condition}" (normalized: "${normalized}") in ${options.label || 'unknown'} — defaulting to true`)
+    }
+    return true
   }
   return evaluateCondition(normalized, { data, event: options.event })
 }
