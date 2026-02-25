@@ -16,26 +16,30 @@
 # Build:   docker build -f Dockerfile.devcontainer -t metabuilder/devcontainer:latest ../../
 # VS Code: "image": "metabuilder/devcontainer:latest" in devcontainer.json
 
-FROM metabuilder/base-conan-deps:latest
+ARG BASE_REGISTRY=metabuilder
+FROM ${BASE_REGISTRY}/base-node-deps:latest    AS node-deps
+FROM ${BASE_REGISTRY}/base-pip-deps:latest     AS pip-deps
+FROM ${BASE_REGISTRY}/base-android-sdk:latest  AS android-sdk
+FROM ${BASE_REGISTRY}/base-conan-deps:latest
 
 # ── Node.js (from base-node-deps) ─────────────────────────────────────────────
 # Copy pre-installed node_modules + node binary from base-node-deps image
-COPY --from=metabuilder/base-node-deps:latest /usr/local/bin/node   /usr/local/bin/node
-COPY --from=metabuilder/base-node-deps:latest /usr/local/bin/npm    /usr/local/bin/npm
-COPY --from=metabuilder/base-node-deps:latest /usr/local/bin/npx    /usr/local/bin/npx
-COPY --from=metabuilder/base-node-deps:latest /usr/local/lib/node_modules /usr/local/lib/node_modules
-COPY --from=metabuilder/base-node-deps:latest /app/node_modules     /workspace/node_modules
+COPY --from=node-deps /usr/local/bin/node   /usr/local/bin/node
+COPY --from=node-deps /usr/local/bin/npm    /usr/local/bin/npm
+COPY --from=node-deps /usr/local/bin/npx    /usr/local/bin/npx
+COPY --from=node-deps /usr/local/lib/node_modules /usr/local/lib/node_modules
+COPY --from=node-deps /app/node_modules     /workspace/node_modules
 
 # ── Python packages (from base-pip-deps) ──────────────────────────────────────
 # Copy entire site-packages + all pip-installed binaries in one go.
 # Avoids hard-coding individual binary paths (gunicorn, celery, etc.).
-COPY --from=metabuilder/base-pip-deps:latest /usr/local/lib/python3.11 /usr/local/lib/python3.11
-COPY --from=metabuilder/base-pip-deps:latest /usr/local/bin/           /usr/local/bin/
+COPY --from=pip-deps /usr/local/lib/python3.11 /usr/local/lib/python3.11
+COPY --from=pip-deps /usr/local/bin/           /usr/local/bin/
 
 # ── Android SDK + Gradle (from base-android-sdk) ──────────────────────────────
-COPY --from=metabuilder/base-android-sdk:latest /opt/android-sdk    /opt/android-sdk
-COPY --from=metabuilder/base-android-sdk:latest /opt/gradle         /opt/gradle
-COPY --from=metabuilder/base-android-sdk:latest /root/.gradle       /root/.gradle
+COPY --from=android-sdk /opt/android-sdk    /opt/android-sdk
+COPY --from=android-sdk /opt/gradle         /opt/gradle
+COPY --from=android-sdk /root/.gradle       /root/.gradle
 
 ENV ANDROID_HOME=/opt/android-sdk \
     ANDROID_SDK_ROOT=/opt/android-sdk \
@@ -111,7 +115,7 @@ RUN for i in 1 2 3 4 5; do \
       || (echo "oh-my-zsh failed (attempt $i/5), retrying in $((i*10))s..." && sleep $((i*10))); \
     done
 
-COPY --from=metabuilder/base-android-sdk:latest /usr/lib/jvm /usr/lib/jvm
+COPY --from=android-sdk /usr/lib/jvm /usr/lib/jvm
 ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-arm64
 
 # ── PATH consolidation ────────────────────────────────────────────────────────

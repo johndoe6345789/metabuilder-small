@@ -2,8 +2,8 @@
 # Context: monorepo root (..)
 # Requires: docker build -f deployment/base-images/Dockerfile.node-deps \
 #           -t metabuilder/base-node-deps:latest .
-ARG BASE_IMAGE=metabuilder/base-node-deps:latest
-FROM ${BASE_IMAGE} AS deps
+ARG BASE_REGISTRY=metabuilder
+FROM ${BASE_REGISTRY}/base-node-deps:latest AS deps
 
 # --- Dev server stage ---
 FROM deps AS dev
