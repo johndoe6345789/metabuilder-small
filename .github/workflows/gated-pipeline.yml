@@ -47,6 +47,7 @@ permissions:
   deployments: write
   packages: write
   id-token: write
+  attestations: write
   security-events: write
 
 # ════════════════════════════════════════════════════════════════════════════════
