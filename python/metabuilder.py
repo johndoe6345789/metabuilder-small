@@ -33,7 +33,7 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Project Structure:
-  dockerconan/          - C++ dev container (./dockerconan/dev-container.py)
+  deployment/           - Docker base images (./deployment/build-base-images.sh)
   workflowui/           - Workflow UI (./workflowui/test-server/test-runner.py)
   dbal/                 - Database Abstraction Layer
   workflow/             - DAG workflow engine
@@ -45,14 +45,11 @@ Project Structure:
   mojo/                 - Mojo compiler (./mojo/mojo.py)
 
 Examples:
-  # Start C++ dev container
-  %(prog)s dev start --build --shell
+  # Build Docker base images
+  %(prog)s dev build
 
   # Run WorkflowUI tests
   %(prog)s test run comprehensive
-
-  # Build DBAL daemon
-  %(prog)s dev build-dbal
 
   # View test report
   %(prog)s test report
@@ -75,9 +72,9 @@ For subproject-specific commands:
     
     subparsers = parser.add_subparsers(dest="component", help="Component to manage")
     
-    # dev (dockerconan)
-    dev_parser = subparsers.add_parser("dev", help="C++ dev container (dockerconan/)")
-    dev_parser.add_argument("dev_args", nargs="*", help="Arguments for dev-container.py")
+    # dev (deployment/base images)
+    dev_parser = subparsers.add_parser("dev", help="Docker base images (deployment/)")
+    dev_parser.add_argument("dev_args", nargs="*", help="Arguments for build-base-images.sh")
     
     # test (workflowui)
     test_parser = subparsers.add_parser("test", help="WorkflowUI tests")
@@ -97,36 +94,36 @@ For subproject-specific commands:
     
     try:
         if args.component == "dev":
-            arg_str = " ".join(args.dev_args) if args.dev_args else "--help"
-            return 0 if run_subcommand("dockerconan/dev-container.py", arg_str) else 1
+            arg_str = " ".join(args.dev_args) if args.dev_args else "--list"
+            return 0 if run_cmd(f"bash deployment/build-base-images.sh {arg_str}", check=False) else 1
         
         elif args.component == "test":
             arg_str = " ".join(args.test_args) if args.test_args else "--help"
             return 0 if run_subcommand("workflowui/test-server/test-runner.py", arg_str) else 1
         
         elif args.component == "quick-start":
-            print("🚀 Quick Start: Starting all services...")
-            print("\n1️⃣  Starting C++ dev container...")
-            run_subcommand("dockerconan/dev-container.py", "start --build")
-            
-            print("\n2️⃣  Starting WorkflowUI test infrastructure...")
+            print("Quick Start: Starting all services...")
+            print("\n1. Building Docker base images...")
+            run_cmd("bash deployment/build-base-images.sh", check=False)
+
+            print("\n2. Starting WorkflowUI test infrastructure...")
             run_subcommand("workflowui/test-server/test-runner.py", "start-servers")
-            
-            print("\n3️⃣  Running health checks...")
+
+            print("\n3. Running health checks...")
             run_subcommand("workflowui/test-server/test-runner.py", "health")
-            
-            print("\n✅ Quick start complete!")
+
+            print("\nQuick start complete!")
             print("\nNext steps:")
-            print("  - Open shell: ./metabuilder.py dev shell")
+            print("  - Build apps: cd deployment && ./build-apps.sh")
             print("  - Run tests: ./metabuilder.py test run")
             print("  - View report: ./metabuilder.py test report")
         
         elif args.component == "status":
-            print("📊 MetaBuilder Status\n")
-            
-            print("Docker Dev Container:")
-            run_subcommand("dockerconan/dev-container.py", "status")
-            
+            print("MetaBuilder Status\n")
+
+            print("Docker Base Images:")
+            run_cmd("bash deployment/build-base-images.sh --list", check=False)
+
             print("\nWorkflowUI Servers:")
             run_subcommand("workflowui/test-server/test-runner.py", "health")
         

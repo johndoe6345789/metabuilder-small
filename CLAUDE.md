@@ -18,7 +18,7 @@ All documentation is executable code. No separate markdown docs.
 ./gameengine/gameengine.py --help    # Game engine
 ./postgres/postgres.py --help        # PostgreSQL dashboard
 ./mojo/mojo.py --help               # Mojo compiler
-./dockerconan/dev-container.py --help # C++ dev container
+./deployment/build-base-images.sh --list # Docker base images
 
 # Documentation (SQLite3 + FTS5 full-text search)
 cd txt && python3 reports.py search "query"     # 212 reports
@@ -212,7 +212,7 @@ Frontends (CLI C++ | Qt6 QML | Next.js React)
 ```bash
 npm run dev / build / typecheck / lint / test:e2e
 npm run build --workspaces
-cd dockerconan && ./dev-container.py start --build --shell
+cd deployment && ./build-base-images.sh  # Build Docker base images
 ```
 
 Pre-commit: `npm run build && npm run typecheck && npm run lint && npm run test:e2e`

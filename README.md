@@ -54,8 +54,8 @@ No separate documentation files - the code IS the documentation.
 ```
 metabuilder/
 ├── metabuilder.py          # Main entry point (CODE = DOC)
-├── dockerconan/            # C++ dev container
-│   └── dev-container.py    # Dev container manager (CODE = DOC)
+├── deployment/             # Docker base images & stack config
+│   └── build-base-images.sh # Base image builder (CODE = DOC)
 ├── workflowui/             # Workflow UI (Next.js + React)
 │   └── test-server/
 │       └── test-runner.py  # Test runner (CODE = DOC)

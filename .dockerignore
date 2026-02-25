@@ -96,7 +96,6 @@ mojo
 spec
 scripts
 .claude
-dockerconan
 dist
 
 # Allow specific dbal paths through for app builds
@@ -106,7 +105,6 @@ dist
 # Allow conanfiles through for base image builds (negation overrides above exclusions)
 !dbal/production/build-config/conanfile.py
 !gameengine/conanfile.py
-!dockerconan/conanfile.py
 !services/media_daemon/build-config/conanfile.txt
 !frontends/qt6/conanfile.txt
 !frontends/cli/conanfile.txt
