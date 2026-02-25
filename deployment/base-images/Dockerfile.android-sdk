@@ -5,7 +5,8 @@
 #
 # Build:  docker build -f Dockerfile.android-sdk -t metabuilder/base-android-sdk:latest ../../
 
-FROM metabuilder/base-apt:latest
+ARG BASE_REGISTRY=metabuilder
+FROM ${BASE_REGISTRY}/base-apt:latest
 
 ENV ANDROID_HOME=/opt/android-sdk \
     ANDROID_SDK_ROOT=/opt/android-sdk \

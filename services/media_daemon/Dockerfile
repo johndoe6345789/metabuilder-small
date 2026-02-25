@@ -5,7 +5,8 @@
 # Prerequisites: run deployment/build-base-images.sh first.
 
 # Stage 1: Build environment
-FROM metabuilder/base-conan-deps:latest AS builder
+ARG BASE_REGISTRY=metabuilder
+FROM ${BASE_REGISTRY}/base-conan-deps:latest AS builder
 
 # Copy source code
 WORKDIR /app
@@ -28,7 +29,7 @@ RUN cmake ../build-config \
 RUN ninja
 
 # Stage 2: Runtime — base-apt has most deps; add texlive here (too large for base)
-FROM metabuilder/base-apt:latest AS runtime
+FROM ${BASE_REGISTRY}/base-apt:latest AS runtime
 
 RUN for i in 1 2 3 4 5; do \
       apt-get update && apt-get install -y --no-install-recommends \

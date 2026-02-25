@@ -4,8 +4,8 @@
 #           -t metabuilder/base-node-deps:latest .
 
 # --- Build stage ---
-ARG BASE_IMAGE=metabuilder/base-node-deps:latest
-FROM ${BASE_IMAGE} AS builder
+ARG BASE_REGISTRY=metabuilder
+FROM ${BASE_REGISTRY}/base-node-deps:latest AS builder
 
 # ── Shared packages (resolved by transpilePackages + webpack aliases) ────────
 # Each COPY targets only the source tree that workflowui actually imports.

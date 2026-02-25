@@ -22,14 +22,43 @@ permissions:
   packages: write
   id-token: write
 
+# ════════════════════════════════════════════════════════════════════════════
+#  Base Images — tiered build respecting the dependency DAG:
+#
+#    Tier 1 (independent):  base-apt, base-node-deps, base-pip-deps
+#    Tier 2 (← base-apt):  base-conan-deps, base-android-sdk
+#    Tier 3 (← all above): devcontainer
+#
+#  Base images only build on push / tag / dispatch (not PRs).
+#  App images build on all events and pull base images from GHCR.
+# ════════════════════════════════════════════════════════════════════════════
+
 jobs:
-  # Step 1: Build the base-node-deps image that all frontends depend on
-  build-base:
-    name: Build Base Node Dependencies
+
+  # ── Tier 1: Independent base images (no custom base deps) ────────────────
+  base-tier1:
+    name: "Base T1: ${{ matrix.image }}"
     runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - image: base-apt
+            dockerfile: ./deployment/base-images/Dockerfile.apt
+            platforms: linux/amd64,linux/arm64
+          - image: base-node-deps
+            dockerfile: ./deployment/base-images/Dockerfile.node-deps
+            platforms: linux/amd64,linux/arm64
+          - image: base-pip-deps
+            dockerfile: ./deployment/base-images/Dockerfile.pip-deps
+            platforms: linux/amd64,linux/arm64
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -41,34 +70,178 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata for base image
+      - name: Extract metadata (tags, labels)
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/base-node-deps
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/${{ matrix.image }}
           tags: |
-            type=raw,value=latest
-            type=sha,prefix=sha-
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
 
-      - name: Build and push base-node-deps
+      - name: Build and push Docker image
+        id: build
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: ./deployment/base-images/Dockerfile.node-deps
-          push: ${{ github.event_name != 'pull_request' }}
-          load: ${{ github.event_name == 'pull_request' }}
+          file: ${{ matrix.dockerfile }}
+          platforms: ${{ matrix.platforms }}
+          push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha,scope=base-node-deps
-          cache-to: type=gha,mode=max,scope=base-node-deps
+          cache-from: type=gha,scope=${{ matrix.image }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.image }}
+          build-args: |
+            BUILD_DATE=${{ github.event.head_commit.timestamp }}
+            VCS_REF=${{ github.sha }}
 
-  # Step 2: Build all frontend app images (depend on base-node-deps from GHCR)
-  # Only runs on push events where base image was pushed to GHCR
-  build-and-push:
-    name: Build ${{ matrix.image }}
+      - name: Generate artifact attestation
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/${{ matrix.image }}
+          subject-digest: ${{ steps.build.outputs.digest }}
+          push-to-registry: true
+
+  # ── Tier 2: Images depending on base-apt ──────────────────────────────────
+  base-tier2:
+    name: "Base T2: ${{ matrix.image }}"
     runs-on: ubuntu-latest
-    needs: build-base
-    if: github.event_name != 'pull_request'
+    needs: base-tier1
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - image: base-conan-deps
+            dockerfile: ./deployment/base-images/Dockerfile.conan-deps
+            platforms: linux/amd64,linux/arm64
+          - image: base-android-sdk
+            dockerfile: ./deployment/base-images/Dockerfile.android-sdk
+            platforms: linux/amd64,linux/arm64
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels)
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/${{ matrix.image }}
+          tags: |
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push Docker image
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ${{ matrix.dockerfile }}
+          platforms: ${{ matrix.platforms }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha,scope=${{ matrix.image }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.image }}
+          build-args: |
+            BASE_REGISTRY=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+            BUILD_DATE=${{ github.event.head_commit.timestamp }}
+            VCS_REF=${{ github.sha }}
+
+      - name: Generate artifact attestation
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/${{ matrix.image }}
+          subject-digest: ${{ steps.build.outputs.digest }}
+          push-to-registry: true
+
+  # ── Tier 3: Devcontainer (depends on all base images) ────────────────────
+  base-tier3:
+    name: "Base T3: devcontainer"
+    runs-on: ubuntu-latest
+    needs: base-tier2
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels)
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/devcontainer
+          tags: |
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push Docker image
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./deployment/base-images/Dockerfile.devcontainer
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha,scope=devcontainer
+          cache-to: type=gha,mode=max,scope=devcontainer
+          build-args: |
+            BASE_REGISTRY=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+            BUILD_DATE=${{ github.event.head_commit.timestamp }}
+            VCS_REF=${{ github.sha }}
+
+      - name: Generate artifact attestation
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/devcontainer
+          subject-digest: ${{ steps.build.outputs.digest }}
+          push-to-registry: true
+
+  # ── App images (pull base images from GHCR) ──────────────────────────────
+  build-apps:
+    name: "App: ${{ matrix.image }}"
+    runs-on: ubuntu-latest
+    needs: [base-tier1]
+    # Run even when base-tier1 was skipped (PRs) — apps use previously
+    # pushed base images from GHCR.  Stop only on upstream failure.
+    if: ${{ !failure() }}
     strategy:
       fail-fast: false
       matrix:
@@ -134,7 +307,7 @@ jobs:
           cache-from: type=gha,scope=${{ matrix.image }}
           cache-to: type=gha,mode=max,scope=${{ matrix.image }}
           build-args: |
-            BASE_IMAGE=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/base-node-deps:latest
+            BASE_REGISTRY=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
             BUILD_DATE=${{ github.event.head_commit.timestamp }}
             VCS_REF=${{ github.sha }}
             VERSION=${{ steps.meta.outputs.version }}
@@ -147,16 +320,29 @@ jobs:
           subject-digest: ${{ steps.build.outputs.digest }}
           push-to-registry: true
 
-  # Step 3: Security scan pushed images
+  # ── Security scanning ────────────────────────────────────────────────────
   security-scan:
-    name: Security Scan ${{ matrix.image }}
+    name: "Scan: ${{ matrix.image }}"
     runs-on: ubuntu-latest
-    needs: build-and-push
-    if: github.event_name != 'pull_request'
+    needs: [base-tier3, build-apps]
+    if: github.event_name != 'pull_request' && !failure()
     strategy:
       fail-fast: false
       matrix:
-        image: [nextjs-app, codegen, pastebin, emailclient, postgres-dashboard, workflowui, exploded-diagrams]
+        image:
+          - base-apt
+          - base-node-deps
+          - base-pip-deps
+          - base-conan-deps
+          - base-android-sdk
+          - devcontainer
+          - nextjs-app
+          - codegen
+          - pastebin
+          - emailclient
+          - postgres-dashboard
+          - workflowui
+          - exploded-diagrams
     steps:
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
@@ -170,3 +356,31 @@ jobs:
         with:
           sarif_file: 'trivy-results-${{ matrix.image }}.sarif'
           category: container-${{ matrix.image }}
+
+  # ── Multi-arch manifests ──────────────────────────────────────────────────
+  publish-manifest:
+    name: Create Multi-Arch Manifests
+    runs-on: ubuntu-latest
+    needs: [base-tier3, build-apps]
+    if: github.event_name != 'pull_request' && !failure()
+    env:
+      REF_NAME: ${{ github.ref_name }}
+      REGISTRY: ${{ env.REGISTRY }}
+      IMAGE_NAME: ${{ env.IMAGE_NAME }}
+    steps:
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create and push manifests for all images
+        run: |
+          for image in base-apt base-node-deps base-pip-deps base-conan-deps base-android-sdk devcontainer; do
+            docker manifest create \
+              "$REGISTRY/$IMAGE_NAME/$image:$REF_NAME" \
+              --amend "$REGISTRY/$IMAGE_NAME/$image:${REF_NAME}-amd64" \
+              --amend "$REGISTRY/$IMAGE_NAME/$image:${REF_NAME}-arm64"
+            docker manifest push "$REGISTRY/$IMAGE_NAME/$image:$REF_NAME"
+          done

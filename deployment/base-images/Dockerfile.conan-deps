@@ -8,7 +8,8 @@
 # App Dockerfiles:
 #   COPY --from=metabuilder/base-conan-deps /root/.conan2 /root/.conan2
 
-FROM metabuilder/base-apt:latest
+ARG BASE_REGISTRY=metabuilder
+FROM ${BASE_REGISTRY}/base-apt:latest
 
 # Install Conan 2 with retry
 RUN for i in 1 2 3 4 5; do \
