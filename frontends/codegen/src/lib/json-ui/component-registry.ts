@@ -132,6 +132,11 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { TestEditor } from '@/components/playwright-designer/TestEditor'
 import { TestList } from '@/components/playwright-designer/TestList'
 
+// Unit test designer sub-components — same Turbopack require.context issue.
+import { TestSuiteList } from '@/components/unit-test-designer/TestSuiteList'
+import { TestSuiteEditor } from '@/components/unit-test-designer/TestSuiteEditor'
+import { TestCasesPanel } from '@/components/unit-test-designer/TestCasesPanel'
+
 // FakeMUI MD3 components — require.context is unreliable in Turbopack dev mode
 // so all FakeMUI primitives used by JSON definitions must be imported explicitly.
 import { Tabs, Tab, TabPanel } from '@metabuilder/fakemui/navigation'
@@ -207,6 +212,9 @@ const componentTreeSubComponents: UIComponentRegistry = {
   ScrollArea: ScrollArea as unknown as ComponentType<any>,
   TestEditor: TestEditor as unknown as ComponentType<any>,
   TestList: TestList as unknown as ComponentType<any>,
+  TestSuiteList: TestSuiteList as unknown as ComponentType<any>,
+  TestSuiteEditor: TestSuiteEditor as unknown as ComponentType<any>,
+  TestCasesPanel: TestCasesPanel as unknown as ComponentType<any>,
   ButtonsActionsSection: ButtonsActionsSection as unknown as ComponentType<any>,
   BadgesIndicatorsSection: BadgesIndicatorsSection as unknown as ComponentType<any>,
   TypographySection: TypographySection as unknown as ComponentType<any>,
