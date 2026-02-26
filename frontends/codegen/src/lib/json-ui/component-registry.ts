@@ -135,6 +135,7 @@ import { Label } from '@metabuilder/fakemui/atoms'
 import { DialogContent, DialogHeader, DialogTitle, DialogContentText, DialogActions } from '@metabuilder/fakemui/utils'
 import { Download, Plus, Trash, Merge as MergeIcon } from 'lucide-react'
 import { JSONUIShowcase } from '@/components/JSONUIShowcase'
+import { SchemaEditorWorkspace } from '@/components/schema-editor/SchemaEditorWorkspace'
 
 // Atomic library section components — require.context + next/dynamic resolves
 // to () => null in Turbopack dev mode for sub-directory components.
@@ -185,6 +186,7 @@ const fakeMuiExplicitComponents: UIComponentRegistry = {
   Trash: Trash as unknown as ComponentType<any>,
   MergeIcon: MergeIcon as unknown as ComponentType<any>,
   MetabuilderWidgetJSONUIShowcase: JSONUIShowcase as unknown as ComponentType<any>,
+  SchemaEditorWorkspace: SchemaEditorWorkspace as unknown as ComponentType<any>,
 }
 
 const componentTreeSubComponents: UIComponentRegistry = {
@@ -428,20 +430,32 @@ const resolveWrapperComponent = (type: string): ComponentType<any> | null => {
 // Lazy-loaded JSON components — each resolved via next/dynamic on first miss.
 const jsonComponentDynamicCache = new Map<string, ComponentType<any>>()
 
+// Short-name aliases: JSON definitions use these, but json-components.ts exports use MetabuilderWidget* prefix.
+// Cannot import json-components.ts statically here (circular dep: json-components → createJsonComponent → component-registry).
+const jsonComponentAliases: Record<string, string> = {
+  SchemaEditorCanvas: 'MetabuilderWidgetSchemaEditorCanvas',
+  SchemaEditorPropertiesPanel: 'MetabuilderWidgetSchemaEditorPropertiesPanel',
+  SchemaEditorSidebar: 'MetabuilderWidgetSchemaEditorSidebar',
+  SchemaEditorToolbar: 'MetabuilderWidgetSchemaEditorToolbar',
+  CanvasRenderer: 'MetabuilderWidgetCanvasRenderer',
+  ComponentPalette: 'MetabuilderWidgetComponentPalette',
+}
+
 function resolveJsonComponent(type: string): ComponentType<any> | null {
-  if (jsonComponentDynamicCache.has(type)) {
-    return jsonComponentDynamicCache.get(type)!
+  const resolvedType = jsonComponentAliases[type] ?? type
+  if (jsonComponentDynamicCache.has(resolvedType)) {
+    return jsonComponentDynamicCache.get(resolvedType)!
   }
   const LazyJson = dynamic(
     () => import('@/lib/json-ui/json-components').then(mod => {
-      const component = (mod as Record<string, any>)[type]
+      const component = (mod as Record<string, any>)[resolvedType]
       if (!component) return { default: (() => null) as unknown as ComponentType }
       return { default: component }
     }),
     { ssr: false }
   )
-  jsonComponentDynamicCache.set(type, LazyJson)
-  uiComponentRegistry[type] = LazyJson
+  jsonComponentDynamicCache.set(resolvedType, LazyJson)
+  uiComponentRegistry[resolvedType] = LazyJson
   return LazyJson
 }
 

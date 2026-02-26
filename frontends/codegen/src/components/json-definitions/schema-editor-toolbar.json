@@ -1,96 +1,53 @@
 {
   "id": "schema-editor-toolbar",
   "type": "div",
-  "props": {
-    "className": "border-b border-border px-6 py-3 bg-card"
-  },
+  "props": { "className": "toolbar" },
   "children": [
     {
-      "id": "toolbar-content",
+      "id": "toolbar-title",
+      "type": "span",
+      "props": { "className": "toolbar__title" },
+      "children": "Schema Editor"
+    },
+    {
+      "id": "toolbar-actions",
       "type": "div",
-      "props": { "className": "flex justify-between items-center" },
+      "props": { "className": "toolbar__actions" },
       "children": [
         {
-          "id": "toolbar-left",
-          "type": "div",
-          "props": { "className": "flex flex-col gap-1" },
-          "children": [
-            {
-              "id": "toolbar-title",
-              "type": "span",
-              "props": {
-                "className": "text-lg font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent"
-              },
-              "bindings": { "children": "'Schema Editor'" }
-            }
-          ]
+          "id": "import-button",
+          "type": "Button",
+          "props": { "variant": "outlined", "size": "sm" },
+          "bindings": { "onClick": { "source": "onImport" } },
+          "children": "Import"
         },
         {
-          "id": "toolbar-actions",
-          "type": "div",
-          "props": { "className": "flex gap-2" },
-          "children": [
-            {
-              "id": "import-button",
-              "type": "Button",
-              "props": {
-                "variant": "outline",
-                "size": "sm"
-              },
-              "bindings": {
-                "onClick": { "source": "onImport" },
-                "children": "'Import'"
-              }
-            },
-            {
-              "id": "export-button",
-              "type": "Button",
-              "props": {
-                "variant": "outline",
-                "size": "sm"
-              },
-              "bindings": {
-                "onClick": { "source": "onExport" },
-                "children": "'Export'"
-              }
-            },
-            {
-              "id": "copy-button",
-              "type": "Button",
-              "props": {
-                "variant": "outline",
-                "size": "sm"
-              },
-              "bindings": {
-                "onClick": { "source": "onCopy" },
-                "children": "'Copy'"
-              }
-            },
-            {
-              "id": "preview-button",
-              "type": "Button",
-              "props": {
-                "variant": "outline",
-                "size": "sm"
-              },
-              "bindings": {
-                "onClick": { "source": "onPreview" },
-                "children": "'Preview'"
-              }
-            },
-            {
-              "id": "clear-button",
-              "type": "Button",
-              "props": {
-                "variant": "destructive",
-                "size": "sm"
-              },
-              "bindings": {
-                "onClick": { "source": "onClear" },
-                "children": "'Clear'"
-              }
-            }
-          ]
+          "id": "export-button",
+          "type": "Button",
+          "props": { "variant": "outlined", "size": "sm" },
+          "bindings": { "onClick": { "source": "onExport" } },
+          "children": "Export"
+        },
+        {
+          "id": "copy-button",
+          "type": "Button",
+          "props": { "variant": "outlined", "size": "sm" },
+          "bindings": { "onClick": { "source": "onCopy" } },
+          "children": "Copy JSON"
+        },
+        {
+          "id": "preview-button",
+          "type": "Button",
+          "props": { "variant": "outlined", "size": "sm" },
+          "bindings": { "onClick": { "source": "onPreview" } },
+          "children": "Preview"
+        },
+        {
+          "id": "clear-button",
+          "type": "Button",
+          "props": { "variant": "filled", "color": "error", "size": "sm" },
+          "bindings": { "onClick": { "source": "onClear" } },
+          "children": "Clear"
         }
       ]
     }

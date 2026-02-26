@@ -1,49 +1,55 @@
 {
   "id": "schema-editor-properties-panel",
   "type": "div",
-  "props": {
-    "className": "w-80 border-l border-border bg-card overflow-y-auto"
-  },
+  "props": { "className": "side-panel side-panel--right" },
   "children": [
+    {
+      "id": "panel-header",
+      "type": "div",
+      "props": { "className": "side-panel__header" },
+      "children": "Properties"
+    },
     {
       "id": "properties-content",
       "type": "div",
-      "props": {
-        "className": "p-4 space-y-4"
-      },
+      "props": { "style": { "padding": "16px", "display": "flex", "flexDirection": "column", "gap": "16px" } },
       "conditional": { "if": "selectedComponent" },
       "children": [
         {
           "id": "component-id-display",
           "type": "div",
-          "props": { "className": "space-y-2" },
+          "props": { "className": "field-group" },
           "children": [
             {
+              "id": "id-label",
               "type": "span",
-              "props": { "className": "text-sm font-medium" },
-              "bindings": { "children": "'Component ID'" }
+              "props": { "className": "field-group__label" },
+              "children": "Component ID"
             },
             {
+              "id": "id-value",
               "type": "div",
-              "props": { "className": "px-2 py-1 bg-muted rounded text-sm font-mono" },
-              "bindings": { "children": "selectedComponent?.id" }
+              "props": { "className": "field-group__value" },
+              "bindings": { "children": "selectedComponent.id" }
             }
           ]
         },
         {
           "id": "component-type-display",
           "type": "div",
-          "props": { "className": "space-y-2" },
+          "props": { "className": "field-group" },
           "children": [
             {
+              "id": "type-label",
               "type": "span",
-              "props": { "className": "text-sm font-medium" },
-              "bindings": { "children": "'Type'" }
+              "props": { "className": "field-group__label" },
+              "children": "Type"
             },
             {
+              "id": "type-value",
               "type": "div",
-              "props": { "className": "px-2 py-1 bg-muted rounded text-sm font-mono" },
-              "bindings": { "children": "selectedComponent?.type" }
+              "props": { "className": "field-group__value" },
+              "bindings": { "children": "selectedComponent.type" }
             }
           ]
         }
@@ -52,9 +58,9 @@
     {
       "id": "no-selection-message",
       "type": "div",
-      "props": { "className": "p-4 text-sm text-muted-foreground" },
+      "props": { "className": "empty-state" },
       "conditional": { "if": "!selectedComponent" },
-      "bindings": { "children": "'Select a component to edit its properties'" }
+      "children": "Select a component to edit its properties"
     }
   ]
 }

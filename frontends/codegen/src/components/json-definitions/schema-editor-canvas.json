@@ -1,9 +1,7 @@
 {
   "id": "schema-editor-canvas",
   "type": "div",
-  "props": {
-    "className": "flex-1 flex flex-col"
-  },
+  "props": { "className": "main-panel" },
   "children": [
     {
       "id": "canvas-renderer-container",

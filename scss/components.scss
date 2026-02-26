@@ -1,6 +1,8 @@
 // Component-specific styles - Material Design 3
 // Application-specific components using M3 tokens
 
+@import './components/page.scss';
+
 // Loading container
 .loading-container {
   display: flex;

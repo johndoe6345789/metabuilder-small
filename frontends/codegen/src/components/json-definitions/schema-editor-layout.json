@@ -1,9 +1,7 @@
 {
   "id": "schema-editor-layout",
   "type": "div",
-  "props": {
-    "className": "h-full flex flex-col bg-background"
-  },
+  "props": { "className": "workspace" },
   "children": [
     {
       "id": "toolbar-section",
@@ -19,16 +17,12 @@
     {
       "id": "main-content",
       "type": "div",
-      "props": {
-        "className": "flex-1 flex overflow-hidden"
-      },
+      "props": { "className": "workspace__body" },
       "children": [
         {
           "id": "sidebar-section",
           "type": "SchemaEditorSidebar",
-          "bindings": {
-            "onDragStart": { "source": "onComponentDragStart" }
-          }
+          "bindings": { "onDragStart": { "source": "onComponentDragStart" } }
         },
         {
           "id": "canvas-section",
