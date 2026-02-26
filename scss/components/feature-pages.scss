@@ -843,10 +843,9 @@
     background: var(--mat-sys-surface);
   }
 
-  &__empty {
-    height: 100%;
-    display: flex;
+  &__btn-label {
+    display: inline-flex;
     align-items: center;
-    justify-content: center;
+    gap: 8px;
   }
 }

@@ -63,30 +63,30 @@
             "else": {
               "id": "empty-state",
               "type": "div",
-              "props": { "className": "playwright-designer__empty" },
+              "props": { "className": "empty-state-feedback" },
               "children": [
                 {
-                  "id": "empty-state-inner",
+                  "id": "empty-icon",
+                  "type": "Play",
+                  "props": { "size": 48, "className": "empty-state-feedback__icon" }
+                },
+                {
+                  "id": "empty-title",
+                  "type": "p",
+                  "props": { "className": "empty-state__title" },
+                  "bindings": { "children": "copy.emptyStates.noTestSelectedTitle" }
+                },
+                {
+                  "id": "empty-body",
+                  "type": "p",
+                  "props": { "className": "empty-state__subtitle" },
+                  "bindings": { "children": "copy.emptyStates.noTestSelectedBody" }
+                },
+                {
+                  "id": "create-test-button-wrap",
                   "type": "div",
-                  "props": { "className": "empty-state" },
+                  "props": { "className": "empty-state-feedback__actions" },
                   "children": [
-                    {
-                      "id": "empty-icon",
-                      "type": "Play",
-                      "props": { "size": 48 }
-                    },
-                    {
-                      "id": "empty-title",
-                      "type": "p",
-                      "props": { "className": "empty-state__title" },
-                      "bindings": { "children": "copy.emptyStates.noTestSelectedTitle" }
-                    },
-                    {
-                      "id": "empty-body",
-                      "type": "p",
-                      "props": { "className": "empty-state__subtitle" },
-                      "bindings": { "children": "copy.emptyStates.noTestSelectedBody" }
-                    },
                     {
                       "id": "create-test-button",
                       "type": "Button",
@@ -98,14 +98,21 @@
                       },
                       "children": [
                         {
-                          "id": "plus-icon",
-                          "type": "Plus",
-                          "props": { "size": 16 }
-                        },
-                        {
-                          "id": "create-text",
+                          "id": "btn-label",
                           "type": "span",
-                          "bindings": { "children": "copy.buttons.createTest" }
+                          "props": { "className": "playwright-designer__btn-label" },
+                          "children": [
+                            {
+                              "id": "plus-icon",
+                              "type": "Plus",
+                              "props": { "size": 16 }
+                            },
+                            {
+                              "id": "create-text",
+                              "type": "span",
+                              "bindings": { "children": "copy.buttons.createTest" }
+                            }
+                          ]
                         }
                       ]
                     }
