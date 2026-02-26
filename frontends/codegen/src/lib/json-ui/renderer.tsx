@@ -260,12 +260,26 @@ export function JSONUIRenderer({
 
     // Handle list/itemTemplate pattern: iterate over resolved items array
     // and render the itemTemplate for each item, injecting { item, index } into context
-    if (component.itemTemplate && Array.isArray(props.items)) {
+    if (component.itemTemplate) {
+      // Always strip list-specific props from DOM regardless of whether items resolved
       const items = props.items
       const keyPath = typeof props.keyPath === 'string' ? props.keyPath : undefined
-      // Remove list-specific bindings from DOM props
       delete props.items
       delete props.keyPath
+
+      if (!Array.isArray(items)) {
+        // items not yet available — render container with no children
+        if (typeof Component === 'string') {
+          const domProps = { ...props }
+          for (const key of Object.keys(domProps)) {
+            if (/^on[A-Z]/.test(key) && typeof domProps[key] !== 'function') delete domProps[key]
+            if (key === '_if') delete domProps[key]
+          }
+          if (domProps.style && typeof domProps.style !== 'object') delete domProps.style
+          return React.createElement(Component, domProps)
+        }
+        return <Component {...props} />
+      }
 
       const itemChildren = items.map((itemData: any, index: number) => {
         const itemContext = { ...renderContext, item: itemData, index }
