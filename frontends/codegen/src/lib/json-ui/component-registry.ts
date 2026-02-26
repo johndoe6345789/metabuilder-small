@@ -87,6 +87,9 @@ import { Alert } from '@metabuilder/fakemui/feedback'
 import { Link } from '@metabuilder/fakemui/navigation'
 
 const fakeMuiComponents: UIComponentRegistry = {
+  // HTML element aliases — components that used capital-letter names for <p> and <div>
+  Paragraph: 'p' as unknown as ComponentType<any>,
+  Div: 'div' as unknown as ComponentType<any>,
   Stack: Stack as unknown as ComponentType<any>,
   Flex: Flex as unknown as ComponentType<any>,
   Grid: Grid as unknown as ComponentType<any>,
