@@ -21,6 +21,15 @@
   padding: 24px;
   overflow-y: auto;
   background: var(--mat-sys-surface-container-lowest);
+
+  // Full-height workspace pages (unit-tests, playwright, etc.) — strip padding
+  // so the workspace component can manage its own layout
+  &:has(:global(.workspace__body)) {
+    padding: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
 }
 
 // Sidebar

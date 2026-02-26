@@ -1082,6 +1082,17 @@
   }
 }
 
+// ─── Workspace Body ──────────────────────────────────────────────────────────
+// Shared layout root for full-height designer/workspace pages.
+// Used as the root class in JSON page definitions (playwright-designer, unit-test-designer, etc.)
+// Requires the parent .main to zero out its padding — handled via :has() in layout.module.scss
+
+.workspace__body {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
 // ─── Unit Test Designer ───────────────────────────────────────────────────────
 
 .unit-test-designer {
