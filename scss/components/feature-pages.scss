@@ -849,3 +849,235 @@
     gap: 8px;
   }
 }
+
+// ─── Playwright Editor Content ───────────────────────────────────────────────
+
+.playwright-editor {
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  &__title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--mat-sys-on-surface);
+    margin: 0;
+  }
+
+  &__fields {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 8px 0;
+  }
+
+  &__steps-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  &__scroll-area {
+    height: 400px;
+    overflow-y: auto;
+  }
+
+  &__steps-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 4px 0;
+  }
+
+  &__no-steps {
+    text-align: center;
+    padding: 48px 0;
+    font-size: 13px;
+    color: var(--mat-sys-on-surface-variant);
+    margin: 0;
+  }
+
+  &__label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--mat-sys-on-surface-variant);
+    display: block;
+    margin-bottom: 4px;
+  }
+}
+
+// ─── Step Editor ─────────────────────────────────────────────────────────────
+
+.step-editor {
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  &__index-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--mat-sys-on-surface);
+  }
+
+  &__fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    &--full {
+      grid-column: span 2;
+    }
+  }
+
+  &__field-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  &__select {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--mat-sys-outline-variant);
+    border-radius: 4px;
+    background: var(--mat-sys-surface);
+    color: var(--mat-sys-on-surface);
+    font-size: 14px;
+    cursor: pointer;
+
+    &:focus {
+      outline: 2px solid var(--mat-sys-primary);
+      outline-offset: -1px;
+    }
+  }
+}
+
+// ─── Test List ───────────────────────────────────────────────────────────────
+
+.test-list {
+  width: 320px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--mat-sys-outline-variant);
+  background: var(--mat-sys-surface-container);
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--mat-sys-outline-variant);
+    flex-shrink: 0;
+  }
+
+  &__title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--mat-sys-on-surface);
+    margin: 0;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 4px;
+  }
+
+  &__scroll {
+    flex: 1;
+    overflow-y: auto;
+  }
+
+  &__items {
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  &__item {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 10px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 150ms ease;
+
+    &:hover {
+      background: color-mix(in srgb, var(--mat-sys-on-surface) 8%, transparent);
+
+      .test-list__item-delete {
+        opacity: 1;
+      }
+    }
+
+    &--selected {
+      background: color-mix(in srgb, var(--mat-sys-primary) 12%, transparent);
+
+      .test-list__item-name {
+        color: var(--mat-sys-primary);
+      }
+    }
+  }
+
+  &__item-body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__item-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--mat-sys-on-surface);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__item-url {
+    font-size: 12px;
+    color: var(--mat-sys-on-surface-variant);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 2px;
+  }
+
+  &__item-steps {
+    font-size: 12px;
+    color: var(--mat-sys-on-surface-variant);
+    margin-top: 2px;
+  }
+
+  &__item-delete {
+    opacity: 0;
+    transition: opacity 150ms ease;
+    flex-shrink: 0;
+  }
+
+  &__empty {
+    padding: 32px 16px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--mat-sys-on-surface-variant);
+  }
+}

@@ -127,6 +127,11 @@ import { FileExplorerDialog } from '@/components/file-explorer/FileExplorerDialo
 // ScrollArea — explicit import (Turbopack dev mode doesn't resolve lazy contexts reliably)
 import { ScrollArea } from '@/components/ui/scroll-area'
 
+// Playwright designer sub-components — require.context + next/dynamic resolves
+// to () => null in Turbopack dev mode for sub-directory components.
+import { TestEditor } from '@/components/playwright-designer/TestEditor'
+import { TestList } from '@/components/playwright-designer/TestList'
+
 // FakeMUI MD3 components — require.context is unreliable in Turbopack dev mode
 // so all FakeMUI primitives used by JSON definitions must be imported explicitly.
 import { Tabs, Tab, TabPanel } from '@metabuilder/fakemui/navigation'
@@ -200,6 +205,8 @@ const componentTreeSubComponents: UIComponentRegistry = {
   FileExplorerList: FileExplorerList as unknown as ComponentType<any>,
   FileExplorerDialog: FileExplorerDialog as unknown as ComponentType<any>,
   ScrollArea: ScrollArea as unknown as ComponentType<any>,
+  TestEditor: TestEditor as unknown as ComponentType<any>,
+  TestList: TestList as unknown as ComponentType<any>,
   ButtonsActionsSection: ButtonsActionsSection as unknown as ComponentType<any>,
   BadgesIndicatorsSection: BadgesIndicatorsSection as unknown as ComponentType<any>,
   TypographySection: TypographySection as unknown as ComponentType<any>,
