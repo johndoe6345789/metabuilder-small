@@ -237,7 +237,7 @@
                         },
                         "dataBinding": "formData.subscribe",
                         "events": {
-                          "onCheckedChange": "update-checkbox"
+                          "onChange": "update-checkbox"
                         }
                       },
                       {

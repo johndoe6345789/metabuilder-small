@@ -126,7 +126,7 @@
                             "type": "Switch",
                             "dataBinding": "settings.darkMode",
                             "events": {
-                              "onCheckedChange": "toggle-dark-mode"
+                              "onChange": "toggle-dark-mode"
                             }
                           }
                         ]
@@ -246,7 +246,7 @@
                             "type": "Switch",
                             "dataBinding": "settings.autoSave",
                             "events": {
-                              "onCheckedChange": "toggle-auto-save"
+                              "onChange": "toggle-auto-save"
                             }
                           }
                         ]
@@ -317,7 +317,7 @@
                             "type": "Switch",
                             "dataBinding": "notifications.email",
                             "events": {
-                              "onCheckedChange": "toggle-email-notifications"
+                              "onChange": "toggle-email-notifications"
                             }
                           }
                         ]
@@ -354,7 +354,7 @@
                             "type": "Switch",
                             "dataBinding": "notifications.push",
                             "events": {
-                              "onCheckedChange": "toggle-push-notifications"
+                              "onChange": "toggle-push-notifications"
                             }
                           }
                         ]
@@ -425,7 +425,7 @@
                             "type": "Switch",
                             "dataBinding": "security.twoFactor",
                             "events": {
-                              "onCheckedChange": "toggle-2fa"
+                              "onChange": "toggle-2fa"
                             }
                           }
                         ]

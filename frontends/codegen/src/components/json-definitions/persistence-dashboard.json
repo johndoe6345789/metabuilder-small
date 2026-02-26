@@ -359,7 +359,7 @@
                   "type": "Switch",
                   "bindings": {
                     "checked": "viewData.autoSyncEnabled",
-                    "onCheckedChange": "viewData.handlers.handleAutoSyncToggle"
+                    "onChange": "viewData.handlers.handleAutoSyncToggle"
                   }
                 }
               ]

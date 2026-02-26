@@ -53,7 +53,7 @@ export function FormControlsSection({
           </Text>
           <Switch
             checked={switchChecked}
-            onCheckedChange={onSwitchChange}
+            onChange={(e) => onSwitchChange(e.target.checked)}
             label={content.switch.label}
             description={content.switch.description}
           />

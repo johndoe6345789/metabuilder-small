@@ -1,6 +1,6 @@
 {
   "type": "MetabuilderFormSwitch",
   "props": {
-    "onCheckedChange": "> void"
+    "onChange": "> void"
   }
 }

@@ -584,7 +584,7 @@
                           "source": "pwaState.notificationPermission",
                           "transform": "data === 'granted'"
                         },
-                        "onCheckedChange": "pwaState.handleNotificationToggle",
+                        "onChange": "pwaState.handleNotificationToggle",
                         "disabled": {
                           "source": "pwaState.notificationPermission",
                           "transform": "data === 'denied' || data === 'unsupported'"
