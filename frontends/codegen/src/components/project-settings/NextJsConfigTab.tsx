@@ -7,7 +7,7 @@ export function NextJsConfigTab({
   onNextjsConfigChange,
 }: NextJsConfigSectionProps) {
   return (
-    <div className="max-w-2xl space-y-6">
+    <div className="nextjs-config-tab">
       <NextJsApplicationCard
         nextjsConfig={nextjsConfig}
         onNextjsConfigChange={onNextjsConfigChange}

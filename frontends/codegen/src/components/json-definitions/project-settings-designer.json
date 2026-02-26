@@ -1,172 +1,145 @@
 {
   "id": "project-settings-designer",
   "type": "div",
-  "props": { "className": "h-full flex flex-col" },
+  "props": { "className": "project-settings" },
   "children": [
     {
-      "id": "header-section",
+      "id": "header",
       "type": "div",
-      "props": { "className": "p-6 border-b border-border" },
+      "props": { "className": "project-settings__header" },
       "children": [
         {
-          "id": "header-row",
+          "id": "icon-wrapper",
           "type": "div",
-          "props": { "className": "flex items-center gap-3" },
+          "props": { "className": "project-settings__icon" },
+          "children": [
+            { "id": "icon", "type": "Cube", "props": { "size": 24, "weight": "duotone" } }
+          ]
+        },
+        {
+          "id": "header-text",
+          "type": "div",
           "children": [
             {
-              "id": "icon-wrapper",
-              "type": "div",
-              "props": { "className": "w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center" },
-              "children": [
-                {
-                  "type": "Cube",
-                  "props": { "size": 24, "weight": "duotone", "className": "text-white" }
-                }
-              ]
+              "id": "title",
+              "type": "h2",
+              "props": { "className": "project-settings__title" },
+              "bindings": { "children": "copy.header.title" }
             },
             {
-              "id": "header-text",
-              "type": "div",
-              "children": [
-                {
-                  "type": "h2",
-                  "props": { "className": "text-lg font-bold" },
-                  "bindings": { "children": "copy.header.title" }
-                },
-                {
-                  "type": "p",
-                  "props": { "className": "text-sm text-muted-foreground" },
-                  "bindings": { "children": "copy.header.description" }
-                }
-              ]
+              "id": "subtitle",
+              "type": "p",
+              "props": { "className": "project-settings__subtitle" },
+              "bindings": { "children": "copy.header.description" }
             }
           ]
         }
       ]
     },
     {
-      "id": "tabs-section",
+      "id": "tab-bar",
       "type": "Tabs",
-      "props": { "defaultValue": "nextjs", "className": "flex-1 flex flex-col" },
+      "props": { "className": "project-settings__tabs" },
+      "bindings": { "value": "selectedTab" },
       "children": [
         {
-          "id": "tabs-border",
+          "id": "tab-0",
+          "type": "Tab",
+          "bindings": { "selected": "tab0Selected", "onClick": "selectTab0", "label": "copy.tabs.nextjs" }
+        },
+        {
+          "id": "tab-1",
+          "type": "Tab",
+          "bindings": { "selected": "tab1Selected", "onClick": "selectTab1", "label": "copy.tabs.packages" }
+        },
+        {
+          "id": "tab-2",
+          "type": "Tab",
+          "bindings": { "selected": "tab2Selected", "onClick": "selectTab2", "label": "copy.tabs.scripts" }
+        },
+        {
+          "id": "tab-3",
+          "type": "Tab",
+          "bindings": { "selected": "tab3Selected", "onClick": "selectTab3", "label": "copy.tabs.data" }
+        },
+        {
+          "id": "tab-4",
+          "type": "Tab",
+          "bindings": { "selected": "tab4Selected", "onClick": "selectTab4", "label": "copy.tabs.language" }
+        }
+      ]
+    },
+    {
+      "id": "panels",
+      "type": "ScrollArea",
+      "props": { "className": "project-settings__content" },
+      "children": [
+        {
+          "id": "panel-0",
           "type": "div",
-          "props": { "className": "border-b border-border px-6" },
+          "props": { "className": "project-settings__panel" },
+          "conditional": { "if": "showTab0" },
           "children": [
             {
-              "id": "tabs-list",
-              "type": "TabsList",
-              "children": [
-                {
-                  "type": "TabsTrigger",
-                  "props": { "value": "nextjs" },
-                  "bindings": { "children": "copy.tabs.nextjs" }
-                },
-                {
-                  "type": "TabsTrigger",
-                  "props": { "value": "packages" },
-                  "bindings": { "children": "copy.tabs.packages" }
-                },
-                {
-                  "type": "TabsTrigger",
-                  "props": { "value": "scripts" },
-                  "bindings": { "children": "copy.tabs.scripts" }
-                },
-                {
-                  "type": "TabsTrigger",
-                  "props": { "value": "data" },
-                  "bindings": { "children": "copy.tabs.data" }
-                },
-                {
-                  "type": "TabsTrigger",
-                  "props": { "value": "language" },
-                  "bindings": { "children": "copy.tabs.language" }
-                }
-              ]
+              "id": "nextjs-tab",
+              "type": "NextJsConfigTab",
+              "bindings": {
+                "nextjsConfig": "nextjsConfig",
+                "onNextjsConfigChange": "onNextjsConfigChange"
+              }
             }
           ]
         },
         {
-          "id": "scroll-area",
-          "type": "ScrollArea",
-          "props": { "className": "flex-1" },
+          "id": "panel-1",
+          "type": "div",
+          "props": { "className": "project-settings__panel" },
+          "conditional": { "if": "showTab1" },
           "children": [
             {
-              "id": "tab-content-wrapper",
-              "type": "div",
-              "props": { "className": "p-6" },
-              "children": [
-                {
-                  "id": "nextjs-tab",
-                  "type": "TabsContent",
-                  "props": { "value": "nextjs", "className": "mt-0" },
-                  "children": [
-                    {
-                      "type": "NextJsConfigTab",
-                      "bindings": {
-                        "nextjsConfig": "nextjsConfig",
-                        "onNextjsConfigChange": "onNextjsConfigChange"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "id": "packages-tab",
-                  "type": "TabsContent",
-                  "props": { "value": "packages", "className": "mt-0" },
-                  "children": [
-                    {
-                      "type": "PackagesTab",
-                      "bindings": {
-                        "npmSettings": "npmSettings",
-                        "onNpmSettingsChange": "onNpmSettingsChange",
-                        "onAddPackage": "handleAddPackage",
-                        "onEditPackage": "handleEditPackage",
-                        "onDeletePackage": "handleDeletePackage"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "id": "scripts-tab",
-                  "type": "TabsContent",
-                  "props": { "value": "scripts", "className": "mt-0" },
-                  "children": [
-                    {
-                      "type": "ScriptsTab",
-                      "bindings": {
-                        "npmSettings": "npmSettings",
-                        "onAddScript": "handleAddScript",
-                        "onEditScript": "handleEditScript",
-                        "onDeleteScript": "handleDeleteScript"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "id": "data-tab",
-                  "type": "TabsContent",
-                  "props": { "value": "data", "className": "mt-0" },
-                  "children": [
-                    {
-                      "type": "DataTab"
-                    }
-                  ]
-                },
-                {
-                  "id": "language-tab",
-                  "type": "TabsContent",
-                  "props": { "value": "language", "className": "mt-0" },
-                  "children": [
-                    {
-                      "type": "MetabuilderWidgetTranslationEditor"
-                    }
-                  ]
-                }
-              ]
+              "id": "packages-tab",
+              "type": "PackagesTab",
+              "bindings": {
+                "npmSettings": "npmSettings",
+                "onNpmSettingsChange": "onNpmSettingsChange",
+                "onAddPackage": "handleAddPackage",
+                "onEditPackage": "handleEditPackage",
+                "onDeletePackage": "handleDeletePackage"
+              }
             }
           ]
+        },
+        {
+          "id": "panel-2",
+          "type": "div",
+          "props": { "className": "project-settings__panel" },
+          "conditional": { "if": "showTab2" },
+          "children": [
+            {
+              "id": "scripts-tab",
+              "type": "ScriptsTab",
+              "bindings": {
+                "npmSettings": "npmSettings",
+                "onAddScript": "handleAddScript",
+                "onEditScript": "handleEditScript",
+                "onDeleteScript": "handleDeleteScript"
+              }
+            }
+          ]
+        },
+        {
+          "id": "panel-3",
+          "type": "div",
+          "props": { "className": "project-settings__panel" },
+          "conditional": { "if": "showTab3" },
+          "children": [{ "id": "data-tab", "type": "DataTab" }]
+        },
+        {
+          "id": "panel-4",
+          "type": "div",
+          "props": { "className": "project-settings__panel" },
+          "conditional": { "if": "showTab4" },
+          "children": [{ "id": "language-tab", "type": "MetabuilderWidgetTranslationEditor" }]
         }
       ]
     },

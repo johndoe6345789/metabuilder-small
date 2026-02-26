@@ -17,35 +17,37 @@ export function NextJsApplicationCard({
         <CardDescription>{application.description}</CardDescription>
       </CardHeader>
       <CardContent>
-        <div>
-          <Label htmlFor="app-name">{application.fields.appName.label}</Label>
-          <Input
-            id="app-name"
-            value={nextjsConfig.appName}
-            onChange={(e) =>
-              onNextjsConfigChange((current) => ({
-                ...current,
-                appName: e.target.value,
-              }))
-            }
-            placeholder={application.fields.appName.placeholder}
-          />
-        </div>
+        <div className="ps-card-fields">
+          <div className="ps-card-field">
+            <Label htmlFor="app-name">{application.fields.appName.label}</Label>
+            <Input
+              id="app-name"
+              value={nextjsConfig.appName}
+              onChange={(e) =>
+                onNextjsConfigChange((current) => ({
+                  ...current,
+                  appName: e.target.value,
+                }))
+              }
+              placeholder={application.fields.appName.placeholder}
+            />
+          </div>
 
-        <div>
-          <Label htmlFor="import-alias">{application.fields.importAlias.label}</Label>
-          <Input
-            id="import-alias"
-            value={nextjsConfig.importAlias}
-            onChange={(e) =>
-              onNextjsConfigChange((current) => ({
-                ...current,
-                importAlias: e.target.value,
-              }))
-            }
-            placeholder={application.fields.importAlias.placeholder}
-          />
-          <p>{application.fields.importAlias.helper}</p>
+          <div className="ps-card-field">
+            <Label htmlFor="import-alias">{application.fields.importAlias.label}</Label>
+            <Input
+              id="import-alias"
+              value={nextjsConfig.importAlias}
+              onChange={(e) =>
+                onNextjsConfigChange((current) => ({
+                  ...current,
+                  importAlias: e.target.value,
+                }))
+              }
+              placeholder={application.fields.importAlias.placeholder}
+            />
+            <p className="ps-helper-text">{application.fields.importAlias.helper}</p>
+          </div>
         </div>
       </CardContent>
     </Card>

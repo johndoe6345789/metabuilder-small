@@ -21,11 +21,11 @@ export function ScriptsTab({
   const scripts = Object.entries(npmSettings.scripts)
 
   return (
-    <div>
-      <div>
+    <div className="settings-tab">
+      <div className="settings-tab__header">
         <div>
-          <h3>{copy.title}</h3>
-          <p>{copy.description}</p>
+          <h3 className="settings-tab__title">{copy.title}</h3>
+          <p className="settings-tab__description">{copy.description}</p>
         </div>
         <Button onClick={onAddScript}>
           <Plus size={16} />
@@ -33,27 +33,23 @@ export function ScriptsTab({
         </Button>
       </div>
 
-      <div>
+      <div className="settings-tab__list">
         {scripts.map(([key, value]) => (
           <Card key={key}>
             <CardContent>
-              <div>
-                <div>
-                  <div>
-                    <Code size={18} />
+              <div className="settings-tab__script-row">
+                <div className="settings-tab__script-info">
+                  <div className="settings-tab__script-name">
+                    <Code size={16} />
                     <code>{key}</code>
                   </div>
-                  <code>{value}</code>
+                  <code className="settings-tab__script-value">{value}</code>
                 </div>
-                <div>
+                <div className="settings-tab__script-actions">
                   <Button size="small" variant="outlined" onClick={() => onEditScript(key, value)}>
                     Edit
                   </Button>
-                  <Button
-                    size="small"
-                    variant="text"
-                    onClick={() => onDeleteScript(key)}
-                  >
+                  <Button size="small" variant="text" onClick={() => onDeleteScript(key)}>
                     <Trash size={16} />
                   </Button>
                 </div>
@@ -63,7 +59,9 @@ export function ScriptsTab({
         ))}
         {scripts.length === 0 && (
           <Card>
-            <p>{copy.empty}</p>
+            <CardContent>
+              <p className="settings-tab__empty">{copy.empty}</p>
+            </CardContent>
           </Card>
         )}
       </div>

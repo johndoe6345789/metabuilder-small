@@ -25,11 +25,11 @@ export function PackagesTab({
   const devDependencies = npmSettings.packages.filter((pkg) => pkg.isDev)
 
   return (
-    <div>
-      <div>
+    <div className="settings-tab">
+      <div className="settings-tab__header">
         <div>
-          <h3>{copy.title}</h3>
-          <p>{copy.description}</p>
+          <h3 className="settings-tab__title">{copy.title}</h3>
+          <p className="settings-tab__description">{copy.description}</p>
         </div>
         <Button onClick={onAddPackage}>
           <Plus size={16} />
@@ -37,10 +37,11 @@ export function PackagesTab({
         </Button>
       </div>
 
-      <div>
+      <div className="settings-tab__package-manager">
         <Label htmlFor="package-manager">{copy.packageManager.label}</Label>
         <select
           id="package-manager"
+          className="settings-tab__select"
           value={npmSettings.packageManager}
           onChange={(e) =>
             onNpmSettingsChange((current) => ({
@@ -55,11 +56,10 @@ export function PackagesTab({
         </select>
       </div>
 
-      <div>
+      <div className="settings-tab__sections">
         <PackageListSection
           title={copy.dependencies.title}
           emptyCopy={copy.dependencies.empty}
-          iconClassName="text-primary"
           packages={dependencies}
           onEditPackage={onEditPackage}
           onDeletePackage={onDeletePackage}
@@ -67,7 +67,6 @@ export function PackagesTab({
         <PackageListSection
           title={copy.devDependencies.title}
           emptyCopy={copy.devDependencies.empty}
-          iconClassName="text-muted-foreground"
           showDevBadge
           packages={devDependencies}
           onEditPackage={onEditPackage}

@@ -17,106 +17,32 @@ export function NextJsFeaturesCard({
         <CardDescription>{features.description}</CardDescription>
       </CardHeader>
       <CardContent>
-        <div>
-          <div>
-            <Label htmlFor="typescript">{features.items.typescript.label}</Label>
-            <p>{features.items.typescript.description}</p>
-          </div>
-          <Switch
-            id="typescript"
-            checked={nextjsConfig.typescript}
-            onChange={(e) =>
-              onNextjsConfigChange((current) => ({
-                ...current,
-                typescript: e.target.checked,
-              }))
-            }
-          />
-        </div>
-
-        <div>
-          <div>
-            <Label htmlFor="eslint">{features.items.eslint.label}</Label>
-            <p>{features.items.eslint.description}</p>
-          </div>
-          <Switch
-            id="eslint"
-            checked={nextjsConfig.eslint}
-            onChange={(e) =>
-              onNextjsConfigChange((current) => ({
-                ...current,
-                eslint: e.target.checked,
-              }))
-            }
-          />
-        </div>
-
-        <div>
-          <div>
-            <Label htmlFor="tailwind">{features.items.tailwind.label}</Label>
-            <p>{features.items.tailwind.description}</p>
-          </div>
-          <Switch
-            id="tailwind"
-            checked={nextjsConfig.tailwind}
-            onChange={(e) =>
-              onNextjsConfigChange((current) => ({
-                ...current,
-                tailwind: e.target.checked,
-              }))
-            }
-          />
-        </div>
-
-        <div>
-          <div>
-            <Label htmlFor="src-dir">{features.items.srcDirectory.label}</Label>
-            <p>{features.items.srcDirectory.description}</p>
-          </div>
-          <Switch
-            id="src-dir"
-            checked={nextjsConfig.srcDirectory}
-            onChange={(e) =>
-              onNextjsConfigChange((current) => ({
-                ...current,
-                srcDirectory: e.target.checked,
-              }))
-            }
-          />
-        </div>
-
-        <div>
-          <div>
-            <Label htmlFor="app-router">{features.items.appRouter.label}</Label>
-            <p>{features.items.appRouter.description}</p>
-          </div>
-          <Switch
-            id="app-router"
-            checked={nextjsConfig.appRouter}
-            onChange={(e) =>
-              onNextjsConfigChange((current) => ({
-                ...current,
-                appRouter: e.target.checked,
-              }))
-            }
-          />
-        </div>
-
-        <div>
-          <div>
-            <Label htmlFor="turbopack">{features.items.turbopack.label}</Label>
-            <p>{features.items.turbopack.description}</p>
-          </div>
-          <Switch
-            id="turbopack"
-            checked={nextjsConfig.turbopack || false}
-            onChange={(e) =>
-              onNextjsConfigChange((current) => ({
-                ...current,
-                turbopack: e.target.checked,
-              }))
-            }
-          />
+        <div className="ps-switch-list">
+          {[
+            { id: 'typescript', key: 'typescript' as const, item: features.items.typescript },
+            { id: 'eslint', key: 'eslint' as const, item: features.items.eslint },
+            { id: 'tailwind', key: 'tailwind' as const, item: features.items.tailwind },
+            { id: 'src-dir', key: 'srcDirectory' as const, item: features.items.srcDirectory },
+            { id: 'app-router', key: 'appRouter' as const, item: features.items.appRouter },
+            { id: 'turbopack', key: 'turbopack' as const, item: features.items.turbopack },
+          ].map(({ id, key, item }) => (
+            <div key={id} className="ps-switch-row">
+              <div className="ps-switch-info">
+                <Label htmlFor={id}>{item.label}</Label>
+                <p className="ps-switch-desc">{item.description}</p>
+              </div>
+              <Switch
+                id={id}
+                checked={!!nextjsConfig[key]}
+                onChange={(e) =>
+                  onNextjsConfigChange((current) => ({
+                    ...current,
+                    [key]: e.target.checked,
+                  }))
+                }
+              />
+            </div>
+          ))}
         </div>
       </CardContent>
     </Card>
