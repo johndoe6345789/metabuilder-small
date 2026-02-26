@@ -53,7 +53,7 @@ $fallbacks: m3-button.get-tokens();
   &:disabled { cursor: default; pointer-events: none; }
   &[hidden] { display: none; }
 
-  .mdc-button__label { position: relative; }
+  .mdc-button__label { position: relative; display: inline-flex; align-items: center; gap: 6px; }
 }
 
 // ─── Text button (default) ──────────────────────────────────────
