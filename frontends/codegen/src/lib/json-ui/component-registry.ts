@@ -155,7 +155,7 @@ import { AlertTitle, Dialog, Progress, Skeleton } from '@metabuilder/fakemui/fee
 import { Tooltip } from '@metabuilder/fakemui/data-display'
 import { Label } from '@metabuilder/fakemui/atoms'
 import { DialogContent, DialogHeader, DialogTitle, DialogContentText, DialogActions } from '@metabuilder/fakemui/utils'
-import { Download, Plus, Trash, GitBranch as MergeIcon } from '@metabuilder/fakemui/icons'
+import { Download, Plus, Trash, GitBranch as MergeIcon, Database, CheckCircle, Refresh, ArrowClockwise, Settings, Search, Check, Close, Edit, Warning, Info, CircleCheck } from '@metabuilder/fakemui/icons'
 import { JSONUIShowcase } from '@/components/JSONUIShowcase'
 import { SchemaEditorWorkspace } from '@/components/schema-editor/SchemaEditorWorkspace'
 
@@ -210,6 +210,19 @@ const fakeMuiExplicitComponents: UIComponentRegistry = {
   Plus: Plus as unknown as ComponentType<any>,
   Trash: Trash as unknown as ComponentType<any>,
   MergeIcon: MergeIcon as unknown as ComponentType<any>,
+  // Common Material 3 icons used in JSON definitions
+  Database: Database as unknown as ComponentType<any>,
+  CheckCircle: CheckCircle as unknown as ComponentType<any>,
+  CircleCheck: CircleCheck as unknown as ComponentType<any>,
+  Refresh: Refresh as unknown as ComponentType<any>,
+  ArrowClockwise: ArrowClockwise as unknown as ComponentType<any>,
+  Settings: Settings as unknown as ComponentType<any>,
+  Search: Search as unknown as ComponentType<any>,
+  Check: Check as unknown as ComponentType<any>,
+  Close: Close as unknown as ComponentType<any>,
+  Edit: Edit as unknown as ComponentType<any>,
+  Warning: Warning as unknown as ComponentType<any>,
+  Info: Info as unknown as ComponentType<any>,
   MetabuilderWidgetJSONUIShowcase: JSONUIShowcase as unknown as ComponentType<any>,
   SchemaEditorWorkspace: SchemaEditorWorkspace as unknown as ComponentType<any>,
 }
