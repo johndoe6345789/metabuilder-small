@@ -1,7 +1,7 @@
 {
   "id": "unit-test-designer-root",
   "type": "div",
-  "props": { "className": "unit-test-designer" },
+  "props": { "className": "workspace__body" },
   "children": [
     {
       "id": "test-suite-list",

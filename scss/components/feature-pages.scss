@@ -1121,8 +1121,7 @@
 
   &__scroll {
     flex: 1;
-    overflow-y: auto;
-    height: 0; // forces flex child to scroll
+    min-height: 0;
   }
 
   &__items {
@@ -1222,6 +1221,7 @@
   padding: 24px;
   display: flex;
   flex-direction: column;
+  min-height: 0;
 
   &__content {
     display: flex;
