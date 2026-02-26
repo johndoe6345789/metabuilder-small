@@ -2,6 +2,10 @@
   "id": "timestamp-root",
   "type": "time",
   "props": {
-    "className": "text-sm text-muted-foreground"
+    "className": "timestamp"
+  },
+  "bindings": {
+    "dateTime": "dateTime",
+    "children": "children"
   }
 }

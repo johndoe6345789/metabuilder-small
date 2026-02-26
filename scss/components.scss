@@ -2,6 +2,19 @@
 // Application-specific components using M3 tokens
 
 @import './components/page.scss';
+@import './components/typography.scss';
+@import './components/buttons.scss';
+@import './components/form-inputs.scss';
+@import './components/form-structure.scss';
+@import './components/badges.scss';
+@import './components/cards.scss';
+@import './components/data-display.scss';
+@import './components/feedback.scss';
+@import './components/media.scss';
+@import './components/dialogs.scss';
+@import './components/app-layout.scss';
+@import './components/conflict-features.scss';
+@import './components/feature-pages.scss';
 
 // Loading container
 .loading-container {

@@ -1,6 +1,7 @@
 {
   "type": "Button",
   "props": {
-    "onClick": "> void"
+    "onClick": "> void",
+    "className": "icon-btn"
   }
 }

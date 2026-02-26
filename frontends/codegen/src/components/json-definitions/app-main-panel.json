@@ -8,7 +8,9 @@
       "props": {
         "fallback": {
           "type": "div",
-          "className": "h-1 bg-primary animate-pulse"
+          "props": {
+            "className": "pwa-status-loading"
+          }
         }
       },
       "children": [
@@ -77,7 +79,9 @@
     {
       "id": "main-content",
       "type": "div",
-      "className": "flex-1 overflow-hidden",
+      "props": {
+        "className": "app-content"
+      },
       "children": [
         {
           "type": "RouterProvider",

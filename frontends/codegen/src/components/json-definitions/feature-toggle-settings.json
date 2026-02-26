@@ -1,23 +1,23 @@
 {
   "id": "feature-toggle-settings",
   "type": "div",
-  "className": "h-full p-6 bg-background",
+  "className": "feature-toggle",
   "children": [
     {
       "id": "feature-toggle-header",
       "type": "div",
-      "className": "mb-6",
+      "className": "feature-toggle__header",
       "children": [
         {
           "id": "feature-toggle-title",
           "type": "h2",
-          "className": "text-2xl font-bold mb-2",
+          "className": "feature-toggle__title",
           "children": "Feature Toggles"
         },
         {
           "id": "feature-toggle-description",
           "type": "p",
-          "className": "text-muted-foreground",
+          "className": "feature-toggle__description",
           "children": [
             "Enable or disable features to customize your workspace. ",
             {
@@ -47,12 +47,11 @@
     {
       "id": "feature-toggle-scroll-area",
       "type": "ScrollArea",
-      "className": "h-[calc(100vh-200px)]",
       "children": [
         {
           "id": "feature-toggle-grid",
           "type": "div",
-          "className": "grid grid-cols-1 lg:grid-cols-2 gap-4 pr-4",
+          "className": "feature-toggle__grid",
           "bindings": {
             "children": {
               "source": "items",

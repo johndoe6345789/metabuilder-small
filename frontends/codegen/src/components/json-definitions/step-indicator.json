@@ -2,6 +2,6 @@
   "id": "step-indicator-root",
   "type": "div",
   "props": {
-    "className": "flex items-center gap-2"
+    "className": "step-indicator"
   }
 }

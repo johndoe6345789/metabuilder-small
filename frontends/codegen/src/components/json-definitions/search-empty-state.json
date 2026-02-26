@@ -1,18 +1,18 @@
 {
   "id": "search-empty-state-container",
   "type": "Box",
-  "className": "flex flex-col items-center gap-2 py-6",
+  "className": "search-empty-state",
   "children": [
     {
       "type": "Icon",
       "name": "MagnifyingGlass",
       "size": 48,
       "weight": "duotone",
-      "className": "text-muted-foreground"
+      "className": "search-empty-state__icon"
     },
     {
       "type": "Paragraph",
-      "className": "text-sm text-muted-foreground",
+      "className": "search-empty-state__message",
       "children": [{ "type": "Text", "value": "No results found" }]
     }
   ]

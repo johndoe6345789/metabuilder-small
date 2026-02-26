@@ -1,17 +1,17 @@
 {
   "id": "comprehensive-demo-header-container",
   "type": "Box",
-  "className": "space-y-2",
+  "className": "demo-header",
   "children": [
     {
       "type": "Heading",
       "level": 1,
-      "className": "text-4xl font-bold bg-gradient-to-r from-primary via-primary to-accent bg-clip-text text-transparent",
+      "className": "demo-header__title",
       "children": [{ "type": "Text", "value": "{title}" }]
     },
     {
       "type": "Paragraph",
-      "className": "text-muted-foreground",
+      "className": "demo-header__subtitle",
       "children": [{ "type": "Text", "value": "{subtitle}" }]
     }
   ]

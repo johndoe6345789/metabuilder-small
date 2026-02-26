@@ -4,7 +4,7 @@
   "bindings": {
     "className": {
       "source": "className",
-      "transform": "(() => { const userClass = data || ''; return 'relative inline-flex items-center justify-center ' + userClass; })()"
+      "transform": "(() => { const userClass = data || ''; return ('circular-progress ' + userClass).trim(); })()"
     }
   },
   "children": [
@@ -22,7 +22,7 @@
         }
       },
       "props": {
-        "className": "transform -rotate-90"
+        "className": "circular-progress__svg"
       },
       "children": [
         {
@@ -49,7 +49,7 @@
           "props": {
             "stroke": "currentColor",
             "fill": "none",
-            "className": "text-muted opacity-20"
+            "className": "circular-progress__track"
           }
         },
         {
@@ -85,7 +85,7 @@
             "stroke": "currentColor",
             "fill": "none",
             "strokeLinecap": "round",
-            "className": "text-primary transition-all duration-300"
+            "className": "circular-progress__fill"
           }
         }
       ]
@@ -100,7 +100,7 @@
         },
         "className": {
           "source": "size",
-          "transform": "(() => { const sizeMap = { sm: 'text-xs', md: 'text-sm', lg: 'text-base', xl: 'text-lg' }; return 'absolute font-semibold ' + (sizeMap[data || 'md'] || sizeMap.md); })()"
+          "transform": "(() => { const sizeMap = { sm: 'circular-progress__label--sm', md: 'circular-progress__label--md', lg: 'circular-progress__label--lg', xl: 'circular-progress__label--xl' }; return 'circular-progress__label ' + (sizeMap[data || 'md'] || sizeMap.md); })()"
         }
       },
       "conditional": {

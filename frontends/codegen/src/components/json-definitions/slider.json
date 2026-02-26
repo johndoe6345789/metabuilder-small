@@ -2,6 +2,6 @@
   "id": "slider-root",
   "type": "div",
   "props": {
-    "className": "w-full"
+    "className": "form-slider"
   }
 }

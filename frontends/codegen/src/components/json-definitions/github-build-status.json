@@ -1,6 +1,7 @@
 {
   "id": "github-build-status-card",
   "type": "Card",
+  "className": "github-status",
   "bindings": {
     "className": "className"
   },
@@ -8,12 +9,13 @@
     {
       "id": "github-build-status-header",
       "type": "CardHeader",
+      "className": "github-status__header",
       "children": [
         {
           "id": "github-build-status-title",
           "type": "CardTitle",
           "props": {
-            "className": "flex items-center gap-2"
+            "className": "github-status__title"
           },
           "bindings": {
             "children": "title"
@@ -22,6 +24,9 @@
         {
           "id": "github-build-status-description",
           "type": "CardDescription",
+          "props": {
+            "className": "github-status__description"
+          },
           "bindings": {
             "children": "description"
           }
@@ -32,14 +37,14 @@
       "id": "github-build-status-content",
       "type": "CardContent",
       "props": {
-        "className": "space-y-4"
+        "className": "github-status__body"
       },
       "children": [
         {
           "id": "github-build-status-loading",
           "type": "p",
           "props": {
-            "className": "text-sm text-muted-foreground"
+            "className": "github-status__loading"
           },
           "bindings": {
             "children": "loadingMessage"
@@ -52,7 +57,7 @@
           "id": "github-build-status-error",
           "type": "div",
           "props": {
-            "className": "flex items-center gap-2 text-sm text-red-500"
+            "className": "github-status__error"
           },
           "conditional": {
             "if": "errorMessage"
@@ -71,7 +76,7 @@
           "id": "github-build-status-empty",
           "type": "p",
           "props": {
-            "className": "text-sm text-muted-foreground"
+            "className": "github-status__empty"
           },
           "bindings": {
             "children": "emptyMessage"
@@ -84,7 +89,7 @@
           "id": "github-build-status-list",
           "type": "div",
           "props": {
-            "className": "space-y-3"
+            "className": "github-status__list"
           },
           "conditional": {
             "if": "hasWorkflows"
@@ -98,28 +103,28 @@
               "id": "github-build-status-item",
               "type": "div",
               "props": {
-                "className": "flex items-center justify-between gap-3 rounded-lg border border-border p-3"
+                "className": "github-status__item"
               },
               "children": [
                 {
                   "id": "github-build-status-item-info",
                   "type": "div",
                   "props": {
-                    "className": "min-w-0"
+                    "className": "github-status__item-info"
                   },
                   "children": [
                     {
                       "id": "github-build-status-item-row",
                       "type": "div",
                       "props": {
-                        "className": "flex items-center gap-2"
+                        "className": "github-status__item-row"
                       },
                       "children": [
                         {
                           "id": "github-build-status-item-name",
                           "type": "p",
                           "props": {
-                            "className": "text-sm font-medium truncate"
+                            "className": "github-status__item-name"
                           },
                           "bindings": {
                             "children": "workflow.name"
@@ -131,6 +136,9 @@
                           "bindings": {
                             "className": "workflow.statusClass",
                             "children": "workflow.statusLabel"
+                          },
+                          "props": {
+                            "className": "github-status__badge"
                           }
                         }
                       ]
@@ -139,7 +147,7 @@
                       "id": "github-build-status-item-meta",
                       "type": "div",
                       "props": {
-                        "className": "text-xs text-muted-foreground truncate"
+                        "className": "github-status__item-meta"
                       },
                       "bindings": {
                         "children": "workflow.summaryLine"
@@ -179,12 +187,9 @@
         },
         {
           "id": "github-build-status-footer",
-          "type": "Button",
+          "type": "div",
           "props": {
-            "variant": "outline",
-            "size": "sm",
-            "asChild": true,
-            "className": "w-full"
+            "className": "github-status__footer"
           },
           "conditional": {
             "if": "footerLinkUrl"
@@ -199,7 +204,8 @@
               },
               "props": {
                 "target": "_blank",
-                "rel": "noopener noreferrer"
+                "rel": "noopener noreferrer",
+                "className": "github-status__footer-link"
               }
             }
           ]

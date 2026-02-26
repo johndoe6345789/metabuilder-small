@@ -6,7 +6,7 @@
     "height": "height",
     "className": {
       "source": "className",
-      "transform": "className ? `overflow-visible ${className}` : 'overflow-visible'"
+      "transform": "className ? `chart-container__svg ${className}` : 'chart-container__svg'"
     }
   },
   "children": [

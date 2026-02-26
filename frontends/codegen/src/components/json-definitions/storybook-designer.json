@@ -1,28 +1,28 @@
 {
   "id": "storybook-designer-root",
   "type": "div",
-  "className": "h-full flex",
+  "className": "storybook-designer",
   "children": [
     {
       "id": "story-list-panel",
       "type": "div",
-      "className": "w-80 border-r border-border bg-card",
+      "className": "storybook-designer__list-panel",
       "children": [
         {
           "id": "list-header",
           "type": "div",
-          "className": "p-4 border-b border-border flex items-center justify-between",
+          "className": "storybook-designer__list-header",
           "children": [
             {
               "id": "list-title",
               "type": "h2",
-              "props": { "className": "font-semibold text-sm" },
+              "props": { "className": "storybook-designer__list-title" },
               "bindings": { "children": "designerState.copy.list.title" }
             },
             {
               "id": "list-actions",
               "type": "div",
-              "className": "flex gap-1",
+              "className": "storybook-designer__list-actions",
               "children": [
                 {
                   "id": "ai-generate-button",
@@ -57,7 +57,7 @@
         {
           "id": "stories-scroll-area",
           "type": "ScrollArea",
-          "props": { "className": "h-[calc(100vh-200px)]" },
+          "className": "storybook-designer__list-body",
           "children": [
             {
               "id": "category-groups-list",
@@ -68,18 +68,18 @@
               },
               "itemTemplate": {
                 "type": "div",
-                "props": { "className": "mb-4" },
+                "className": "storybook-designer__category-group",
                 "children": [
                   {
                     "id": "category-label",
                     "type": "div",
-                    "props": { "className": "px-4 py-2 text-xs font-semibold text-muted-foreground uppercase" },
+                    "props": { "className": "storybook-designer__category-label" },
                     "bindings": { "children": "item.category" }
                   },
                   {
                     "id": "category-stories",
                     "type": "div",
-                    "props": { "className": "px-2 space-y-1" },
+                    "props": { "className": "storybook-designer__category-items" },
                     "children": [
                       {
                         "id": "stories-in-category",
@@ -98,18 +98,18 @@
                             {
                               "id": "story-info",
                               "type": "div",
-                              "className": "flex-1 min-w-0",
+                              "className": "storybook-designer__story-info",
                               "children": [
                                 {
                                   "id": "story-component-name",
                                   "type": "div",
-                                  "props": { "className": "font-medium text-sm truncate" },
+                                  "props": { "className": "storybook-designer__story-component" },
                                   "bindings": { "children": "item.componentName" }
                                 },
                                 {
                                   "id": "story-name",
                                   "type": "div",
-                                  "props": { "className": "text-xs text-muted-foreground truncate" },
+                                  "props": { "className": "storybook-designer__story-name" },
                                   "bindings": { "children": "item.storyName" }
                                 }
                               ]
@@ -119,8 +119,7 @@
                               "type": "Button",
                               "props": {
                                 "size": "sm",
-                                "variant": "ghost",
-                                "className": "opacity-0 group-hover:opacity-100"
+                                "variant": "ghost"
                               },
                               "bindings": { "onClick": "item.onDelete" },
                               "children": [
@@ -142,7 +141,7 @@
             {
               "id": "empty-list-message",
               "type": "div",
-              "props": { "className": "p-8 text-center text-sm text-muted-foreground" },
+              "props": { "className": "empty-state" },
               "conditional": { "if": "designerState.hasNoStories" },
               "bindings": { "children": "designerState.copy.list.empty" }
             }
@@ -153,7 +152,7 @@
     {
       "id": "editor-panel",
       "type": "div",
-      "className": "flex-1 p-6",
+      "className": "storybook-designer__editor-panel",
       "children": [
         {
           "id": "editor-content",
@@ -163,17 +162,17 @@
             "then": {
               "id": "story-editor-wrapper",
               "type": "div",
-              "className": "space-y-6",
+              "className": "storybook-designer__editor-content",
               "children": [
                 {
                   "id": "editor-header",
                   "type": "div",
-                  "className": "flex items-center justify-between",
+                  "className": "storybook-designer__editor-header",
                   "children": [
                     {
                       "id": "editor-title",
                       "type": "h2",
-                      "props": { "className": "text-2xl font-bold" },
+                      "props": { "className": "storybook-designer__editor-title" },
                       "bindings": { "children": "designerState.copy.editor.title" }
                     },
                     {
@@ -184,7 +183,7 @@
                         {
                           "id": "preview-icon",
                           "type": "PhosphorIcon",
-                          "props": { "icon": "BookOpen", "size": 16, "className": "mr-2", "weight": "fill" }
+                          "props": { "icon": "BookOpen", "size": 16, "weight": "fill" }
                         },
                         {
                           "id": "preview-label",
@@ -213,17 +212,16 @@
                     {
                       "id": "details-content",
                       "type": "CardContent",
-                      "props": { "className": "space-y-4" },
                       "children": [
                         {
                           "id": "name-fields-row",
                           "type": "div",
-                          "className": "grid grid-cols-2 gap-4",
+                          "className": "storybook-designer__fields-grid",
                           "children": [
                             {
                               "id": "component-name-field",
                               "type": "div",
-                              "className": "space-y-2",
+                              "className": "storybook-designer__field",
                               "children": [
                                 {
                                   "id": "component-name-label",
@@ -246,7 +244,7 @@
                             {
                               "id": "story-name-field",
                               "type": "div",
-                              "className": "space-y-2",
+                              "className": "storybook-designer__field",
                               "children": [
                                 {
                                   "id": "story-name-label",
@@ -271,7 +269,7 @@
                         {
                           "id": "category-field",
                           "type": "div",
-                          "className": "space-y-2",
+                          "className": "storybook-designer__field",
                           "children": [
                             {
                               "id": "category-label",
@@ -294,7 +292,7 @@
                         {
                           "id": "description-field",
                           "type": "div",
-                          "className": "space-y-2",
+                          "className": "storybook-designer__field",
                           "children": [
                             {
                               "id": "description-label",
@@ -329,7 +327,7 @@
                         {
                           "id": "args-header-row",
                           "type": "div",
-                          "className": "flex items-center justify-between",
+                          "className": "storybook-designer__editor-header",
                           "children": [
                             {
                               "id": "args-title-block",
@@ -354,12 +352,11 @@
                     {
                       "id": "args-content",
                       "type": "CardContent",
-                      "props": { "className": "space-y-4" },
                       "children": [
                         {
                           "id": "add-arg-row",
                           "type": "div",
-                          "className": "flex gap-2",
+                          "className": "storybook-designer__args-row",
                           "children": [
                             {
                               "id": "arg-name-input",
@@ -399,12 +396,11 @@
                         {
                           "id": "args-scroll-area",
                           "type": "ScrollArea",
-                          "props": { "className": "h-[300px]" },
                           "children": [
                             {
                               "id": "args-list-container",
                               "type": "div",
-                              "className": "space-y-2",
+                              "className": "storybook-designer__args-list",
                               "children": [
                                 {
                                   "id": "arg-entries-list",
@@ -419,27 +415,26 @@
                                       {
                                         "id": "arg-card-content",
                                         "type": "CardContent",
-                                        "props": { "className": "pt-4" },
+                                        "props": { "className": "content-card" },
                                         "children": [
                                           {
                                             "id": "arg-row",
                                             "type": "div",
-                                            "className": "flex items-start gap-3",
+                                            "className": "storybook-designer__arg-row",
                                             "children": [
                                               {
                                                 "id": "arg-details",
                                                 "type": "div",
-                                                "className": "flex-1 space-y-2",
+                                                "className": "storybook-designer__arg-details",
                                                 "children": [
                                                   {
                                                     "id": "arg-label-row",
                                                     "type": "div",
-                                                    "className": "flex items-center gap-2",
+                                                    "className": "storybook-designer__arg-label-row",
                                                     "children": [
                                                       {
                                                         "id": "arg-key-label",
                                                         "type": "Label",
-                                                        "props": { "className": "font-mono text-xs" },
                                                         "bindings": { "children": "item.key" }
                                                       },
                                                       {
@@ -453,7 +448,6 @@
                                                   {
                                                     "id": "arg-value-editor",
                                                     "type": "Input",
-                                                    "props": { "className": "font-mono text-xs" },
                                                     "bindings": {
                                                       "value": "item.stringValue",
                                                       "onChange": "item.onValueChange"
@@ -484,7 +478,7 @@
                                 {
                                   "id": "empty-args-message",
                                   "type": "div",
-                                  "props": { "className": "py-12 text-center text-sm text-muted-foreground" },
+                                  "props": { "className": "empty-state" },
                                   "conditional": { "if": "designerState.hasNoArgs" },
                                   "bindings": { "children": "designerState.copy.args.empty" }
                                 }
@@ -501,28 +495,28 @@
             "else": {
               "id": "empty-story-state",
               "type": "div",
-              "className": "h-full flex items-center justify-center",
+              "className": "storybook-designer__empty-state",
               "children": [
                 {
                   "id": "empty-state-content",
                   "type": "div",
-                  "className": "text-center",
+                  "className": "storybook-designer__empty-state-content",
                   "children": [
                     {
                       "id": "empty-state-icon",
                       "type": "PhosphorIcon",
-                      "props": { "icon": "BookOpen", "size": 48, "className": "mx-auto mb-4 text-muted-foreground" }
+                      "props": { "icon": "BookOpen", "size": 48 }
                     },
                     {
                       "id": "empty-state-title",
                       "type": "p",
-                      "props": { "className": "text-lg font-medium mb-2" },
+                      "props": { "className": "storybook-designer__empty-state-title" },
                       "bindings": { "children": "designerState.copy.emptyState.title" }
                     },
                     {
                       "id": "empty-state-subtitle",
                       "type": "p",
-                      "props": { "className": "text-sm text-muted-foreground mb-4" },
+                      "props": { "className": "storybook-designer__empty-state-subtitle" },
                       "bindings": { "children": "designerState.copy.emptyState.subtitle" }
                     },
                     {
@@ -533,7 +527,7 @@
                         {
                           "id": "empty-state-add-icon",
                           "type": "PhosphorIcon",
-                          "props": { "icon": "Plus", "size": 16, "className": "mr-2" }
+                          "props": { "icon": "Plus", "size": 16 }
                         },
                         {
                           "id": "empty-state-add-label",

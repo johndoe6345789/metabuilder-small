@@ -1,7 +1,7 @@
 {
   "id": "storage-settings-container",
   "type": "div",
-  "props": { "className": "space-y-6" },
+  "props": { "className": "storage-settings" },
   "children": [
     {
       "id": "backend-card",
@@ -14,14 +14,12 @@
             {
               "id": "backend-title",
               "type": "CardTitle",
-              "props": { "className": "flex items-center gap-2" },
               "children": [
                 {
                   "type": "PhosphorIcon",
                   "bindings": {
                     "icon": "backendInfo.iconName"
-                  },
-                  "props": { "className": "w-5 h-5" }
+                  }
                 },
                 {
                   "type": "text",
@@ -39,26 +37,24 @@
         {
           "id": "backend-content",
           "type": "CardContent",
-          "props": { "className": "space-y-4" },
           "children": [
             {
               "id": "current-backend",
               "type": "div",
-              "props": { "className": "flex items-center gap-2" },
+              "props": { "className": "storage-settings__backend-row" },
               "children": [
                 {
                   "type": "span",
-                  "props": { "className": "text-sm text-muted-foreground" },
+                  "props": { "className": "storage-settings__backend-label" },
                   "children": [{ "type": "text", "children": "Current Backend:" }]
                 },
                 {
                   "type": "Badge",
-                  "props": { "variant": "secondary", "className": "flex items-center gap-1" },
+                  "props": { "variant": "secondary" },
                   "children": [
                     {
                       "type": "PhosphorIcon",
-                      "bindings": { "icon": "backendInfo.iconName" },
-                      "props": { "className": "w-4 h-4" }
+                      "bindings": { "icon": "backendInfo.iconName" }
                     },
                     {
                       "type": "text",
@@ -71,12 +67,12 @@
             {
               "id": "backend-options",
               "type": "div",
-              "props": { "className": "grid gap-4" },
+              "props": { "className": "storage-settings__options" },
               "children": [
                 {
                   "id": "flask-section",
                   "type": "div",
-                  "props": { "className": "space-y-2" },
+                  "props": { "className": "storage-settings__flask-section" },
                   "children": [
                     {
                       "type": "Label",
@@ -85,7 +81,7 @@
                     },
                     {
                       "type": "div",
-                      "props": { "className": "flex gap-2" },
+                      "props": { "className": "storage-settings__flask-row" },
                       "children": [
                         {
                           "type": "Input",
@@ -118,7 +114,7 @@
                           "children": [
                             {
                               "type": "PhosphorIcon",
-                              "props": { "icon": "Cpu", "className": "w-4 h-4 mr-2" }
+                              "props": { "icon": "Cpu" }
                             },
                             {
                               "type": "text",
@@ -138,7 +134,7 @@
                 {
                   "id": "other-backends",
                   "type": "div",
-                  "props": { "className": "flex gap-2" },
+                  "props": { "className": "storage-settings__other-backends" },
                   "children": [
                     {
                       "type": "Button",
@@ -153,11 +149,10 @@
                           "transform": "backend === 'indexeddb' ? 'secondary' : 'outline'"
                         }
                       },
-                      "props": { "className": "flex-1" },
                       "children": [
                         {
                           "type": "PhosphorIcon",
-                          "props": { "icon": "HardDrive", "className": "w-4 h-4 mr-2" }
+                          "props": { "icon": "HardDrive" }
                         },
                         {
                           "type": "text",
@@ -183,11 +178,10 @@
                           "transform": "backend === 'sqlite' ? 'secondary' : 'outline'"
                         }
                       },
-                      "props": { "className": "flex-1" },
                       "children": [
                         {
                           "type": "PhosphorIcon",
-                          "props": { "icon": "Database", "className": "w-4 h-4 mr-2" }
+                          "props": { "icon": "Database" }
                         },
                         {
                           "type": "text",
@@ -229,11 +223,10 @@
         {
           "id": "data-content",
           "type": "CardContent",
-          "props": { "className": "space-y-4" },
           "children": [
             {
               "type": "div",
-              "props": { "className": "flex gap-2" },
+              "props": { "className": "storage-settings__export-row" },
               "children": [
                 {
                   "type": "Button",
@@ -241,11 +234,11 @@
                     "onClick": "onExport",
                     "disabled": "isExporting"
                   },
-                  "props": { "variant": "outline", "className": "flex-1" },
+                  "props": { "variant": "outline" },
                   "children": [
                     {
                       "type": "PhosphorIcon",
-                      "props": { "icon": "Download", "className": "w-4 h-4 mr-2" }
+                      "props": { "icon": "Download" }
                     },
                     {
                       "type": "text",
@@ -259,11 +252,11 @@
                     "onClick": "onImport",
                     "disabled": "isImporting"
                   },
-                  "props": { "variant": "outline", "className": "flex-1" },
+                  "props": { "variant": "outline" },
                   "children": [
                     {
                       "type": "PhosphorIcon",
-                      "props": { "icon": "Upload", "className": "w-4 h-4 mr-2" }
+                      "props": { "icon": "Upload" }
                     },
                     {
                       "type": "text",

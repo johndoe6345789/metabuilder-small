@@ -13,35 +13,35 @@
       "id": "conflict-card-container",
       "type": "Card",
       "props": {
-        "className": "border-destructive/30 hover:border-destructive/50 transition-colors"
+        "className": "conflict-card"
       },
       "children": [
         {
           "id": "conflict-card-header",
           "type": "CardHeader",
           "props": {
-            "className": "pb-3"
+            "className": "conflict-card__header"
           },
           "children": [
             {
               "id": "conflict-card-header-flex",
               "type": "div",
               "props": {
-                "className": "flex items-start justify-between gap-4"
+                "className": "conflict-card__header-content"
               },
               "children": [
                 {
                   "id": "conflict-card-header-content",
                   "type": "div",
                   "props": {
-                    "className": "flex items-start gap-3 flex-1 min-w-0"
+                    "className": "conflict-card__header-content"
                   },
                   "children": [
                     {
                       "id": "conflict-card-entity-icon",
                       "type": "div",
                       "props": {
-                        "className": "mt-0.5"
+                        "className": "conflict-card__entity-icon"
                       },
                       "children": [
                         {
@@ -53,7 +53,7 @@
                           "props": {
                             "size": 20,
                             "weight": "duotone",
-                            "className": "text-primary"
+                            "className": "conflict-card__entity-icon"
                           }
                         },
                         {
@@ -65,7 +65,7 @@
                           "props": {
                             "size": 20,
                             "weight": "duotone",
-                            "className": "text-accent"
+                            "className": "conflict-card__entity-icon--remote"
                           }
                         }
                       ]
@@ -74,7 +74,7 @@
                       "id": "conflict-card-info",
                       "type": "div",
                       "props": {
-                        "className": "flex-1 min-w-0"
+                        "className": "conflict-card__info"
                       },
                       "children": [
                         {
@@ -84,14 +84,14 @@
                             "children": "conflict.id"
                           },
                           "props": {
-                            "className": "text-base font-mono truncate"
+                            "className": "conflict-card__title"
                           }
                         },
                         {
                           "id": "conflict-card-description",
                           "type": "CardDescription",
                           "props": {
-                            "className": "flex items-center gap-2 mt-1"
+                            "className": "conflict-card__meta"
                           },
                           "children": [
                             {
@@ -102,7 +102,7 @@
                               },
                               "props": {
                                 "variant": "outline",
-                                "className": "text-xs"
+                                "className": "badge"
                               }
                             },
                             {
@@ -115,7 +115,7 @@
                                 }
                               },
                               "props": {
-                                "className": "text-xs text-muted-foreground"
+                                "className": "conflict-card__time"
                               }
                             }
                           ]
@@ -185,7 +185,7 @@
                   "id": "conflict-card-content",
                   "type": "CardContent",
                   "props": {
-                    "className": "space-y-4"
+                    "className": "conflict-card__body"
                   },
                   "children": [
                     {
@@ -196,21 +196,21 @@
                       "id": "conflict-versions-grid",
                       "type": "div",
                       "props": {
-                        "className": "grid grid-cols-2 gap-4"
+                        "className": "conflict-card__versions-grid"
                       },
                       "children": [
                         {
                           "id": "conflict-local-version",
                           "type": "div",
                           "props": {
-                            "className": "space-y-2"
+                            "className": "conflict-card__version"
                           },
                           "children": [
                             {
                               "id": "conflict-local-header",
                               "type": "div",
                               "props": {
-                                "className": "flex items-center gap-2"
+                                "className": "conflict-card__version-header"
                               },
                               "children": [
                                 {
@@ -218,7 +218,7 @@
                                   "type": "Database",
                                   "props": {
                                     "size": 16,
-                                    "className": "text-primary"
+                                    "className": "conflict-card__entity-icon"
                                   }
                                 },
                                 {
@@ -228,7 +228,7 @@
                                     "children": "conflict.localVersion ? 'Local Version' : 'Local'"
                                   },
                                   "props": {
-                                    "className": "text-sm font-medium"
+                                    "className": "conflict-card__version-label"
                                   }
                                 },
                                 {
@@ -239,7 +239,7 @@
                                   },
                                   "props": {
                                     "variant": "secondary",
-                                    "className": "text-xs",
+                                    "className": "badge",
                                     "children": "Newer"
                                   }
                                 }
@@ -249,14 +249,14 @@
                               "id": "conflict-local-content",
                               "type": "div",
                               "props": {
-                                "className": "bg-muted/50 rounded-md p-3 space-y-1"
+                                "className": "conflict-card__version-content"
                               },
                               "children": [
                                 {
                                   "id": "conflict-local-time",
                                   "type": "div",
                                   "props": {
-                                    "className": "flex items-center gap-1.5 text-xs text-muted-foreground"
+                                    "className": "conflict-card__version-time"
                                   },
                                   "children": [
                                     {
@@ -288,7 +288,7 @@
                                     }
                                   },
                                   "props": {
-                                    "className": "text-xs overflow-hidden text-ellipsis text-primary"
+                                    "className": "conflict-card__version-json"
                                   }
                                 }
                               ]
@@ -299,14 +299,14 @@
                           "id": "conflict-remote-version",
                           "type": "div",
                           "props": {
-                            "className": "space-y-2"
+                            "className": "conflict-card__version"
                           },
                           "children": [
                             {
                               "id": "conflict-remote-header",
                               "type": "div",
                               "props": {
-                                "className": "flex items-center gap-2"
+                                "className": "conflict-card__version-header"
                               },
                               "children": [
                                 {
@@ -314,7 +314,7 @@
                                   "type": "Cloud",
                                   "props": {
                                     "size": 16,
-                                    "className": "text-accent"
+                                    "className": "conflict-card__entity-icon--remote"
                                   }
                                 },
                                 {
@@ -324,7 +324,7 @@
                                     "children": "conflict.remoteVersion ? 'Remote Version' : 'Remote'"
                                   },
                                   "props": {
-                                    "className": "text-sm font-medium"
+                                    "className": "conflict-card__version-label"
                                   }
                                 },
                                 {
@@ -335,7 +335,7 @@
                                   },
                                   "props": {
                                     "variant": "secondary",
-                                    "className": "text-xs",
+                                    "className": "badge",
                                     "children": "Newer"
                                   }
                                 }
@@ -345,14 +345,14 @@
                               "id": "conflict-remote-content",
                               "type": "div",
                               "props": {
-                                "className": "bg-muted/50 rounded-md p-3 space-y-1"
+                                "className": "conflict-card__version-content"
                               },
                               "children": [
                                 {
                                   "id": "conflict-remote-time",
                                   "type": "div",
                                   "props": {
-                                    "className": "flex items-center gap-1.5 text-xs text-muted-foreground"
+                                    "className": "conflict-card__version-time"
                                   },
                                   "children": [
                                     {
@@ -384,7 +384,7 @@
                                     }
                                   },
                                   "props": {
-                                    "className": "text-xs overflow-hidden text-ellipsis text-accent"
+                                    "className": "conflict-card__version-json conflict-card__version-json--remote"
                                   }
                                 }
                               ]
@@ -401,7 +401,7 @@
                       "id": "conflict-actions",
                       "type": "div",
                       "props": {
-                        "className": "flex flex-wrap gap-2"
+                        "className": "conflict-card__actions"
                       },
                       "children": [
                         {
@@ -417,7 +417,7 @@
                           "props": {
                             "size": "sm",
                             "variant": "outline",
-                            "className": "flex-1 min-w-[120px]"
+                            "className": "conflict-card__action-btn"
                           },
                           "children": [
                             {
@@ -449,7 +449,7 @@
                           "props": {
                             "size": "sm",
                             "variant": "outline",
-                            "className": "flex-1 min-w-[120px]"
+                            "className": "conflict-card__action-btn"
                           },
                           "children": [
                             {
@@ -481,7 +481,7 @@
                           "props": {
                             "size": "sm",
                             "variant": "outline",
-                            "className": "flex-1 min-w-[120px]"
+                            "className": "conflict-card__action-btn"
                           },
                           "children": [
                             {

@@ -4,7 +4,7 @@
   "bindings": {
     "className": {
       "source": "className",
-      "transform": "data ? data + ' w-full' : 'w-full'"
+      "transform": "data ? data + ' form-wrapper' : 'form-wrapper'"
     }
   },
   "children": [
@@ -12,7 +12,7 @@
       "id": "select-label",
       "type": "label",
       "props": {
-        "className": "block text-sm font-medium mb-1.5 text-foreground"
+        "className": "form-wrapper__label"
       },
       "bindings": {
         "children": "label"
@@ -33,7 +33,7 @@
         "disabled": "disabled",
         "className": {
           "source": "error",
-          "transform": "error ? 'flex h-10 w-full rounded-md border bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 transition-colors border-destructive focus-visible:ring-destructive' : 'flex h-10 w-full rounded-md border bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 transition-colors border-input'"
+          "transform": "error ? 'form-select form-select--error' : 'form-select'"
         }
       },
       "children": [
@@ -71,7 +71,7 @@
       "bindings": {
         "className": {
           "source": "error",
-          "transform": "error ? 'text-xs mt-1.5 text-destructive' : 'text-xs mt-1.5 text-muted-foreground'"
+          "transform": "error ? 'form-wrapper__helper form-wrapper__helper--error' : 'form-wrapper__helper'"
         },
         "children": "helperText"
       },

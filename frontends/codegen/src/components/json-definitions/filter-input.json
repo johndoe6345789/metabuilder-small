@@ -4,7 +4,7 @@
   "bindings": {
     "className": {
       "source": "className",
-      "transform": "data ? `relative ${data}` : 'relative'"
+      "transform": "data ? `form-filter-input ${data}` : 'form-filter-input'"
     }
   },
   "children": [
@@ -14,7 +14,7 @@
       "bindings": {
         "className": {
           "source": "focusState.isFocused",
-          "transform": "data ? 'absolute left-3 top-1/2 -translate-y-1/2 transition-colors text-primary' : 'absolute left-3 top-1/2 -translate-y-1/2 transition-colors text-muted-foreground'"
+          "transform": "data ? 'form-filter-input__icon form-filter-input__icon--focused' : 'form-filter-input__icon'"
         }
       },
       "props": {
@@ -41,7 +41,7 @@
         }
       },
       "props": {
-        "className": "pl-9 pr-9"
+        "className": "form-filter-input__field"
       }
     },
     {
@@ -57,7 +57,7 @@
         }
       },
       "props": {
-        "className": "absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors",
+        "className": "form-filter-input__clear",
         "type": "button"
       },
       "children": [

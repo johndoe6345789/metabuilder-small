@@ -1,12 +1,12 @@
 {
   "id": "documentation-view",
   "type": "div",
-  "className": "h-full flex flex-col bg-background",
+  "className": "doc-view",
   "children": [
     {
       "id": "documentation-tabs",
       "type": "Tabs",
-      "className": "flex-1 flex flex-col",
+      "className": "doc-view__tabs",
       "bindings": {
         "value": {
           "source": "activeTab",
@@ -21,12 +21,11 @@
         {
           "id": "documentation-header",
           "type": "div",
-          "className": "border-b border-border bg-card px-6 py-3 space-y-3",
+          "className": "doc-view__header",
           "children": [
             {
               "id": "tabs-list",
               "type": "TabsList",
-              "className": "bg-muted/50",
               "bindings": {
                 "children": {
                   "source": "tabsData",
@@ -37,19 +36,19 @@
             {
               "id": "search-input-wrapper",
               "type": "div",
-              "className": "relative",
+              "className": "doc-view__search-wrapper",
               "children": [
                 {
                   "id": "search-icon",
                   "type": "MagnifyingGlass",
-                  "className": "absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground",
+                  "className": "doc-view__search-icon",
                   "size": 18
                 },
                 {
                   "id": "search-input",
                   "type": "Input",
                   "placeholder": "Search documentation...",
-                  "className": "pl-10",
+                  "className": "doc-view__search-input",
                   "bindings": {
                     "value": {
                       "source": "searchQuery",
@@ -68,12 +67,12 @@
         {
           "id": "tabs-content",
           "type": "ScrollArea",
-          "className": "flex-1",
+          "className": "doc-view__body",
           "children": [
             {
               "id": "content-wrapper",
               "type": "div",
-              "className": "max-w-5xl mx-auto p-8",
+              "className": "doc-view__content",
               "bindings": {
                 "children": {
                   "source": "activeTab",

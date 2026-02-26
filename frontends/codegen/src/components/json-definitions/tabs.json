@@ -2,6 +2,6 @@
   "id": "tabs-root",
   "type": "div",
   "props": {
-    "className": "flex gap-1"
+    "className": "tab-bar"
   }
 }

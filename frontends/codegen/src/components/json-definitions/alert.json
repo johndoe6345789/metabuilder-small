@@ -2,13 +2,12 @@
   "id": "alert-root",
   "type": "div",
   "props": {
-    "role": "alert",
-    "className": "flex gap-3 p-4 rounded-lg border"
+    "role": "alert"
   },
   "bindings": {
     "className": {
       "source": "variant",
-      "transform": "(() => { const config = { info: { classes: 'bg-blue-50 border-blue-200 text-blue-900' }, warning: { classes: 'bg-yellow-50 border-yellow-200 text-yellow-900' }, success: { classes: 'bg-green-50 border-green-200 text-green-900' }, error: { classes: 'bg-red-50 border-red-200 text-red-900' } }; return 'flex gap-3 p-4 rounded-lg border ' + (config[data]?.classes || config.info.classes); })()"
+      "transform": "(() => { const modifiers = { info: 'alert--info', warning: 'alert--warning', success: 'alert--success', error: 'alert--error' }; return 'alert ' + (modifiers[data] || modifiers.info); })()"
     }
   },
   "children": [
@@ -19,21 +18,21 @@
         "variant": "variant"
       },
       "props": {
-        "className": "flex-shrink-0 mt-0.5"
+        "className": "alert__icon"
       }
     },
     {
       "id": "alert-content",
       "type": "div",
       "props": {
-        "className": "flex-1"
+        "className": "alert__content"
       },
       "children": [
         {
           "id": "alert-title",
           "type": "div",
           "props": {
-            "className": "font-semibold mb-1"
+            "className": "alert__title"
           },
           "bindings": {
             "children": "title"
@@ -46,7 +45,7 @@
           "id": "alert-message",
           "type": "div",
           "props": {
-            "className": "text-sm"
+            "className": "alert__message"
           },
           "bindings": {
             "children": "children"

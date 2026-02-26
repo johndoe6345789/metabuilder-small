@@ -4,7 +4,7 @@
   "bindings": {
     "className": {
       "source": "isActive",
-      "transform": "data ? 'w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors bg-primary text-primary-foreground' : 'w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors hover:bg-muted text-foreground'"
+      "transform": "data ? 'nav-item nav-item--active' : 'nav-item'"
     },
     "onClick": "onClick"
   },
@@ -12,26 +12,29 @@
     {
       "id": "nav-item-icon",
       "type": "IconWrapper",
+      "props": {
+        "className": "nav-item__icon",
+        "size": "md"
+      },
       "bindings": {
         "icon": "icon",
         "variant": { "source": "isActive", "transform": "data ? 'default' : 'muted'" }
-      },
-      "props": { "size": "md" }
+      }
     },
     {
       "id": "nav-item-label",
       "type": "Text",
-      "props": { "className": "flex-1 text-left font-medium", "variant": "small" },
+      "props": { "className": "nav-item__label", "variant": "small" },
       "bindings": { "children": "label" }
     },
     {
       "id": "nav-item-badge",
       "type": "Badge",
+      "props": { "className": "nav-item__badge" },
       "bindings": {
         "variant": { "source": "isActive", "transform": "data ? 'secondary' : 'destructive'" },
         "children": "badge"
       },
-      "props": { "className": "ml-auto" },
       "conditional": { "if": "badge !== undefined && badge > 0" }
     }
   ]

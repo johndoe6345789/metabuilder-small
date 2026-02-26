@@ -4,7 +4,7 @@
   "bindings": {
     "direction": { "value": "vertical" },
     "spacing": { "value": "none" },
-    "className": { "value": "h-full flex flex-col items-center justify-center p-8 bg-muted/20" }
+    "className": { "value": "empty-state-feedback" }
   },
   "children": [
     {
@@ -29,7 +29,7 @@
           "props": {
             "direction": "horizontal",
             "spacing": "md",
-            "className": "mt-4"
+            "className": "empty-state-feedback__actions"
           },
           "children": [
             {

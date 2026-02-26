@@ -2,6 +2,6 @@
   "id": "table-root",
   "type": "div",
   "props": {
-    "className": "w-full overflow-auto"
+    "className": "data-table__wrapper"
   }
 }

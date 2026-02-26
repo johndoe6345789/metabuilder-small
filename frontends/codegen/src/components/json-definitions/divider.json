@@ -12,7 +12,7 @@
     },
     "className": {
       "source": ["orientation", "className"],
-      "transform": "const orientation = data[0] || 'horizontal'; const className = data[1] || ''; const baseClass = 'bg-border'; const sizeClass = orientation === 'horizontal' ? 'h-[1px] w-full' : 'w-[1px] h-full'; return `${baseClass} ${sizeClass} ${className}`.trim()"
+      "transform": "const orientation = data[0] || 'horizontal'; const extra = data[1] || ''; const modifierClass = orientation === 'horizontal' ? 'divider--horizontal' : 'divider--vertical'; return ('divider ' + modifierClass + (extra ? ' ' + extra : '')).trim()"
     }
   }
 }

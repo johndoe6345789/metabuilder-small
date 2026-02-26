@@ -2,6 +2,6 @@
   "id": "toggle-root",
   "type": "label",
   "props": {
-    "className": "flex items-center gap-2 cursor-pointer"
+    "className": "toggle"
   }
 }

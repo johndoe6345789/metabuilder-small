@@ -1,7 +1,9 @@
 {
   "id": "app-router-layout",
   "type": "div",
-  "className": "h-screen flex flex-col bg-background",
+  "props": {
+    "className": "app-layout"
+  },
   "children": [
     {
       "id": "main-panel",

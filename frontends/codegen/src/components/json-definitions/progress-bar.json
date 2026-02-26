@@ -1,11 +1,8 @@
 {
   "id": "progress-bar-wrapper",
   "type": "div",
-  "bindings": {
-    "className": {
-      "source": null,
-      "transform": "'w-full'"
-    }
+  "props": {
+    "className": "progress-bar"
   },
   "children": [
     {
@@ -13,8 +10,8 @@
       "type": "div",
       "bindings": {
         "className": {
-          "source": ["value", "max", "size", "variant", "className"],
-          "transform": "const value = data[0] || 0; const max = data[1] || 100; const size = data[2] || 'md'; const variant = data[3] || 'default'; const className = data[4] || ''; const sizeClasses = { sm: 'h-1', md: 'h-2', lg: 'h-3' }; const variantClasses = { default: 'bg-primary', accent: 'bg-accent', destructive: 'bg-destructive' }; const baseClass = 'relative w-full bg-secondary rounded-full overflow-hidden'; return `${baseClass} ${sizeClasses[size]} ${className}`.trim()"
+          "source": ["size", "className"],
+          "transform": "const size = data[0] || 'md'; const extra = data[1] || ''; const sizeMod = { sm: ' progress-bar__track--sm', md: ' progress-bar__track--md', lg: ' progress-bar__track--lg' }; return ('progress-bar__track' + (sizeMod[size] || ' progress-bar__track--md') + (extra ? ' ' + extra : '')).trim()"
         },
         "role": {
           "source": null,
@@ -40,7 +37,7 @@
           "bindings": {
             "className": {
               "source": "variant",
-              "transform": "const variantClasses = { default: 'bg-primary', accent: 'bg-accent', destructive: 'bg-destructive' }; return `h-full transition-all duration-300 ease-out ${variantClasses[data] || variantClasses['default']}`"
+              "transform": "const mods = { default: '', accent: ' progress-bar__fill--accent', destructive: ' progress-bar__fill--destructive' }; return ('progress-bar__fill' + (mods[data] || '')).trim()"
             },
             "style": {
               "source": ["value", "max"],
@@ -56,7 +53,7 @@
       "bindings": {
         "className": {
           "source": null,
-          "transform": "'text-xs text-muted-foreground mt-1 block'"
+          "transform": "'progress-bar__label'"
         },
         "children": {
           "source": ["value", "max"],

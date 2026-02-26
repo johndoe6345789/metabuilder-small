@@ -9,7 +9,6 @@
         {
           "id": "card-title",
           "type": "CardTitle",
-          "props": { "className": "flex items-center gap-2" },
           "children": [
             {
               "id": "title-icon",
@@ -33,7 +32,7 @@
     {
       "id": "card-content",
       "type": "CardContent",
-      "props": { "className": "flex flex-col gap-4" },
+      "props": { "className": "seed-manager__content" },
       "children": [
         {
           "id": "loaded-alert",
@@ -43,7 +42,7 @@
             {
               "id": "alert-icon",
               "type": "PhosphorIcon",
-              "props": { "icon": "CheckCircle", "className": "h-4 w-4", "weight": "fill" }
+              "props": { "icon": "CheckCircle", "weight": "fill" }
             },
             {
               "id": "alert-description",
@@ -55,12 +54,12 @@
         {
           "id": "buttons-container",
           "type": "div",
-          "props": { "className": "flex flex-col gap-3" },
+          "props": { "className": "seed-manager__actions" },
           "children": [
             {
               "id": "buttons-row",
               "type": "div",
-              "props": { "className": "flex gap-2 flex-wrap" },
+              "props": { "className": "seed-manager__buttons-row" },
               "children": [
                 {
                   "id": "load-button",
@@ -178,7 +177,7 @@
             {
               "id": "helper-text",
               "type": "div",
-              "props": { "className": "text-sm text-muted-foreground space-y-1" },
+              "props": { "className": "seed-manager__helper-text" },
               "children": [
                 {
                   "id": "load-help",

@@ -15,11 +15,8 @@
         {
           "id": "seed-data-status-title",
           "type": "CardTitle",
-          "bindings": {
-            "className": {
-              "source": null,
-              "transform": "'flex items-center gap-2 text-lg'"
-            }
+          "props": {
+            "className": "seed-data-status__title"
           },
           "children": [
             {
@@ -67,31 +64,24 @@
         {
           "id": "seed-data-status-grid",
           "type": "div",
-          "bindings": {
-            "className": {
-              "source": null,
-              "transform": "'grid grid-cols-2 md:grid-cols-3 gap-3'"
-            }
+          "props": {
+            "className": "seed-data-status__grid"
           },
           "children": [
             {
               "id": "seed-data-status-item",
               "type": "div",
-              "bindings": {
-                "className": {
-                  "source": null,
-                  "transform": "'flex items-center justify-between p-3 rounded-lg border border-border bg-muted/50'"
-                }
+              "props": {
+                "className": "seed-data-status__item"
               },
               "children": [
                 {
                   "id": "seed-data-status-label",
                   "type": "span",
+                  "props": {
+                    "className": "seed-data-status__label"
+                  },
                   "bindings": {
-                    "className": {
-                      "source": null,
-                      "transform": "'text-sm font-medium'"
-                    },
                     "children": {
                       "source": "label",
                       "transform": "data"
@@ -101,14 +91,13 @@
                 {
                   "id": "seed-data-status-badge",
                   "type": "Badge",
+                  "props": {
+                    "className": "seed-data-status__badge"
+                  },
                   "bindings": {
                     "variant": {
                       "source": null,
                       "transform": "'secondary'"
-                    },
-                    "className": {
-                      "source": null,
-                      "transform": "'ml-2'"
                     },
                     "children": {
                       "source": "count",

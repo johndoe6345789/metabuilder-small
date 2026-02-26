@@ -4,7 +4,7 @@
   "bindings": {
     "className": {
       "source": "className",
-      "transform": "const base = 'relative overflow-hidden'; return data ? `${base} ${data}` : base"
+      "transform": "data ? `image-container ${data}` : 'image-container'"
     },
     "style": {
       "source": ["width", "height"],
@@ -18,7 +18,7 @@
       "bindings": {
         "className": {
           "source": null,
-          "transform": "'absolute inset-0 bg-muted animate-pulse'"
+          "transform": "'image-container__loading-overlay'"
         },
         "_if": {
           "source": "imageState.loading",
@@ -48,7 +48,7 @@
         },
         "className": {
           "source": ["imageState.loading", "fit"],
-          "transform": "const loading = data[0]; const fit = data[1] || 'cover'; const base = 'w-full h-full transition-opacity'; const opacity = loading ? 'opacity-0' : 'opacity-100'; return `${base} ${opacity} object-${fit}`"
+          "transform": "const loading = data[0]; const fit = data[1] || 'cover'; const stateClass = loading ? 'image-container__element--loading' : 'image-container__element--loaded'; const fitClass = fit !== 'cover' ? `image-container__element--${fit}` : ''; return ['image-container__element', stateClass, fitClass].filter(Boolean).join(' ')"
         }
       }
     }

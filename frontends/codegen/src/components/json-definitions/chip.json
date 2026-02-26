@@ -4,7 +4,7 @@
   "bindings": {
     "className": {
       "source": "variant",
-      "transform": "(() => { const variant = data || 'default'; const variantMap = { default: 'bg-secondary text-secondary-foreground', primary: 'bg-primary text-primary-foreground', accent: 'bg-accent text-accent-foreground', muted: 'bg-muted text-muted-foreground' }; const variantClass = variantMap[variant] || variantMap.default; const size = $props.size || 'md'; const sizeMap = { sm: 'px-2 py-0.5 text-xs', md: 'px-3 py-1 text-sm' }; const sizeClass = sizeMap[size] || sizeMap.md; const userClass = $props.className || ''; return 'inline-flex items-center gap-1 rounded-full font-medium ' + variantClass + ' ' + sizeClass + ' ' + userClass; })()"
+      "transform": "(() => { const variant = data || 'primary'; const variantMap = { default: 'chip--muted', primary: 'chip--primary', accent: 'chip--tertiary', muted: 'chip--muted', secondary: 'chip--secondary' }; const variantClass = variantMap[variant] || variantMap.primary; const size = $props.size || 'md'; const sizeMap = { sm: 'chip--sm', md: '', lg: 'chip--lg' }; const sizeClass = sizeMap[size] || ''; const userClass = $props.className || ''; return ('chip ' + variantClass + ' ' + sizeClass + ' ' + userClass).trim(); })()"
     }
   },
   "children": [
@@ -19,7 +19,7 @@
       "type": "button",
       "props": {
         "type": "button",
-        "className": "inline-flex items-center justify-center hover:bg-black/10 rounded-full transition-colors",
+        "className": "chip__remove",
         "aria-label": "Remove"
       },
       "bindings": {
@@ -38,7 +38,7 @@
               "weight": "bold",
               "className": {
                 "source": "size",
-                "transform": "data === 'sm' ? 'w-3 h-3' : 'w-3.5 h-3.5'"
+                "transform": "data === 'sm' ? 'chip__remove-icon--sm' : 'chip__remove-icon--md'"
               }
             }
           }

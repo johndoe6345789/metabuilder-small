@@ -1,31 +1,24 @@
 {
   "id": "detail-row-container",
   "type": "div",
-  "bindings": {
-    "className": {
-      "source": null,
-      "transform": "'flex items-center justify-between py-2 border-b border-border last:border-0'"
-    }
+  "props": {
+    "className": "detail-row"
   },
   "children": [
     {
       "id": "detail-row-left",
       "type": "div",
-      "bindings": {
-        "className": {
-          "source": null,
-          "transform": "'flex items-center gap-2'"
-        }
+      "props": {
+        "className": "detail-row__left"
       },
       "children": [
         {
           "id": "detail-row-icon",
           "type": "span",
+          "props": {
+            "className": "detail-row__icon"
+          },
           "bindings": {
-            "className": {
-              "source": null,
-              "transform": "'text-muted-foreground'"
-            },
             "children": {
               "source": "icon",
               "transform": "data"
@@ -35,11 +28,10 @@
         {
           "id": "detail-row-label",
           "type": "span",
+          "props": {
+            "className": "detail-row__label"
+          },
           "bindings": {
-            "className": {
-              "source": null,
-              "transform": "'text-sm font-medium'"
-            },
             "children": {
               "source": "label",
               "transform": "data"

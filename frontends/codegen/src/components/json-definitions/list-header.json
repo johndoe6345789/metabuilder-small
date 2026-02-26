@@ -1,7 +1,9 @@
 {
   "id": "list-header-container",
   "type": "Box",
-  "className": "border-b border-border bg-card px-6 py-4",
+  "props": {
+    "className": "list-header"
+  },
   "children": [
     {
       "type": "Flex",
@@ -10,19 +12,24 @@
       "children": [
         {
           "type": "Box",
+          "props": {
+            "className": "list-header__left"
+          },
           "children": [
             {
               "type": "Heading",
               "level": 3,
+              "props": {
+                "className": "list-header__title"
+              },
               "children": [{ "type": "Text", "value": "{title}" }]
             },
             {
               "type": "Paragraph",
-              "className": "text-sm text-muted-foreground mt-1",
               "bindings": {
                 "className": {
                   "source": "subtitle",
-                  "transform": "data ? 'text-sm text-muted-foreground mt-1' : 'hidden'"
+                  "transform": "data ? 'list-header__subtitle' : 'list-header__subtitle list-header__subtitle--hidden'"
                 }
               },
               "children": [{ "type": "Text", "value": "{subtitle}" }]
@@ -35,7 +42,7 @@
             "children": [{ "type": "Text", "value": "{count}" }],
             "className": {
               "source": "count",
-              "transform": "data > 0 ? 'inline-flex' : 'hidden'"
+              "transform": "data > 0 ? 'list-header__badge' : 'list-header__badge list-header__badge--hidden'"
             }
           }
         }

@@ -2,21 +2,21 @@
   "id": "file-explorer-container",
   "type": "div",
   "props": {
-    "className": "h-full flex flex-col border-r border-border bg-card"
+    "className": "file-explorer"
   },
   "children": [
     {
       "id": "file-explorer-header",
       "type": "div",
       "props": {
-        "className": "p-3 border-b border-border flex items-center justify-between"
+        "className": "file-explorer__header"
       },
       "children": [
         {
           "id": "file-explorer-title",
           "type": "h3",
           "props": {
-            "className": "font-semibold text-sm uppercase tracking-wide flex items-center gap-2"
+            "className": "file-explorer__title"
           },
           "children": [
             {
@@ -43,7 +43,7 @@
       "id": "file-explorer-list",
       "type": "ScrollArea",
       "props": {
-        "className": "flex-1"
+        "className": "file-explorer__body"
       },
       "children": [
         {

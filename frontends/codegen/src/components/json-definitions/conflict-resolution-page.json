@@ -2,21 +2,21 @@
   "id": "conflict-resolution-page-container",
   "type": "div",
   "props": {
-    "className": "h-full flex flex-col bg-background"
+    "className": "conflict-resolution-page"
   },
   "children": [
     {
       "id": "conflict-resolution-header-section",
       "type": "div",
       "props": {
-        "className": "flex-none border-b bg-card/50"
+        "className": "conflict-resolution-page__header-section"
       },
       "children": [
         {
           "id": "conflict-resolution-header-content",
           "type": "div",
           "props": {
-            "className": "p-6 space-y-4"
+            "className": "conflict-resolution-page__header-content"
           },
           "children": [
             {
@@ -27,7 +27,7 @@
                   "id": "conflict-resolution-title",
                   "type": "h1",
                   "props": {
-                    "className": "text-3xl font-bold font-mono mb-2",
+                    "className": "conflict-resolution-page__title",
                     "children": "Conflict Resolution"
                   }
                 },
@@ -35,7 +35,7 @@
                   "id": "conflict-resolution-description",
                   "type": "p",
                   "props": {
-                    "className": "text-muted-foreground",
+                    "className": "conflict-resolution-page__description",
                     "children": "Manage and resolve conflicts between local and remote versions"
                   }
                 }
@@ -45,21 +45,21 @@
               "id": "conflict-resolution-stats",
               "type": "div",
               "props": {
-                "className": "grid grid-cols-3 gap-4"
+                "className": "conflict-resolution-page__inline-stats"
               },
               "children": [
                 {
                   "id": "stat-total",
                   "type": "div",
                   "props": {
-                    "className": "p-3 rounded-md bg-muted/50"
+                    "className": "conflict-resolution-page__stat-tile"
                   },
                   "children": [
                     {
                       "id": "stat-total-label",
                       "type": "div",
                       "props": {
-                        "className": "text-xs text-muted-foreground",
+                        "className": "conflict-resolution-page__stat-label",
                         "children": "Total Conflicts"
                       }
                     },
@@ -70,7 +70,7 @@
                         "children": "pageState.stats.totalConflicts"
                       },
                       "props": {
-                        "className": "text-2xl font-bold mt-1"
+                        "className": "conflict-resolution-page__stat-value"
                       }
                     }
                   ]
@@ -79,14 +79,14 @@
                   "id": "stat-files",
                   "type": "div",
                   "props": {
-                    "className": "p-3 rounded-md bg-muted/50"
+                    "className": "conflict-resolution-page__stat-tile"
                   },
                   "children": [
                     {
                       "id": "stat-files-label",
                       "type": "div",
                       "props": {
-                        "className": "text-xs text-muted-foreground",
+                        "className": "conflict-resolution-page__stat-label",
                         "children": "File Conflicts"
                       }
                     },
@@ -100,7 +100,7 @@
                         }
                       },
                       "props": {
-                        "className": "text-2xl font-bold mt-1"
+                        "className": "conflict-resolution-page__stat-value"
                       }
                     }
                   ]
@@ -109,14 +109,14 @@
                   "id": "stat-models",
                   "type": "div",
                   "props": {
-                    "className": "p-3 rounded-md bg-muted/50"
+                    "className": "conflict-resolution-page__stat-tile"
                   },
                   "children": [
                     {
                       "id": "stat-models-label",
                       "type": "div",
                       "props": {
-                        "className": "text-xs text-muted-foreground",
+                        "className": "conflict-resolution-page__stat-label",
                         "children": "Model Conflicts"
                       }
                     },
@@ -130,7 +130,7 @@
                         }
                       },
                       "props": {
-                        "className": "text-2xl font-bold mt-1"
+                        "className": "conflict-resolution-page__stat-value"
                       }
                     }
                   ]
@@ -145,21 +145,21 @@
       "id": "conflict-resolution-main-content",
       "type": "div",
       "props": {
-        "className": "flex-1 overflow-hidden p-6"
+        "className": "conflict-resolution-page__main-content"
       },
       "children": [
         {
           "id": "conflict-resolution-content-wrapper",
           "type": "div",
           "props": {
-            "className": "h-full flex flex-col space-y-4"
+            "className": "conflict-resolution-page__content-wrapper"
           },
           "children": [
             {
               "id": "conflict-resolution-actions",
               "type": "div",
               "props": {
-                "className": "flex gap-2"
+                "className": "conflict-resolution-page__actions"
               },
               "children": [
                 {
@@ -218,7 +218,7 @@
               "id": "conflict-list-container",
               "type": "div",
               "props": {
-                "className": "flex-1 overflow-auto rounded-md border"
+                "className": "conflict-resolution-page__list-container"
               },
               "children": [
                 {
@@ -228,14 +228,14 @@
                     "if": "!pageState.hasConflicts"
                   },
                   "props": {
-                    "className": "h-full flex items-center justify-center p-6"
+                    "className": "conflict-resolution-page__empty-state"
                   },
                   "children": [
                     {
                       "id": "empty-message",
                       "type": "div",
                       "props": {
-                        "className": "text-center"
+                        "className": "conflict-resolution-page__empty-inner"
                       },
                       "children": [
                         {
@@ -243,14 +243,14 @@
                           "type": "CheckCircle",
                           "props": {
                             "size": 48,
-                            "className": "mx-auto mb-2 text-muted-foreground"
+                            "className": "conflict-resolution-page__empty-icon"
                           }
                         },
                         {
                           "id": "empty-title",
                           "type": "h2",
                           "props": {
-                            "className": "text-lg font-semibold mb-1",
+                            "className": "conflict-resolution-page__empty-title",
                             "children": "No Conflicts"
                           }
                         },
@@ -258,7 +258,7 @@
                           "id": "empty-description",
                           "type": "p",
                           "props": {
-                            "className": "text-sm text-muted-foreground",
+                            "className": "conflict-resolution-page__empty-desc",
                             "children": "Click \"Detect Conflicts\" to find conflicts between versions"
                           }
                         }
@@ -273,7 +273,7 @@
                     "if": "pageState.hasConflicts"
                   },
                   "props": {
-                    "className": "p-4 space-y-2"
+                    "className": "conflict-resolution-page__conflicts-list"
                   },
                   "children": [
                     {

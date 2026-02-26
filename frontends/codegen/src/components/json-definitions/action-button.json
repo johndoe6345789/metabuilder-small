@@ -2,7 +2,7 @@
   "id": "action-button-root",
   "type": "div",
   "props": {
-    "className": "inline-flex"
+    "className": "action-btn"
   },
   "conditional": {
     "if": "tooltip",
@@ -41,7 +41,7 @@
                           "id": "action-button-icon",
                           "type": "span",
                           "props": {
-                            "className": "mr-2"
+                            "className": "action-btn__icon"
                           },
                           "bindings": {
                             "children": "icon"
@@ -53,6 +53,9 @@
                         {
                           "id": "action-button-label",
                           "type": "span",
+                          "props": {
+                            "className": "action-btn__label"
+                          },
                           "bindings": {
                             "children": "label"
                           }
@@ -90,7 +93,7 @@
           "id": "action-button-icon-direct",
           "type": "span",
           "props": {
-            "className": "mr-2"
+            "className": "action-btn__icon"
           },
           "bindings": {
             "children": "icon"
@@ -102,6 +105,9 @@
         {
           "id": "action-button-label-direct",
           "type": "span",
+          "props": {
+            "className": "action-btn__label"
+          },
           "bindings": {
             "children": "label"
           }

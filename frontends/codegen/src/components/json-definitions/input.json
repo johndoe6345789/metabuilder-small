@@ -4,7 +4,7 @@
   "bindings": {
     "className": {
       "source": null,
-      "transform": "'w-full'"
+      "transform": "'form-wrapper'"
     }
   },
   "children": [
@@ -14,7 +14,7 @@
       "bindings": {
         "className": {
           "source": null,
-          "transform": "'block text-sm font-medium mb-1.5 text-foreground'"
+          "transform": "'form-wrapper__label'"
         },
         "children": {
           "source": "label",
@@ -32,7 +32,7 @@
       "bindings": {
         "className": {
           "source": null,
-          "transform": "'relative'"
+          "transform": "'form-wrapper__container'"
         }
       },
       "children": [
@@ -42,7 +42,7 @@
           "bindings": {
             "className": {
               "source": null,
-              "transform": "'absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground'"
+              "transform": "'form-input-icon form-input-icon--left'"
             },
             "children": {
               "source": "leftIcon",
@@ -64,7 +64,7 @@
             },
             "className": {
               "source": ["error", "leftIcon", "rightIcon", "className"],
-              "transform": "const error = data[0]; const leftIcon = data[1]; const rightIcon = data[2]; const className = data[3] || ''; const baseClasses = 'flex h-10 w-full rounded-md border bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 transition-colors'; const errorClass = error ? 'border-destructive focus-visible:ring-destructive' : 'border-input'; const leftIconClass = leftIcon ? 'pl-10' : ''; const rightIconClass = rightIcon ? 'pr-10' : ''; return `${baseClasses} ${errorClass} ${leftIconClass} ${rightIconClass} ${className}`.trim()"
+              "transform": "const error = data[0]; const leftIcon = data[1]; const rightIcon = data[2]; const extra = data[3] || ''; const classes = ['form-input']; if (error) classes.push('form-input--error'); if (leftIcon) classes.push('form-input--has-left-icon'); if (rightIcon) classes.push('form-input--has-right-icon'); if (extra) classes.push(extra); return classes.join(' ')"
             },
             "_spreadProps": {
               "source": "_spreadProps",
@@ -78,7 +78,7 @@
           "bindings": {
             "className": {
               "source": null,
-              "transform": "'absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground'"
+              "transform": "'form-input-icon form-input-icon--right'"
             },
             "children": {
               "source": "rightIcon",
@@ -98,7 +98,7 @@
       "bindings": {
         "className": {
           "source": "error",
-          "transform": "const baseClass = 'text-xs mt-1.5'; return data ? `${baseClass} text-destructive` : `${baseClass} text-muted-foreground`"
+          "transform": "data ? 'form-wrapper__helper form-wrapper__helper--error' : 'form-wrapper__helper'"
         },
         "children": {
           "source": "helperText",

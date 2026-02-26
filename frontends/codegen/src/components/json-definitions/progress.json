@@ -24,7 +24,7 @@
     },
     "className": {
       "source": "className",
-      "transform": "const baseClass = 'bg-primary/20 relative h-2 w-full overflow-hidden rounded-full'; return data ? `${baseClass} ${data}`.trim() : baseClass"
+      "transform": "const extra = data || ''; return ('progress-track' + (extra ? ' ' + extra : '')).trim()"
     },
     "_spreadProps": {
       "source": "_spreadProps",
@@ -41,7 +41,7 @@
           },
           "className": {
             "source": null,
-            "transform": "'bg-primary h-full w-full flex-1 transition-all'"
+            "transform": "'progress-fill'"
           },
           "style": {
             "source": "value",

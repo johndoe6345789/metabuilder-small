@@ -2,15 +2,14 @@
   "id": "app-logo-root",
   "type": "div",
   "props": {
-    "className": "w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shrink-0 shadow-md"
+    "className": "app-logo"
   },
   "children": [
     {
       "id": "app-logo-icon",
       "type": "Code",
       "props": {
-        "size": 24,
-        "className": "text-white sm:w-7 sm:h-7"
+        "size": 24
       }
     }
   ]

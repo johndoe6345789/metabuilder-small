@@ -8,7 +8,7 @@
     },
     "className": {
       "source": ["variant", "padding", "hover", "onClick", "className"],
-      "transform": "const cn = (classes) => classes.filter(Boolean).join(' '); const variant = data[0] || 'default'; const padding = data[1] || 'md'; const hover = data[2]; const onClick = data[3]; const className = data[4] || ''; const variantStyles = { default: 'bg-card border border-border', bordered: 'bg-background border-2 border-border', elevated: 'bg-card shadow-lg border border-border', flat: 'bg-muted' }; const paddingStyles = { none: 'p-0', sm: 'p-3', md: 'p-6', lg: 'p-8' }; const hoverClass = (hover || onClick) ? 'hover:shadow-md hover:scale-[1.01] cursor-pointer' : ''; const cursorClass = onClick ? 'cursor-pointer' : ''; return cn(['rounded-lg transition-all', variantStyles[variant], paddingStyles[padding], hoverClass, cursorClass, className])"
+      "transform": "const variant = data[0] || 'default'; const padding = data[1] || 'md'; const hover = data[2]; const onClick = data[3]; const extra = data[4] || ''; const variantClass = { default: '', bordered: 'card--bordered', elevated: 'card--elevated', flat: 'card--flat' }[variant] || ''; const paddingClass = { none: 'card--no-padding', sm: 'card--sm', md: 'card--md', lg: 'card--lg' }[padding] || ''; const interactiveClass = (hover || onClick) ? 'card--interactive' : ''; return ['card', variantClass, paddingClass, interactiveClass, extra].filter(Boolean).join(' ')"
     }
   },
   "children": [

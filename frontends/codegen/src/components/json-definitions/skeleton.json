@@ -4,7 +4,7 @@
   "bindings": {
     "className": {
       "source": "variant",
-      "transform": "(() => { const variantClasses = { text: 'rounded h-4', rectangular: 'rounded-none', circular: 'rounded-full', rounded: 'rounded-lg' }; return 'bg-muted animate-pulse ' + (variantClasses[data] || variantClasses.rectangular); })()"
+      "transform": "(() => { const modifiers = { text: 'skeleton--text', rectangular: 'skeleton--rectangular', circular: 'skeleton--avatar', rounded: 'skeleton--rounded' }; return 'skeleton ' + (modifiers[data] || modifiers.rectangular); })()"
     },
     "style": {
       "source": ["width", "height"],

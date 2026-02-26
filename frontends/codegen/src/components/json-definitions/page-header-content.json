@@ -1,7 +1,7 @@
 {
   "id": "page-header-container",
   "type": "div",
-  "props": { "className": "flex items-center gap-3" },
+  "props": { "className": "page-header-content" },
   "children": [
     {
       "id": "page-header-icon",
@@ -10,20 +10,20 @@
       "props": { "variant": "gradient" }
     },
     {
-      "id": "page-header-content",
+      "id": "page-header-text",
       "type": "div",
-      "props": { "className": "min-w-0" },
+      "props": { "className": "page-header-content__text" },
       "children": [
         {
           "id": "page-header-title",
           "type": "h2",
-          "props": { "className": "text-lg sm:text-xl font-bold truncate" },
+          "props": { "className": "page-header-content__title" },
           "bindings": { "children": "title" }
         },
         {
           "id": "page-header-description",
           "type": "p",
-          "props": { "className": "text-xs sm:text-sm text-muted-foreground hidden sm:block" },
+          "props": { "className": "page-header-content__description" },
           "bindings": { "children": "description" },
           "conditional": { "if": "description" }
         }

@@ -4,17 +4,23 @@
   "bindings": {
     "className": {
       "source": "className",
-      "transform": "(() => { return 'rounded-md border ' + (data || ''); })()"
+      "transform": "(() => { return 'data-table__wrapper ' + (data || ''); })()"
     }
   },
   "children": [
     {
       "id": "data-table-wrapper",
       "type": "Table",
+      "props": {
+        "className": "data-table"
+      },
       "children": [
         {
           "id": "data-table-header",
           "type": "TableHeader",
+          "props": {
+            "className": "data-table__header"
+          },
           "children": [
             {
               "id": "data-table-header-row",
@@ -33,7 +39,7 @@
                           "transform": "(() => { return { width: data.width || 'auto' }; })()"
                         },
                         "className": {
-                          "transform": "(() => { return data.sortable ? 'cursor-pointer select-none' : ''; })()"
+                          "transform": "(() => { return data.sortable ? 'data-table__header-cell data-table__header-cell--sortable' : 'data-table__header-cell'; })()"
                         }
                       },
                       "children": [
@@ -78,7 +84,7 @@
                         }
                       },
                       "props": {
-                        "className": "text-center py-8 text-muted-foreground"
+                        "className": "data-table__empty-cell"
                       },
                       "children": [
                         {
@@ -107,7 +113,7 @@
                     "transform": "(() => { return () => $props.onRowClick?.(data); })()"
                   },
                   "className": {
-                    "transform": "$props.onRowClick ? 'cursor-pointer' : ''"
+                    "transform": "$props.onRowClick ? 'data-table__row data-table__row--clickable' : 'data-table__row'"
                   }
                 },
                 "children": [
@@ -120,6 +126,9 @@
                     "children": {
                       "id": "data-table-data-cell",
                       "type": "TableCell",
+                      "props": {
+                        "className": "data-table__cell"
+                      },
                       "children": [
                         {
                           "id": "data-table-data-cell-content",

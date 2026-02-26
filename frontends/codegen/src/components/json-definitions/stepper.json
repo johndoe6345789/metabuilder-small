@@ -2,6 +2,6 @@
   "id": "stepper-root",
   "type": "div",
   "props": {
-    "className": "w-full"
+    "className": "stepper"
   }
 }

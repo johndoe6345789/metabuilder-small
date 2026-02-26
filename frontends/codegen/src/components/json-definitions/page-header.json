@@ -2,21 +2,21 @@
   "id": "page-header-wrapper",
   "type": "div",
   "props": {
-    "className": "flex items-start justify-between mb-6"
+    "className": "page-header"
   },
   "children": [
     {
       "id": "page-header-content",
       "type": "div",
       "props": {
-        "className": "space-y-1"
+        "className": "page-header__content"
       },
       "children": [
         {
           "id": "page-header-title",
           "type": "h1",
           "props": {
-            "className": "text-3xl font-bold tracking-tight"
+            "className": "page-header__title"
           },
           "bindings": {
             "children": "title"
@@ -26,7 +26,7 @@
           "id": "page-header-description",
           "type": "p",
           "props": {
-            "className": "text-muted-foreground"
+            "className": "page-header__description"
           },
           "bindings": {
             "children": "description"
@@ -39,7 +39,7 @@
       "id": "page-header-actions",
       "type": "div",
       "props": {
-        "className": "flex gap-2"
+        "className": "page-header__actions"
       },
       "bindings": {
         "children": "actions"

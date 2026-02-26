@@ -7,8 +7,8 @@
       "transform": "'Breadcrumb'"
     },
     "className": {
-      "source": ["items", "className"],
-      "transform": "const cn = (classes) => classes.filter(Boolean).join(' '); const className = data[1] || ''; return cn(['flex items-center gap-2', className])"
+      "source": "className",
+      "transform": "('breadcrumb' + (data ? ' ' + data : '')).trim()"
     }
   },
   "children": [
@@ -24,11 +24,8 @@
         {
           "id": "breadcrumb-item",
           "type": "div",
-          "bindings": {
-            "className": {
-              "source": null,
-              "transform": "'flex items-center gap-2'"
-            }
+          "props": {
+            "className": "breadcrumb__item"
           },
           "children": [
             {
@@ -49,7 +46,7 @@
                 },
                 "className": {
                   "source": ["item", "items"],
-                  "transform": "const cn = (classes) => classes.filter(Boolean).join(' '); const item = data[0]; const items = data[1] || []; const isLast = items.indexOf(item) === items.length - 1; const baseClass = 'text-sm transition-colors'; const styleClass = isLast ? 'text-foreground font-medium' : 'text-muted-foreground hover:text-foreground'; return cn([baseClass, styleClass])"
+                  "transform": "const item = data[0]; const items = data[1] || []; const isLast = items.indexOf(item) === items.length - 1; return isLast ? 'breadcrumb__link breadcrumb__link--current' : 'breadcrumb__link'"
                 }
               },
               "children": [
@@ -74,7 +71,7 @@
                 },
                 "className": {
                   "source": ["item", "items"],
-                  "transform": "const cn = (classes) => classes.filter(Boolean).join(' '); const item = data[0]; const items = data[1] || []; const isLast = items.indexOf(item) === items.length - 1; const baseClass = 'text-sm transition-colors'; const styleClass = isLast ? 'text-foreground font-medium' : 'text-muted-foreground hover:text-foreground'; return cn([baseClass, styleClass])"
+                  "transform": "const item = data[0]; const items = data[1] || []; const isLast = items.indexOf(item) === items.length - 1; return isLast ? 'breadcrumb__link breadcrumb__link--current' : 'breadcrumb__link'"
                 }
               },
               "children": [
@@ -95,7 +92,7 @@
                 },
                 "className": {
                   "source": ["item", "items"],
-                  "transform": "const cn = (classes) => classes.filter(Boolean).join(' '); const item = data[0]; const items = data[1] || []; const isLast = items.indexOf(item) === items.length - 1; const baseClass = 'text-sm'; const styleClass = isLast ? 'text-foreground font-medium' : 'text-muted-foreground'; return cn([baseClass, styleClass])"
+                  "transform": "const item = data[0]; const items = data[1] || []; const isLast = items.indexOf(item) === items.length - 1; return isLast ? 'breadcrumb__link breadcrumb__link--current' : 'breadcrumb__link'"
                 }
               },
               "children": [{"type": "text", "content": {"source": "item.label"}}]
@@ -110,7 +107,7 @@
                 },
                 "className": {
                   "source": null,
-                  "transform": "'w-4 h-4 text-muted-foreground'"
+                  "transform": "'breadcrumb__separator'"
                 }
               }
             }

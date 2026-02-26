@@ -2,7 +2,10 @@
   "id": "form-field-root",
   "type": "div",
   "bindings": {
-    "className": "data.className",
+    "className": {
+      "source": "className",
+      "transform": "data ? 'form-field ' + data : 'form-field'"
+    },
     "control": "data.control",
     "name": "data.name"
   },

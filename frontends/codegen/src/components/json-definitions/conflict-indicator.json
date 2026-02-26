@@ -27,7 +27,7 @@
             }
           },
           "props": {
-            "className": "relative",
+            "className": "conflict-indicator",
             "initial": { "scale": 0 },
             "animate": { "scale": 1 },
             "exit": { "scale": 0 }
@@ -39,7 +39,7 @@
               "props": {
                 "size": 20,
                 "weight": "fill",
-                "className": "text-destructive animate-pulse"
+                "className": "conflict-indicator__icon"
               }
             },
             {
@@ -51,7 +51,7 @@
                 }
               },
               "props": {
-                "className": "absolute -top-1 -right-1 bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center"
+                "className": "conflict-indicator__count-bubble"
               }
             }
           ]
@@ -69,8 +69,7 @@
             }
           },
           "props": {
-            "variant": "destructive",
-            "className": "cursor-pointer hover:bg-destructive/90 transition-colors gap-1.5 animate-pulse"
+            "className": "conflict-indicator__badge"
           },
           "children": [
             {

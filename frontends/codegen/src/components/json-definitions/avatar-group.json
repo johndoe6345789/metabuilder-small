@@ -4,7 +4,7 @@
   "bindings": {
     "className": {
       "source": "className",
-      "transform": "data ? 'flex -space-x-2 ' + data : 'flex -space-x-2'"
+      "transform": "data ? `avatar-group ${data}` : 'avatar-group'"
     }
   },
   "children": [
@@ -23,7 +23,7 @@
       "bindings": {
         "className": {
           "source": "size",
-          "transform": "(() => { const sizeClasses = { xs: 'h-6 w-6 text-xs', sm: 'h-8 w-8 text-xs', md: 'h-10 w-10 text-sm', lg: 'h-12 w-12 text-base' }; return 'relative inline-flex items-center justify-center rounded-full border-2 border-background bg-muted ' + (sizeClasses[data] || sizeClasses.md); })()"
+          "transform": "(() => { const sizeMap = { xs: 'avatar-group__remainder--xs', sm: 'avatar-group__remainder--sm', md: '', lg: 'avatar-group__remainder--lg' }; const mod = sizeMap[data] || ''; return mod ? `avatar-group__remainder ${mod}` : 'avatar-group__remainder'; })()"
         }
       },
       "conditional": {
@@ -35,7 +35,7 @@
           "id": "avatar-group-count",
           "type": "span",
           "props": {
-            "className": "font-medium text-foreground"
+            "className": "avatar-group__count"
           },
           "bindings": {
             "children": {

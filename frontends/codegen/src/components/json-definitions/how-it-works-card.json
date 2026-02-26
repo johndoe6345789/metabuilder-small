@@ -1,32 +1,30 @@
 {
   "id": "how-it-works-card-container",
-  "type": "Card",
-  "className": "bg-accent/5 border-accent/20",
+  "type": "div",
+  "props": {
+    "className": "how-it-works-card"
+  },
   "children": [
     {
-      "type": "CardHeader",
-      "children": [
-        {
-          "type": "CardTitle",
-          "className": "text-base",
-          "children": [{ "type": "Text", "value": "{title}" }]
-        }
-      ]
+      "id": "how-it-works-card-title",
+      "type": "div",
+      "props": {
+        "className": "how-it-works-card__title"
+      },
+      "children": [{ "type": "Text", "value": "{title}" }]
     },
     {
-      "type": "CardContent",
-      "className": "space-y-2 text-sm",
-      "children": [
-        {
-          "type": "Box",
-          "bindings": {
-            "children": {
-              "source": "steps",
-              "transform": "source.map((step, index) => ({ id: `step-${index}`, type: 'Box', className: 'flex gap-2', children: [{ type: 'Box', className: 'w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xs font-bold flex-shrink-0', children: [{ type: 'Text', value: String(index + 1) }] }, { type: 'Paragraph', className: 'text-muted-foreground', children: [{ type: 'Text', value: step }] }] }))"
-            }
-          }
+      "id": "how-it-works-card-steps",
+      "type": "div",
+      "props": {
+        "className": "how-it-works-card__steps"
+      },
+      "bindings": {
+        "children": {
+          "source": "steps",
+          "transform": "source.map((step, index) => ({ id: `step-${index}`, type: 'div', className: 'how-it-works-card__step', children: [{ type: 'div', className: 'how-it-works-card__step-number', children: [{ type: 'Text', value: String(index + 1) }] }, { type: 'div', className: 'how-it-works-card__step-text', children: [{ type: 'Text', value: step }] }] }))"
         }
-      ]
+      }
     }
   ]
 }

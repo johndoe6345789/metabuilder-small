@@ -1,15 +1,16 @@
 {
   "id": "conflict-resolution-stats-container",
   "type": "Box",
-  "className": "grid grid-cols-1 md:grid-cols-4 gap-4",
+  "className": "conflict-stats",
   "children": [
     {
       "id": "stats-total",
       "type": "Card",
+      "className": "conflict-stats__card conflict-stats__card--error",
       "children": [
         {
           "type": "CardContent",
-          "className": "pt-6",
+          "className": "conflict-stats__card-inner",
           "children": [
             {
               "type": "Flex",
@@ -18,15 +19,16 @@
               "children": [
                 {
                   "type": "Box",
+                  "className": "conflict-stats__card-body",
                   "children": [
                     {
                       "type": "Box",
-                      "className": "text-2xl font-bold",
+                      "className": "conflict-stats__value conflict-stats__value--error",
                       "children": [{ "type": "Text", "value": "{totalConflicts}" }]
                     },
                     {
                       "type": "Box",
-                      "className": "text-xs text-muted-foreground",
+                      "className": "conflict-stats__label",
                       "children": [{ "type": "Text", "value": "{totalLabel}" }]
                     }
                   ]
@@ -36,7 +38,7 @@
                   "name": "Warning",
                   "size": 24,
                   "weight": "duotone",
-                  "className": "text-destructive"
+                  "className": "conflict-stats__icon conflict-stats__icon--error"
                 }
               ]
             }
@@ -47,10 +49,11 @@
     {
       "id": "stats-files",
       "type": "Card",
+      "className": "conflict-stats__card conflict-stats__card--info",
       "children": [
         {
           "type": "CardContent",
-          "className": "pt-6",
+          "className": "conflict-stats__card-inner",
           "children": [
             {
               "type": "Flex",
@@ -59,15 +62,16 @@
               "children": [
                 {
                   "type": "Box",
+                  "className": "conflict-stats__card-body",
                   "children": [
                     {
                       "type": "Box",
-                      "className": "text-2xl font-bold",
+                      "className": "conflict-stats__value conflict-stats__value--info",
                       "children": [{ "type": "Text", "value": "{fileConflicts}" }]
                     },
                     {
                       "type": "Box",
-                      "className": "text-xs text-muted-foreground",
+                      "className": "conflict-stats__label",
                       "children": [{ "type": "Text", "value": "{fileLabel}" }]
                     }
                   ]
@@ -77,7 +81,7 @@
                   "name": "Database",
                   "size": 24,
                   "weight": "duotone",
-                  "className": "text-primary"
+                  "className": "conflict-stats__icon conflict-stats__icon--info"
                 }
               ]
             }
@@ -88,10 +92,11 @@
     {
       "id": "stats-models",
       "type": "Card",
+      "className": "conflict-stats__card",
       "children": [
         {
           "type": "CardContent",
-          "className": "pt-6",
+          "className": "conflict-stats__card-inner",
           "children": [
             {
               "type": "Flex",
@@ -100,15 +105,16 @@
               "children": [
                 {
                   "type": "Box",
+                  "className": "conflict-stats__card-body",
                   "children": [
                     {
                       "type": "Box",
-                      "className": "text-2xl font-bold",
+                      "className": "conflict-stats__value",
                       "children": [{ "type": "Text", "value": "{modelConflicts}" }]
                     },
                     {
                       "type": "Box",
-                      "className": "text-xs text-muted-foreground",
+                      "className": "conflict-stats__label",
                       "children": [{ "type": "Text", "value": "{modelLabel}" }]
                     }
                   ]
@@ -118,7 +124,7 @@
                   "name": "Database",
                   "size": 24,
                   "weight": "duotone",
-                  "className": "text-accent"
+                  "className": "conflict-stats__icon"
                 }
               ]
             }
@@ -129,10 +135,11 @@
     {
       "id": "stats-other",
       "type": "Card",
+      "className": "conflict-stats__card",
       "children": [
         {
           "type": "CardContent",
-          "className": "pt-6",
+          "className": "conflict-stats__card-inner",
           "children": [
             {
               "type": "Flex",
@@ -141,15 +148,16 @@
               "children": [
                 {
                   "type": "Box",
+                  "className": "conflict-stats__card-body",
                   "children": [
                     {
                       "type": "Box",
-                      "className": "text-2xl font-bold",
+                      "className": "conflict-stats__value",
                       "children": [{ "type": "Text", "value": "{otherConflicts}" }]
                     },
                     {
                       "type": "Box",
-                      "className": "text-xs text-muted-foreground",
+                      "className": "conflict-stats__label",
                       "children": [{ "type": "Text", "value": "{otherLabel}" }]
                     }
                   ]
@@ -159,7 +167,7 @@
                   "name": "Cloud",
                   "size": 24,
                   "weight": "duotone",
-                  "className": "text-muted-foreground"
+                  "className": "conflict-stats__icon"
                 }
               ]
             }

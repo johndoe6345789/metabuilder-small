@@ -1,33 +1,36 @@
 {
   "id": "tips-card",
-  "type": "Card",
-  "bindings": {
-    "className": "bg-yellow-500/10 border-yellow-500/20"
+  "type": "div",
+  "props": {
+    "className": "tips-card"
   },
   "children": [
     {
       "id": "tips-card-header",
-      "type": "CardHeader",
+      "type": "div",
+      "props": {
+        "className": "tips-card__header"
+      },
       "children": [
         {
+          "type": "Icon",
+          "props": {
+            "name": "warning",
+            "weight": "duotone",
+            "size": 24,
+            "className": "tips-card__icon"
+          }
+        },
+        {
           "id": "tips-card-title",
-          "type": "CardTitle",
-          "bindings": {
-            "className": "flex items-center gap-2"
+          "type": "div",
+          "props": {
+            "className": "tips-card__title"
           },
           "children": [
             {
-              "type": "Icon",
-              "bindings": {
-                "name": "warning",
-                "weight": "duotone",
-                "size": 24,
-                "className": "text-yellow-500"
-              }
-            },
-            {
               "type": "Text",
-              "bindings": {
+              "props": {
                 "content": "Quick Tips"
               }
             }
@@ -36,10 +39,10 @@
       ]
     },
     {
-      "id": "tips-card-content",
-      "type": "CardContent",
-      "bindings": {
-        "className": "space-y-2 text-sm"
+      "id": "tips-card-list",
+      "type": "div",
+      "props": {
+        "className": "tips-card__list"
       },
       "children": [
         {
@@ -48,10 +51,18 @@
           "condition": "item.show",
           "children": [
             {
-              "type": "Text",
-              "bindings": {
-                "content": "• {item.message}"
-              }
+              "type": "div",
+              "props": {
+                "className": "tips-card__item"
+              },
+              "children": [
+                {
+                  "type": "Text",
+                  "bindings": {
+                    "content": "• {item.message}"
+                  }
+                }
+              ]
             }
           ]
         }

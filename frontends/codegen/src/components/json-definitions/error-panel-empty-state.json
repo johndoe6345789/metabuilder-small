@@ -9,7 +9,7 @@
       "name": "Lightning",
       "size": 48,
       "weight": "duotone",
-      "className": "text-accent animate-pulse"
+      "className": "error-panel-empty-state__scanning-icon"
     },
     "bindings": {
       "title": { "source": "scanningTitle" },
@@ -23,7 +23,7 @@
       "name": "CheckCircle",
       "size": 48,
       "weight": "duotone",
-      "className": "text-green-500"
+      "className": "error-panel-empty-state__success-icon"
     },
     "bindings": {
       "title": { "source": "noIssuesTitle" },

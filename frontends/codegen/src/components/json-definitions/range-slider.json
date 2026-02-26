@@ -4,7 +4,7 @@
   "bindings": {
     "className": {
       "source": "className",
-      "transform": "data ? data + ' space-y-2' : 'space-y-2'"
+      "transform": "data ? data + ' form-range-slider' : 'form-range-slider'"
     }
   },
   "children": [
@@ -12,7 +12,7 @@
       "id": "range-slider-header",
       "type": "div",
       "props": {
-        "className": "flex items-center justify-between"
+        "className": "form-range-slider__header"
       },
       "conditional": {
         "if": "(() => { return label || showValue; })()"
@@ -22,7 +22,7 @@
           "id": "range-slider-label",
           "type": "span",
           "props": {
-            "className": "text-sm font-medium"
+            "className": "form-range-slider__label"
           },
           "bindings": {
             "children": "label"
@@ -35,7 +35,7 @@
           "id": "range-slider-value",
           "type": "span",
           "props": {
-            "className": "text-sm text-muted-foreground"
+            "className": "form-range-slider__value"
           },
           "bindings": {
             "children": {

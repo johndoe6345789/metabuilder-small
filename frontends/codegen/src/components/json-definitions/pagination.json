@@ -16,7 +16,7 @@
     },
     "className": {
       "source": "className",
-      "transform": "const baseClass = 'mx-auto flex w-full justify-center'; return data ? `${baseClass} ${data}`.trim() : baseClass"
+      "transform": "const baseClass = 'pagination'; return data ? `${baseClass} ${data}`.trim() : baseClass"
     },
     "_spreadProps": {
       "source": "_spreadProps",

@@ -19,7 +19,7 @@
               "bindings": {
                 "className": {
                   "source": "className",
-                  "transform": "(() => { const path = $props.path; const sourceId = $props.sourceId; const baseClass = 'inline-flex items-center gap-1 px-2 py-1 rounded text-xs bg-accent/10 text-accent border border-accent/30'; return baseClass + ' ' + (data || ''); })()"
+                  "transform": "('binding-indicator ' + (data || '')).trim()"
                 }
               },
               "children": [
@@ -29,14 +29,14 @@
                   "props": {
                     "name": "Link",
                     "weight": "bold",
-                    "className": "w-3 h-3"
+                    "className": "binding-indicator__icon"
                   }
                 },
                 {
                   "id": "binding-indicator-text",
                   "type": "span",
                   "props": {
-                    "className": "font-mono"
+                    "className": "binding-indicator__text"
                   },
                   "bindings": {
                     "children": {
@@ -57,7 +57,7 @@
               "id": "binding-indicator-tooltip-text",
               "type": "p",
               "props": {
-                "className": "text-xs"
+                "className": "binding-indicator-tooltip"
               },
               "bindings": {
                 "children": {

@@ -2,7 +2,7 @@
   "id": "atomic-library-showcase",
   "type": "div",
   "props": {
-    "className": "max-w-7xl mx-auto px-4 py-8"
+    "className": "atomic-showcase"
   },
   "children": [
     {
@@ -15,10 +15,9 @@
     },
     {
       "id": "atomic-library-sections-stack",
-      "type": "Stack",
+      "type": "div",
       "props": {
-        "direction": "vertical",
-        "spacing": "xl"
+        "className": "atomic-showcase__sections"
       },
       "children": [
         {

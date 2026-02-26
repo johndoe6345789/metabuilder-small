@@ -1,7 +1,7 @@
 {
   "id": "error-panel-main",
   "type": "div",
-  "className": "h-full flex flex-col bg-background",
+  "className": "error-panel",
   "children": [
     {
       "id": "error-panel-header-wrapper",
@@ -16,12 +16,12 @@
     {
       "id": "error-panel-content",
       "type": "ScrollArea",
-      "className": "flex-1",
+      "className": "error-panel__scroll-body",
       "children": [
         {
           "id": "error-panel-inner",
           "type": "div",
-          "className": "p-6",
+          "className": "error-panel__inner",
           "bindings": {
             "children": {
               "source": "contentState",
