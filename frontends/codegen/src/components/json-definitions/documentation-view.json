@@ -4,81 +4,92 @@
   "className": "doc-view",
   "children": [
     {
-      "id": "documentation-tabs",
-      "type": "Tabs",
-      "className": "doc-view__tabs",
-      "bindings": {
-        "value": {
-          "source": "activeTab",
-          "transform": "data"
-        },
-        "onValueChange": {
-          "source": "setActiveTab",
-          "transform": "data"
-        }
-      },
+      "id": "documentation-header",
+      "type": "div",
+      "className": "doc-view__header",
       "children": [
         {
-          "id": "documentation-header",
+          "id": "tabs-list",
           "type": "div",
-          "className": "doc-view__header",
+          "className": "doc-view__tabs-list",
+          "loop": {
+            "source": "tabsData",
+            "itemVar": "tab"
+          },
           "children": [
             {
-              "id": "tabs-list",
-              "type": "TabsList",
+              "id": "doc-tab",
+              "type": "Tab",
               "bindings": {
-                "children": {
-                  "source": "tabsData",
-                  "transform": "data"
-                }
+                "value": { "source": "tab.value" },
+                "label": { "source": "tab.label" },
+                "selected": { "source": "tab.isSelected" },
+                "onClick": { "source": "tab.onSelect" }
               }
-            },
-            {
-              "id": "search-input-wrapper",
-              "type": "div",
-              "className": "doc-view__search-wrapper",
-              "children": [
-                {
-                  "id": "search-icon",
-                  "type": "MagnifyingGlass",
-                  "className": "doc-view__search-icon",
-                  "size": 18
-                },
-                {
-                  "id": "search-input",
-                  "type": "Input",
-                  "placeholder": "Search documentation...",
-                  "className": "doc-view__search-input",
-                  "bindings": {
-                    "value": {
-                      "source": "searchQuery",
-                      "transform": "data"
-                    },
-                    "onChange": {
-                      "source": "handleSearchChange",
-                      "transform": "data"
-                    }
-                  }
-                }
-              ]
             }
           ]
         },
         {
-          "id": "tabs-content",
-          "type": "ScrollArea",
-          "className": "doc-view__body",
+          "id": "search-input-wrapper",
+          "type": "div",
+          "className": "doc-view__search-wrapper",
           "children": [
             {
-              "id": "content-wrapper",
-              "type": "div",
-              "className": "doc-view__content",
+              "id": "search-icon",
+              "type": "MagnifyingGlass",
+              "props": { "size": 18 },
+              "className": "doc-view__search-icon"
+            },
+            {
+              "id": "search-input",
+              "type": "Input",
+              "props": { "placeholder": "Search documentation..." },
+              "className": "doc-view__search-input",
               "bindings": {
-                "children": {
-                  "source": "activeTab",
-                  "transform": "data"
-                }
+                "value": { "source": "searchQuery" },
+                "onChange": { "source": "handleSearchChange" }
               }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tabs-content",
+      "type": "ScrollArea",
+      "className": "doc-view__body",
+      "children": [
+        {
+          "id": "content-wrapper",
+          "type": "div",
+          "className": "doc-view__content",
+          "children": [
+            {
+              "id": "content-title",
+              "type": "h2",
+              "className": "doc-view__content-title",
+              "bindings": {
+                "children": { "source": "activeTabTitle" }
+              }
+            },
+            {
+              "id": "content-sections",
+              "type": "div",
+              "className": "doc-view__sections",
+              "loop": {
+                "source": "activeTabSections",
+                "itemVar": "section"
+              },
+              "children": [
+                {
+                  "id": "section-para",
+                  "type": "p",
+                  "className": "doc-view__para",
+                  "bindings": {
+                    "children": { "source": "section.text" }
+                  }
+                }
+              ]
             }
           ]
         }

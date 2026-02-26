@@ -461,6 +461,41 @@
     border-bottom: 1px solid var(--mat-sys-outline-variant);
   }
 
+  &__header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  &__title-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  &__title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--mat-sys-on-surface);
+    margin: 0;
+  }
+
+  &__badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 999px;
+    &--error { background: color-mix(in srgb, #ef4444 15%, transparent); color: #ef4444; }
+    &--warning { background: color-mix(in srgb, #f59e0b 15%, transparent); color: #d97706; }
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
   &__scroll-body {
     flex: 1;
     overflow-y: auto;
@@ -468,6 +503,88 @@
 
   &__inner {
     padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  &__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 48px 24px;
+    text-align: center;
+  }
+
+  &__empty-text {
+    font-size: 14px;
+    color: var(--mat-sys-on-surface-variant);
+    margin: 0;
+  }
+
+  &__ok-icon { color: #16a34a; }
+  &__spin-icon { color: var(--mat-sys-primary); animation: skeleton-pulse 1.2s ease-in-out infinite; }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  &__item {
+    background: var(--mat-sys-surface-container);
+    border: 1px solid var(--mat-sys-outline-variant);
+    border-radius: 8px;
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  &__item-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  &__severity {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 1px 6px;
+    border-radius: 4px;
+    &--error { background: color-mix(in srgb, #ef4444 15%, transparent); color: #ef4444; }
+    &--warning { background: color-mix(in srgb, #f59e0b 15%, transparent); color: #d97706; }
+    &--info { background: color-mix(in srgb, var(--mat-sys-primary) 15%, transparent); color: var(--mat-sys-primary); }
+  }
+
+  &__filename {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--mat-sys-on-surface);
+    font-family: monospace;
+  }
+
+  &__lineno {
+    font-size: 12px;
+    color: var(--mat-sys-on-surface-variant);
+    font-family: monospace;
+  }
+
+  &__message {
+    font-size: 13px;
+    color: var(--mat-sys-on-surface);
+    margin: 0;
+  }
+
+  &__suggestion {
+    font-size: 12px;
+    color: var(--mat-sys-on-surface-variant);
+    margin: 0;
+    font-style: italic;
   }
 }
 

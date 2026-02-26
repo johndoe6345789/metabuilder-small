@@ -818,6 +818,13 @@
     gap: 12px;
   }
 
+  &__tabs-list {
+    display: flex;
+    flex-direction: row;
+    gap: 4px;
+    overflow-x: auto;
+  }
+
   &__search-wrapper {
     position: relative;
   }
@@ -845,6 +852,26 @@
     max-width: 900px;
     margin: 0 auto;
     padding: 32px;
+  }
+
+  &__content-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--mat-sys-on-surface);
+    margin: 0 0 24px;
+  }
+
+  &__sections {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  &__para {
+    font-size: 0.9375rem;
+    line-height: 1.7;
+    color: var(--mat-sys-on-surface-variant);
+    margin: 0;
   }
 }
 

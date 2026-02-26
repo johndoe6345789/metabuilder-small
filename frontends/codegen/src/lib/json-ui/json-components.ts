@@ -917,7 +917,15 @@ export const MetabuilderWidgetConflictResolutionPage = createJsonComponentWithHo
     }
   }
 )
-export const MetabuilderWidgetErrorPanel = createJsonComponent<ErrorPanelProps>(errorPanelDef)
+export const MetabuilderWidgetErrorPanel = createJsonComponentWithHooks<ErrorPanelProps>(errorPanelDef, {
+  hooks: {
+    panelState: {
+      hookName: 'useErrorPanelMain',
+      args: (props) => [{ files: props.files, onFileChange: props.onFileChange, onFileSelect: props.onFileSelect }],
+      spread: true,
+    }
+  }
+})
 export const MetabuilderWidgetPreviewDialog = createJsonComponent<PreviewDialogProps>(previewDialogDef)
 export const MetabuilderWidgetNotFoundPage = createJsonComponent<NotFoundPageProps>(notFoundPageDef)
 export const MetabuilderWidgetGlobalSearch = createJsonComponent<GlobalSearchProps>(globalSearchDef)
@@ -982,13 +990,22 @@ export const MetabuilderWidgetTranslationEditor = createJsonComponentWithHooks<T
 })
 
 export const MetabuilderWidgetStorageSettingsPanel = createJsonComponent<StorageSettingsPanelProps>(storageSettingsPanelDef)
-export const MetabuilderWidgetFeatureToggleSettings = createJsonComponent<FeatureToggleSettingsProps>(featureToggleSettingsDef)
+export const MetabuilderWidgetFeatureToggleSettings = createJsonComponentWithHooks<FeatureToggleSettingsProps>(featureToggleSettingsDef, {
+  hooks: {
+    toggleState: {
+      hookName: 'useFeatureToggleSettings',
+      args: (props) => [props.features, props.onFeaturesChange],
+      spread: true,
+    }
+  }
+})
 
 export const MetabuilderWidgetDocumentationView = createJsonComponentWithHooks<DocumentationViewProps>(documentationViewDef, {
   hooks: {
     viewState: {
       hookName: 'useDocumentationView',
-      args: () => []
+      args: () => [],
+      spread: true,
     }
   }
 })

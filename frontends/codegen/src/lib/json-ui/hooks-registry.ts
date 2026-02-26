@@ -43,6 +43,7 @@ import { useQuickSeed } from '@/hooks/use-quick-seed'
 import { useSearchInput } from '@/hooks/use-search-input'
 import { useTranslation } from '@/hooks/use-translation'
 import { useTranslationEditor } from '@/hooks/use-translation-editor'
+import { useFeatureToggleSettings } from '@/hooks/use-feature-toggle-settings'
 
 export interface HookRegistry {
   [key: string]: (...args: any[]) => any
@@ -98,6 +99,7 @@ export const hooksRegistry: HookRegistry = {
   useSearchInput,
   useTranslation,
   useTranslationEditor,
+  useFeatureToggleSettings,
 }
 
 /**
