@@ -4,7 +4,8 @@
   "children": [
     {
       "id": "card-header",
-      "type": "CardHeader",
+      "type": "div",
+      "props": { "className": "seed-manager__header" },
       "children": [
         {
           "id": "card-title",
@@ -67,8 +68,8 @@
                   "bindings": {
                     "onClick": "onLoadSeedData",
                     "disabled": {
-                      "source": "isLoading,isLoaded",
-                      "transform": "isLoading || isLoaded"
+                      "source": "isLoaded",
+                      "transform": "data.isLoaded"
                     }
                   },
                   "props": { "variant": "default" },
@@ -87,7 +88,7 @@
                           {
                             "id": "load-text",
                             "type": "text",
-                            "bindings": { "children": "loadLabel" }
+                            "children": "Load Seed Data"
                           }
                         ]
                       },
@@ -100,7 +101,7 @@
                         {
                           "id": "loading-text-1",
                           "type": "text",
-                          "bindings": { "children": "loadingLabel" }
+                          "children": "Loading..."
                         }
                       ]
                     }
@@ -129,7 +130,7 @@
                           {
                             "id": "reset-text",
                             "type": "text",
-                            "bindings": { "children": "resetLabel" }
+                            "children": "Reset to Defaults"
                           }
                         ]
                       },
@@ -142,7 +143,7 @@
                         {
                           "id": "loading-text-2",
                           "type": "text",
-                          "bindings": { "children": "resettingLabel" }
+                          "children": "Resetting..."
                         }
                       ]
                     }
@@ -171,7 +172,7 @@
                           {
                             "id": "clear-text",
                             "type": "text",
-                            "bindings": { "children": "clearLabel" }
+                            "children": "Clear All Data"
                           }
                         ]
                       },
@@ -184,7 +185,7 @@
                         {
                           "id": "loading-text-3",
                           "type": "text",
-                          "bindings": { "children": "clearingLabel" }
+                          "children": "Clearing..."
                         }
                       ]
                     }
@@ -200,28 +201,25 @@
                 {
                   "id": "load-help",
                   "type": "p",
-                  "conditional": { "if": "helperText.load" },
                   "children": [
                     { "id": "load-help-strong", "type": "strong", "children": "Load Seed Data: " },
-                    { "id": "load-help-text", "type": "text", "bindings": { "children": "helperText.load" } }
+                    { "id": "load-help-text", "type": "text", "children": "Populates the database with example records." }
                   ]
                 },
                 {
                   "id": "reset-help",
                   "type": "p",
-                  "conditional": { "if": "helperText.reset" },
                   "children": [
                     { "id": "reset-help-strong", "type": "strong", "children": "Reset to Defaults: " },
-                    { "id": "reset-help-text", "type": "text", "bindings": { "children": "helperText.reset" } }
+                    { "id": "reset-help-text", "type": "text", "children": "Restores all data to its original seed state." }
                   ]
                 },
                 {
                   "id": "clear-help",
                   "type": "p",
-                  "conditional": { "if": "helperText.clear" },
                   "children": [
                     { "id": "clear-help-strong", "type": "strong", "children": "Clear All Data: " },
-                    { "id": "clear-help-text", "type": "text", "bindings": { "children": "helperText.clear" } }
+                    { "id": "clear-help-text", "type": "text", "children": "Removes all records from the database." }
                   ]
                 }
               ]
