@@ -137,6 +137,14 @@ import { TestSuiteList } from '@/components/unit-test-designer/TestSuiteList'
 import { TestSuiteEditor } from '@/components/unit-test-designer/TestSuiteEditor'
 import { TestCasesPanel } from '@/components/unit-test-designer/TestCasesPanel'
 
+// Project settings sub-components — same Turbopack require.context issue.
+import { NextJsConfigTab } from '@/components/project-settings/NextJsConfigTab'
+import { ScriptDialog } from '@/components/project-settings/ScriptDialog'
+import { ScriptsTab } from '@/components/project-settings/ScriptsTab'
+import { PackageDialog } from '@/components/project-settings/PackageDialog'
+import { PackagesTab } from '@/components/project-settings/PackagesTab'
+import { DataTab } from '@/components/project-settings/DataTab'
+
 // FakeMUI MD3 components — require.context is unreliable in Turbopack dev mode
 // so all FakeMUI primitives used by JSON definitions must be imported explicitly.
 import { Tabs, Tab, TabPanel } from '@metabuilder/fakemui/navigation'
@@ -215,6 +223,12 @@ const componentTreeSubComponents: UIComponentRegistry = {
   TestSuiteList: TestSuiteList as unknown as ComponentType<any>,
   TestSuiteEditor: TestSuiteEditor as unknown as ComponentType<any>,
   TestCasesPanel: TestCasesPanel as unknown as ComponentType<any>,
+  NextJsConfigTab: NextJsConfigTab as unknown as ComponentType<any>,
+  ScriptDialog: ScriptDialog as unknown as ComponentType<any>,
+  ScriptsTab: ScriptsTab as unknown as ComponentType<any>,
+  PackageDialog: PackageDialog as unknown as ComponentType<any>,
+  PackagesTab: PackagesTab as unknown as ComponentType<any>,
+  DataTab: DataTab as unknown as ComponentType<any>,
   ButtonsActionsSection: ButtonsActionsSection as unknown as ComponentType<any>,
   BadgesIndicatorsSection: BadgesIndicatorsSection as unknown as ComponentType<any>,
   TypographySection: TypographySection as unknown as ComponentType<any>,
