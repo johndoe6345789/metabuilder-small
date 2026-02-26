@@ -14,9 +14,22 @@ export function useActionExecutor(context: JSONUIContext) {
     return { sourceId, path: path || undefined }
   }
 
+  const resolveActionExpression = (expression: string, mergedData: Record<string, any>, event?: any) => {
+    let normalized = expression.trim()
+    if (!normalized.startsWith('data.') && !normalized.startsWith('event.')
+      && !normalized.startsWith('"') && !normalized.startsWith("'")
+      && !/^-?\d/.test(normalized) && normalized !== 'true' && normalized !== 'false'
+      && normalized !== 'null' && normalized !== 'undefined' && normalized !== 'Date.now()') {
+      normalized = `data.${normalized}`
+    }
+    return evaluateExpression(normalized, { data: mergedData, event })
+  }
+
   const executeAction = useCallback(async (action: Action, event?: any) => {
     try {
-      const evaluationContext = { data, event }
+      const eventContext = event && typeof event === 'object' ? event : {}
+      const mergedData = { ...data, ...eventContext }
+      const evaluationContext = { data: mergedData, event }
       const updateByPath = (sourceId: string, path: string, value: any) => {
         if (updatePath) {
           updatePath(sourceId, path, value)
@@ -57,11 +70,10 @@ export function useActionExecutor(context: JSONUIContext) {
 
           let newValue
           if (action.expression) {
-            // New: JSON expression
-            newValue = evaluateExpression(action.expression, evaluationContext)
+            newValue = resolveActionExpression(action.expression, mergedData, event)
           } else if (action.valueTemplate) {
             // New: JSON template with dynamic values
-            newValue = evaluateTemplate(action.valueTemplate, evaluationContext)
+            newValue = evaluateTemplate(action.valueTemplate, { data: mergedData, event })
           } else {
             // Fallback: static value
             newValue = action.value
@@ -77,9 +89,9 @@ export function useActionExecutor(context: JSONUIContext) {
 
           let newValue
           if (action.expression) {
-            newValue = evaluateExpression(action.expression, evaluationContext)
+            newValue = resolveActionExpression(action.expression, mergedData, event)
           } else if (action.valueTemplate) {
-            newValue = evaluateTemplate(action.valueTemplate, evaluationContext)
+            newValue = evaluateTemplate(action.valueTemplate, { data: mergedData, event })
           } else {
             newValue = action.value
           }
@@ -100,9 +112,9 @@ export function useActionExecutor(context: JSONUIContext) {
 
           let selectorValue
           if (action.expression) {
-            selectorValue = evaluateExpression(action.expression, evaluationContext)
+            selectorValue = resolveActionExpression(action.expression, mergedData, event)
           } else if (action.valueTemplate) {
-            selectorValue = evaluateTemplate(action.valueTemplate, evaluationContext)
+            selectorValue = evaluateTemplate(action.valueTemplate, { data: mergedData, event })
           } else {
             selectorValue = action.value
           }
@@ -125,9 +137,9 @@ export function useActionExecutor(context: JSONUIContext) {
 
           let newValue
           if (action.expression) {
-            newValue = evaluateExpression(action.expression, evaluationContext)
+            newValue = resolveActionExpression(action.expression, mergedData, event)
           } else if (action.valueTemplate) {
-            newValue = evaluateTemplate(action.valueTemplate, evaluationContext)
+            newValue = evaluateTemplate(action.valueTemplate, { data: mergedData, event })
           } else {
             newValue = action.value
           }

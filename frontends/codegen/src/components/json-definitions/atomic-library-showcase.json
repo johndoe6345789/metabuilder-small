@@ -1,9 +1,8 @@
 {
   "id": "atomic-library-showcase",
-  "type": "Container",
+  "type": "div",
   "props": {
-    "size": "xl",
-    "className": "py-8"
+    "className": "max-w-7xl mx-auto px-4 py-8"
   },
   "children": [
     {

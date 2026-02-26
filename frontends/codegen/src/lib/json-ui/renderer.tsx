@@ -261,10 +261,26 @@ export function JSONUIRenderer({
     const renderedChildren = renderChildren(component.children, renderContext)
 
     if (typeof Component === 'string') {
-      if (renderedChildren !== null) {
-        return React.createElement(Component, props, renderedChildren)
+      // Sanitize props for native DOM elements
+      const domProps = { ...props }
+      for (const key of Object.keys(domProps)) {
+        // Strip non-function event handler props
+        if (/^on[A-Z]/.test(key) && typeof domProps[key] !== 'function') {
+          delete domProps[key]
+        }
+        // Strip _if pseudo-binding (not a real DOM attribute)
+        if (key === '_if') {
+          delete domProps[key]
+        }
       }
-      return React.createElement(Component, props)
+      // React requires style to be an object, not a string
+      if (domProps.style && typeof domProps.style !== 'object') {
+        delete domProps.style
+      }
+      if (renderedChildren !== null) {
+        return React.createElement(Component, domProps, renderedChildren)
+      }
+      return React.createElement(Component, domProps)
     }
 
     if (renderedChildren !== null) {

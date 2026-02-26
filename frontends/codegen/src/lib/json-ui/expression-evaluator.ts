@@ -188,12 +188,36 @@ export function evaluateTemplate(
   return result
 }
 
+function parseConditionValue(raw: string): string | number | boolean | null {
+  if ((raw.startsWith("'") && raw.endsWith("'")) || (raw.startsWith('"') && raw.endsWith('"'))) {
+    return raw.slice(1, -1)
+  }
+  if (raw === 'true') return true
+  if (raw === 'false') return false
+  if (raw === 'null') return null
+  const num = Number(raw)
+  if (!isNaN(num)) return num
+  return raw
+}
+
+function compareValues(left: any, operator: string, right: any): boolean {
+  switch (operator) {
+    case '>': return left > right
+    case '<': return left < right
+    case '>=': return left >= right
+    case '<=': return left <= right
+    case '===': return left === right
+    case '!==': return left !== right
+    default: return false
+  }
+}
+
 /**
  * Evaluate a condition expression
  * Supports:
- * - "data.field > 0"
- * - "data.field.length > 0"
- * - "data.field === 'value'"
+ * - "data.field > 0", "data.field < 10", "data.field >= 1", "data.field <= 5"
+ * - "data.field === 0", "data.field !== 'value'"
+ * - "data.field.length === 0", "data.field.length > 0"
  * - "data.field != null"
  */
 export function evaluateCondition(
@@ -205,29 +229,22 @@ export function evaluateCondition(
   const { data } = context
 
   try {
-    // Simple pattern matching for common conditions
-    // "data.field > 0"
-    const gtMatch = condition.match(/^data\.([a-zA-Z0-9_.]+)\s*>\s*(.+)$/)
-    if (gtMatch) {
-      const value = getNestedValue(data, gtMatch[1])
-      const threshold = Number(gtMatch[2])
-      return (value ?? 0) > threshold
-    }
-
-    // "data.field.length > 0"
-    const lengthMatch = condition.match(/^data\.([a-zA-Z0-9_.]+)\.length\s*>\s*(.+)$/)
+    // "data.field.length <op> N"
+    const lengthMatch = condition.match(/^data\.([a-zA-Z0-9_.]+)\.length\s*(>|<|>=|<=|===|!==)\s*(.+)$/)
     if (lengthMatch) {
       const value = getNestedValue(data, lengthMatch[1])
-      const threshold = Number(lengthMatch[2])
       const length = value?.length ?? 0
-      return length > threshold
+      const threshold = Number(lengthMatch[3])
+      return compareValues(length, lengthMatch[2], threshold)
     }
 
-    // "data.field === 'value'"
-    const eqMatch = condition.match(/^data\.([a-zA-Z0-9_.]+)\s*===\s*['"](.+)['"]$/)
-    if (eqMatch) {
-      const value = getNestedValue(data, eqMatch[1])
-      return value === eqMatch[2]
+    // "data.field <op> value" (numeric or string)
+    const comparisonMatch = condition.match(/^data\.([a-zA-Z0-9_.]+)\s*(>|<|>=|<=|===|!==)\s*(.+)$/)
+    if (comparisonMatch) {
+      const value = getNestedValue(data, comparisonMatch[1])
+      const rawRight = comparisonMatch[3].trim()
+      const right = parseConditionValue(rawRight)
+      return compareValues(value ?? (typeof right === 'number' ? 0 : undefined), comparisonMatch[2], right)
     }
 
     // "data.field != null"

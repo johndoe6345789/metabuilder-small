@@ -103,20 +103,44 @@ function contextToModules(ctx: __WebpackModuleApi.RequireContext): Record<string
 const uiModules = contextToModules(require.context('@/components/ui', true, /\.(ts|tsx)$/))
 const uiComponentMap = buildComponentMapFromModules(uiModules)
 
-// FakeMUI layout primitives — registered explicitly to prevent collisions
-// with icon names (e.g. "Stack" icon = createMaterialIcon('layers')).
+// FakeMUI primitives — registered explicitly to prevent collisions
+// with icon names (e.g. "Stack" icon = createMaterialIcon('layers'))
+// and to break circular JSON stub definitions (e.g. section.json has
+// type: "Section" which would resolve back to itself without this).
 import { Stack } from '@metabuilder/fakemui/layout'
 import { Flex } from '@metabuilder/fakemui/layout'
+import { Grid } from '@metabuilder/fakemui/layout'
 import { Heading } from '@metabuilder/fakemui/atoms'
 import { Text } from '@metabuilder/fakemui/atoms'
+import { Section } from '@metabuilder/fakemui/atoms'
 import { Separator } from '@metabuilder/fakemui/data-display'
+import { Badge } from '@metabuilder/fakemui/data-display'
+import { Chip } from '@metabuilder/fakemui/data-display'
+import { Avatar } from '@metabuilder/fakemui/data-display'
+import { AvatarGroup } from '@metabuilder/fakemui/data-display'
+import { ButtonGroup } from '@metabuilder/fakemui/inputs'
+import { IconButton } from '@metabuilder/fakemui/inputs'
+import { Card } from '@metabuilder/fakemui/surfaces'
+import { Alert } from '@metabuilder/fakemui/feedback'
+import { Link } from '@metabuilder/fakemui/navigation'
 
-const fakeMuiLayoutComponents: UIComponentRegistry = {
+const fakeMuiComponents: UIComponentRegistry = {
   Stack: Stack as unknown as ComponentType<any>,
   Flex: Flex as unknown as ComponentType<any>,
+  Grid: Grid as unknown as ComponentType<any>,
   Heading: Heading as unknown as ComponentType<any>,
   Text: Text as unknown as ComponentType<any>,
+  Section: Section as unknown as ComponentType<any>,
   Separator: Separator as unknown as ComponentType<any>,
+  Badge: Badge as unknown as ComponentType<any>,
+  Chip: Chip as unknown as ComponentType<any>,
+  Avatar: Avatar as unknown as ComponentType<any>,
+  AvatarGroup: AvatarGroup as unknown as ComponentType<any>,
+  ButtonGroup: ButtonGroup as unknown as ComponentType<any>,
+  IconButton: IconButton as unknown as ComponentType<any>,
+  Card: Card as unknown as ComponentType<any>,
+  Alert: Alert as unknown as ComponentType<any>,
+  Link: Link as unknown as ComponentType<any>,
 }
 
 // Explicit component-tree-builder sub-components — require.context lazy loading
@@ -139,6 +163,21 @@ import { FileExplorerDialog } from '@/components/file-explorer/FileExplorerDialo
 // but Turbopack dev mode doesn't always resolve it. Explicit import is safe.
 import { ScrollArea } from '@/components/ui/scroll-area'
 
+// Atomic library section components — require.context + next/dynamic resolves
+// to () => null in Turbopack dev mode for sub-directory components.
+import { ButtonsActionsSection } from '@/components/atomic-library/ButtonsActionsSection'
+import { BadgesIndicatorsSection } from '@/components/atomic-library/BadgesIndicatorsSection'
+import { TypographySection } from '@/components/atomic-library/TypographySection'
+import { FormControlsSection } from '@/components/atomic-library/FormControlsSection'
+import { ProgressLoadingSection } from '@/components/atomic-library/ProgressLoadingSection'
+import { FeedbackSection } from '@/components/atomic-library/FeedbackSection'
+import { AvatarsUserElementsSection } from '@/components/atomic-library/AvatarsUserElementsSection'
+import { CardsMetricsSection } from '@/components/atomic-library/CardsMetricsSection'
+import { InteractiveElementsSection } from '@/components/atomic-library/InteractiveElementsSection'
+import { LayoutComponentsSection } from '@/components/atomic-library/LayoutComponentsSection'
+import { EnhancedComponentsSection } from '@/components/atomic-library/EnhancedComponentsSection'
+import { SummarySection } from '@/components/atomic-library/SummarySection'
+
 const componentTreeSubComponents: UIComponentRegistry = {
   ComponentTreeToolbar: ComponentTreeToolbar as unknown as ComponentType<any>,
   ComponentTreeView: ComponentTreeView as unknown as ComponentType<any>,
@@ -147,6 +186,18 @@ const componentTreeSubComponents: UIComponentRegistry = {
   FileExplorerList: FileExplorerList as unknown as ComponentType<any>,
   FileExplorerDialog: FileExplorerDialog as unknown as ComponentType<any>,
   ScrollArea: ScrollArea as unknown as ComponentType<any>,
+  ButtonsActionsSection: ButtonsActionsSection as unknown as ComponentType<any>,
+  BadgesIndicatorsSection: BadgesIndicatorsSection as unknown as ComponentType<any>,
+  TypographySection: TypographySection as unknown as ComponentType<any>,
+  FormControlsSection: FormControlsSection as unknown as ComponentType<any>,
+  ProgressLoadingSection: ProgressLoadingSection as unknown as ComponentType<any>,
+  FeedbackSection: FeedbackSection as unknown as ComponentType<any>,
+  AvatarsUserElementsSection: AvatarsUserElementsSection as unknown as ComponentType<any>,
+  CardsMetricsSection: CardsMetricsSection as unknown as ComponentType<any>,
+  InteractiveElementsSection: InteractiveElementsSection as unknown as ComponentType<any>,
+  LayoutComponentsSection: LayoutComponentsSection as unknown as ComponentType<any>,
+  EnhancedComponentsSection: EnhancedComponentsSection as unknown as ComponentType<any>,
+  SummarySection: SummarySection as unknown as ComponentType<any>,
 }
 
 // Lazy contexts — each file becomes its own async chunk, loaded on demand.
@@ -326,7 +377,7 @@ export const componentsComponents: UIComponentRegistry = buildRegistryFromEntrie
 
 export const uiComponentRegistry: UIComponentRegistry = {
   ...primitiveComponents,
-  ...fakeMuiLayoutComponents,
+  ...fakeMuiComponents,
   ...componentTreeSubComponents,
   ...shadcnComponents,
   ...atomComponents,

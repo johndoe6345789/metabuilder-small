@@ -30,9 +30,8 @@ const normalizeExpression = (expression: string, coerceIdentifier = true) => {
 
 const isSupportedCondition = (condition: string) => {
   return (
-    /^data\.[a-zA-Z0-9_.]+\s*>\s*.+$/.test(condition)
-    || /^data\.[a-zA-Z0-9_.]+\.length\s*>\s*.+$/.test(condition)
-    || /^data\.[a-zA-Z0-9_.]+\s*===\s*['"].+['"]$/.test(condition)
+    /^data\.[a-zA-Z0-9_.]+\s*(>|<|>=|<=|===|!==)\s*.+$/.test(condition)
+    || /^data\.[a-zA-Z0-9_.]+\.length\s*(>|<|>=|<=|===|!==)\s*.+$/.test(condition)
     || /^data\.[a-zA-Z0-9_.]+\s*!=\s*null$/.test(condition)
     || /^!?data\.[a-zA-Z0-9_.]+$/.test(condition)
   )
@@ -44,19 +43,14 @@ const normalizeCondition = (condition: string) => {
     return trimmed
   }
 
-  const lengthMatch = trimmed.match(/^([a-zA-Z0-9_.]+)\.length\s*>\s*(.+)$/)
+  const lengthMatch = trimmed.match(/^([a-zA-Z0-9_.]+)\.length\s*(>|<|>=|<=|===|!==)\s*(.+)$/)
   if (lengthMatch) {
-    return `data.${lengthMatch[1]}.length > ${lengthMatch[2]}`
+    return `data.${lengthMatch[1]}.length ${lengthMatch[2]} ${lengthMatch[3]}`
   }
 
-  const gtMatch = trimmed.match(/^([a-zA-Z0-9_.]+)\s*>\s*(.+)$/)
-  if (gtMatch) {
-    return `data.${gtMatch[1]} > ${gtMatch[2]}`
-  }
-
-  const eqMatch = trimmed.match(/^([a-zA-Z0-9_.]+)\s*===\s*(['"].+['"])$/)
-  if (eqMatch) {
-    return `data.${eqMatch[1]} === ${eqMatch[2]}`
+  const comparisonMatch = trimmed.match(/^([a-zA-Z0-9_.]+)\s*(>|<|>=|<=|===|!==)\s*(.+)$/)
+  if (comparisonMatch) {
+    return `data.${comparisonMatch[1]} ${comparisonMatch[2]} ${comparisonMatch[3]}`
   }
 
   const nullMatch = trimmed.match(/^([a-zA-Z0-9_.]+)\s*!=\s*null$/)
@@ -202,6 +196,11 @@ export const evaluateTransformExpression = (
 ) => {
   if (!expression) return value
   const trimmed = expression.trim()
+
+  // Identity transform: "data" just returns the resolved value as-is.
+  // Without this, the evaluator wraps value in {value: ...} and returns
+  // the whole context object instead of the actual value.
+  if (trimmed === 'data') return value
 
   // Handle || fallback: "identifier || 'default'"
   // The value is the resolved binding — use it if truthy, otherwise use default
