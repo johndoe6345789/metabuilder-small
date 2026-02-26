@@ -61,73 +61,94 @@
               "props": { "className": "seed-manager__buttons-row" },
               "children": [
                 {
-                  "id": "load-button",
-                  "type": "Button",
-                  "bindings": {
-                    "onClick": "onLoadSeedData",
-                    "disabled": { "source": "isLoaded", "transform": "data.isLoaded" }
-                  },
-                  "props": { "variant": "filled" },
+                  "id": "load-tooltip",
+                  "type": "Tooltip",
+                  "props": { "title": "Populates the database with example records", "placement": "top" },
                   "children": [
                     {
-                      "id": "load-button-content",
-                      "type": "conditional-group",
-                      "conditional": {
-                        "if": "isLoading",
-                        "else": [
-                          { "id": "load-icon", "type": "Database", "props": { "size": 16 } },
-                          { "id": "load-text", "type": "text", "children": "Load Seed Data" }
-                        ]
+                      "id": "load-button",
+                      "type": "Button",
+                      "bindings": {
+                        "onClick": "onLoadSeedData",
+                        "disabled": { "source": "isLoaded", "transform": "data.isLoaded" }
                       },
+                      "props": { "variant": "filled" },
                       "children": [
-                        { "id": "loading-spin-1", "type": "Refresh", "props": { "className": "animate-spin", "size": 16 } },
-                        { "id": "loading-text-1", "type": "text", "children": "Loading..." }
+                        {
+                          "id": "load-button-content",
+                          "type": "conditional-group",
+                          "conditional": {
+                            "if": "isLoading",
+                            "else": [
+                              { "id": "load-icon", "type": "Database", "props": { "size": 16 } },
+                              { "id": "load-text", "type": "text", "children": "Load Seed Data" }
+                            ]
+                          },
+                          "children": [
+                            { "id": "loading-spin-1", "type": "Refresh", "props": { "className": "animate-spin", "size": 16 } },
+                            { "id": "loading-text-1", "type": "text", "children": "Loading..." }
+                          ]
+                        }
                       ]
                     }
                   ]
                 },
                 {
-                  "id": "reset-button",
-                  "type": "Button",
-                  "bindings": { "onClick": "onResetSeedData", "disabled": "isLoading" },
-                  "props": { "variant": "outline" },
+                  "id": "reset-tooltip",
+                  "type": "Tooltip",
+                  "props": { "title": "Restores all data to its original seed state", "placement": "top" },
                   "children": [
                     {
-                      "id": "reset-button-content",
-                      "type": "conditional-group",
-                      "conditional": {
-                        "if": "isLoading",
-                        "else": [
-                          { "id": "reset-icon", "type": "ArrowClockwise", "props": { "size": 16 } },
-                          { "id": "reset-text", "type": "text", "children": "Reset to Defaults" }
-                        ]
-                      },
+                      "id": "reset-button",
+                      "type": "Button",
+                      "bindings": { "onClick": "onResetSeedData", "disabled": "isLoading" },
+                      "props": { "variant": "outline" },
                       "children": [
-                        { "id": "loading-spin-2", "type": "Refresh", "props": { "className": "animate-spin", "size": 16 } },
-                        { "id": "loading-text-2", "type": "text", "children": "Resetting..." }
+                        {
+                          "id": "reset-button-content",
+                          "type": "conditional-group",
+                          "conditional": {
+                            "if": "isLoading",
+                            "else": [
+                              { "id": "reset-icon", "type": "ArrowClockwise", "props": { "size": 16 } },
+                              { "id": "reset-text", "type": "text", "children": "Reset to Defaults" }
+                            ]
+                          },
+                          "children": [
+                            { "id": "loading-spin-2", "type": "Refresh", "props": { "className": "animate-spin", "size": 16 } },
+                            { "id": "loading-text-2", "type": "text", "children": "Resetting..." }
+                          ]
+                        }
                       ]
                     }
                   ]
                 },
                 {
-                  "id": "clear-button",
-                  "type": "Button",
-                  "bindings": { "onClick": "onClearAllData", "disabled": "isLoading" },
-                  "props": { "variant": "danger" },
+                  "id": "clear-tooltip",
+                  "type": "Tooltip",
+                  "props": { "title": "Removes all records from the database", "placement": "top" },
                   "children": [
                     {
-                      "id": "clear-button-content",
-                      "type": "conditional-group",
-                      "conditional": {
-                        "if": "isLoading",
-                        "else": [
-                          { "id": "clear-icon", "type": "Trash", "props": { "size": 16 } },
-                          { "id": "clear-text", "type": "text", "children": "Clear All Data" }
-                        ]
-                      },
+                      "id": "clear-button",
+                      "type": "Button",
+                      "bindings": { "onClick": "onClearAllData", "disabled": "isLoading" },
+                      "props": { "variant": "danger" },
                       "children": [
-                        { "id": "loading-spin-3", "type": "Refresh", "props": { "className": "animate-spin", "size": 16 } },
-                        { "id": "loading-text-3", "type": "text", "children": "Clearing..." }
+                        {
+                          "id": "clear-button-content",
+                          "type": "conditional-group",
+                          "conditional": {
+                            "if": "isLoading",
+                            "else": [
+                              { "id": "clear-icon", "type": "Trash", "props": { "size": 16 } },
+                              { "id": "clear-text", "type": "text", "children": "Clear All Data" }
+                            ]
+                          },
+                          "children": [
+                            { "id": "loading-spin-3", "type": "Refresh", "props": { "className": "animate-spin", "size": 16 } },
+                            { "id": "loading-text-3", "type": "text", "children": "Clearing..." }
+                          ]
+                        }
                       ]
                     }
                   ]
