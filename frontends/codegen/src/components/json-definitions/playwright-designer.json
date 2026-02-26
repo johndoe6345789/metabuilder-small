@@ -1,7 +1,7 @@
 {
   "id": "playwright-designer",
   "type": "div",
-  "props": { "className": "h-full flex" },
+  "props": { "className": "workspace__body" },
   "children": [
     {
       "id": "test-list-panel",
@@ -30,7 +30,7 @@
     {
       "id": "editor-panel",
       "type": "div",
-      "props": { "className": "flex-1 p-6" },
+      "props": { "className": "playwright-designer__editor" },
       "children": [
         {
           "id": "test-editor-section",
@@ -63,28 +63,28 @@
             "else": {
               "id": "empty-state",
               "type": "div",
-              "props": { "className": "h-full flex items-center justify-center" },
+              "props": { "className": "playwright-designer__empty" },
               "children": [
                 {
                   "id": "empty-state-inner",
                   "type": "div",
-                  "props": { "className": "text-center" },
+                  "props": { "className": "empty-state" },
                   "children": [
                     {
                       "id": "empty-icon",
                       "type": "Play",
-                      "props": { "size": 48, "className": "mx-auto mb-4 text-muted-foreground" }
+                      "props": { "size": 48 }
                     },
                     {
                       "id": "empty-title",
                       "type": "p",
-                      "props": { "className": "text-lg font-medium mb-2" },
+                      "props": { "className": "empty-state__title" },
                       "bindings": { "children": "copy.emptyStates.noTestSelectedTitle" }
                     },
                     {
                       "id": "empty-body",
                       "type": "p",
-                      "props": { "className": "text-sm text-muted-foreground mb-4" },
+                      "props": { "className": "empty-state__subtitle" },
                       "bindings": { "children": "copy.emptyStates.noTestSelectedBody" }
                     },
                     {
@@ -100,7 +100,7 @@
                         {
                           "id": "plus-icon",
                           "type": "Plus",
-                          "props": { "size": 16, "className": "mr-2" }
+                          "props": { "size": 16 }
                         },
                         {
                           "id": "create-text",

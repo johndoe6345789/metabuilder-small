@@ -832,3 +832,21 @@
   height: 100%;
   width: 100%;
 }
+
+// ─── Playwright Designer ────────────────────────────────────────────────────
+
+.playwright-designer {
+  &__editor {
+    flex: 1;
+    padding: 24px;
+    overflow: auto;
+    background: var(--mat-sys-surface);
+  }
+
+  &__empty {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
