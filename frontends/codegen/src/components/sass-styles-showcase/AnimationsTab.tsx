@@ -1,5 +1,5 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { TabsContent } from '@/components/ui/tabs'
+import { Card, CardContent, CardHeader, CardTitle } from '@metabuilder/fakemui/surfaces'
+import { TabPanel } from '@metabuilder/fakemui/navigation'
 import { type AnimationsTabData } from './types'
 
 type AnimationsTabProps = {
@@ -9,12 +9,12 @@ type AnimationsTabProps = {
 
 export function AnimationsTab({ data, value }: AnimationsTabProps) {
   return (
-    <TabsContent value={value} className="space-y-6">
+    <TabPanel value={value}>
       <Card>
         <CardHeader>
           <CardTitle>{data.title}</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             {data.items.map((item) => (
               <div key={item.label} className={item.className}>
@@ -33,14 +33,14 @@ export function AnimationsTab({ data, value }: AnimationsTabProps) {
         <CardHeader>
           <CardTitle>{data.skeletonTitle}</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-3">
+        <CardContent>
+          <div>
             {data.skeletonClasses.map((className, index) => (
               <div key={`skeleton-${index}`} className={className} />
             ))}
           </div>
         </CardContent>
       </Card>
-    </TabsContent>
+    </TabPanel>
   )
 }

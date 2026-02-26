@@ -33,7 +33,7 @@ export default function AppRouterLayout() {
   const [errorCount] = useState(0)
 
   return (
-    <div className="h-screen flex flex-col bg-background">
+    <div style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
       <AppMainPanel
         currentPage={currentPage}
         navigateToPage={navigateToPage}

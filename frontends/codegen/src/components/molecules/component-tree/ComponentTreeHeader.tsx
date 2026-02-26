@@ -1,6 +1,6 @@
 import { PanelHeader } from '@/components/atoms'
-import { Button } from '@/components/ui/button'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { Button } from '@metabuilder/fakemui/inputs'
+import { Tooltip } from '@metabuilder/fakemui/data-display'
 import { componentTreeConfig } from '@/components/molecules/component-tree/componentTreeConfig'
 import { componentTreeIcons } from '@/components/molecules/component-tree/componentTreeIcons'
 import { CaretDown, CaretRight } from '@metabuilder/fakemui/icons'
@@ -22,40 +22,32 @@ export function ComponentTreeHeader({
     : componentTreeConfig.subtitle.plural
 
   return (
-    <div className="p-4">
-      <div className="flex items-center justify-between mb-2">
+    <div>
+      <div>
         <PanelHeader
           title={componentTreeConfig.title}
           subtitle={`${componentsCount} ${subtitleLabel}`}
           icon={<Icon size={20} weight="duotone" />}
         />
         {componentsCount > 0 && (
-          <div className="flex gap-1">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={onExpandAll}
-                  className="h-7 w-7 p-0"
-                >
-                  <CaretDown size={16} />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>{componentTreeConfig.tooltips.expandAll}</TooltipContent>
+          <div>
+            <Tooltip title={componentTreeConfig.tooltips.expandAll}>
+              <Button
+                variant="text"
+                size="small"
+                onClick={onExpandAll}
+              >
+                <CaretDown size={16} />
+              </Button>
             </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={onCollapseAll}
-                  className="h-7 w-7 p-0"
-                >
-                  <CaretRight size={16} />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>{componentTreeConfig.tooltips.collapseAll}</TooltipContent>
+            <Tooltip title={componentTreeConfig.tooltips.collapseAll}>
+              <Button
+                variant="text"
+                size="small"
+                onClick={onCollapseAll}
+              >
+                <CaretRight size={16} />
+              </Button>
             </Tooltip>
           </div>
         )}

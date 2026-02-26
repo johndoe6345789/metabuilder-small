@@ -1,6 +1,6 @@
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
+import { Input } from '@metabuilder/fakemui/inputs'
+import { Label } from '@metabuilder/fakemui/atoms'
+import { Textarea } from '@metabuilder/fakemui/inputs'
 import { DataSource } from '@/types/json-ui'
 
 interface KvSourceFieldsCopy {
@@ -20,20 +20,19 @@ interface KvSourceFieldsProps {
 export function KvSourceFields({ editingSource, copy, onUpdateField }: KvSourceFieldsProps) {
   return (
     <>
-      <div className="space-y-2">
+      <div>
         <Label>{copy.keyLabel}</Label>
         <Input
           value={editingSource.key || ''}
           onChange={(e) => onUpdateField('key', e.target.value)}
           placeholder={copy.keyPlaceholder}
-          className="font-mono"
         />
-        <p className="text-xs text-muted-foreground">
+        <p>
           {copy.keyHelp}
         </p>
       </div>
 
-      <div className="space-y-2">
+      <div>
         <Label>{copy.defaultLabel}</Label>
         <Textarea
           value={JSON.stringify(editingSource.defaultValue, null, 2)}
@@ -46,7 +45,6 @@ export function KvSourceFields({ editingSource, copy, onUpdateField }: KvSourceF
             }
           }}
           placeholder={copy.defaultPlaceholder}
-          className="font-mono text-sm h-24"
         />
       </div>
     </>

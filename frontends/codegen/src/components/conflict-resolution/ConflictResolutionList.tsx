@@ -6,7 +6,7 @@ import type {
 
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { MetabuilderWidgetConflictCard as ConflictCard } from '@/lib/json-ui/json-components'
-import { Button } from '@/components/ui/button'
+import { Button } from '@metabuilder/fakemui/inputs'
 import { AnimatePresence, motion } from 'framer-motion'
 import { CheckCircle, XCircle, ArrowsClockwise } from '@metabuilder/fakemui/icons'
 
@@ -32,8 +32,8 @@ export function ConflictResolutionList({
   onDetect,
 }: ConflictResolutionListProps) {
   return (
-    <ScrollArea className="h-[calc(100vh-500px)]">
-      <div className="space-y-4 pr-4">
+    <ScrollArea>
+      <div>
         <AnimatePresence mode="popLayout">
           {conflicts.length > 0 ? (
             conflicts.map((conflict) => (
@@ -49,20 +49,18 @@ export function ConflictResolutionList({
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="text-center py-12"
             >
-              <XCircle size={48} className="mx-auto text-muted-foreground mb-4" weight="duotone" />
-              <p className="text-muted-foreground">{copy.emptyStates.filtered}</p>
+              <XCircle size={48} weight="duotone" />
+              <p>{copy.emptyStates.filtered}</p>
             </motion.div>
           ) : (
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="text-center py-12"
             >
-              <CheckCircle size={64} className="mx-auto text-accent mb-4" weight="duotone" />
-              <h3 className="text-xl font-semibold mb-2">{copy.emptyStates.noConflictsTitle}</h3>
-              <p className="text-muted-foreground mb-6">{copy.emptyStates.noConflictsDescription}</p>
+              <CheckCircle size={64} weight="duotone" />
+              <h3>{copy.emptyStates.noConflictsTitle}</h3>
+              <p>{copy.emptyStates.noConflictsDescription}</p>
               <Button onClick={onDetect} disabled={isDetecting}>
                 <ArrowsClockwise size={16} />
                 {copy.buttons.checkAgain}

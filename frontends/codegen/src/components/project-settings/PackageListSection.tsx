@@ -1,6 +1,6 @@
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
+import { Badge } from '@metabuilder/fakemui/data-display'
+import { Button } from '@metabuilder/fakemui/inputs'
+import { Card, CardContent } from '@metabuilder/fakemui/surfaces'
 import { NpmPackage } from '@/types/project'
 import { Package, Trash } from '@metabuilder/fakemui/icons'
 
@@ -25,35 +25,32 @@ export function PackageListSection({
 }: PackageListSectionProps) {
   return (
     <div>
-      <h4 className="font-semibold mb-3">{title}</h4>
-      <div className="space-y-2">
+      <h4>{title}</h4>
+      <div>
         {packages.map((pkg) => (
           <Card key={pkg.id}>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
+            <CardContent>
+              <div>
+                <div>
+                  <div>
                     <Package size={18} className={iconClassName} />
-                    <code className="font-semibold">{pkg.name}</code>
-                    <Badge variant="secondary">{pkg.version}</Badge>
+                    <code>{pkg.name}</code>
+                    <Badge variant="tonal">{pkg.version}</Badge>
                     {showDevBadge && (
-                      <Badge variant="outline" className="text-xs">
-                        dev
-                      </Badge>
+                      <Badge variant="outlined">dev</Badge>
                     )}
                   </div>
                   {pkg.description && (
-                    <p className="text-xs text-muted-foreground mt-1">{pkg.description}</p>
+                    <p>{pkg.description}</p>
                   )}
                 </div>
-                <div className="flex gap-2">
-                  <Button size="sm" variant="outline" onClick={() => onEditPackage(pkg)}>
+                <div>
+                  <Button size="small" variant="outlined" onClick={() => onEditPackage(pkg)}>
                     Edit
                   </Button>
                   <Button
-                    size="sm"
-                    variant="ghost"
-                    className="text-destructive"
+                    size="small"
+                    variant="text"
                     onClick={() => onDeletePackage(pkg.id)}
                   >
                     <Trash size={16} />
@@ -64,8 +61,8 @@ export function PackageListSection({
           </Card>
         ))}
         {packages.length === 0 && (
-          <Card className="p-8 text-center">
-            <p className="text-muted-foreground">{emptyCopy}</p>
+          <Card>
+            <p>{emptyCopy}</p>
           </Card>
         )}
       </div>

@@ -132,7 +132,7 @@ export function JSONUIPage({ jsonConfig }: JSONUIPageProps) {
   }
 
   if (!jsonConfig.layout) {
-    return <div className="p-6 text-muted-foreground">No layout defined</div>
+    return <div>No layout defined</div>
   }
 
   const layoutComponent: UIComponent = {
@@ -149,7 +149,7 @@ export function JSONUIPage({ jsonConfig }: JSONUIPageProps) {
   }
 
   return (
-    <div className="h-full w-full overflow-auto">
+    <div>
       <JSONUIRenderer
         component={layoutComponent}
         dataMap={dataMap}

@@ -1,6 +1,6 @@
-import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
-import { Label } from '@/components/ui/label'
+import { Button } from '@metabuilder/fakemui/inputs'
+import { Card } from '@metabuilder/fakemui/surfaces'
+import { Label } from '@metabuilder/fakemui/atoms'
 import { CloudArrowDown } from '@metabuilder/fakemui/icons'
 
 interface UpdateSectionProps {
@@ -21,22 +21,22 @@ export function UpdateSection({ isUpdateAvailable, onUpdate, copy }: UpdateSecti
   }
 
   return (
-    <Card className="p-6 border-accent">
-      <div className="space-y-4">
+    <Card>
+      <div>
         <div>
-          <h3 className="text-lg font-semibold mb-1">{copy.title}</h3>
-          <p className="text-sm text-muted-foreground">{copy.description}</p>
+          <h3>{copy.title}</h3>
+          <p>{copy.description}</p>
         </div>
 
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <CloudArrowDown size={20} className="text-accent" />
+        <div>
+          <div>
+            <CloudArrowDown size={20} />
             <div>
-              <Label className="text-base">{copy.label}</Label>
-              <p className="text-xs text-muted-foreground">{copy.status}</p>
+              <Label>{copy.label}</Label>
+              <p>{copy.status}</p>
             </div>
           </div>
-          <Button onClick={onUpdate}>{copy.action}</Button>
+          <Button variant="filled" onClick={onUpdate}>{copy.action}</Button>
         </div>
       </div>
     </Card>

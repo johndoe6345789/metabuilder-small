@@ -1,6 +1,6 @@
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Alert } from '@metabuilder/fakemui/feedback'
+import { Badge } from '@metabuilder/fakemui/data-display'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@metabuilder/fakemui/surfaces'
 import { KnowledgeBaseItem } from '@/types/docker'
 import { motion } from 'framer-motion'
 
@@ -20,8 +20,8 @@ export function KnowledgeBaseResults({
   text,
 }: KnowledgeBaseResultsProps) {
   return (
-    <div className="space-y-6">
-      <div className="grid gap-4 md:grid-cols-2">
+    <div>
+      <div>
         {items.map((item) => (
           <motion.div
             key={item.id}
@@ -30,22 +30,21 @@ export function KnowledgeBaseResults({
             transition={{ duration: 0.2 }}
           >
             <Card
-              className="border-border/50 bg-card/50 backdrop-blur-sm cursor-pointer hover:border-accent/50 hover:shadow-lg hover:shadow-accent/5 transition-all"
               onClick={() => onSelect(item)}
             >
               <CardHeader>
-                <div className="flex items-start justify-between gap-2">
-                  <CardTitle className="text-base">{item.title}</CardTitle>
-                  <Badge variant="secondary" className="text-xs shrink-0">
+                <div>
+                  <CardTitle>{item.title}</CardTitle>
+                  <Badge>
                     {item.category}
                   </Badge>
                 </div>
-                <CardDescription className="text-xs font-mono text-muted-foreground">
+                <CardDescription>
                   {item.pattern}
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-muted-foreground line-clamp-2">{item.explanation}</p>
+                <p>{item.explanation}</p>
               </CardContent>
             </Card>
           </motion.div>
@@ -54,7 +53,7 @@ export function KnowledgeBaseResults({
 
       {items.length === 0 && (
         <Alert>
-          <AlertDescription>{text.noResults.replace('{{query}}', searchQuery)}</AlertDescription>
+          {text.noResults.replace('{{query}}', searchQuery)}
         </Alert>
       )}
     </div>

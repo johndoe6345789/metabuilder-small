@@ -1,6 +1,6 @@
-import { Card } from '@/components/ui/card'
-import { Label } from '@/components/ui/label'
-import { Switch } from '@/components/ui/switch'
+import { Card } from '@metabuilder/fakemui/surfaces'
+import { Label } from '@metabuilder/fakemui/atoms'
+import { Switch } from '@metabuilder/fakemui/inputs'
 import { Bell, CheckCircle, Question, XCircle } from '@metabuilder/fakemui/icons'
 
 interface NotificationsSectionProps {
@@ -20,31 +20,31 @@ export function NotificationsSection({ permission, onToggle, copy }: Notificatio
   const getPermissionIcon = () => {
     switch (permission) {
       case 'granted':
-        return <CheckCircle size={16} className="text-accent" weight="fill" />
+        return <CheckCircle size={16} weight="fill" />
       case 'denied':
-        return <XCircle size={16} className="text-destructive" weight="fill" />
+        return <XCircle size={16} weight="fill" />
       case 'unsupported':
-        return <XCircle size={16} className="text-muted-foreground" weight="fill" />
+        return <XCircle size={16} weight="fill" />
       default:
-        return <Question size={16} className="text-muted-foreground" weight="fill" />
+        return <Question size={16} weight="fill" />
     }
   }
 
   return (
-    <Card className="p-6">
-      <div className="space-y-4">
+    <Card>
+      <div>
         <div>
-          <h3 className="text-lg font-semibold mb-1">{copy.title}</h3>
-          <p className="text-sm text-muted-foreground">{copy.description}</p>
+          <h3>{copy.title}</h3>
+          <p>{copy.description}</p>
         </div>
 
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Bell size={20} className="text-muted-foreground" />
+        <div>
+          <div>
+            <Bell size={20} />
             <div>
-              <Label className="text-base">{copy.label}</Label>
-              <div className="flex items-center gap-2">
-                <p className="text-xs text-muted-foreground">
+              <Label>{copy.label}</Label>
+              <div>
+                <p>
                   {copy.permissionLabel} {permission}
                 </p>
                 {getPermissionIcon()}
@@ -53,19 +53,19 @@ export function NotificationsSection({ permission, onToggle, copy }: Notificatio
           </div>
           <Switch
             checked={permission === 'granted'}
-            onCheckedChange={onToggle}
+            onChange={onToggle}
             disabled={permission === 'denied' || permission === 'unsupported'}
           />
         </div>
 
         {permission === 'denied' && (
-          <div className="text-xs text-destructive bg-destructive/10 p-3 rounded-md">
+          <div>
             {copy.blocked}
           </div>
         )}
 
         {permission === 'unsupported' && (
-          <div className="text-xs text-muted-foreground bg-muted/50 p-3 rounded-md">
+          <div>
             {copy.unsupported}
           </div>
         )}

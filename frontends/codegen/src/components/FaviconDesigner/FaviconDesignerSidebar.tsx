@@ -1,5 +1,5 @@
+import { Separator } from '@metabuilder/fakemui/data-display'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { Separator } from '@/components/ui/separator'
 import { BrushSettingsPanel } from './BrushSettingsPanel'
 import { DesignSettingsPanel } from './DesignSettingsPanel'
 import { ElementInspectorPanel } from './ElementInspectorPanel'
@@ -55,8 +55,8 @@ export const FaviconDesignerSidebar = ({
   onGradientColorChange,
   onGlowIntensityChange,
 }: FaviconDesignerSidebarProps) => (
-  <ScrollArea className="h-full">
-    <div className="p-6 space-y-6">
+  <ScrollArea>
+    <div>
       <DesignSettingsPanel
         activeDesign={activeDesign}
         activeDesignId={activeDesignId}

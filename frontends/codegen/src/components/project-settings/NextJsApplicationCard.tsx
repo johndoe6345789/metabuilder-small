@@ -1,6 +1,6 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { Card, CardHeader, CardContent, CardTitle, CardDescription } from '@metabuilder/fakemui/surfaces'
+import { Input } from '@metabuilder/fakemui/inputs'
+import { Label } from '@metabuilder/fakemui/atoms'
 import projectSettingsCopy from '@/data/project-settings.json'
 import { NextJsConfigSectionProps } from '@/components/project-settings/types'
 
@@ -16,7 +16,7 @@ export function NextJsApplicationCard({
         <CardTitle>{application.title}</CardTitle>
         <CardDescription>{application.description}</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent>
         <div>
           <Label htmlFor="app-name">{application.fields.appName.label}</Label>
           <Input
@@ -45,9 +45,7 @@ export function NextJsApplicationCard({
             }
             placeholder={application.fields.importAlias.placeholder}
           />
-          <p className="text-xs text-muted-foreground mt-1">
-            {application.fields.importAlias.helper}
-          </p>
+          <p>{application.fields.importAlias.helper}</p>
         </div>
       </CardContent>
     </Card>

@@ -1,7 +1,6 @@
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Slider } from '@/components/ui/slider'
+import { Input } from '@metabuilder/fakemui/inputs'
+import { Label } from '@metabuilder/fakemui/atoms'
+import { Slider } from '@metabuilder/fakemui/inputs'
 import { Drop, Gradient, PencilSimple, Sparkle } from '@metabuilder/fakemui/icons'
 import copy from '@/data/favicon-designer.json'
 import { formatCopy } from './formatCopy'
@@ -34,8 +33,8 @@ export const BrushSettingsPanel = ({
   onGradientColorChange,
   onGlowIntensityChange,
 }: BrushSettingsPanelProps) => (
-  <div className="space-y-4">
-    <Label className="text-base font-semibold">
+  <div>
+    <Label>
       {drawMode === 'draw' ? copy.brush.settingsTitle : copy.brush.eraserSettingsTitle}
     </Label>
 
@@ -43,47 +42,29 @@ export const BrushSettingsPanel = ({
       <>
         <div>
           <Label>{copy.brush.effectLabel}</Label>
-          <Select value={brushEffect} onValueChange={(value) => onBrushEffectChange(value as BrushEffect)}>
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="solid">
-                <div className="flex items-center gap-2">
-                  <PencilSimple size={16} />
-                  {copy.effects.solid}
-                </div>
-              </SelectItem>
-              <SelectItem value="gradient">
-                <div className="flex items-center gap-2">
-                  <Gradient size={16} />
-                  {copy.effects.gradient}
-                </div>
-              </SelectItem>
-              <SelectItem value="spray">
-                <div className="flex items-center gap-2">
-                  <Drop size={16} />
-                  {copy.effects.spray}
-                </div>
-              </SelectItem>
-              <SelectItem value="glow">
-                <div className="flex items-center gap-2">
-                  <Sparkle size={16} />
-                  {copy.effects.glow}
-                </div>
-              </SelectItem>
-            </SelectContent>
-          </Select>
+          <select value={brushEffect} onChange={(e) => onBrushEffectChange(e.target.value as BrushEffect)}>
+            <option value="solid">
+              {copy.effects.solid}
+            </option>
+            <option value="gradient">
+              {copy.effects.gradient}
+            </option>
+            <option value="spray">
+              {copy.effects.spray}
+            </option>
+            <option value="glow">
+              {copy.effects.glow}
+            </option>
+          </select>
         </div>
 
         <div>
           <Label>{copy.brush.colorLabel}</Label>
-          <div className="flex gap-2">
+          <div>
             <Input
               type="color"
               value={brushColor}
               onChange={(event) => onBrushColorChange(event.target.value)}
-              className="w-20 h-10"
             />
             <Input
               value={brushColor}
@@ -96,12 +77,11 @@ export const BrushSettingsPanel = ({
         {brushEffect === 'gradient' && (
           <div>
             <Label>{copy.brush.gradientColorLabel}</Label>
-            <div className="flex gap-2">
+            <div>
               <Input
                 type="color"
                 value={gradientColor}
                 onChange={(event) => onGradientColorChange(event.target.value)}
-                className="w-20 h-10"
               />
               <Input
                 value={gradientColor}

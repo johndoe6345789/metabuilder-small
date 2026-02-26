@@ -141,7 +141,7 @@ import { AlertTitle, Dialog, Progress, Skeleton } from '@metabuilder/fakemui/fee
 import { Tooltip } from '@metabuilder/fakemui/data-display'
 import { Label } from '@metabuilder/fakemui/atoms'
 import { DialogContent, DialogHeader, DialogTitle, DialogContentText, DialogActions } from '@metabuilder/fakemui/utils'
-import { Download, Plus, Trash, Merge as MergeIcon } from 'lucide-react'
+import { Download, Plus, Trash, GitBranch as MergeIcon } from '@metabuilder/fakemui/icons'
 import { JSONUIShowcase } from '@/components/JSONUIShowcase'
 import { SchemaEditorWorkspace } from '@/components/schema-editor/SchemaEditorWorkspace'
 

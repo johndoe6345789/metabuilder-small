@@ -1,7 +1,6 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@metabuilder/fakemui/surfaces'
+import { Button } from '@metabuilder/fakemui/inputs'
+import { Badge, Separator } from '@metabuilder/fakemui/data-display'
 import { Database, FilePlus } from '@metabuilder/fakemui/icons'
 import reduxIntegrationCopy from '@/data/redux-integration-demo.json'
 
@@ -19,28 +18,28 @@ export function IndexedDbStatusCard({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Database className="w-5 h-5" />
+        <CardTitle>
+          <Database />
           {reduxIntegrationCopy.cards.indexedDb.title}
         </CardTitle>
         <CardDescription>{reduxIntegrationCopy.cards.indexedDb.description}</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-3">
-        <div className="flex justify-between items-center">
-          <span className="text-sm text-muted-foreground">
+      <CardContent>
+        <div>
+          <span>
             {reduxIntegrationCopy.cards.indexedDb.labels.files}
           </span>
-          <Badge variant="outline">{filesCount}</Badge>
+          <Badge variant="outlined">{filesCount}</Badge>
         </div>
-        <div className="flex justify-between items-center">
-          <span className="text-sm text-muted-foreground">
+        <div>
+          <span>
             {reduxIntegrationCopy.cards.indexedDb.labels.componentTrees}
           </span>
-          <Badge variant="outline">{treesCount}</Badge>
+          <Badge variant="outlined">{treesCount}</Badge>
         </div>
         <Separator />
-        <Button onClick={onCreateTestFile} variant="outline" size="sm" className="w-full">
-          <FilePlus className="w-4 h-4 mr-2" />
+        <Button onClick={onCreateTestFile} variant="outlined" size="small">
+          <FilePlus />
           {reduxIntegrationCopy.cards.indexedDb.labels.createTestFile}
         </Button>
       </CardContent>

@@ -1,8 +1,8 @@
 import { useStorage } from '@/hooks/use-storage'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardHeader, CardTitle } from '@metabuilder/fakemui/surfaces'
+import { Button } from '@metabuilder/fakemui/inputs'
+import { Input } from '@metabuilder/fakemui/inputs'
+import { Badge } from '@metabuilder/fakemui/data-display'
 import { useState } from 'react'
 import { Database } from '@metabuilder/fakemui/icons'
 import copy from '@/data/storage-example.json'
@@ -21,11 +21,11 @@ type HeaderProps = {
 
 const StorageExampleHeader = ({ title, description }: HeaderProps) => (
   <div>
-    <h1 className="text-3xl font-bold mb-2 flex items-center gap-2">
+    <h1>
       <Database size={32} />
       {title}
     </h1>
-    <p className="text-muted-foreground">{description}</p>
+    <p>{description}</p>
   </div>
 )
 
@@ -39,16 +39,16 @@ const CounterCard = ({ counter, onIncrement }: CounterCardProps) => (
     <CardHeader>
       <CardTitle>{copy.counter.title}</CardTitle>
     </CardHeader>
-    <CardContent className="space-y-4">
-      <div className="flex items-center justify-center gap-4">
-        <Badge variant="outline" className="text-4xl py-4 px-8">
+    <CardContent>
+      <div>
+        <Badge variant="outline">
           {counter}
         </Badge>
       </div>
-      <Button onClick={onIncrement} className="w-full" size="lg">
+      <Button onClick={onIncrement} size="large">
         {copy.counter.incrementButton}
       </Button>
-      <p className="text-xs text-muted-foreground text-center">{copy.counter.helper}</p>
+      <p>{copy.counter.helper}</p>
     </CardContent>
   </Card>
 )
@@ -74,8 +74,8 @@ const TodoListCard = ({
     <CardHeader>
       <CardTitle>{copy.todo.title}</CardTitle>
     </CardHeader>
-    <CardContent className="space-y-4">
-      <div className="flex gap-2">
+    <CardContent>
+      <div>
         <Input
           value={newTodoText}
           onChange={(e) => onTodoTextChange(e.target.value)}
@@ -85,28 +85,25 @@ const TodoListCard = ({
         <Button onClick={onAddTodo}>{copy.todo.addButton}</Button>
       </div>
 
-      <div className="space-y-2 max-h-64 overflow-y-auto">
+      <div>
         {todos.length === 0 ? (
-          <p className="text-sm text-muted-foreground text-center py-4">
+          <p>
             {copy.todo.emptyState}
           </p>
         ) : (
           todos.map((todo) => (
-            <div key={todo.id} className="flex items-center gap-2 p-2 rounded border">
+            <div key={todo.id}>
               <input
                 type="checkbox"
                 checked={todo.completed}
                 onChange={() => onToggleTodo(todo.id)}
-                className="w-4 h-4"
               />
               <span
-                className={`flex-1 ${
-                  todo.completed ? 'line-through text-muted-foreground' : ''
-                }`}
+                style={{ textDecoration: todo.completed ? 'line-through' : 'none' }}
               >
                 {todo.text}
               </span>
-              <Button variant="ghost" size="sm" onClick={() => onDeleteTodo(todo.id)}>
+              <Button variant="text" size="small" onClick={() => onDeleteTodo(todo.id)}>
                 {copy.todo.deleteButton}
               </Button>
             </div>
@@ -114,7 +111,7 @@ const TodoListCard = ({
         )}
       </div>
 
-      <p className="text-xs text-muted-foreground">{copy.todo.footer}</p>
+      <p>{copy.todo.footer}</p>
     </CardContent>
   </Card>
 )
@@ -124,19 +121,19 @@ const HowItWorksCard = () => (
     <CardHeader>
       <CardTitle>{copy.howItWorks.title}</CardTitle>
     </CardHeader>
-    <CardContent className="space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <CardContent>
+      <div>
         {copy.howItWorks.steps.map((step) => (
-          <div className="space-y-2" key={step.title}>
-            <h3 className="font-semibold">{step.title}</h3>
-            <p className="text-sm text-muted-foreground">{step.description}</p>
+          <div key={step.title}>
+            <h3>{step.title}</h3>
+            <p>{step.description}</p>
           </div>
         ))}
       </div>
 
-      <div className="bg-muted p-4 rounded-lg">
-        <h4 className="font-semibold mb-2">{copy.howItWorks.codeExampleTitle}</h4>
-        <pre className="text-xs overflow-x-auto">{copy.howItWorks.codeSample}</pre>
+      <div>
+        <h4>{copy.howItWorks.codeExampleTitle}</h4>
+        <pre>{copy.howItWorks.codeSample}</pre>
       </div>
     </CardContent>
   </Card>
@@ -178,10 +175,10 @@ export function StorageExample() {
   }
 
   return (
-    <div className="space-y-6 p-6">
+    <div>
       <StorageExampleHeader title={copy.title} description={copy.description} />
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div>
         <CounterCard counter={counter} onIncrement={incrementCounter} />
         <TodoListCard
           todos={todos}

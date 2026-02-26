@@ -1,5 +1,5 @@
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@metabuilder/fakemui/inputs'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@metabuilder/fakemui/surfaces'
 import { Trash } from '@metabuilder/fakemui/icons'
 import reduxIntegrationCopy from '@/data/redux-integration-demo.json'
 
@@ -10,14 +10,14 @@ type DangerZoneCardProps = {
 
 export function DangerZoneCard({ flaskConnected, onClearFlask }: DangerZoneCardProps) {
   return (
-    <Card className="mt-6 border-destructive/50">
+    <Card>
       <CardHeader>
-        <CardTitle className="text-destructive">{reduxIntegrationCopy.danger.title}</CardTitle>
+        <CardTitle>{reduxIntegrationCopy.danger.title}</CardTitle>
         <CardDescription>{reduxIntegrationCopy.danger.description}</CardDescription>
       </CardHeader>
       <CardContent>
-        <Button variant="destructive" onClick={onClearFlask} disabled={!flaskConnected}>
-          <Trash className="w-4 h-4 mr-2" />
+        <Button variant="danger" onClick={onClearFlask} disabled={!flaskConnected}>
+          <Trash />
           {reduxIntegrationCopy.danger.clearButton}
         </Button>
       </CardContent>

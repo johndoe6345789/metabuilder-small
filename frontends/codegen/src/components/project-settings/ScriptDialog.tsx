@@ -1,7 +1,14 @@
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { Dialog } from '@metabuilder/fakemui/feedback'
+import {
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogContentText,
+  DialogActions,
+} from '@metabuilder/fakemui/utils'
+import { Button } from '@metabuilder/fakemui/inputs'
+import { Input } from '@metabuilder/fakemui/inputs'
+import { Label } from '@metabuilder/fakemui/atoms'
 import projectSettingsCopy from '@/data/project-settings.json'
 
 interface ScriptDialogProps {
@@ -28,39 +35,39 @@ export function ScriptDialog({
   const copy = projectSettingsCopy.scripts.dialog
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onClose={() => onOpenChange(false)}>
+      <DialogHeader>
+        <DialogTitle>{editingScriptKey ? copy.title.edit : copy.title.add}</DialogTitle>
+        <DialogContentText>{copy.description}</DialogContentText>
+      </DialogHeader>
       <DialogContent>
-        <DialogHeader>
-          <DialogTitle>{editingScriptKey ? copy.title.edit : copy.title.add}</DialogTitle>
-          <DialogDescription>{copy.description}</DialogDescription>
-        </DialogHeader>
-        <div className="space-y-4">
-          <div>
-            <Label htmlFor="script-name">{copy.fields.name.label}</Label>
-            <Input
-              id="script-name"
-              value={scriptKey}
-              onChange={(e) => setScriptKey(e.target.value)}
-              placeholder={copy.fields.name.placeholder}
-            />
-          </div>
-          <div>
-            <Label htmlFor="script-command">{copy.fields.command.label}</Label>
-            <Input
-              id="script-command"
-              value={scriptValue}
-              onChange={(e) => setScriptValue(e.target.value)}
-              placeholder={copy.fields.command.placeholder}
-            />
-          </div>
+        <div>
+          <Label htmlFor="script-name">{copy.fields.name.label}</Label>
+          <Input
+            id="script-name"
+            value={scriptKey}
+            onChange={(e) => setScriptKey(e.target.value)}
+            placeholder={copy.fields.name.placeholder}
+          />
         </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
-          <Button onClick={onSave}>Save Script</Button>
-        </DialogFooter>
+        <div>
+          <Label htmlFor="script-command">{copy.fields.command.label}</Label>
+          <Input
+            id="script-command"
+            value={scriptValue}
+            onChange={(e) => setScriptValue(e.target.value)}
+            placeholder={copy.fields.command.placeholder}
+          />
+        </div>
       </DialogContent>
+      <DialogActions>
+        <Button variant="outlined" onClick={() => onOpenChange(false)}>
+          Cancel
+        </Button>
+        <Button variant="filled" onClick={onSave}>
+          Save Script
+        </Button>
+      </DialogActions>
     </Dialog>
   )
 }

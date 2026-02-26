@@ -1,4 +1,4 @@
-import { Button } from '@/components/ui/button'
+import { Button, IconButton } from '@metabuilder/fakemui/inputs'
 import { Plus, Sparkle } from '@metabuilder/fakemui/icons'
 
 interface ComponentTreeToolbarProps {
@@ -11,23 +11,20 @@ export function ComponentTreeToolbar({
   onAddRoot,
 }: ComponentTreeToolbarProps) {
   return (
-    <div className="flex items-center justify-between">
-      <h3 className="font-semibold text-sm uppercase tracking-wide">
+    <div>
+      <h3>
         Component Tree
       </h3>
-      <div className="flex gap-1">
-        <Button
-          size="sm"
-          variant="outline"
+      <div>
+        <IconButton
           onClick={onGenerate}
-          className="h-8 w-8 p-0"
           title="Generate component with AI"
         >
           <Sparkle size={16} weight="duotone" />
-        </Button>
-        <Button size="sm" onClick={onAddRoot} className="h-8 w-8 p-0">
+        </IconButton>
+        <IconButton onClick={onAddRoot}>
           <Plus size={16} />
-        </Button>
+        </IconButton>
       </div>
     </div>
   )

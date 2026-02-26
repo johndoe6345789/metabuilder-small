@@ -1,11 +1,9 @@
 import { TestCase } from '@/types/project'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { Badge } from '@metabuilder/fakemui/data-display'
+import { Button, IconButton, Input, Textarea } from '@metabuilder/fakemui/inputs'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@metabuilder/fakemui/surfaces'
+import { Label } from '@metabuilder/fakemui/atoms'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { Textarea } from '@/components/ui/textarea'
 import { Plus, Trash } from '@metabuilder/fakemui/icons'
 import unitTestDesignerCopy from '@/data/unit-test-designer.json'
 
@@ -31,36 +29,35 @@ export function TestCasesPanel({
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center justify-between">
+        <div>
           <div>
             <CardTitle>{unitTestDesignerCopy.labels.testCases}</CardTitle>
             <CardDescription>{unitTestDesignerCopy.labels.testCasesDescription}</CardDescription>
           </div>
-          <Button size="sm" onClick={onAddTestCase}>
-            <Plus size={14} className="mr-1" />
+          <Button size="small" onClick={onAddTestCase}>
+            <Plus size={14} />
             {unitTestDesignerCopy.labels.addTestCase}
           </Button>
         </div>
       </CardHeader>
       <CardContent>
         <ScrollArea className="h-[450px]">
-          <div className="space-y-4">
+          <div>
             {testCases.map((testCase, index) => (
               <Card key={testCase.id}>
-                <CardContent className="pt-4 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <Badge variant="outline">
+                <CardContent>
+                  <div>
+                    <Badge variant="outlined">
                       {unitTestDesignerCopy.labels.case} {index + 1}
                     </Badge>
-                    <Button
-                      size="sm"
-                      variant="ghost"
+                    <IconButton
+                      size="small"
                       onClick={() => onDeleteTestCase(testCase.id)}
                     >
                       <Trash size={14} />
-                    </Button>
+                    </IconButton>
                   </div>
-                  <div className="space-y-2">
+                  <div>
                     <Label>{unitTestDesignerCopy.labels.caseDescription}</Label>
                     <Input
                       value={testCase.description}
@@ -68,52 +65,48 @@ export function TestCasesPanel({
                       placeholder={unitTestDesignerCopy.placeholders.caseDescription}
                     />
                   </div>
-                  <div className="space-y-2">
+                  <div>
                     <Label>{unitTestDesignerCopy.labels.setupCode}</Label>
                     <Textarea
                       value={testCase.setup || ''}
                       onChange={event => onUpdateTestCase(testCase.id, { setup: event.target.value })}
                       placeholder={unitTestDesignerCopy.placeholders.setupCode}
-                      className="font-mono text-xs"
                       rows={2}
                     />
                   </div>
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
+                  <div>
+                    <div>
                       <Label>{unitTestDesignerCopy.labels.assertions}</Label>
-                      <Button size="sm" variant="outline" onClick={() => onAddAssertion(testCase.id)}>
+                      <IconButton size="small" onClick={() => onAddAssertion(testCase.id)}>
                         <Plus size={12} />
-                      </Button>
+                      </IconButton>
                     </div>
-                    <div className="space-y-2">
+                    <div>
                       {testCase.assertions.map((assertion, assertionIndex) => (
-                        <div key={assertionIndex} className="flex gap-2">
+                        <div key={assertionIndex}>
                           <Input
                             value={assertion}
                             onChange={event =>
                               onUpdateAssertion(testCase.id, assertionIndex, event.target.value)
                             }
                             placeholder={unitTestDesignerCopy.placeholders.assertion}
-                            className="font-mono text-xs"
                           />
-                          <Button
-                            size="sm"
-                            variant="ghost"
+                          <IconButton
+                            size="small"
                             onClick={() => onDeleteAssertion(testCase.id, assertionIndex)}
                           >
                             <Trash size={12} />
-                          </Button>
+                          </IconButton>
                         </div>
                       ))}
                     </div>
                   </div>
-                  <div className="space-y-2">
+                  <div>
                     <Label>{unitTestDesignerCopy.labels.teardownCode}</Label>
                     <Textarea
                       value={testCase.teardown || ''}
                       onChange={event => onUpdateTestCase(testCase.id, { teardown: event.target.value })}
                       placeholder={unitTestDesignerCopy.placeholders.teardownCode}
-                      className="font-mono text-xs"
                       rows={2}
                     />
                   </div>
@@ -121,7 +114,7 @@ export function TestCasesPanel({
               </Card>
             ))}
             {testCases.length === 0 && (
-              <div className="py-12 text-center text-sm text-muted-foreground">
+              <div>
                 {unitTestDesignerCopy.labels.noTestCasesYet}
               </div>
             )}

@@ -1,5 +1,5 @@
-import { Label } from '@/components/ui/label'
-import { Slider } from '@/components/ui/slider'
+import { Label } from '@metabuilder/fakemui/atoms'
+import { Slider } from '@metabuilder/fakemui/inputs'
 import copy from '@/data/favicon-designer.json'
 import { formatCopy } from './formatCopy'
 import { FaviconDesign, FaviconElement } from './types'
@@ -15,8 +15,8 @@ export const TransformInspector = ({ element, activeDesign, onUpdateElement }: T
     <div>
       <Label>{formatCopy(copy.inspector.xPosition, { value: element.x })}</Label>
       <Slider
-        value={[element.x]}
-        onValueChange={([value]) => onUpdateElement({ x: value })}
+        value={element.x}
+        onChange={(_e, value) => onUpdateElement({ x: value })}
         min={0}
         max={activeDesign.size}
         step={1}
@@ -25,8 +25,8 @@ export const TransformInspector = ({ element, activeDesign, onUpdateElement }: T
     <div>
       <Label>{formatCopy(copy.inspector.yPosition, { value: element.y })}</Label>
       <Slider
-        value={[element.y]}
-        onValueChange={([value]) => onUpdateElement({ y: value })}
+        value={element.y}
+        onChange={(_e, value) => onUpdateElement({ y: value })}
         min={0}
         max={activeDesign.size}
         step={1}
@@ -35,8 +35,8 @@ export const TransformInspector = ({ element, activeDesign, onUpdateElement }: T
     <div>
       <Label>{formatCopy(copy.inspector.rotation, { value: element.rotation })}</Label>
       <Slider
-        value={[element.rotation]}
-        onValueChange={([value]) => onUpdateElement({ rotation: value })}
+        value={element.rotation}
+        onChange={(_e, value) => onUpdateElement({ rotation: value })}
         min={0}
         max={360}
         step={1}

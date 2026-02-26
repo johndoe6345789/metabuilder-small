@@ -1,12 +1,9 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
-import { Input } from '@/components/ui/input'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@metabuilder/fakemui/surfaces'
+import { Checkbox, Input } from '@metabuilder/fakemui/inputs'
+import { Badge, Separator } from '@metabuilder/fakemui/data-display'
 import { DataList, ActionButton, IconButton } from '@/components/atoms'
 import { Trash, Plus } from '@metabuilder/fakemui/icons'
 import { useSearch } from '@/hooks/data'
-import { cn } from '@/lib/utils'
 import strings from '@/data/comprehensive-demo.json'
 import type { Todo } from './types'
 
@@ -18,19 +15,6 @@ interface ComprehensiveDemoTaskListProps {
 }
 
 const priorityLabels = strings.priorityLabels as Record<Todo['priority'], string>
-
-const getPriorityColor = (priority: Todo['priority']) => {
-  switch (priority) {
-    case 'high':
-      return 'bg-red-500/10 text-red-600 border-red-500/20'
-    case 'medium':
-      return 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20'
-    case 'low':
-      return 'bg-blue-500/10 text-blue-600 border-blue-500/20'
-    default:
-      return 'bg-gray-500/10 text-gray-600 border-gray-500/20'
-  }
-}
 
 export function ComprehensiveDemoTaskList({
   todos,
@@ -46,7 +30,7 @@ export function ComprehensiveDemoTaskList({
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-start justify-between">
+        <div>
           <div>
             <CardTitle>{strings.taskCard.title}</CardTitle>
             <CardDescription>{strings.taskCard.description}</CardDescription>
@@ -58,7 +42,7 @@ export function ComprehensiveDemoTaskList({
           />
         </div>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent>
         <Input
           type="text"
           value={query}
@@ -74,28 +58,22 @@ export function ComprehensiveDemoTaskList({
             query ? strings.taskCard.empty.noMatch : strings.taskCard.empty.noTasks
           }
           renderItem={(todo) => (
-            <Card className="bg-card/50 backdrop-blur hover:bg-card transition-colors">
-              <CardContent className="pt-6">
-                <div className="flex items-start gap-3">
+            <Card>
+              <CardContent>
+                <div>
                   <Checkbox
                     checked={todo.completed}
-                    onCheckedChange={() => onToggle(todo.id)}
-                    className="mt-1"
+                    onChange={() => onToggle(todo.id)}
                   />
-                  <div className="flex-1 min-w-0">
-                    <p
-                      className={cn(
-                        'font-medium',
-                        todo.completed && 'line-through text-muted-foreground'
-                      )}
-                    >
+                  <div>
+                    <p>
                       {todo.text}
                     </p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <Badge variant="outline" className={getPriorityColor(todo.priority)}>
+                    <div>
+                      <Badge variant="outlined">
                         {priorityLabels[todo.priority]}
                       </Badge>
-                      <span className="text-xs text-muted-foreground">
+                      <span>
                         {new Date(todo.createdAt).toLocaleDateString()}
                       </span>
                     </div>
@@ -103,7 +81,7 @@ export function ComprehensiveDemoTaskList({
                   <IconButton
                     icon={<Trash size={16} />}
                     onClick={() => onDelete(todo.id)}
-                    variant="ghost"
+                    variant="text"
                     title={strings.taskCard.deleteTitle}
                   />
                 </div>

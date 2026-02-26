@@ -1,10 +1,8 @@
 import { ComponentNode } from '@/types/project'
-import { Card } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Textarea } from '@/components/ui/textarea'
+import { Card } from '@metabuilder/fakemui/surfaces'
+import { Button, IconButton } from '@metabuilder/fakemui/inputs'
+import { Input } from '@metabuilder/fakemui/inputs'
+import { Label } from '@metabuilder/fakemui/atoms'
 import { Plus, Trash, Tree } from '@metabuilder/fakemui/icons'
 
 interface ComponentInspectorProps {
@@ -23,22 +21,20 @@ export function ComponentInspector({
   onAddChild,
 }: ComponentInspectorProps) {
   return (
-    <Card className="flex-1 p-6">
+    <Card>
       {selectedNode ? (
-        <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <h4 className="text-lg font-semibold">Component Properties</h4>
-            <Button
-              variant="destructive"
-              size="sm"
+        <div>
+          <div>
+            <h4>Component Properties</h4>
+            <IconButton
               onClick={() => onDelete(selectedNode.id)}
             >
               <Trash size={16} />
-            </Button>
+            </IconButton>
           </div>
 
-          <div className="grid gap-4">
-            <div className="space-y-2">
+          <div>
+            <div>
               <Label>Component Name</Label>
               <Input
                 value={selectedNode.name}
@@ -48,30 +44,25 @@ export function ComponentInspector({
               />
             </div>
 
-            <div className="space-y-2">
+            <div>
               <Label>Component Type</Label>
-              <Select
+              <select
                 value={selectedNode.type}
-                onValueChange={(value) =>
-                  onUpdate(selectedNode.id, { type: value })
+                onChange={(event) =>
+                  onUpdate(selectedNode.id, { type: event.target.value })
                 }
               >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {muiComponents.map((comp) => (
-                    <SelectItem key={comp} value={comp}>
-                      {comp}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                {muiComponents.map((comp) => (
+                  <option key={comp} value={comp}>
+                    {comp}
+                  </option>
+                ))}
+              </select>
             </div>
 
-            <div className="space-y-2">
+            <div>
               <Label>Props (JSON)</Label>
-              <Textarea
+              <textarea
                 value={JSON.stringify(selectedNode.props, null, 2)}
                 onChange={(event) => {
                   try {
@@ -81,21 +72,20 @@ export function ComponentInspector({
                     // Invalid JSON while typing - ignore
                   }
                 }}
-                className="font-mono text-sm h-64"
                 placeholder='{"variant": "contained", "color": "primary"}'
               />
             </div>
 
             <Button onClick={() => onAddChild(selectedNode.id)}>
-              <Plus size={16} className="mr-2" />
+              <Plus size={16} />
               Add Child Component
             </Button>
           </div>
         </div>
       ) : (
-        <div className="h-full flex items-center justify-center text-muted-foreground">
-          <div className="text-center">
-            <Tree size={48} className="mx-auto mb-4 opacity-50" />
+        <div>
+          <div>
+            <Tree size={48} />
             <p>Select a component to edit properties</p>
           </div>
         </div>

@@ -3,14 +3,7 @@ import type {
   ConflictResolutionFilters,
 } from '@/components/conflict-resolution/types'
 
-import { Badge } from '@/components/ui/badge'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+import { Badge } from '@metabuilder/fakemui/data-display'
 import { MagnifyingGlass } from '@metabuilder/fakemui/icons'
 
 interface ConflictResolutionFiltersProps {
@@ -35,27 +28,25 @@ export function ConflictResolutionFilters({
   const label = conflictCount === 1 ? copy.labels.conflictSingular : copy.labels.conflictPlural
 
   return (
-    <div className="mb-4 flex items-center justify-between">
-      <div className="flex items-center gap-2">
-        <MagnifyingGlass size={20} className="text-muted-foreground" />
-        <span className="text-sm text-muted-foreground">{copy.filters.label}</span>
-        <Select value={filterType} onValueChange={onFilterChange}>
-          <SelectTrigger className="w-[160px] h-9">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">{copy.filters.allTypes}</SelectItem>
-            <SelectItem value="files">{copy.filters.files}</SelectItem>
-            <SelectItem value="models">{copy.filters.models}</SelectItem>
-            <SelectItem value="components">{copy.filters.components}</SelectItem>
-            <SelectItem value="workflows">{copy.filters.workflows}</SelectItem>
-            <SelectItem value="lambdas">{copy.filters.lambdas}</SelectItem>
-            <SelectItem value="componentTrees">{copy.filters.componentTrees}</SelectItem>
-          </SelectContent>
-        </Select>
+    <div>
+      <div>
+        <MagnifyingGlass size={20} />
+        <span>{copy.filters.label}</span>
+        <select
+          value={filterType}
+          onChange={(e) => onFilterChange(e.target.value as ConflictResolutionFilters)}
+        >
+          <option value="all">{copy.filters.allTypes}</option>
+          <option value="files">{copy.filters.files}</option>
+          <option value="models">{copy.filters.models}</option>
+          <option value="components">{copy.filters.components}</option>
+          <option value="workflows">{copy.filters.workflows}</option>
+          <option value="lambdas">{copy.filters.lambdas}</option>
+          <option value="componentTrees">{copy.filters.componentTrees}</option>
+        </select>
       </div>
 
-      <Badge variant="secondary">
+      <Badge>
         {copy.badges.conflictCount
           .replace('{count}', String(conflictCount))
           .replace('{label}', label)}

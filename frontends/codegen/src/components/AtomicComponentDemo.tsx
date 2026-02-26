@@ -1,13 +1,14 @@
 import { useCRUD, useSearchFilter } from '@/hooks/data'
 import { useToggle, useDialog } from '@/hooks/ui'
 import { useUIState } from '@/hooks/use-ui-state'
-import { Button } from '@/components/ui/button'
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
+import { Button } from '@metabuilder/fakemui/inputs'
+import { Card, CardHeader, CardTitle, CardContent } from '@metabuilder/fakemui/surfaces'
 import { MetabuilderWidgetSearchInput as SearchInput } from '@/lib/json-ui/json-components'
 import { MetabuilderLayoutDataCard as DataCard } from '@/lib/json-ui/json-components'
 import { MetabuilderDisplayHeading as Heading, MetabuilderDisplayBadge as Badge } from '@/lib/json-ui/json-components'
 import { Plus, Trash, Eye } from '@metabuilder/fakemui/icons'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Dialog } from '@metabuilder/fakemui/feedback'
+import { DialogContent, DialogHeader, DialogTitle } from '@metabuilder/fakemui/utils'
 
 interface Task {
   id: number
@@ -33,8 +34,8 @@ export function AtomicComponentDemo() {
   const showCompleted = useToggle({ initial: true })
   const addDialog = useDialog()
 
-  const displayedTasks = showCompleted.value 
-    ? filtered 
+  const displayedTasks = showCompleted.value
+    ? filtered
     : filtered.filter(t => t.status !== 'success')
 
   const handleAddTask = () => {
@@ -54,38 +55,37 @@ export function AtomicComponentDemo() {
   }
 
   return (
-    <div className="h-full overflow-auto p-6 space-y-6">
+    <div>
       <div>
-        <Heading level={1} className="mb-2">
+        <Heading level={1}>
           Atomic Component Demo
         </Heading>
-        <p className="text-muted-foreground">
+        <p>
           Demonstrating custom hooks and atomic components
         </p>
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div>
         <DataCard title="Total Tasks" icon="list" gradient="from-blue-500/10 to-blue-500/5">
-          <div className="text-3xl font-bold">{stats.total}</div>
+          <div>{stats.total}</div>
         </DataCard>
         <DataCard title="Active" icon="clock" gradient="from-amber-500/10 to-amber-500/5">
-          <div className="text-3xl font-bold">{stats.active}</div>
+          <div>{stats.active}</div>
         </DataCard>
         <DataCard title="Completed" icon="check" gradient="from-green-500/10 to-green-500/5">
-          <div className="text-3xl font-bold">{stats.completed}</div>
+          <div>{stats.completed}</div>
         </DataCard>
       </div>
 
-      {/* ActionBar replaced with inline buttons */}
-      <div className="flex items-center justify-between">
+      <div>
         <Heading level={3}>Tasks</Heading>
-        <div className="flex gap-2">
-          <Button onClick={addDialog.open} size="sm">
-            <Plus size={16} className="mr-2" />
+        <div>
+          <Button onClick={addDialog.open} size="small">
+            <Plus size={16} />
             Add Task
           </Button>
-          <Button onClick={showCompleted.toggle} variant="outline" size="sm">
-            <Eye size={16} className="mr-2" />
+          <Button onClick={showCompleted.toggle} variant="outlined" size="small">
+            <Eye size={16} />
             {showCompleted.value ? 'Hide Completed' : 'Show Completed'}
           </Button>
         </div>
@@ -97,17 +97,17 @@ export function AtomicComponentDemo() {
         placeholder="Search tasks..."
       />
 
-      <div className="space-y-3">
+      <div>
         {displayedTasks.map(task => (
           <Card key={task.id}>
             <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-lg">{task.title}</CardTitle>
-                <div className="flex items-center gap-2">
+              <div>
+                <CardTitle>{task.title}</CardTitle>
+                <div>
                   <Badge>{task.status}</Badge>
                   <Button
-                    variant="ghost"
-                    size="sm"
+                    variant="text"
+                    size="small"
                     onClick={() => crud.delete(task.id)}
                   >
                     <Trash size={16} />
@@ -116,7 +116,7 @@ export function AtomicComponentDemo() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-sm text-muted-foreground">
+              <div>
                 Priority: {task.priority}
               </div>
             </CardContent>
@@ -126,19 +126,19 @@ export function AtomicComponentDemo() {
 
       {displayedTasks.length === 0 && (
         <Card>
-          <CardContent className="py-12 text-center text-muted-foreground">
+          <CardContent>
             No tasks found
           </CardContent>
         </Card>
       )}
 
-      <Dialog open={addDialog.isOpen} onOpenChange={addDialog.setOpen}>
+      <Dialog open={addDialog.isOpen} onClose={addDialog.close}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Add New Task</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
-            <Button onClick={handleAddTask} className="w-full">
+          <div>
+            <Button onClick={handleAddTask}>
               Add Task
             </Button>
           </div>

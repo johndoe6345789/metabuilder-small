@@ -1,5 +1,5 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { TabsContent } from '@/components/ui/tabs'
+import { Card, CardContent, CardHeader, CardTitle } from '@metabuilder/fakemui/surfaces'
+import { TabPanel } from '@metabuilder/fakemui/navigation'
 import { type InputsTabData } from './types'
 
 type InputsTabProps = {
@@ -9,13 +9,13 @@ type InputsTabProps = {
 
 export function InputsTab({ data, value }: InputsTabProps) {
   return (
-    <TabsContent value={value} className="space-y-6">
+    <TabPanel value={value}>
       <Card>
         <CardHeader>
           <CardTitle>{data.title}</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-3">
+        <CardContent>
+          <div>
             {data.fields.map((field) => (
               <input
                 key={field.placeholder}
@@ -31,6 +31,6 @@ export function InputsTab({ data, value }: InputsTabProps) {
           </div>
         </CardContent>
       </Card>
-    </TabsContent>
+    </TabPanel>
   )
 }

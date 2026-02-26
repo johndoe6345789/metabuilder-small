@@ -1,7 +1,6 @@
 import { NpmPackage, NpmSettings } from '@/types/project'
-import { Button } from '@/components/ui/button'
-import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Button } from '@metabuilder/fakemui/inputs'
+import { Label } from '@metabuilder/fakemui/atoms'
 import projectSettingsCopy from '@/data/project-settings.json'
 import { Plus } from '@metabuilder/fakemui/icons'
 import { PackageListSection } from '@/components/project-settings/PackageListSection'
@@ -26,41 +25,37 @@ export function PackagesTab({
   const devDependencies = npmSettings.packages.filter((pkg) => pkg.isDev)
 
   return (
-    <div className="max-w-4xl">
-      <div className="flex items-center justify-between mb-6">
+    <div>
+      <div>
         <div>
-          <h3 className="text-lg font-semibold">{copy.title}</h3>
-          <p className="text-sm text-muted-foreground">{copy.description}</p>
+          <h3>{copy.title}</h3>
+          <p>{copy.description}</p>
         </div>
         <Button onClick={onAddPackage}>
-          <Plus size={16} className="mr-2" />
+          <Plus size={16} />
           {copy.dialog.title.add}
         </Button>
       </div>
 
-      <div className="mb-6">
+      <div>
         <Label htmlFor="package-manager">{copy.packageManager.label}</Label>
-        <Select
+        <select
+          id="package-manager"
           value={npmSettings.packageManager}
-          onValueChange={(value: any) =>
+          onChange={(e) =>
             onNpmSettingsChange((current) => ({
               ...current,
-              packageManager: value,
+              packageManager: e.target.value,
             }))
           }
         >
-          <SelectTrigger id="package-manager" className="w-48">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="npm">npm</SelectItem>
-            <SelectItem value="yarn">yarn</SelectItem>
-            <SelectItem value="pnpm">pnpm</SelectItem>
-          </SelectContent>
-        </Select>
+          <option value="npm">npm</option>
+          <option value="yarn">yarn</option>
+          <option value="pnpm">pnpm</option>
+        </select>
       </div>
 
-      <div className="space-y-4">
+      <div>
         <PackageListSection
           title={copy.dependencies.title}
           emptyCopy={copy.dependencies.empty}

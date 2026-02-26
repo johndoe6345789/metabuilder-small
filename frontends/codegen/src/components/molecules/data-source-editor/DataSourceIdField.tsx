@@ -1,5 +1,5 @@
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { Input } from '@metabuilder/fakemui/inputs'
+import { Label } from '@metabuilder/fakemui/atoms'
 import { DataSource } from '@/types/json-ui'
 
 interface DataSourceIdFieldProps {
@@ -16,13 +16,12 @@ export function DataSourceIdField({
   onChange,
 }: DataSourceIdFieldProps) {
   return (
-    <div className="space-y-2">
+    <div>
       <Label>{label}</Label>
       <Input
         value={editingSource.id}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="font-mono"
       />
     </div>
   )

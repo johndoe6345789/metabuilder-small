@@ -5,7 +5,7 @@ import { getPageById, resolveProps } from '@/config/page-loader'
 import { JSONSchemaPageLoader } from '@/components/JSONSchemaPageLoader'
 import { PageRenderer } from '@/lib/json-ui/page-renderer'
 import { ComponentRegistry } from '@/lib/component-registry'
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from 'react-resizable-panels'
 import useAppProject from '@/hooks/use-app-project'
 
 class PageErrorBoundary extends React.Component<
@@ -38,10 +38,17 @@ class PageErrorBoundary extends React.Component<
 
 function LoadingFallback({ message }: { message: string }) {
   return (
-    <div className="flex items-center justify-center h-full w-full">
-      <div className="flex flex-col items-center gap-3">
-        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-        <p className="text-sm text-muted-foreground">{message}</p>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', width: '100%' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+        <div style={{
+          width: '32px',
+          height: '32px',
+          border: '2px solid var(--mat-sys-primary)',
+          borderTopColor: 'transparent',
+          borderRadius: '50%',
+          animation: 'spin 0.8s linear infinite',
+        }} />
+        <p style={{ fontSize: '14px', color: 'var(--mat-sys-on-surface-variant)' }}>{message}</p>
       </div>
     </div>
   )
@@ -52,11 +59,23 @@ function LazyComponent({ componentName, props }: { componentName: string; props:
 
   if (!Component) {
     return (
-      <div className="flex items-center justify-center h-full w-full p-8">
-        <div className="border border-destructive/50 bg-destructive/10 rounded-lg p-6 max-w-md text-center">
-          <p className="text-lg font-semibold text-destructive mb-2">Component Not Found</p>
-          <p className="text-sm text-muted-foreground">
-            <code className="bg-muted px-1 py-0.5 rounded text-xs">{componentName}</code> is not registered in ComponentRegistry.
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', width: '100%', padding: '32px' }}>
+        <div style={{
+          border: '1px solid var(--mat-sys-error)',
+          background: 'color-mix(in srgb, var(--mat-sys-error) 10%, transparent)',
+          borderRadius: '8px',
+          padding: '24px',
+          maxWidth: '448px',
+          textAlign: 'center',
+        }}>
+          <p style={{ fontSize: '18px', fontWeight: 600, color: 'var(--mat-sys-error)', marginBottom: '8px' }}>Component Not Found</p>
+          <p style={{ fontSize: '14px', color: 'var(--mat-sys-on-surface-variant)' }}>
+            <code style={{
+              background: 'var(--mat-sys-surface-container)',
+              padding: '1px 4px',
+              borderRadius: '4px',
+              fontSize: '12px',
+            }}>{componentName}</code> is not registered in ComponentRegistry.
           </p>
         </div>
       </div>
@@ -82,8 +101,8 @@ function ResizableLayout({
 
   if (!LeftComponent || !RightComponent) {
     return (
-      <div className="flex items-center justify-center h-full w-full">
-        <p className="text-sm text-muted-foreground">Layout components not found</p>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', width: '100%' }}>
+        <p style={{ fontSize: '14px', color: 'var(--mat-sys-on-surface-variant)' }}>Layout components not found</p>
       </div>
     )
   }
@@ -115,8 +134,8 @@ export function PageWrapper({ pageId }: { pageId: string }) {
 
   if (!page) {
     return (
-      <div className="flex items-center justify-center h-full w-full">
-        <p className="text-sm text-muted-foreground">Page &quot;{pageId}&quot; not found in pages.json</p>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', width: '100%' }}>
+        <p style={{ fontSize: '14px', color: 'var(--mat-sys-on-surface-variant)' }}>Page &quot;{pageId}&quot; not found in pages.json</p>
       </div>
     )
   }

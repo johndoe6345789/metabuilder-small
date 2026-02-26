@@ -1,5 +1,5 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { TabsContent } from '@/components/ui/tabs'
+import { Card, CardContent, CardHeader, CardTitle } from '@metabuilder/fakemui/surfaces'
+import { TabPanel } from '@metabuilder/fakemui/navigation'
 import { type LayoutSection, type LayoutTabData } from './types'
 
 type LayoutTabProps = {
@@ -19,12 +19,12 @@ const renderSectionItems = (section: LayoutSection) => {
 
 export function LayoutTab({ data, value }: LayoutTabProps) {
   return (
-    <TabsContent value={value} className="space-y-6">
+    <TabPanel value={value}>
       <Card>
         <CardHeader>
           <CardTitle>{data.title}</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent>
           {data.sections.map((section) => (
             <div key={section.title}>
               <h3 className="font-semibold mb-3">{section.title}</h3>
@@ -39,6 +39,6 @@ export function LayoutTab({ data, value }: LayoutTabProps) {
           </div>
         </CardContent>
       </Card>
-    </TabsContent>
+    </TabPanel>
   )
 }

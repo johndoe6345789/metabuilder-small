@@ -1,8 +1,8 @@
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@metabuilder/fakemui/data-display'
+import { Button } from '@metabuilder/fakemui/inputs'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@metabuilder/fakemui/surfaces'
+import { Separator } from '@metabuilder/fakemui/data-display'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { Separator } from '@/components/ui/separator'
 import { KnowledgeBaseItem } from '@/types/docker'
 import { CheckCircle, Copy } from '@metabuilder/fakemui/icons'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -39,7 +39,6 @@ export function KnowledgeBaseModal({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm"
           onClick={onClose}
         >
           <motion.div
@@ -47,51 +46,50 @@ export function KnowledgeBaseModal({
             animate={{ scale: 1 }}
             exit={{ scale: 0.9 }}
             onClick={(event) => event.stopPropagation()}
-            className="w-full max-w-3xl max-h-[90vh] overflow-auto"
           >
-            <Card className="border-border bg-card">
+            <Card>
               <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <Badge variant="secondary">{item.category}</Badge>
+                <div>
+                  <div>
+                    <div>
+                      <Badge>{item.category}</Badge>
                       <CardTitle>{item.title}</CardTitle>
                     </div>
-                    <p className="text-sm font-mono text-muted-foreground">
+                    <p>
                       {text.patternLabel} {item.pattern}
                     </p>
                   </div>
-                  <Button variant="ghost" size="sm" onClick={onClose}>
+                  <Button variant="text" size="small" onClick={onClose}>
                     {text.closeButton}
                   </Button>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-6">
+              <CardContent>
                 <div>
-                  <h4 className="font-semibold mb-2">{text.explanationTitle}</h4>
-                  <p className="text-sm text-muted-foreground">{item.explanation}</p>
+                  <h4>{text.explanationTitle}</h4>
+                  <p>{item.explanation}</p>
                 </div>
 
                 <Separator />
 
                 <div>
-                  <h4 className="font-semibold mb-4 flex items-center gap-2">
-                    <CheckCircle size={18} weight="bold" className="text-accent" />
+                  <h4>
+                    <CheckCircle size={18} weight="bold" />
                     {text.solutionsTitle}
                   </h4>
-                  <div className="space-y-4">
+                  <div>
                     {item.solutions.map((solution, index) => (
-                      <Card key={index} className="bg-secondary/30 border-accent/20">
+                      <Card key={index}>
                         <CardHeader>
-                          <CardTitle className="text-base text-accent">
+                          <CardTitle>
                             {solution.title}
                           </CardTitle>
                           <CardDescription>{solution.description}</CardDescription>
                         </CardHeader>
-                        <CardContent className="space-y-3">
+                        <CardContent>
                           <div>
-                            <h5 className="text-sm font-semibold mb-2">{commonText.stepsLabel}</h5>
-                            <ol className="list-decimal list-inside space-y-1 text-sm text-muted-foreground">
+                            <h5>{commonText.stepsLabel}</h5>
+                            <ol>
                               {solution.steps.map((step, stepIndex) => (
                                 <li key={stepIndex}>{step}</li>
                               ))}
@@ -99,20 +97,19 @@ export function KnowledgeBaseModal({
                           </div>
                           {solution.code && (
                             <div>
-                              <div className="flex items-center justify-between mb-2">
-                                <h5 className="text-sm font-semibold">{commonText.codeLabel}</h5>
+                              <div>
+                                <h5>{commonText.codeLabel}</h5>
                                 <Button
-                                  variant="outline"
-                                  size="sm"
+                                  variant="outlined"
+                                  size="small"
                                   onClick={() => onCopy(solution.code!, commonText.codeCopyLabel)}
-                                  className="gap-2 h-7"
                                 >
                                   <Copy size={14} />
                                   {commonText.copyButton}
                                 </Button>
                               </div>
-                              <ScrollArea className="max-h-48 rounded-md border border-border/50 bg-secondary/50 p-3">
-                                <pre className="text-xs font-mono text-foreground whitespace-pre-wrap">
+                              <ScrollArea className="max-h-48">
+                                <pre>
                                   {solution.code}
                                 </pre>
                               </ScrollArea>

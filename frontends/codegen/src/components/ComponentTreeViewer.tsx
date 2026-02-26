@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import { useComponentTreeLoader } from '@/hooks/use-component-tree-loader'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@metabuilder/fakemui/surfaces'
+import { Button } from '@metabuilder/fakemui/inputs'
+import { Badge } from '@metabuilder/fakemui/data-display'
+import { Tabs, Tab, TabPanel } from '@metabuilder/fakemui/navigation'
+import { Separator } from '@metabuilder/fakemui/data-display'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { Separator } from '@/components/ui/separator'
 import { toast } from '@/components/ui/sonner'
 import {
   Cube,
@@ -69,6 +69,7 @@ export function ComponentTreeViewer() {
   } = useComponentTreeLoader()
 
   const [selectedTreeId, setSelectedTreeId] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState(0)
 
   const handleReload = async () => {
     try {
@@ -82,7 +83,7 @@ export function ComponentTreeViewer() {
   const selectedTree = allTrees.find(tree => tree.id === selectedTreeId)
 
   return (
-    <div className="h-full flex flex-col">
+    <div>
       <ComponentTreeHeader
         isLoaded={isLoaded}
         isLoading={isLoading}
@@ -91,67 +92,47 @@ export function ComponentTreeViewer() {
       />
       <ComponentTreeStatus error={error} />
 
-      <Tabs defaultValue="molecules" className="flex-1 flex flex-col">
-        <TabsList className="mx-4 mt-4 grid w-auto grid-cols-3">
-          <TabsTrigger value="molecules" className="gap-2">
-            <Package size={16} />
-            {componentTreeCopy.tabs.molecules}
-            <Badge variant="secondary" className="ml-1">
-              {moleculeTrees.length}
-            </Badge>
-          </TabsTrigger>
-          <TabsTrigger value="organisms" className="gap-2">
-            <Stack size={16} />
-            {componentTreeCopy.tabs.organisms}
-            <Badge variant="secondary" className="ml-1">
-              {organismTrees.length}
-            </Badge>
-          </TabsTrigger>
-          <TabsTrigger value="all" className="gap-2">
-            <Cube size={16} />
-            {componentTreeCopy.tabs.all}
-            <Badge variant="secondary" className="ml-1">
-              {allTrees.length}
-            </Badge>
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="molecules" className="flex-1 mt-4">
-          <div className="grid grid-cols-2 gap-4 px-4">
-            <ComponentTreeList
-              trees={moleculeTrees}
-              selectedTreeId={selectedTreeId}
-              onSelect={setSelectedTreeId}
-              variant="molecules"
-            />
-            <ComponentTreeDetails tree={selectedTree} />
-          </div>
-        </TabsContent>
-
-        <TabsContent value="organisms" className="flex-1 mt-4">
-          <div className="grid grid-cols-2 gap-4 px-4">
-            <ComponentTreeList
-              trees={organismTrees}
-              selectedTreeId={selectedTreeId}
-              onSelect={setSelectedTreeId}
-              variant="organisms"
-            />
-            <ComponentTreeDetails tree={selectedTree} />
-          </div>
-        </TabsContent>
-
-        <TabsContent value="all" className="flex-1 mt-4">
-          <div className="grid grid-cols-2 gap-4 px-4">
-            <ComponentTreeList
-              trees={allTrees}
-              selectedTreeId={selectedTreeId}
-              onSelect={setSelectedTreeId}
-              variant="all"
-            />
-            <ComponentTreeDetails tree={selectedTree} />
-          </div>
-        </TabsContent>
+      <Tabs value={activeTab} onChange={(_e, v) => setActiveTab(v)}>
+        <Tab value={0} label={componentTreeCopy.tabs.molecules} icon={<Package size={16} />} />
+        <Tab value={1} label={componentTreeCopy.tabs.organisms} icon={<Stack size={16} />} />
+        <Tab value={2} label={componentTreeCopy.tabs.all} icon={<Cube size={16} />} />
       </Tabs>
+
+      <TabPanel value={activeTab} index={0}>
+        <div>
+          <ComponentTreeList
+            trees={moleculeTrees}
+            selectedTreeId={selectedTreeId}
+            onSelect={setSelectedTreeId}
+            variant="molecules"
+          />
+          <ComponentTreeDetails tree={selectedTree} />
+        </div>
+      </TabPanel>
+
+      <TabPanel value={activeTab} index={1}>
+        <div>
+          <ComponentTreeList
+            trees={organismTrees}
+            selectedTreeId={selectedTreeId}
+            onSelect={setSelectedTreeId}
+            variant="organisms"
+          />
+          <ComponentTreeDetails tree={selectedTree} />
+        </div>
+      </TabPanel>
+
+      <TabPanel value={activeTab} index={2}>
+        <div>
+          <ComponentTreeList
+            trees={allTrees}
+            selectedTreeId={selectedTreeId}
+            onSelect={setSelectedTreeId}
+            variant="all"
+          />
+          <ComponentTreeDetails tree={selectedTree} />
+        </div>
+      </TabPanel>
     </div>
   )
 }
@@ -163,25 +144,25 @@ function ComponentTreeHeader({
   onReload,
 }: ComponentTreeHeaderProps) {
   return (
-    <div className="flex items-center justify-between p-4 border-b">
-      <div className="flex items-center gap-3">
-        <TreeStructure size={24} weight="duotone" className="text-primary" />
+    <div>
+      <div>
+        <TreeStructure size={24} weight="duotone" />
         <div>
-          <h2 className="text-lg font-semibold">{componentTreeCopy.header.title}</h2>
-          <p className="text-sm text-muted-foreground">
+          <h2>{componentTreeCopy.header.title}</h2>
+          <p>
             {componentTreeCopy.header.subtitle}
           </p>
         </div>
       </div>
-      <div className="flex items-center gap-2">
+      <div>
         {isLoaded && (
-          <Badge variant="outline" className="gap-1">
-            <CheckCircle size={14} weight="fill" className="text-accent" />
+          <Badge variant="outline">
+            <CheckCircle size={14} weight="fill" />
             {totalTrees} {componentTreeCopy.header.loadedLabel}
           </Badge>
         )}
-        <Button variant="outline" size="sm" onClick={onReload} disabled={isLoading}>
-          <ArrowsClockwise size={16} className={isLoading ? 'animate-spin' : ''} />
+        <Button variant="outlined" size="small" onClick={onReload} disabled={isLoading}>
+          <ArrowsClockwise size={16} />
           {componentTreeCopy.header.reloadLabel}
         </Button>
       </div>
@@ -195,11 +176,11 @@ function ComponentTreeStatus({ error }: ComponentTreeStatusProps) {
   }
 
   return (
-    <div className="mx-4 mt-4 p-4 bg-destructive/10 border border-destructive/20 rounded-lg flex items-start gap-3">
-      <Warning size={20} weight="fill" className="text-destructive mt-0.5" />
+    <div>
+      <Warning size={20} weight="fill" />
       <div>
-        <p className="font-medium text-destructive">{componentTreeCopy.status.errorTitle}</p>
-        <p className="text-sm text-destructive/80 mt-1">{error.message}</p>
+        <p>{componentTreeCopy.status.errorTitle}</p>
+        <p>{error.message}</p>
       </div>
     </div>
   )
@@ -212,8 +193,8 @@ function ComponentTreeList({
   variant,
 }: ComponentTreeListProps) {
   return (
-    <ScrollArea className="h-[calc(100vh-280px)]">
-      <div className="space-y-3 pr-4">
+    <ScrollArea>
+      <div>
         {trees.map(tree => {
           const categoryLabel = variant === 'all' ? getCategoryLabel(tree.category) : ''
           const treeIcon =
@@ -226,33 +207,30 @@ function ComponentTreeList({
           return (
             <Card
               key={tree.id}
-              className={`cursor-pointer transition-colors hover:bg-accent/50 ${
-                selectedTreeId === tree.id ? 'border-primary' : ''
-              }`}
               onClick={() => onSelect(tree.id)}
             >
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base flex items-center gap-2">
+              <CardHeader>
+                <CardTitle>
                   {treeIcon === 'molecule' ? (
-                    <Package size={18} weight="duotone" className="text-primary" />
+                    <Package size={18} weight="duotone" />
                   ) : (
-                    <Stack size={18} weight="duotone" className="text-primary" />
+                    <Stack size={18} weight="duotone" />
                   )}
                   {tree.name}
                   {categoryLabel ? (
-                    <Badge variant="outline" className="ml-auto text-xs">
+                    <Badge variant="outline">
                       {categoryLabel}
                     </Badge>
                   ) : null}
                 </CardTitle>
-                <CardDescription className="text-xs">{tree.description}</CardDescription>
+                <CardDescription>{tree.description}</CardDescription>
               </CardHeader>
-              <CardContent className="pb-3">
-                <div className="flex items-center gap-4 text-xs text-muted-foreground">
+              <CardContent>
+                <div>
                   <span>
                     {tree.rootNodes.length} {componentTreeCopy.labels.rootNodes}
                   </span>
-                  <Separator orientation="vertical" className="h-3" />
+                  <Separator orientation="vertical" />
                   <span>{formatDate(tree.updatedAt)}</span>
                 </div>
               </CardContent>
@@ -267,25 +245,23 @@ function ComponentTreeList({
 function ComponentTreeDetails({ tree }: ComponentTreeDetailProps) {
   if (!tree) {
     return (
-      <div className="border-l pl-4">
-        <div className="flex items-center justify-center h-full text-muted-foreground">
-          <div className="text-center">
-            <TreeStructure size={48} weight="duotone" className="mx-auto mb-2 opacity-50" />
-            <p className="text-sm">{componentTreeCopy.status.selectPrompt}</p>
-          </div>
+      <div>
+        <div>
+          <TreeStructure size={48} weight="duotone" />
+          <p>{componentTreeCopy.status.selectPrompt}</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="border-l pl-4">
-      <ScrollArea className="h-[calc(100vh-280px)]">
-        <div className="pr-4">
-          <div className="mb-4">
-            <h3 className="font-semibold mb-2">{tree.name}</h3>
-            <p className="text-sm text-muted-foreground mb-4">{tree.description}</p>
-            <div className="flex gap-2 mb-4">
+    <div>
+      <ScrollArea>
+        <div>
+          <div>
+            <h3>{tree.name}</h3>
+            <p>{tree.description}</p>
+            <div>
               <Badge variant="outline">
                 {tree.rootNodes.length} {componentTreeCopy.labels.rootNodes}
               </Badge>
@@ -293,11 +269,11 @@ function ComponentTreeDetails({ tree }: ComponentTreeDetailProps) {
                 {componentTreeCopy.labels.id}: {tree.id}
               </Badge>
             </div>
-            <Separator className="my-4" />
+            <Separator />
           </div>
 
-          <div className="space-y-2">
-            <h4 className="text-sm font-semibold mb-3">
+          <div>
+            <h4>
               {componentTreeCopy.labels.structureTitle}
             </h4>
             {tree.rootNodes.map(node => (
@@ -317,19 +293,18 @@ type ComponentTreeNodeProps = {
 
 function ComponentTreeNode({ node, depth = 0 }: ComponentTreeNodeProps) {
   return (
-    <div className="space-y-2">
+    <div>
       <div
-        className="p-2 rounded-md bg-muted/40 border text-xs"
         style={{ marginLeft: `${depth * 16}px` }}
       >
-        <div className="flex items-center justify-between mb-1">
-          <span className="font-medium">{node.name || node.type}</span>
-          <Badge variant="secondary" className="text-xs">
+        <div>
+          <span>{node.name || node.type}</span>
+          <Badge variant="secondary">
             {node.type}
           </Badge>
         </div>
         {Object.keys(node.props).length > 0 && (
-          <div className="text-muted-foreground mt-1">
+          <div>
             {componentTreeCopy.labels.props}: {Object.keys(node.props).length}
           </div>
         )}

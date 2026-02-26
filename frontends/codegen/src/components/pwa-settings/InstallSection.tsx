@@ -1,7 +1,7 @@
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
-import { Label } from '@/components/ui/label'
+import { Badge } from '@metabuilder/fakemui/data-display'
+import { Button } from '@metabuilder/fakemui/inputs'
+import { Card } from '@metabuilder/fakemui/surfaces'
+import { Label } from '@metabuilder/fakemui/atoms'
 import { Download } from '@metabuilder/fakemui/icons'
 
 interface InstallSectionProps {
@@ -35,30 +35,30 @@ export function InstallSection({ isInstalled, isInstallable, onInstall, copy }: 
       : copy.status.notAvailable
 
   return (
-    <Card className="p-6">
-      <div className="space-y-4">
+    <Card>
+      <div>
         <div>
-          <h3 className="text-lg font-semibold mb-1">{copy.title}</h3>
-          <p className="text-sm text-muted-foreground">{copy.description}</p>
+          <h3>{copy.title}</h3>
+          <p>{copy.description}</p>
         </div>
 
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Download size={20} className="text-muted-foreground" />
+        <div>
+          <div>
+            <Download size={20} />
             <div>
-              <Label className="text-base">{copy.label}</Label>
-              <p className="text-xs text-muted-foreground">{statusText}</p>
+              <Label>{copy.label}</Label>
+              <p>{statusText}</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            {isInstalled && <Badge variant="default">{copy.badge.installed}</Badge>}
+          <div>
+            {isInstalled && <Badge variant="filled">{copy.badge.installed}</Badge>}
             {isInstallable && !isInstalled && (
-              <Button size="sm" onClick={onInstall}>
+              <Button size="small" onClick={onInstall}>
                 {copy.action.install}
               </Button>
             )}
             {!isInstallable && !isInstalled && (
-              <Badge variant="secondary">{copy.badge.notAvailable}</Badge>
+              <Badge variant="outlined">{copy.badge.notAvailable}</Badge>
             )}
           </div>
         </div>

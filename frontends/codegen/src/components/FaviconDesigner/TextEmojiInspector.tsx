@@ -1,7 +1,6 @@
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Slider } from '@/components/ui/slider'
+import { Input } from '@metabuilder/fakemui/inputs'
+import { Label } from '@metabuilder/fakemui/atoms'
+import { Slider } from '@metabuilder/fakemui/inputs'
 import copy from '@/data/favicon-designer.json'
 import { formatCopy } from './formatCopy'
 import { FaviconElement } from './types'
@@ -49,16 +48,14 @@ export const TextEmojiInspector = ({ element, onUpdateElement }: TextEmojiInspec
     {element.type === 'text' && (
       <div>
         <Label>{copy.inspector.fontWeight}</Label>
-        <Select value={element.fontWeight || 'bold'} onValueChange={(value) => onUpdateElement({ fontWeight: value })}>
-          <SelectTrigger>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="normal">{copy.fontWeights.normal}</SelectItem>
-            <SelectItem value="bold">{copy.fontWeights.bold}</SelectItem>
-            <SelectItem value="lighter">{copy.fontWeights.lighter}</SelectItem>
-          </SelectContent>
-        </Select>
+        <select
+          value={element.fontWeight || 'bold'}
+          onChange={(event) => onUpdateElement({ fontWeight: event.target.value })}
+        >
+          <option value="normal">{copy.fontWeights.normal}</option>
+          <option value="bold">{copy.fontWeights.bold}</option>
+          <option value="lighter">{copy.fontWeights.lighter}</option>
+        </select>
       </div>
     )}
   </>

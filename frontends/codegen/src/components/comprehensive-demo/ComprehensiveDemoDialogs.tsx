@@ -1,6 +1,6 @@
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
+import { Button } from '@metabuilder/fakemui/inputs'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@metabuilder/fakemui/surfaces'
+import { Input } from '@metabuilder/fakemui/inputs'
 import strings from '@/data/comprehensive-demo.json'
 import type { Priority } from './types'
 
@@ -30,15 +30,15 @@ export function ComprehensiveDemoDialogs({
   }
 
   return (
-    <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md">
+    <div>
+      <Card>
         <CardHeader>
           <CardTitle>{strings.dialog.title}</CardTitle>
           <CardDescription>{strings.dialog.description}</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <label className="text-sm font-medium">{strings.dialog.taskDescriptionLabel}</label>
+        <CardContent>
+          <div>
+            <label>{strings.dialog.taskDescriptionLabel}</label>
             <Input
               value={newTodoText}
               onChange={(event) => onNewTodoTextChange(event.target.value)}
@@ -47,27 +47,26 @@ export function ComprehensiveDemoDialogs({
               autoFocus
             />
           </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium">{strings.dialog.priorityLabel}</label>
-            <div className="flex gap-2">
+          <div>
+            <label>{strings.dialog.priorityLabel}</label>
+            <div>
               {priorities.map((priority) => (
                 <Button
                   key={priority}
-                  variant={newTodoPriority === priority ? 'default' : 'outline'}
-                  size="sm"
+                  variant={newTodoPriority === priority ? 'filled' : 'outlined'}
+                  size="small"
                   onClick={() => onNewTodoPriorityChange(priority)}
-                  className="flex-1"
                 >
                   {strings.priorityLabels[priority]}
                 </Button>
               ))}
             </div>
           </div>
-          <div className="flex gap-2 pt-4">
-            <Button onClick={onAdd} className="flex-1" disabled={!newTodoText.trim()}>
+          <div>
+            <Button onClick={onAdd} disabled={!newTodoText.trim()}>
               {strings.dialog.addButton}
             </Button>
-            <Button onClick={onClose} variant="outline">
+            <Button onClick={onClose} variant="outlined">
               {strings.dialog.cancelButton}
             </Button>
           </div>

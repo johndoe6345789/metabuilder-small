@@ -1,5 +1,5 @@
-import { Button } from '@/components/ui/button'
-import { Label } from '@/components/ui/label'
+import { Button, IconButton } from '@metabuilder/fakemui/inputs'
+import { Label } from '@metabuilder/fakemui/atoms'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { PencilSimple, Trash } from '@metabuilder/fakemui/icons'
 import copy from '@/data/favicon-designer.json'
@@ -24,46 +24,42 @@ export const ElementsPanel = ({
   onSelectElement,
   onDeleteElement,
 }: ElementsPanelProps) => (
-  <div className="space-y-6">
+  <div>
     <div>
-      <Label className="mb-3 block">{copy.elements.addTitle}</Label>
-      <div className="grid grid-cols-4 gap-2">
+      <Label>{copy.elements.addTitle}</Label>
+      <div>
         {ELEMENT_TYPES.map(({ value, icon: Icon }) => (
           <Button
             key={value}
-            variant="outline"
-            size="sm"
+            variant="outlined"
+            size="small"
             onClick={() => onAddElement(value as FaviconElement['type'])}
-            className="flex flex-col gap-1 h-auto py-2"
             disabled={drawMode !== 'select'}
           >
             <Icon size={20} />
-            <span className="text-xs">
+            <span>
               {copy.elementTypes[value as keyof typeof copy.elementTypes]}
             </span>
           </Button>
         ))}
       </div>
-      {drawMode !== 'select' && <p className="text-xs text-muted-foreground mt-2">{copy.elements.selectHint}</p>}
+      {drawMode !== 'select' && <p>{copy.elements.selectHint}</p>}
     </div>
 
     <div>
-      <Label className="mb-3 block">{formatCopy(copy.elements.listTitle, { count: activeDesign.elements.length })}</Label>
-      <ScrollArea className="h-40">
-        <div className="space-y-2">
+      <Label>{formatCopy(copy.elements.listTitle, { count: activeDesign.elements.length })}</Label>
+      <ScrollArea>
+        <div>
           {activeDesign.elements.map((element) => (
             <div
               key={element.id}
-              className={`flex items-center justify-between p-2 rounded border cursor-pointer ${
-                selectedElementId === element.id ? 'border-primary bg-primary/10' : 'border-border hover:bg-accent/50'
-              }`}
               onClick={() => {
                 if (drawMode === 'select') {
                   onSelectElement(element.id)
                 }
               }}
             >
-              <div className="flex items-center gap-2">
+              <div>
                 {element.type === 'freehand' ? (
                   <PencilSimple size={16} />
                 ) : (
@@ -76,26 +72,25 @@ export const ElementsPanel = ({
                     </span>
                   )
                 )}
-                <span className="text-sm capitalize">
+                <span>
                   {copy.elementTypes[element.type as keyof typeof copy.elementTypes] || element.type}
                 </span>
-                {element.text && <span className="text-xs text-muted-foreground">"{element.text}"</span>}
-                {element.emoji && <span className="text-xs">{element.emoji}</span>}
+                {element.text && <span>"{element.text}"</span>}
+                {element.emoji && <span>{element.emoji}</span>}
               </div>
-              <Button
-                size="sm"
-                variant="ghost"
+              <IconButton
+                size="small"
                 onClick={(event) => {
                   event.stopPropagation()
                   onDeleteElement(element.id)
                 }}
               >
                 <Trash size={14} />
-              </Button>
+              </IconButton>
             </div>
           ))}
           {activeDesign.elements.length === 0 && (
-            <p className="text-sm text-muted-foreground text-center py-4">{copy.elements.empty}</p>
+            <p>{copy.elements.empty}</p>
           )}
         </div>
       </ScrollArea>

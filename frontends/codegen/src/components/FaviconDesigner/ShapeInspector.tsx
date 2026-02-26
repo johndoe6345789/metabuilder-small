@@ -1,5 +1,5 @@
-import { Label } from '@/components/ui/label'
-import { Slider } from '@/components/ui/slider'
+import { Label } from '@metabuilder/fakemui/atoms'
+import { Slider } from '@metabuilder/fakemui/inputs'
 import copy from '@/data/favicon-designer.json'
 import { formatCopy } from './formatCopy'
 import { FaviconDesign, FaviconElement } from './types'

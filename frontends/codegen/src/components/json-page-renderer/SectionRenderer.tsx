@@ -1,8 +1,7 @@
 import { CSSProperties, ReactNode } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Progress } from '@/components/ui/progress'
-import { cn } from '@/lib/utils'
+import { Card, CardContent, CardHeader, CardTitle } from '@metabuilder/fakemui/surfaces'
+import { Badge } from '@metabuilder/fakemui/data-display'
+import { Progress } from '@metabuilder/fakemui/feedback'
 import { getIcon } from './utils'
 import { LegacyPageSchema, PageSectionConfig } from './types'
 
@@ -80,9 +79,9 @@ export function PageSectionRenderer({
 function HeaderSection({ title, description }: { title?: string; description?: string }) {
   return (
     <div style={{ marginBottom: '0.5rem' }}>
-      <h1 className="text-3xl font-bold" style={{ marginBottom: '0.25rem' }}>{title}</h1>
+      <h1 style={{ marginBottom: '0.25rem', fontSize: '1.875rem', fontWeight: 700 }}>{title}</h1>
       {description && (
-        <p className="text-muted-foreground" style={{ fontSize: '0.95rem' }}>{description}</p>
+        <p style={{ fontSize: '0.95rem', color: 'var(--muted-foreground)' }}>{description}</p>
       )}
     </div>
   )
@@ -134,7 +133,7 @@ function PageCard({
         <CardTitle>{card.title}</CardTitle>
       </CardHeader>
       <CardContent>
-        <p className="text-muted-foreground" style={{ fontSize: '0.875rem' }}>
+        <p style={{ fontSize: '0.875rem', color: 'var(--muted-foreground)' }}>
           {card.component || 'No content'}
         </p>
       </CardContent>
@@ -165,8 +164,8 @@ function GradientCard({
   return (
     <Card style={gradientStyle}>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2" style={{ fontSize: '1rem', fontWeight: 600 }}>
-          {icon && <span className="text-primary" style={{ display: 'inline-flex' }}>{icon}</span>}
+        <CardTitle style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1rem', fontWeight: 600 }}>
+          {icon && <span style={{ color: 'var(--primary)', display: 'inline-flex' }}>{icon}</span>}
           {card.title}
         </CardTitle>
       </CardHeader>
@@ -198,8 +197,8 @@ function BuildStatusCard({ card }: { card: any }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2" style={{ fontSize: '1rem', fontWeight: 600 }}>
-          {icon && <span className="text-primary" style={{ display: 'inline-flex' }}>{icon}</span>}
+        <CardTitle style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1rem', fontWeight: 600 }}>
+          {icon && <span style={{ color: 'var(--primary)', display: 'inline-flex' }}>{icon}</span>}
           {card.title}
         </CardTitle>
       </CardHeader>
@@ -263,11 +262,11 @@ function CardSubComponent({
   switch (component.type) {
     case 'metric':
       return (
-        <div className="flex items-center" style={{ gap: '0.75rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <span
-            className="font-bold"
             style={{
               fontSize: component.size === 'large' ? '2.25rem' : '1.5rem',
+              fontWeight: 700,
               lineHeight: 1,
               color: 'var(--primary)',
             }}
@@ -290,7 +289,7 @@ function CardSubComponent({
     }
 
     case 'progress':
-      return <Progress value={value} className="h-3" />
+      return <Progress value={value} />
 
     case 'text':
       return (

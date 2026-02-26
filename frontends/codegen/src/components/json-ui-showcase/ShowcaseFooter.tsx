@@ -1,5 +1,5 @@
 import { Fragment } from 'react'
-import { Separator } from '@/components/ui/separator'
+import { Separator } from '@metabuilder/fakemui/data-display'
 import { ShowcaseFooterItem } from './types'
 
 interface ShowcaseFooterProps {
@@ -8,16 +8,37 @@ interface ShowcaseFooterProps {
 
 export function ShowcaseFooter({ items }: ShowcaseFooterProps) {
   return (
-    <div className="border-t border-border bg-card px-6 py-3">
-      <div className="flex items-center gap-6 text-xs text-muted-foreground">
+    <div
+      style={{
+        borderTop: '1px solid var(--border)',
+        backgroundColor: 'var(--card)',
+        padding: '0.75rem 1.5rem',
+      }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '1.5rem',
+          fontSize: '0.75rem',
+          color: 'var(--muted-foreground)',
+        }}
+      >
         {items.map((item, index) => (
           <Fragment key={item.label}>
-            <div className="flex items-center gap-2">
-              <div className={`w-2 h-2 rounded-full ${item.colorClass}`} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <div
+                style={{
+                  width: '0.5rem',
+                  height: '0.5rem',
+                  borderRadius: '50%',
+                  backgroundColor: item.colorClass,
+                }}
+              />
               <span>{item.label}</span>
             </div>
             {index < items.length - 1 && (
-              <Separator orientation="vertical" className="h-4" />
+              <Separator orientation="vertical" style={{ height: '1rem' }} />
             )}
           </Fragment>
         ))}

@@ -1,8 +1,8 @@
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
-import { Label } from '@/components/ui/label'
-import { Separator } from '@/components/ui/separator'
+import { Badge } from '@metabuilder/fakemui/data-display'
+import { Button } from '@metabuilder/fakemui/inputs'
+import { Card } from '@metabuilder/fakemui/surfaces'
+import { Label } from '@metabuilder/fakemui/atoms'
+import { Separator } from '@metabuilder/fakemui/data-display'
 import { Trash } from '@metabuilder/fakemui/icons'
 
 interface CacheSectionProps {
@@ -29,24 +29,24 @@ interface CacheSectionProps {
 
 export function CacheSection({ cacheSize, hasRegistration, onClearCache, copy }: CacheSectionProps) {
   return (
-    <Card className="p-6">
-      <div className="space-y-4">
+    <Card>
+      <div>
         <div>
-          <h3 className="text-lg font-semibold mb-1">{copy.title}</h3>
-          <p className="text-sm text-muted-foreground">{copy.description}</p>
+          <h3>{copy.title}</h3>
+          <p>{copy.description}</p>
         </div>
 
         <Separator />
 
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <Label className="text-sm">{copy.labels.size}</Label>
-            <span className="text-sm font-mono text-muted-foreground">{cacheSize}</span>
+        <div>
+          <div>
+            <Label>{copy.labels.size}</Label>
+            <span>{cacheSize}</span>
           </div>
 
-          <div className="flex items-center justify-between">
-            <Label className="text-sm">{copy.labels.serviceWorker}</Label>
-            <Badge variant={hasRegistration ? 'default' : 'secondary'}>
+          <div>
+            <Label>{copy.labels.serviceWorker}</Label>
+            <Badge variant={hasRegistration ? 'filled' : 'outlined'}>
               {hasRegistration ? copy.status.active : copy.status.inactive}
             </Badge>
           </div>
@@ -54,12 +54,12 @@ export function CacheSection({ cacheSize, hasRegistration, onClearCache, copy }:
 
         <Separator />
 
-        <Button variant="destructive" className="w-full" onClick={onClearCache}>
-          <Trash size={16} className="mr-2" />
+        <Button variant="filled" onClick={onClearCache}>
+          <Trash size={16} />
           {copy.action.clear}
         </Button>
 
-        <p className="text-xs text-muted-foreground text-center">{copy.helper}</p>
+        <p>{copy.helper}</p>
       </div>
     </Card>
   )

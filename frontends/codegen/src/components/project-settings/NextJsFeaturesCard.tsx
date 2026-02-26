@@ -1,6 +1,6 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Label } from '@/components/ui/label'
-import { Switch } from '@/components/ui/switch'
+import { Card, CardHeader, CardContent, CardTitle, CardDescription } from '@metabuilder/fakemui/surfaces'
+import { Label } from '@metabuilder/fakemui/atoms'
+import { Switch } from '@metabuilder/fakemui/inputs'
 import projectSettingsCopy from '@/data/project-settings.json'
 import { NextJsConfigSectionProps } from '@/components/project-settings/types'
 
@@ -16,114 +16,104 @@ export function NextJsFeaturesCard({
         <CardTitle>{features.title}</CardTitle>
         <CardDescription>{features.description}</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex items-center justify-between">
+      <CardContent>
+        <div>
           <div>
             <Label htmlFor="typescript">{features.items.typescript.label}</Label>
-            <p className="text-xs text-muted-foreground">
-              {features.items.typescript.description}
-            </p>
+            <p>{features.items.typescript.description}</p>
           </div>
           <Switch
             id="typescript"
             checked={nextjsConfig.typescript}
-            onCheckedChange={(checked) =>
+            onChange={(e) =>
               onNextjsConfigChange((current) => ({
                 ...current,
-                typescript: checked,
+                typescript: e.target.checked,
               }))
             }
           />
         </div>
 
-        <div className="flex items-center justify-between">
+        <div>
           <div>
             <Label htmlFor="eslint">{features.items.eslint.label}</Label>
-            <p className="text-xs text-muted-foreground">{features.items.eslint.description}</p>
+            <p>{features.items.eslint.description}</p>
           </div>
           <Switch
             id="eslint"
             checked={nextjsConfig.eslint}
-            onCheckedChange={(checked) =>
+            onChange={(e) =>
               onNextjsConfigChange((current) => ({
                 ...current,
-                eslint: checked,
+                eslint: e.target.checked,
               }))
             }
           />
         </div>
 
-        <div className="flex items-center justify-between">
+        <div>
           <div>
             <Label htmlFor="tailwind">{features.items.tailwind.label}</Label>
-            <p className="text-xs text-muted-foreground">
-              {features.items.tailwind.description}
-            </p>
+            <p>{features.items.tailwind.description}</p>
           </div>
           <Switch
             id="tailwind"
             checked={nextjsConfig.tailwind}
-            onCheckedChange={(checked) =>
+            onChange={(e) =>
               onNextjsConfigChange((current) => ({
                 ...current,
-                tailwind: checked,
+                tailwind: e.target.checked,
               }))
             }
           />
         </div>
 
-        <div className="flex items-center justify-between">
+        <div>
           <div>
             <Label htmlFor="src-dir">{features.items.srcDirectory.label}</Label>
-            <p className="text-xs text-muted-foreground">
-              {features.items.srcDirectory.description}
-            </p>
+            <p>{features.items.srcDirectory.description}</p>
           </div>
           <Switch
             id="src-dir"
             checked={nextjsConfig.srcDirectory}
-            onCheckedChange={(checked) =>
+            onChange={(e) =>
               onNextjsConfigChange((current) => ({
                 ...current,
-                srcDirectory: checked,
+                srcDirectory: e.target.checked,
               }))
             }
           />
         </div>
 
-        <div className="flex items-center justify-between">
+        <div>
           <div>
             <Label htmlFor="app-router">{features.items.appRouter.label}</Label>
-            <p className="text-xs text-muted-foreground">
-              {features.items.appRouter.description}
-            </p>
+            <p>{features.items.appRouter.description}</p>
           </div>
           <Switch
             id="app-router"
             checked={nextjsConfig.appRouter}
-            onCheckedChange={(checked) =>
+            onChange={(e) =>
               onNextjsConfigChange((current) => ({
                 ...current,
-                appRouter: checked,
+                appRouter: e.target.checked,
               }))
             }
           />
         </div>
 
-        <div className="flex items-center justify-between">
+        <div>
           <div>
             <Label htmlFor="turbopack">{features.items.turbopack.label}</Label>
-            <p className="text-xs text-muted-foreground">
-              {features.items.turbopack.description}
-            </p>
+            <p>{features.items.turbopack.description}</p>
           </div>
           <Switch
             id="turbopack"
             checked={nextjsConfig.turbopack || false}
-            onCheckedChange={(checked) =>
+            onChange={(e) =>
               onNextjsConfigChange((current) => ({
                 ...current,
-                turbopack: checked,
+                turbopack: e.target.checked,
               }))
             }
           />

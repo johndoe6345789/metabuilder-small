@@ -1,5 +1,5 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { TabsContent } from '@/components/ui/tabs'
+import { Card, CardContent, CardHeader, CardTitle } from '@metabuilder/fakemui/surfaces'
+import { TabPanel } from '@metabuilder/fakemui/navigation'
 import { type ButtonsTabData } from './types'
 
 type ButtonsTabProps = {
@@ -9,13 +9,13 @@ type ButtonsTabProps = {
 
 export function ButtonsTab({ data, value }: ButtonsTabProps) {
   return (
-    <TabsContent value={value} className="space-y-6">
+    <TabPanel value={value}>
       <Card>
         <CardHeader>
           <CardTitle>{data.title}</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-3">
+        <CardContent>
+          <div>
             {data.rows.map((row, rowIndex) => (
               <div key={`button-row-${rowIndex}`} className="flex gap-3 flex-wrap">
                 {row.map((button) => (
@@ -32,6 +32,6 @@ export function ButtonsTab({ data, value }: ButtonsTabProps) {
           </div>
         </CardContent>
       </Card>
-    </TabsContent>
+    </TabPanel>
   )
 }

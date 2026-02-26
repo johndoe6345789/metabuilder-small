@@ -1,10 +1,7 @@
 import { UnitTest } from '@/types/project'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Textarea } from '@/components/ui/textarea'
+import { Button, Input, Textarea } from '@metabuilder/fakemui/inputs'
+import { Card, CardContent, CardHeader, CardTitle } from '@metabuilder/fakemui/surfaces'
+import { Label } from '@metabuilder/fakemui/atoms'
 import { Flask } from '@metabuilder/fakemui/icons'
 import unitTestDesignerCopy from '@/data/unit-test-designer.json'
 
@@ -15,11 +12,11 @@ interface TestSuiteEditorProps {
 
 export function TestSuiteEditor({ test, onUpdateTest }: TestSuiteEditorProps) {
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">{unitTestDesignerCopy.labels.testSuiteConfiguration}</h2>
-        <Button variant="outline">
-          <Flask size={16} className="mr-2" weight="fill" />
+    <div>
+      <div>
+        <h2>{unitTestDesignerCopy.labels.testSuiteConfiguration}</h2>
+        <Button variant="outlined">
+          <Flask size={16} weight="fill" />
           {unitTestDesignerCopy.labels.runTests}
         </Button>
       </div>
@@ -28,8 +25,8 @@ export function TestSuiteEditor({ test, onUpdateTest }: TestSuiteEditorProps) {
         <CardHeader>
           <CardTitle>{unitTestDesignerCopy.labels.testSuiteDetails}</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
+        <CardContent>
+          <div>
             <Label htmlFor="test-name">{unitTestDesignerCopy.labels.testSuiteName}</Label>
             <Input
               id="test-name"
@@ -37,7 +34,7 @@ export function TestSuiteEditor({ test, onUpdateTest }: TestSuiteEditorProps) {
               onChange={event => onUpdateTest(test.id, { name: event.target.value })}
             />
           </div>
-          <div className="space-y-2">
+          <div>
             <Label htmlFor="test-description">{unitTestDesignerCopy.labels.description}</Label>
             <Textarea
               id="test-description"
@@ -46,25 +43,21 @@ export function TestSuiteEditor({ test, onUpdateTest }: TestSuiteEditorProps) {
               placeholder={unitTestDesignerCopy.placeholders.testSuiteDescription}
             />
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
+          <div>
+            <div>
               <Label htmlFor="test-type">{unitTestDesignerCopy.labels.testType}</Label>
-              <Select
+              <select
+                id="test-type"
                 value={test.testType}
-                onValueChange={(value: UnitTest['testType']) => onUpdateTest(test.id, { testType: value })}
+                onChange={event => onUpdateTest(test.id, { testType: event.target.value as UnitTest['testType'] })}
               >
-                <SelectTrigger id="test-type">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="component">{unitTestDesignerCopy.testTypes.component}</SelectItem>
-                  <SelectItem value="function">{unitTestDesignerCopy.testTypes.function}</SelectItem>
-                  <SelectItem value="hook">{unitTestDesignerCopy.testTypes.hook}</SelectItem>
-                  <SelectItem value="integration">{unitTestDesignerCopy.testTypes.integration}</SelectItem>
-                </SelectContent>
-              </Select>
+                <option value="component">{unitTestDesignerCopy.testTypes.component}</option>
+                <option value="function">{unitTestDesignerCopy.testTypes.function}</option>
+                <option value="hook">{unitTestDesignerCopy.testTypes.hook}</option>
+                <option value="integration">{unitTestDesignerCopy.testTypes.integration}</option>
+              </select>
             </div>
-            <div className="space-y-2">
+            <div>
               <Label htmlFor="target-file">{unitTestDesignerCopy.labels.targetFile}</Label>
               <Input
                 id="target-file"

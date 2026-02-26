@@ -1,6 +1,6 @@
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
+import { Tabs, Tab, TabPanel } from '@metabuilder/fakemui/navigation'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@metabuilder/fakemui/surfaces'
+import { Button } from '@metabuilder/fakemui/inputs'
 import { JSONUIPage } from '@/components/JSONUIPage'
 import { Eye, Code } from '@metabuilder/fakemui/icons'
 import { ShowcaseExample, ShowcaseTabsCopy } from './types'
@@ -23,29 +23,38 @@ export function ShowcaseTabs({
   onShowJSONChange,
 }: ShowcaseTabsProps) {
   return (
-    <Tabs
-      value={selectedExample}
-      onValueChange={onSelectedExampleChange}
-      className="h-full flex flex-col"
-    >
-      <div className="border-b border-border bg-muted/30 px-6">
-        <div className="flex items-center justify-between">
-          <TabsList className="bg-transparent border-0">
+    <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+      <div
+        style={{
+          borderBottom: '1px solid var(--border)',
+          backgroundColor: 'color-mix(in srgb, var(--muted) 30%, transparent)',
+          padding: '0 1.5rem',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Tabs
+            value={selectedExample}
+            onChange={(_e, v) => onSelectedExampleChange(v)}
+          >
             {examples.map((example) => {
               const Icon = example.icon
               return (
-                <TabsTrigger key={example.key} value={example.key} className="gap-2">
-                  <Icon size={16} />
-                  {example.name}
-                </TabsTrigger>
+                <Tab
+                  key={example.key}
+                  value={example.key}
+                  icon={<Icon size={16} />}
+                  label={example.name}
+                  selected={selectedExample === example.key}
+                  onClick={() => onSelectedExampleChange(example.key)}
+                />
               )
             })}
-          </TabsList>
+          </Tabs>
           <Button
-            variant="outline"
-            size="sm"
+            variant="outlined"
+            size="small"
             onClick={() => onShowJSONChange(!showJSON)}
-            className="gap-2"
+            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
           >
             {showJSON ? <Eye size={16} /> : <Code size={16} />}
             {showJSON ? copy.showPreviewLabel : copy.showJsonLabel}
@@ -53,18 +62,31 @@ export function ShowcaseTabs({
         </div>
       </div>
 
-      <div className="flex-1 overflow-auto">
+      <div style={{ flex: 1, overflow: 'auto' }}>
         {examples.map((example) => (
-          <TabsContent key={example.key} value={example.key} className="h-full m-0">
+          <TabPanel
+            key={example.key}
+            hidden={selectedExample !== example.key}
+            style={{ height: '100%', margin: 0 }}
+          >
             {showJSON ? (
-              <div className="p-6">
+              <div style={{ padding: '1.5rem' }}>
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-lg">{copy.jsonTitle}</CardTitle>
+                    <CardTitle style={{ fontSize: '1.125rem' }}>{copy.jsonTitle}</CardTitle>
                     <CardDescription>{example.description}</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <pre className="bg-muted p-4 rounded-lg overflow-auto text-sm max-h-[600px]">
+                    <pre
+                      style={{
+                        backgroundColor: 'var(--muted)',
+                        padding: '1rem',
+                        borderRadius: '0.5rem',
+                        overflow: 'auto',
+                        fontSize: '0.875rem',
+                        maxHeight: '600px',
+                      }}
+                    >
                       <code>{JSON.stringify(example.config, null, 2)}</code>
                     </pre>
                   </CardContent>
@@ -73,9 +95,9 @@ export function ShowcaseTabs({
             ) : (
               <JSONUIPage jsonConfig={example.config} />
             )}
-          </TabsContent>
+          </TabPanel>
         ))}
       </div>
-    </Tabs>
+    </div>
   )
 }

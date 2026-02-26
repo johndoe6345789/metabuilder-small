@@ -1,6 +1,6 @@
 import type { ConflictResolutionCopy } from '@/components/conflict-resolution/types'
 
-import { Button } from '@/components/ui/button'
+import { Button } from '@metabuilder/fakemui/inputs'
 import { ArrowsClockwise, Trash } from '@metabuilder/fakemui/icons'
 
 interface ConflictResolutionHeaderProps {
@@ -19,20 +19,20 @@ export function ConflictResolutionHeader({
   onClear,
 }: ConflictResolutionHeaderProps) {
   return (
-    <div className="flex items-start justify-between gap-4">
+    <div>
       <div>
-        <h1 className="text-3xl font-bold font-mono tracking-tight">{copy.header.title}</h1>
-        <p className="text-muted-foreground mt-1">{copy.header.description}</p>
+        <h1>{copy.header.title}</h1>
+        <p>{copy.header.description}</p>
       </div>
 
-      <div className="flex items-center gap-2">
-        <Button size="sm" variant="outline" onClick={onDetect} disabled={detectingConflicts}>
-          <ArrowsClockwise size={16} className={detectingConflicts ? 'animate-spin' : ''} />
+      <div>
+        <Button size="small" variant="outlined" onClick={onDetect} disabled={detectingConflicts}>
+          <ArrowsClockwise size={16} />
           {copy.buttons.detect}
         </Button>
 
         {hasConflicts && (
-          <Button size="sm" variant="outline" onClick={onClear}>
+          <Button size="small" variant="outlined" onClick={onClear}>
             <Trash size={16} />
             {copy.buttons.clearAll}
           </Button>

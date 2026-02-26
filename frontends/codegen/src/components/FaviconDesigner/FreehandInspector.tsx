@@ -1,7 +1,6 @@
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Slider } from '@/components/ui/slider'
+import { Input } from '@metabuilder/fakemui/inputs'
+import { Label } from '@metabuilder/fakemui/atoms'
+import { Slider } from '@metabuilder/fakemui/inputs'
 import { Drop, Gradient, PencilSimple, Sparkle } from '@metabuilder/fakemui/icons'
 import copy from '@/data/favicon-designer.json'
 import { formatCopy } from './formatCopy'
@@ -16,50 +15,36 @@ export const FreehandInspector = ({ element, onUpdateElement }: FreehandInspecto
   <>
     <div>
       <Label>{copy.brush.effectLabel}</Label>
-      <Select
+      <select
         value={element.brushEffect || 'solid'}
-        onValueChange={(value) => onUpdateElement({ brushEffect: value as BrushEffect })}
+        onChange={(event) => onUpdateElement({ brushEffect: event.target.value as BrushEffect })}
       >
-        <SelectTrigger>
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="solid">
-            <div className="flex items-center gap-2">
-              <PencilSimple size={16} />
-              {copy.effects.solid}
-            </div>
-          </SelectItem>
-          <SelectItem value="gradient">
-            <div className="flex items-center gap-2">
-              <Gradient size={16} />
-              {copy.effects.gradient}
-            </div>
-          </SelectItem>
-          <SelectItem value="spray">
-            <div className="flex items-center gap-2">
-              <Drop size={16} />
-              {copy.effects.spray}
-            </div>
-          </SelectItem>
-          <SelectItem value="glow">
-            <div className="flex items-center gap-2">
-              <Sparkle size={16} />
-              {copy.effects.glow}
-            </div>
-          </SelectItem>
-        </SelectContent>
-      </Select>
+        <option value="solid">
+          <PencilSimple size={16} />
+          {copy.effects.solid}
+        </option>
+        <option value="gradient">
+          <Gradient size={16} />
+          {copy.effects.gradient}
+        </option>
+        <option value="spray">
+          <Drop size={16} />
+          {copy.effects.spray}
+        </option>
+        <option value="glow">
+          <Sparkle size={16} />
+          {copy.effects.glow}
+        </option>
+      </select>
     </div>
 
     <div>
       <Label>{copy.inspector.strokeColor}</Label>
-      <div className="flex gap-2">
+      <div>
         <Input
           type="color"
           value={element.color}
           onChange={(event) => onUpdateElement({ color: event.target.value })}
-          className="w-20 h-10"
         />
         <Input
           value={element.color}
@@ -72,12 +57,11 @@ export const FreehandInspector = ({ element, onUpdateElement }: FreehandInspecto
     {element.brushEffect === 'gradient' && (
       <div>
         <Label>{copy.brush.gradientColorLabel}</Label>
-        <div className="flex gap-2">
+        <div>
           <Input
             type="color"
             value={element.gradientColor || copy.placeholders.gradient}
             onChange={(event) => onUpdateElement({ gradientColor: event.target.value })}
-            className="w-20 h-10"
           />
           <Input
             value={element.gradientColor || copy.placeholders.gradient}

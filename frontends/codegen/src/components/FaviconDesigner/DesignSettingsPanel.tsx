@@ -1,7 +1,6 @@
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Slider } from '@/components/ui/slider'
+import { Input } from '@metabuilder/fakemui/inputs'
+import { Label } from '@metabuilder/fakemui/atoms'
+import { Slider } from '@metabuilder/fakemui/inputs'
 import copy from '@/data/favicon-designer.json'
 import { PRESET_SIZES } from './constants'
 import { formatCopy } from './formatCopy'
@@ -22,7 +21,7 @@ export const DesignSettingsPanel = ({
   onUpdateDesign,
   onSelectDesign,
 }: DesignSettingsPanelProps) => (
-  <div className="space-y-6">
+  <div>
     <div>
       <Label>{copy.design.nameLabel}</Label>
       <Input
@@ -34,44 +33,33 @@ export const DesignSettingsPanel = ({
 
     <div>
       <Label>{copy.design.selectLabel}</Label>
-      <Select value={activeDesignId} onValueChange={onSelectDesign}>
-        <SelectTrigger>
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {designs.map((design) => (
-            <SelectItem key={design.id} value={design.id}>
-              {design.name}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      <select value={activeDesignId} onChange={(e) => onSelectDesign(e.target.value)}>
+        {designs.map((design) => (
+          <option key={design.id} value={design.id}>
+            {design.name}
+          </option>
+        ))}
+      </select>
     </div>
 
     <div>
       <Label>{copy.design.sizeLabel}</Label>
-      <Select value={String(activeDesign.size)} onValueChange={(value) => onUpdateDesign({ size: Number(value) })}>
-        <SelectTrigger>
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {PRESET_SIZES.map((size) => (
-            <SelectItem key={size} value={String(size)}>
-              {size}x{size}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      <select value={String(activeDesign.size)} onChange={(e) => onUpdateDesign({ size: Number(e.target.value) })}>
+        {PRESET_SIZES.map((size) => (
+          <option key={size} value={String(size)}>
+            {size}x{size}
+          </option>
+        ))}
+      </select>
     </div>
 
     <div>
       <Label>{copy.design.backgroundLabel}</Label>
-      <div className="flex gap-2">
+      <div>
         <Input
           type="color"
           value={activeDesign.backgroundColor}
           onChange={(e) => onUpdateDesign({ backgroundColor: e.target.value })}
-          className="w-20 h-10"
         />
         <Input
           value={activeDesign.backgroundColor}
@@ -83,21 +71,16 @@ export const DesignSettingsPanel = ({
 
     <div>
       <Label>{copy.design.filterLabel}</Label>
-      <Select
+      <select
         value={activeDesign.filter || 'none'}
-        onValueChange={(value) => onUpdateDesign({ filter: value as CanvasFilter })}
+        onChange={(e) => onUpdateDesign({ filter: e.target.value as CanvasFilter })}
       >
-        <SelectTrigger>
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {(Object.keys(copy.filters) as Array<keyof typeof copy.filters>).map((key) => (
-            <SelectItem key={key} value={key}>
-              {copy.filters[key]}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+        {(Object.keys(copy.filters) as Array<keyof typeof copy.filters>).map((key) => (
+          <option key={key} value={key}>
+            {copy.filters[key]}
+          </option>
+        ))}
+      </select>
     </div>
 
     {activeDesign.filter && activeDesign.filter !== 'none' && (

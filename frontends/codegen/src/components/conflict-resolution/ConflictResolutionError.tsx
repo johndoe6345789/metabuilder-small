@@ -1,6 +1,6 @@
 import type { ConflictResolutionCopy } from '@/components/conflict-resolution/types'
 
-import { Card, CardContent } from '@/components/ui/card'
+import { Card, CardContent } from '@metabuilder/fakemui/surfaces'
 import { XCircle } from '@metabuilder/fakemui/icons'
 import { motion } from 'framer-motion'
 
@@ -15,13 +15,13 @@ export function ConflictResolutionError({ copy, error }: ConflictResolutionError
   }
 
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mt-4">
-      <Card className="border-destructive">
-        <CardContent className="pt-6 flex items-center gap-3">
-          <XCircle size={24} className="text-destructive" weight="duotone" />
-          <div className="flex-1">
-            <div className="font-medium">{copy.error.title}</div>
-            <div className="text-sm text-muted-foreground">{error}</div>
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+      <Card>
+        <CardContent>
+          <XCircle size={24} weight="duotone" />
+          <div>
+            <div>{copy.error.title}</div>
+            <div>{error}</div>
           </div>
         </CardContent>
       </Card>

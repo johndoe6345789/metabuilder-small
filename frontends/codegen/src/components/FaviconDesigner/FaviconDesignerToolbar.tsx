@@ -1,4 +1,4 @@
-import { Button } from '@/components/ui/button'
+import { Button } from '@metabuilder/fakemui/inputs'
 import { Copy, Eraser, PencilSimple, Plus, Trash } from '@metabuilder/fakemui/icons'
 import copy from '@/data/favicon-designer.json'
 
@@ -23,32 +23,32 @@ export const FaviconDesignerToolbar = ({
   onDrawMode,
   onEraseMode,
 }: FaviconDesignerToolbarProps) => (
-  <div className="border-b border-border bg-card px-4 sm:px-6 py-3">
-    <div className="flex flex-wrap items-center justify-between gap-2">
-      <div className="flex gap-2">
-        <Button variant="outline" size="sm" onClick={onNewDesign}>
-          <Plus size={16} className="mr-2" />
+  <div>
+    <div>
+      <div>
+        <Button variant="outlined" size="small" onClick={onNewDesign}>
+          <Plus size={16} />
           {copy.toolbar.newDesign}
         </Button>
-        <Button variant="outline" size="sm" onClick={onDuplicateDesign}>
-          <Copy size={16} className="mr-2" />
+        <Button variant="outlined" size="small" onClick={onDuplicateDesign}>
+          <Copy size={16} />
           {copy.toolbar.duplicate}
         </Button>
-        <Button variant="outline" size="sm" onClick={onDeleteDesign} disabled={!canDelete}>
-          <Trash size={16} className="mr-2" />
+        <Button variant="outlined" size="small" onClick={onDeleteDesign} disabled={!canDelete}>
+          <Trash size={16} />
           {copy.toolbar.delete}
         </Button>
       </div>
-      <div className="flex gap-2">
-        <Button variant={drawMode === 'select' ? 'default' : 'outline'} size="sm" onClick={onSelectMode}>
+      <div>
+        <Button variant={drawMode === 'select' ? 'filled' : 'outlined'} size="small" onClick={onSelectMode}>
           {copy.modes.select}
         </Button>
-        <Button variant={drawMode === 'draw' ? 'default' : 'outline'} size="sm" onClick={onDrawMode}>
-          <PencilSimple size={16} className="mr-2" />
+        <Button variant={drawMode === 'draw' ? 'filled' : 'outlined'} size="small" onClick={onDrawMode}>
+          <PencilSimple size={16} />
           {copy.modes.draw}
         </Button>
-        <Button variant={drawMode === 'erase' ? 'default' : 'outline'} size="sm" onClick={onEraseMode}>
-          <Eraser size={16} className="mr-2" />
+        <Button variant={drawMode === 'erase' ? 'filled' : 'outlined'} size="small" onClick={onEraseMode}>
+          <Eraser size={16} />
           {copy.modes.erase}
         </Button>
       </div>

@@ -1,21 +1,21 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardHeader, CardContent, CardTitle, CardDescription } from '@metabuilder/fakemui/surfaces'
 import { Check } from '@metabuilder/fakemui/icons'
 import strings from '@/data/comprehensive-demo.json'
 
 export function ComprehensiveDemoArchitectureHighlights() {
   return (
-    <Card className="bg-accent/5 border-accent/20">
+    <Card>
       <CardHeader>
         <CardTitle>{strings.architecture.title}</CardTitle>
         <CardDescription>{strings.architecture.description}</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-3">
+      <CardContent>
         {strings.architecture.items.map((item) => (
-          <div key={item.title} className="flex items-start gap-3">
-            <Check className="text-accent mt-1" size={16} weight="bold" />
+          <div key={item.title}>
+            <Check size={16} weight="bold" />
             <div>
-              <p className="font-medium">{item.title}</p>
-              <p className="text-sm text-muted-foreground">{item.description}</p>
+              <p>{item.title}</p>
+              <p>{item.description}</p>
             </div>
           </div>
         ))}

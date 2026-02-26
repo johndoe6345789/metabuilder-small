@@ -1,7 +1,6 @@
 import { CheckCircle } from '@metabuilder/fakemui/icons'
-
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { TabsContent } from '@/components/ui/tabs'
+import { Card, CardContent, CardHeader, CardTitle } from '@metabuilder/fakemui/surfaces'
+import { TabPanel } from '@metabuilder/fakemui/navigation'
 import { type ChipsTabData } from './types'
 
 type ChipsTabProps = {
@@ -11,12 +10,12 @@ type ChipsTabProps = {
 
 export function ChipsTab({ data, value }: ChipsTabProps) {
   return (
-    <TabsContent value={value} className="space-y-6">
+    <TabPanel value={value}>
       <Card>
         <CardHeader>
           <CardTitle>{data.chipCardTitle}</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent>
           <div className="flex gap-2 flex-wrap">
             {data.chips.map((chip) => (
               <span key={chip.label} className={chip.className}>
@@ -36,7 +35,7 @@ export function ChipsTab({ data, value }: ChipsTabProps) {
         <CardHeader>
           <CardTitle>{data.tagCardTitle}</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent>
           <div className="flex gap-2 flex-wrap">
             {data.tags.map((tag) => (
               <span key={tag.label} className={tag.className}>
@@ -46,6 +45,6 @@ export function ChipsTab({ data, value }: ChipsTabProps) {
           </div>
         </CardContent>
       </Card>
-    </TabsContent>
+    </TabPanel>
   )
 }

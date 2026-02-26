@@ -1,7 +1,7 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@metabuilder/fakemui/surfaces'
+import { Button } from '@metabuilder/fakemui/inputs'
+import { Badge } from '@metabuilder/fakemui/data-display'
+import { Separator } from '@metabuilder/fakemui/data-display'
 import { ArrowsClockwise, CheckCircle, CloudArrowUp, XCircle } from '@metabuilder/fakemui/icons'
 import reduxIntegrationCopy from '@/data/redux-integration-demo.json'
 import type { DBALConfigResponse } from '@/store/middleware/dbalSync'
@@ -20,48 +20,44 @@ export function DBALStatusCard({ dbalConnected, dbalStats, onCheckConnection }: 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <CloudArrowUp className="w-5 h-5" />
+        <CardTitle>
+          <CloudArrowUp />
           {reduxIntegrationCopy.cards.dbal.title}
         </CardTitle>
         <CardDescription>{reduxIntegrationCopy.cards.dbal.description}</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-3">
-        <div className="flex justify-between items-center">
-          <span className="text-sm text-muted-foreground">
+      <CardContent>
+        <div>
+          <span>
             {reduxIntegrationCopy.cards.dbal.labels.connection}
           </span>
           {dbalConnected ? (
-            <Badge variant="default" className="bg-green-600">
-              <CheckCircle className="w-3 h-3 mr-1" />
+            <Badge variant="filled">
+              <CheckCircle />
               {connectionLabel}
             </Badge>
           ) : (
-            <Badge variant="destructive">
-              <XCircle className="w-3 h-3 mr-1" />
+            <Badge variant="danger">
+              <XCircle />
               {connectionLabel}
             </Badge>
           )}
         </div>
         {dbalStats && (
           <>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">
-                Adapter
-              </span>
-              <Badge variant="outline">{dbalStats.adapter}</Badge>
+            <div>
+              <span>Adapter</span>
+              <Badge variant="outlined">{dbalStats.adapter}</Badge>
             </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">
-                Status
-              </span>
-              <Badge variant="outline">{dbalStats.status}</Badge>
+            <div>
+              <span>Status</span>
+              <Badge variant="outlined">{dbalStats.status}</Badge>
             </div>
           </>
         )}
         <Separator />
-        <Button onClick={onCheckConnection} variant="outline" size="sm" className="w-full">
-          <ArrowsClockwise className="w-4 h-4 mr-2" />
+        <Button onClick={onCheckConnection} variant="outlined" size="small">
+          <ArrowsClockwise />
           {reduxIntegrationCopy.cards.dbal.labels.checkConnection}
         </Button>
       </CardContent>

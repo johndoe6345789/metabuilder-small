@@ -1,5 +1,5 @@
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
+import { Label } from '@metabuilder/fakemui/atoms'
+import { Textarea } from '@metabuilder/fakemui/inputs'
 import { DataSource } from '@/types/json-ui'
 
 interface StaticSourceFieldsProps {
@@ -16,7 +16,7 @@ export function StaticSourceFields({
   onUpdateField,
 }: StaticSourceFieldsProps) {
   return (
-    <div className="space-y-2">
+    <div>
       <Label>{label}</Label>
       <Textarea
         value={JSON.stringify(editingSource.defaultValue, null, 2)}
@@ -29,7 +29,6 @@ export function StaticSourceFields({
           }
         }}
         placeholder={placeholder}
-        className="font-mono text-sm h-24"
       />
     </div>
   )

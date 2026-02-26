@@ -1,8 +1,10 @@
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Switch } from '@/components/ui/switch'
+import { useState } from 'react'
+import { Dialog } from '@metabuilder/fakemui/feedback'
+import { DialogContent, DialogHeader, DialogTitle, DialogContentText, DialogActions } from '@metabuilder/fakemui/utils'
+import { Button } from '@metabuilder/fakemui/inputs'
+import { Input } from '@metabuilder/fakemui/inputs'
+import { Label } from '@metabuilder/fakemui/atoms'
+import { Switch } from '@metabuilder/fakemui/inputs'
 import { NpmPackage } from '@/types/project'
 import projectSettingsCopy from '@/data/project-settings.json'
 
@@ -25,14 +27,14 @@ export function PackageDialog({
   const isEditing = Boolean(editingPackage?.name)
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onClose={() => onOpenChange(false)}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{isEditing ? copy.title.edit : copy.title.add}</DialogTitle>
-          <DialogDescription>{copy.description}</DialogDescription>
+          <DialogContentText>{copy.description}</DialogContentText>
         </DialogHeader>
         {editingPackage && (
-          <div className="space-y-4">
+          <div>
             <div>
               <Label htmlFor="package-name">{copy.fields.name.label}</Label>
               <Input
@@ -66,24 +68,24 @@ export function PackageDialog({
                 placeholder={copy.fields.description.placeholder}
               />
             </div>
-            <div className="flex items-center justify-between">
+            <div>
               <Label htmlFor="package-dev">{copy.fields.devDependency.label}</Label>
               <Switch
                 id="package-dev"
                 checked={editingPackage.isDev}
-                onCheckedChange={(checked) =>
-                  setEditingPackage({ ...editingPackage, isDev: checked })
+                onChange={(e) =>
+                  setEditingPackage({ ...editingPackage, isDev: e.target.checked })
                 }
               />
             </div>
           </div>
         )}
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+        <DialogActions>
+          <Button variant="outlined" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button onClick={onSave}>Save Package</Button>
-        </DialogFooter>
+          <Button variant="filled" onClick={onSave}>Save Package</Button>
+        </DialogActions>
       </DialogContent>
     </Dialog>
   )

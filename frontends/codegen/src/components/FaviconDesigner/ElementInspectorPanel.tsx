@@ -1,4 +1,4 @@
-import { Label } from '@/components/ui/label'
+import { Label } from '@metabuilder/fakemui/atoms'
 import copy from '@/data/favicon-designer.json'
 import { ColorInspector } from './ColorInspector'
 import { FreehandInspector } from './FreehandInspector'
@@ -18,8 +18,8 @@ export const ElementInspectorPanel = ({
   selectedElement,
   onUpdateElement,
 }: ElementInspectorPanelProps) => (
-  <div className="space-y-4">
-    <Label className="text-base font-semibold">{copy.inspector.title}</Label>
+  <div>
+    <Label>{copy.inspector.title}</Label>
 
     {selectedElement.type === 'freehand' && (
       <FreehandInspector element={selectedElement} onUpdateElement={onUpdateElement} />
