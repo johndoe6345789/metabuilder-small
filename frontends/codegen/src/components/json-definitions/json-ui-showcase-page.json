@@ -4,5 +4,10 @@
   "props": {
     "className": "json-ui-showcase-page"
   },
-  "children": []
+  "children": [
+    {
+      "id": "json-ui-showcase-component",
+      "type": "MetabuilderWidgetJSONUIShowcase"
+    }
+  ]
 }

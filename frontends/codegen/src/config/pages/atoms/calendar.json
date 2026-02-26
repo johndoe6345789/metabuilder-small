@@ -1,5 +1,5 @@
 {
-  "type": "Calendar as ShadcnCalendar",
+  "type": "MetabuilderWidgetCalendar",
   "props": {
     "onSelect": "> void",
     "disabled": "> boolean)"

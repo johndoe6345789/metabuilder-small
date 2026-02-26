@@ -1,19 +1,48 @@
 "use client"
 
 import {
+  Children,
+  cloneElement,
   createContext,
+  forwardRef,
+  isValidElement,
   useContext,
   useState,
   useCallback,
   useEffect,
   ComponentProps,
+  HTMLAttributes,
+  ReactElement,
   ReactNode,
 } from "react"
 import { createPortal } from "react-dom"
 import { X } from "@metabuilder/fakemui/icons"
 
 import { cn } from "@/lib/utils"
-import { Slot } from "@/components/ui/slot"
+
+// Inline Slot: renders child element with merged props (avoids extra DOM wrapper)
+const Slot = forwardRef<HTMLElement, HTMLAttributes<HTMLElement> & { children?: ReactNode }>(
+  function Slot({ children, ...slotProps }, forwardedRef) {
+    const child = Children.only(children)
+    if (!isValidElement(child)) return null
+    const childProps = child.props as Record<string, unknown>
+    const mergedProps: Record<string, unknown> = { ...slotProps }
+    if (slotProps.className || childProps.className) {
+      mergedProps.className = cn(childProps.className as string | undefined, slotProps.className)
+    }
+    for (const key of Object.keys(slotProps)) {
+      if (key.startsWith("on") && typeof (slotProps as Record<string, unknown>)[key] === "function") {
+        const slotHandler = (slotProps as Record<string, unknown>)[key] as (...args: unknown[]) => void
+        const childHandler = childProps[key]
+        if (typeof childHandler === "function") {
+          mergedProps[key] = (...args: unknown[]) => { slotHandler(...args); (childHandler as (...a: unknown[]) => void)(...args) }
+        }
+      }
+    }
+    if (forwardedRef) mergedProps.ref = forwardedRef
+    return cloneElement(child as ReactElement<any>, mergedProps)
+  }
+)
 
 // --- Context ---
 

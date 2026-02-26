@@ -19,13 +19,16 @@ RUN pip3 install --break-system-packages conan \
 COPY build-config/conanfile.py ./build-config/conanfile.py
 
 # Install C++ dependencies via Conan (absolute output path for reliability)
+# Conan 2.x places generators under build/<build_type>/generators/
 RUN cd build-config \
     && conan install . \
        --output-folder=/dbal/build \
        --build=missing \
        -s build_type=${BUILD_TYPE} \
        -s compiler.cppstd=20 \
-    && ls -la /dbal/build/conan_toolchain.cmake
+    && GENERATORS_DIR=$(dirname $(find /dbal/build -name conan_toolchain.cmake -print -quit)) \
+    && echo "Generators dir: $GENERATORS_DIR" \
+    && ln -sf "$GENERATORS_DIR"/* /dbal/build/
 
 # Copy source code and build files
 COPY CMakeLists.txt ./

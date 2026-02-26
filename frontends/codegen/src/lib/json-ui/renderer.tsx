@@ -247,13 +247,53 @@ export function JSONUIRenderer({
     if (!Component) {
       if (!warnedComponentTypes.has(component.type)) {
         warnedComponentTypes.add(component.type)
-        console.warn(`Component type "${component.type}" not found in registry`)
+        console.warn(`[JSON-UI] Component type "${component.type}" not found in registry (id: ${component.id})`)
+      }
+      if (process.env.NODE_ENV !== 'production') {
+        return <div style={{ border: '1px dashed #ef4444', padding: '4px 8px', margin: '2px', borderRadius: '4px', fontSize: '12px', color: '#ef4444' }}>Missing: {component.type} ({component.id})</div>
       }
       return null
     }
 
     const props = resolveProps(renderContext)
     applyEventHandlers(props, renderContext)
+
+    // Handle list/itemTemplate pattern: iterate over resolved items array
+    // and render the itemTemplate for each item, injecting { item, index } into context
+    if (component.itemTemplate && Array.isArray(props.items)) {
+      const items = props.items
+      const keyPath = typeof props.keyPath === 'string' ? props.keyPath : undefined
+      // Remove list-specific bindings from DOM props
+      delete props.items
+      delete props.keyPath
+
+      const itemChildren = items.map((itemData: any, index: number) => {
+        const itemContext = { ...renderContext, item: itemData, index }
+        const key = keyPath && itemData ? itemData[keyPath] : `${component.id}-item-${index}`
+        return (
+          <DepthProvider key={key}>
+            <JSONUIRenderer
+              component={component.itemTemplate!}
+              dataMap={dataMap}
+              onAction={onAction}
+              context={itemContext}
+            />
+          </DepthProvider>
+        )
+      })
+
+      if (typeof Component === 'string') {
+        const domProps = { ...props }
+        for (const key of Object.keys(domProps)) {
+          if (/^on[A-Z]/.test(key) && typeof domProps[key] !== 'function') delete domProps[key]
+          if (key === '_if') delete domProps[key]
+        }
+        if (domProps.style && typeof domProps.style !== 'object') delete domProps.style
+        return React.createElement(Component, domProps, itemChildren)
+      }
+
+      return <Component {...props}>{itemChildren}</Component>
+    }
 
     // Only pass rendered children when the schema defines them.
     // When component.children is undefined/empty, let React use props.children
@@ -276,6 +316,11 @@ export function JSONUIRenderer({
       // React requires style to be an object, not a string
       if (domProps.style && typeof domProps.style !== 'object') {
         delete domProps.style
+      }
+      // Controlled value without onChange → use defaultValue instead
+      if ('value' in domProps && typeof domProps.onChange !== 'function') {
+        domProps.defaultValue = domProps.value
+        delete domProps.value
       }
       if (renderedChildren !== null) {
         return React.createElement(Component, domProps, renderedChildren)
@@ -313,7 +358,10 @@ export function JSONUIRenderer({
     if (!Component) {
       if (!warnedComponentTypes.has(component.type)) {
         warnedComponentTypes.add(component.type)
-        console.warn(`Component type "${component.type}" not found in registry`)
+        console.warn(`[JSON-UI] Component type "${component.type}" not found in registry (id: ${component.id})`)
+      }
+      if (process.env.NODE_ENV !== 'production') {
+        return <div style={{ border: '1px dashed #ef4444', padding: '4px 8px', margin: '2px', borderRadius: '4px', fontSize: '12px', color: '#ef4444' }}>Missing: {component.type} ({component.id})</div>
       }
       return null
     }

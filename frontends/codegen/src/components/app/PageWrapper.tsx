@@ -1,12 +1,40 @@
 'use client'
 
-import { Suspense } from 'react'
+import React, { Suspense } from 'react'
 import { getPageById, resolveProps } from '@/config/page-loader'
 import { JSONSchemaPageLoader } from '@/components/JSONSchemaPageLoader'
 import { PageRenderer } from '@/lib/json-ui/page-renderer'
 import { ComponentRegistry } from '@/lib/component-registry'
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
 import useAppProject from '@/hooks/use-app-project'
+
+class PageErrorBoundary extends React.Component<
+  { children: React.ReactNode; pageId: string },
+  { error: Error | null }
+> {
+  state = { error: null as Error | null }
+  static getDerivedStateFromError(error: Error) { return { error } }
+  render() {
+    if (this.state.error) {
+      return (
+        <div style={{ padding: '32px', maxWidth: '800px', margin: '0 auto' }}>
+          <div style={{ border: '2px solid #ef4444', borderRadius: '8px', padding: '24px', background: '#fef2f2' }}>
+            <h2 style={{ color: '#dc2626', fontSize: '18px', fontWeight: 'bold', marginBottom: '8px' }}>
+              Page Error: {this.props.pageId}
+            </h2>
+            <p style={{ color: '#991b1b', fontSize: '14px', marginBottom: '12px' }}>
+              {this.state.error.message}
+            </p>
+            <pre style={{ background: '#1f2937', color: '#f9fafb', padding: '12px', borderRadius: '6px', fontSize: '11px', overflow: 'auto', maxHeight: '300px', whiteSpace: 'pre-wrap' }}>
+              {this.state.error.stack}
+            </pre>
+          </div>
+        </div>
+      )
+    }
+    return this.props.children
+  }
+}
 
 function LoadingFallback({ message }: { message: string }) {
   return (
@@ -24,8 +52,13 @@ function LazyComponent({ componentName, props }: { componentName: string; props:
 
   if (!Component) {
     return (
-      <div className="flex items-center justify-center h-full w-full">
-        <p className="text-sm text-muted-foreground">Component {componentName} not found</p>
+      <div className="flex items-center justify-center h-full w-full p-8">
+        <div className="border border-destructive/50 bg-destructive/10 rounded-lg p-6 max-w-md text-center">
+          <p className="text-lg font-semibold text-destructive mb-2">Component Not Found</p>
+          <p className="text-sm text-muted-foreground">
+            <code className="bg-muted px-1 py-0.5 rounded text-xs">{componentName}</code> is not registered in ComponentRegistry.
+          </p>
+        </div>
       </div>
     )
   }
@@ -135,5 +168,9 @@ export function PageWrapper({ pageId }: { pageId: string }) {
     return <LoadingFallback message={`Component missing for page: ${pageId}`} />
   }
 
-  return <LazyComponent componentName={page.component} props={props} />
+  return (
+    <PageErrorBoundary pageId={pageId}>
+      <LazyComponent componentName={page.component} props={props} />
+    </PageErrorBoundary>
+  )
 }

@@ -1,4 +1,4 @@
 {
-  "type": "Button as ShadcnButton, ButtonProps as ShadcnButtonProps",
+  "type": "MetabuilderFormButton",
   "props": {}
 }

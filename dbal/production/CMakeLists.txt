@@ -14,7 +14,6 @@ find_package(SQLite3 REQUIRED)
 find_package(cpr REQUIRED)
 find_package(inja REQUIRED)
 find_package(mongocxx REQUIRED)
-find_package(bsoncxx REQUIRED)
 find_package(Boost REQUIRED)
 find_package(GTest REQUIRED)
 
@@ -49,8 +48,8 @@ target_link_libraries(dbal_daemon PRIVATE
     SQLite::SQLite3
     cpr::cpr
     pantor::inja
-    mongo::mongocxx_shared
-    mongo::bsoncxx_shared
+    mongo::mongocxx_static
+    mongo::bsoncxx_static
     Boost::boost
 )
 

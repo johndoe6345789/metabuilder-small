@@ -1,5 +1,5 @@
 {
-  "type": "Form as ShadcnForm,\n  FormControl,\n  FormDescription,\n  FormField,\n  FormItem,\n  FormLabel,\n  FormMessage,",
+  "type": "MetabuilderFormForm",
   "props": {
     "onSubmit": "> void | Promise<void>"
   }

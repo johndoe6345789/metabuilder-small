@@ -63,45 +63,7 @@ const deprecatedComponentInfo = jsonRegistryEntries.reduce<Record<string, Deprec
   {}
 )
 
-const buildComponentMapFromExports = (
-  exports: Record<string, unknown>
-): Record<string, ComponentType<any>> => {
-  return Object.entries(exports).reduce<Record<string, ComponentType<any>>>((acc, [key, value]) => {
-    if (value && (typeof value === 'function' || typeof value === 'object')) {
-      acc[key] = value as ComponentType<any>
-    }
-    return acc
-  }, {})
-}
 
-const buildComponentMapFromModules = (
-  modules: Record<string, unknown>
-): Record<string, ComponentType<any>> => {
-  return Object.values(modules).reduce<Record<string, ComponentType<any>>>((acc, moduleExports) => {
-    if (!moduleExports || typeof moduleExports !== 'object') {
-      return acc
-    }
-    Object.entries(buildComponentMapFromExports(moduleExports as Record<string, unknown>)).forEach(
-      ([key, component]) => {
-        acc[key] = component
-      }
-    )
-    return acc
-  }, {})
-}
-
-// Convert webpack require.context to a Record<string, module> matching Vite's import.meta.glob format
-function contextToModules(ctx: __WebpackModuleApi.RequireContext): Record<string, unknown> {
-  const modules: Record<string, unknown> = {}
-  for (const key of ctx.keys()) {
-    modules[key] = ctx(key)
-  }
-  return modules
-}
-
-// UI components stay sync — small Radix wrappers used on every page
-const uiModules = contextToModules(require.context('@/components/ui', true, /\.(ts|tsx)$/))
-const uiComponentMap = buildComponentMapFromModules(uiModules)
 
 // FakeMUI primitives — registered explicitly to prevent collisions
 // with icon names (e.g. "Stack" icon = createMaterialIcon('layers'))
@@ -159,9 +121,20 @@ import { MonacoEditorWrapper } from '@/components/ui/monaco-editor-wrapper'
 import { FileExplorerList } from '@/components/file-explorer/FileExplorerList'
 import { FileExplorerDialog } from '@/components/file-explorer/FileExplorerDialog'
 
-// ScrollArea from components/ui — should be in uiComponentMap via require.context
-// but Turbopack dev mode doesn't always resolve it. Explicit import is safe.
+// ScrollArea — explicit import (Turbopack dev mode doesn't resolve lazy contexts reliably)
 import { ScrollArea } from '@/components/ui/scroll-area'
+
+// FakeMUI MD3 components — require.context is unreliable in Turbopack dev mode
+// so all FakeMUI primitives used by JSON definitions must be imported explicitly.
+import { Tabs, Tab, TabPanel } from '@metabuilder/fakemui/navigation'
+import { CardHeader, CardContent, CardActions, CardTitle, CardDescription, CardFooter } from '@metabuilder/fakemui/surfaces'
+import { Button, Switch, Checkbox, Select, Input, Textarea, Slider } from '@metabuilder/fakemui/inputs'
+import { AlertTitle, Dialog, Progress, Skeleton } from '@metabuilder/fakemui/feedback'
+import { Tooltip } from '@metabuilder/fakemui/data-display'
+import { Label } from '@metabuilder/fakemui/atoms'
+import { DialogContent, DialogHeader, DialogTitle, DialogContentText, DialogActions } from '@metabuilder/fakemui/utils'
+import { Download, Plus, Trash, Merge as MergeIcon } from 'lucide-react'
+import { JSONUIShowcase } from '@/components/JSONUIShowcase'
 
 // Atomic library section components — require.context + next/dynamic resolves
 // to () => null in Turbopack dev mode for sub-directory components.
@@ -177,6 +150,42 @@ import { InteractiveElementsSection } from '@/components/atomic-library/Interact
 import { LayoutComponentsSection } from '@/components/atomic-library/LayoutComponentsSection'
 import { EnhancedComponentsSection } from '@/components/atomic-library/EnhancedComponentsSection'
 import { SummarySection } from '@/components/atomic-library/SummarySection'
+
+const fakeMuiExplicitComponents: UIComponentRegistry = {
+  Tabs: Tabs as unknown as ComponentType<any>,
+  Tab: Tab as unknown as ComponentType<any>,
+  TabPanel: TabPanel as unknown as ComponentType<any>,
+  CardHeader: CardHeader as unknown as ComponentType<any>,
+  CardContent: CardContent as unknown as ComponentType<any>,
+  CardActions: CardActions as unknown as ComponentType<any>,
+  CardTitle: CardTitle as unknown as ComponentType<any>,
+  CardDescription: CardDescription as unknown as ComponentType<any>,
+  CardFooter: CardFooter as unknown as ComponentType<any>,
+  Button: Button as unknown as ComponentType<any>,
+  AlertTitle: AlertTitle as unknown as ComponentType<any>,
+  Chip: Chip as unknown as ComponentType<any>,
+  Dialog: Dialog as unknown as ComponentType<any>,
+  DialogContent: DialogContent as unknown as ComponentType<any>,
+  DialogHeader: DialogHeader as unknown as ComponentType<any>,
+  DialogTitle: DialogTitle as unknown as ComponentType<any>,
+  DialogContentText: DialogContentText as unknown as ComponentType<any>,
+  DialogActions: DialogActions as unknown as ComponentType<any>,
+  Switch: Switch as unknown as ComponentType<any>,
+  Checkbox: Checkbox as unknown as ComponentType<any>,
+  Select: Select as unknown as ComponentType<any>,
+  Input: Input as unknown as ComponentType<any>,
+  Textarea: Textarea as unknown as ComponentType<any>,
+  Slider: Slider as unknown as ComponentType<any>,
+  Label: Label as unknown as ComponentType<any>,
+  Tooltip: Tooltip as unknown as ComponentType<any>,
+  Progress: Progress as unknown as ComponentType<any>,
+  Skeleton: Skeleton as unknown as ComponentType<any>,
+  Download: Download as unknown as ComponentType<any>,
+  Plus: Plus as unknown as ComponentType<any>,
+  Trash: Trash as unknown as ComponentType<any>,
+  MergeIcon: MergeIcon as unknown as ComponentType<any>,
+  MetabuilderWidgetJSONUIShowcase: JSONUIShowcase as unknown as ComponentType<any>,
+}
 
 const componentTreeSubComponents: UIComponentRegistry = {
   ComponentTreeToolbar: ComponentTreeToolbar as unknown as ComponentType<any>,
@@ -334,13 +343,27 @@ export const primitiveComponents: UIComponentRegistry = {
   a: 'a' as any,
   img: 'img' as any,
   list: 'div' as any,
+  text: 'span' as any,
+  strong: 'strong' as any,
+  em: 'em' as any,
+  b: 'b' as any,
+  i: 'i' as any,
+  br: 'br' as any,
+  small: 'small' as any,
+  code: 'code' as any,
+  pre: 'pre' as any,
+  hr: 'hr' as any,
+  ul: 'ul' as any,
+  ol: 'ol' as any,
+  li: 'li' as any,
+  table: 'table' as any,
+  thead: 'thead' as any,
+  tbody: 'tbody' as any,
+  tr: 'tr' as any,
+  th: 'th' as any,
+  td: 'td' as any,
 }
 
-export const shadcnComponents: UIComponentRegistry = buildRegistryFromEntries(
-  'ui',
-  null,
-  uiComponentMap
-)
 
 export const atomComponents: UIComponentRegistry = buildRegistryFromEntries(
   'atoms',
@@ -377,9 +400,6 @@ export const componentsComponents: UIComponentRegistry = buildRegistryFromEntrie
 
 export const uiComponentRegistry: UIComponentRegistry = {
   ...primitiveComponents,
-  ...fakeMuiComponents,
-  ...componentTreeSubComponents,
-  ...shadcnComponents,
   ...atomComponents,
   ...moleculeComponents,
   ...organismComponents,
@@ -387,6 +407,10 @@ export const uiComponentRegistry: UIComponentRegistry = {
   ...iconComponents,
   ...customComponents,
   ...componentsComponents,
+  ...componentTreeSubComponents,
+  // FakeMUI MD3 components override Shadcn equivalents (Card, Button, Alert, Dialog, Tabs, etc.)
+  ...fakeMuiComponents,
+  ...fakeMuiExplicitComponents,
 }
 
 export function registerComponent(name: string, component: ComponentType<any>) {
@@ -446,11 +470,11 @@ export function getUIComponent(type: string): ComponentType<any> | string | null
   // JSON components must resolve BEFORE icons — resolveIconComponent is a
   // catch-all that wraps any unknown type in a dynamic(() => null) from the
   // icon module, which would shadow the real JSON component definitions.
-  return resolveWrapperComponent(type) ?? uiComponentRegistry[type] ?? uiComponentMap[type] ?? resolveJsonComponent(type) ?? resolveIconComponent(type) ?? null
+  return resolveWrapperComponent(type) ?? uiComponentRegistry[type]?? resolveJsonComponent(type) ?? resolveIconComponent(type) ?? null
 }
 
 export function hasComponent(type: string): boolean {
-  return Boolean(resolveWrapperComponent(type) ?? uiComponentRegistry[type] ?? uiComponentMap[type] ?? resolveJsonComponent(type) ?? resolveIconComponent(type))
+  return Boolean(resolveWrapperComponent(type) ?? uiComponentRegistry[type]?? resolveJsonComponent(type) ?? resolveIconComponent(type))
 }
 
 export function getDeprecatedComponentInfo(type: string): DeprecatedComponentInfo | null {

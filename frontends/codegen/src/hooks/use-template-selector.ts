@@ -33,6 +33,7 @@ function formatToastDescription(actionType: 'replace' | 'merge', template: Templ
 export function useTemplateSelector() {
   const dispatch = useAppDispatch()
   const kvData = useAppSelector((state) => state.uiState.data)
+  const [activeTab, setActiveTab] = useState('templates')
   const [isLoading, setIsLoading] = useState(false)
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState>({
     open: false,
@@ -107,6 +108,10 @@ export function useTemplateSelector() {
     handleDialogToggle(false)
   }, [handleDialogToggle])
 
+  const handleTabChange = useCallback((_: any, value: string) => {
+    setActiveTab(value)
+  }, [])
+
   const templateCards: TemplateCardData[] = templates.map(template => ({
     id: template.id,
     name: template.name,
@@ -117,13 +122,20 @@ export function useTemplateSelector() {
     onMerge: () => handleSelectTemplate(template.id, 'merge'),
   }))
 
+  const handleDialogClose = useCallback(() => {
+    setConfirmDialog(prevState => ({ ...prevState, open: false }))
+  }, [])
+
   return {
     templates: templateCards,
     isLoading,
+    activeTab,
+    handleTabChange,
     confirmDialog,
     handleConfirmLoad,
     handleDialogToggle,
     handleDialogCancel,
+    handleDialogClose,
     ui,
   }
 }

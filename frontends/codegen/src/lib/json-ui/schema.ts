@@ -92,6 +92,7 @@ export const UIComponentSchema: any = z.object({
     itemVar: z.string(),
     indexVar: z.string().optional(),
   }).optional(),
+  itemTemplate: z.lazy(() => UIComponentSchema).optional(),
 })
 
 export const FormFieldSchema = z.object({

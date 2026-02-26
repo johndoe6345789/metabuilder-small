@@ -1,7 +1,18 @@
 import { ComponentProps, CSSProperties, useMemo } from "react"
 
 import { cn } from "@/lib/utils"
-import { Skeleton } from "@/components/ui/skeleton"
+import { ComponentProps as SkeletonComponentProps } from "react"
+
+// Inline Skeleton (simple animated placeholder div)
+function Skeleton({ className, ...props }: SkeletonComponentProps<"div">) {
+  return (
+    <div
+      data-slot="skeleton"
+      className={cn("bg-accent animate-pulse rounded-md", className)}
+      {...props}
+    />
+  )
+}
 
 function SidebarMenuSkeleton({
   className,

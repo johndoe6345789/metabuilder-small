@@ -1,4 +1,4 @@
 {
-  "type": "HoverCard as ShadcnHoverCard,\n  HoverCardContent,\n  HoverCardTrigger,",
+  "type": "MetabuilderLayoutHoverCard",
   "props": {}
 }
