@@ -1,7 +1,7 @@
 {
   "id": "unit-test-designer-root",
   "type": "div",
-  "props": { "className": "h-full flex" },
+  "props": { "className": "unit-test-designer" },
   "children": [
     {
       "id": "test-suite-list",
@@ -18,12 +18,12 @@
     {
       "id": "right-panel",
       "type": "div",
-      "props": { "className": "flex-1 p-6" },
+      "props": { "className": "unit-test-editor" },
       "children": [
         {
           "id": "selected-content",
           "type": "div",
-          "props": { "className": "space-y-6" },
+          "props": { "className": "unit-test-editor__content" },
           "conditional": { "if": "designerState.selectedTest" },
           "children": [
             {
@@ -52,33 +52,29 @@
         {
           "id": "empty-state",
           "type": "div",
-          "props": { "className": "h-full flex items-center justify-center" },
+          "props": { "className": "unit-test-editor__empty" },
           "conditional": { "if": "!designerState.selectedTest" },
           "children": [
             {
               "id": "empty-state-inner",
               "type": "div",
-              "props": { "className": "text-center" },
+              "props": { "className": "unit-test-editor__empty-inner" },
               "children": [
                 {
                   "id": "empty-icon",
                   "type": "PhosphorIcon",
-                  "props": {
-                    "icon": "Flask",
-                    "size": 48,
-                    "className": "mx-auto mb-4 text-muted-foreground"
-                  }
+                  "props": { "icon": "Flask", "size": 48 }
                 },
                 {
                   "id": "empty-title",
                   "type": "p",
-                  "props": { "className": "text-lg font-medium mb-2" },
+                  "props": { "className": "unit-test-editor__empty-title" },
                   "bindings": { "children": "designerState.copy.labels.noTestSuiteSelected" }
                 },
                 {
                   "id": "empty-body",
                   "type": "p",
-                  "props": { "className": "text-sm text-muted-foreground mb-4" },
+                  "props": { "className": "unit-test-editor__empty-body" },
                   "bindings": { "children": "designerState.copy.labels.noTestSuiteSelectedBody" }
                 },
                 {
@@ -89,7 +85,7 @@
                     {
                       "id": "create-button-icon",
                       "type": "PhosphorIcon",
-                      "props": { "icon": "Plus", "size": 16, "className": "mr-2" }
+                      "props": { "icon": "Plus", "size": 16 }
                     },
                     {
                       "id": "create-button-text",

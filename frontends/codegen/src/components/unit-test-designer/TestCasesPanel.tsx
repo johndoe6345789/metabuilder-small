@@ -27,9 +27,9 @@ export function TestCasesPanel({
   onDeleteAssertion
 }: TestCasesPanelProps) {
   return (
-    <Card>
+    <Card className="test-cases-panel">
       <CardHeader>
-        <div>
+        <div className="test-cases-panel__header">
           <div>
             <CardTitle>{unitTestDesignerCopy.labels.testCases}</CardTitle>
             <CardDescription>{unitTestDesignerCopy.labels.testCasesDescription}</CardDescription>
@@ -41,23 +41,23 @@ export function TestCasesPanel({
         </div>
       </CardHeader>
       <CardContent>
-        <ScrollArea className="h-[450px]">
-          <div>
+        <ScrollArea className="test-cases-panel__scroll">
+          <div className="test-cases-panel__items">
             {testCases.map((testCase, index) => (
-              <Card key={testCase.id}>
-                <CardContent>
-                  <div>
-                    <Badge variant="outlined">
-                      {unitTestDesignerCopy.labels.case} {index + 1}
-                    </Badge>
-                    <IconButton
-                      size="small"
-                      onClick={() => onDeleteTestCase(testCase.id)}
-                    >
-                      <Trash size={14} />
-                    </IconButton>
-                  </div>
-                  <div>
+              <div key={testCase.id} className="test-case-card">
+                <div className="test-case-card__header">
+                  <Badge variant="outlined">
+                    {unitTestDesignerCopy.labels.case} {index + 1}
+                  </Badge>
+                  <IconButton
+                    size="small"
+                    onClick={() => onDeleteTestCase(testCase.id)}
+                  >
+                    <Trash size={14} />
+                  </IconButton>
+                </div>
+                <div className="test-case-card__body">
+                  <div className="test-case-card__field">
                     <Label>{unitTestDesignerCopy.labels.caseDescription}</Label>
                     <Input
                       value={testCase.description}
@@ -65,7 +65,7 @@ export function TestCasesPanel({
                       placeholder={unitTestDesignerCopy.placeholders.caseDescription}
                     />
                   </div>
-                  <div>
+                  <div className="test-case-card__field">
                     <Label>{unitTestDesignerCopy.labels.setupCode}</Label>
                     <Textarea
                       value={testCase.setup || ''}
@@ -74,16 +74,16 @@ export function TestCasesPanel({
                       rows={2}
                     />
                   </div>
-                  <div>
-                    <div>
+                  <div className="test-case-card__assertions">
+                    <div className="test-case-card__assertions-header">
                       <Label>{unitTestDesignerCopy.labels.assertions}</Label>
                       <IconButton size="small" onClick={() => onAddAssertion(testCase.id)}>
                         <Plus size={12} />
                       </IconButton>
                     </div>
-                    <div>
+                    <div className="test-case-card__assertion-list">
                       {testCase.assertions.map((assertion, assertionIndex) => (
-                        <div key={assertionIndex}>
+                        <div key={assertionIndex} className="test-case-card__assertion-row">
                           <Input
                             value={assertion}
                             onChange={event =>
@@ -101,7 +101,7 @@ export function TestCasesPanel({
                       ))}
                     </div>
                   </div>
-                  <div>
+                  <div className="test-case-card__field">
                     <Label>{unitTestDesignerCopy.labels.teardownCode}</Label>
                     <Textarea
                       value={testCase.teardown || ''}
@@ -110,11 +110,11 @@ export function TestCasesPanel({
                       rows={2}
                     />
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             ))}
             {testCases.length === 0 && (
-              <div>
+              <div className="test-cases-panel__empty">
                 {unitTestDesignerCopy.labels.noTestCasesYet}
               </div>
             )}
