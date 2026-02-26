@@ -4,13 +4,8 @@ const DYNAMIC_CACHE = `${CACHE_VERSION}-dynamic`
 const IMAGE_CACHE = `${CACHE_VERSION}-images`
 
 const STATIC_ASSETS = [
-  '/',
-  '/index.html',
-  '/src/main.tsx',
-  '/src/main.css',
-  '/src/index.css',
-  '/src/App.tsx',
-  '/manifest.json',
+  '/codegen/',
+  '/codegen/manifest.json',
 ]
 
 const MAX_DYNAMIC_CACHE_SIZE = 50
@@ -140,7 +135,7 @@ self.addEventListener('fetch', (event) => {
           }).catch(() => fetchRes)
         }).catch(() => {
           if (request.destination === 'document') {
-            return caches.match('/index.html')
+            return caches.match('/codegen/')
           }
         })
       })
@@ -165,7 +160,7 @@ self.addEventListener('fetch', (event) => {
       })
       .catch(() => {
         if (request.destination === 'document') {
-          return caches.match('/index.html')
+          return caches.match('/codegen/')
         }
       })
   )

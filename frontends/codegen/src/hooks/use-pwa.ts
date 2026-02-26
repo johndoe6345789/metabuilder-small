@@ -81,7 +81,7 @@ export function usePWA() {
     window.addEventListener('offline', handleOffline)
 
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js')
+      navigator.serviceWorker.register('/codegen/sw.js', { scope: '/codegen/' })
         .then(registration => {
           setState(prev => ({ ...prev, registration }))
 
