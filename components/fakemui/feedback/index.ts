@@ -1,5 +1,5 @@
-export { Alert, AlertTitle } from './Alert'
-export type { AlertProps, AlertSeverity, AlertVariant, AlertTitleProps } from './Alert'
+export { Alert, AlertTitle, AlertDescription } from './Alert'
+export type { AlertProps, AlertSeverity, AlertVariant, AlertTitleProps, AlertDescriptionProps } from './Alert'
 
 export { Backdrop } from './Backdrop'
 export type { BackdropProps } from './Backdrop'

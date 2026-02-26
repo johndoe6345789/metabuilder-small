@@ -1,4 +1,4 @@
-import { ComponentType } from 'react'
+import React, { ComponentType } from 'react'
 import dynamic from 'next/dynamic'
 import jsonComponentsRegistry from '../../../json-components-registry.json'
 
@@ -83,7 +83,7 @@ import { AvatarGroup } from '@metabuilder/fakemui/data-display'
 import { ButtonGroup } from '@metabuilder/fakemui/inputs'
 import { IconButton } from '@metabuilder/fakemui/inputs'
 import { Card } from '@metabuilder/fakemui/surfaces'
-import { Alert } from '@metabuilder/fakemui/feedback'
+import { Alert, AlertDescription } from '@metabuilder/fakemui/feedback'
 import { Link } from '@metabuilder/fakemui/navigation'
 
 const fakeMuiComponents: UIComponentRegistry = {
@@ -105,6 +105,7 @@ const fakeMuiComponents: UIComponentRegistry = {
   IconButton: IconButton as unknown as ComponentType<any>,
   Card: Card as unknown as ComponentType<any>,
   Alert: Alert as unknown as ComponentType<any>,
+  AlertDescription: AlertDescription as unknown as ComponentType<any>,
   Link: Link as unknown as ComponentType<any>,
 }
 
@@ -174,6 +175,9 @@ import { EnhancedComponentsSection } from '@/components/atomic-library/EnhancedC
 import { SummarySection } from '@/components/atomic-library/SummarySection'
 
 const fakeMuiExplicitComponents: UIComponentRegistry = {
+  // conditional-group: renders children (or else branch) without a wrapper element.
+  // Used in JSON definitions for if/else button content switching.
+  'conditional-group': React.Fragment as unknown as ComponentType<any>,
   Tabs: Tabs as unknown as ComponentType<any>,
   Tab: Tab as unknown as ComponentType<any>,
   TabPanel: TabPanel as unknown as ComponentType<any>,
@@ -355,6 +359,8 @@ export const primitiveComponents: UIComponentRegistry = {
   div: 'div' as any,
   span: 'span' as any,
   p: 'p' as any,
+  option: 'option' as any,
+  optgroup: 'optgroup' as any,
   h1: 'h1' as any,
   h2: 'h2' as any,
   h3: 'h3' as any,

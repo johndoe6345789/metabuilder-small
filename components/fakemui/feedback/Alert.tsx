@@ -88,3 +88,13 @@ export const AlertTitle: React.FC<AlertTitleProps> = ({ children, className = ''
     {children}
   </div>
 )
+
+export interface AlertDescriptionProps extends React.HTMLAttributes<HTMLParagraphElement> {
+  children?: React.ReactNode
+}
+
+export const AlertDescription: React.FC<AlertDescriptionProps> = ({ children, className = '', ...props }) => (
+  <p className={`${styles.alertMessage} ${className}`.trim()} {...props}>
+    {children}
+  </p>
+)

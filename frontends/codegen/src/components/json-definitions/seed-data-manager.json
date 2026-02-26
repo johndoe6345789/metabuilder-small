@@ -47,7 +47,7 @@
             {
               "id": "alert-description",
               "type": "AlertDescription",
-              "children": [{ "type": "text", "children": "Seed data is loaded and available" }]
+              "children": [{ "id": "alert-text", "type": "text", "children": "Seed data is loaded and available" }]
             }
           ]
         },
@@ -76,25 +76,31 @@
                     {
                       "id": "load-button-content",
                       "type": "conditional-group",
-                      "conditional": { "if": "isLoading" },
+                      "conditional": {
+                        "if": "isLoading",
+                        "else": [
+                          {
+                            "id": "load-icon",
+                            "type": "PhosphorIcon",
+                            "props": { "icon": "Database", "size": 16, "weight": "fill" }
+                          },
+                          {
+                            "id": "load-text",
+                            "type": "text",
+                            "bindings": { "children": "loadLabel" }
+                          }
+                        ]
+                      },
                       "children": [
                         {
+                          "id": "loading-spin-1",
                           "type": "PhosphorIcon",
                           "props": { "icon": "CircleNotch", "className": "animate-spin", "size": 16 }
                         },
                         {
+                          "id": "loading-text-1",
                           "type": "text",
                           "bindings": { "children": "loadingLabel" }
-                        }
-                      ],
-                      "else": [
-                        {
-                          "type": "PhosphorIcon",
-                          "props": { "icon": "Database", "size": 16, "weight": "fill" }
-                        },
-                        {
-                          "type": "text",
-                          "bindings": { "children": "loadLabel" }
                         }
                       ]
                     }
@@ -112,25 +118,31 @@
                     {
                       "id": "reset-button-content",
                       "type": "conditional-group",
-                      "conditional": { "if": "isLoading" },
+                      "conditional": {
+                        "if": "isLoading",
+                        "else": [
+                          {
+                            "id": "reset-icon",
+                            "type": "PhosphorIcon",
+                            "props": { "icon": "ArrowClockwise", "size": 16, "weight": "bold" }
+                          },
+                          {
+                            "id": "reset-text",
+                            "type": "text",
+                            "bindings": { "children": "resetLabel" }
+                          }
+                        ]
+                      },
                       "children": [
                         {
+                          "id": "loading-spin-2",
                           "type": "PhosphorIcon",
                           "props": { "icon": "CircleNotch", "className": "animate-spin", "size": 16 }
                         },
                         {
+                          "id": "loading-text-2",
                           "type": "text",
                           "bindings": { "children": "resettingLabel" }
-                        }
-                      ],
-                      "else": [
-                        {
-                          "type": "PhosphorIcon",
-                          "props": { "icon": "ArrowClockwise", "size": 16, "weight": "bold" }
-                        },
-                        {
-                          "type": "text",
-                          "bindings": { "children": "resetLabel" }
                         }
                       ]
                     }
@@ -148,25 +160,31 @@
                     {
                       "id": "clear-button-content",
                       "type": "conditional-group",
-                      "conditional": { "if": "isLoading" },
+                      "conditional": {
+                        "if": "isLoading",
+                        "else": [
+                          {
+                            "id": "clear-icon",
+                            "type": "PhosphorIcon",
+                            "props": { "icon": "Trash", "size": 16, "weight": "fill" }
+                          },
+                          {
+                            "id": "clear-text",
+                            "type": "text",
+                            "bindings": { "children": "clearLabel" }
+                          }
+                        ]
+                      },
                       "children": [
                         {
+                          "id": "loading-spin-3",
                           "type": "PhosphorIcon",
                           "props": { "icon": "CircleNotch", "className": "animate-spin", "size": 16 }
                         },
                         {
+                          "id": "loading-text-3",
                           "type": "text",
                           "bindings": { "children": "clearingLabel" }
-                        }
-                      ],
-                      "else": [
-                        {
-                          "type": "PhosphorIcon",
-                          "props": { "icon": "Trash", "size": 16, "weight": "fill" }
-                        },
-                        {
-                          "type": "text",
-                          "bindings": { "children": "clearLabel" }
                         }
                       ]
                     }
@@ -184,8 +202,8 @@
                   "type": "p",
                   "conditional": { "if": "helperText.load" },
                   "children": [
-                    { "type": "strong", "children": "Load Seed Data: " },
-                    { "type": "text", "bindings": { "children": "helperText.load" } }
+                    { "id": "load-help-strong", "type": "strong", "children": "Load Seed Data: " },
+                    { "id": "load-help-text", "type": "text", "bindings": { "children": "helperText.load" } }
                   ]
                 },
                 {
@@ -193,8 +211,8 @@
                   "type": "p",
                   "conditional": { "if": "helperText.reset" },
                   "children": [
-                    { "type": "strong", "children": "Reset to Defaults: " },
-                    { "type": "text", "bindings": { "children": "helperText.reset" } }
+                    { "id": "reset-help-strong", "type": "strong", "children": "Reset to Defaults: " },
+                    { "id": "reset-help-text", "type": "text", "bindings": { "children": "helperText.reset" } }
                   ]
                 },
                 {
@@ -202,8 +220,8 @@
                   "type": "p",
                   "conditional": { "if": "helperText.clear" },
                   "children": [
-                    { "type": "strong", "children": "Clear All Data: " },
-                    { "type": "text", "bindings": { "children": "helperText.clear" } }
+                    { "id": "clear-help-strong", "type": "strong", "children": "Clear All Data: " },
+                    { "id": "clear-help-text", "type": "text", "bindings": { "children": "helperText.clear" } }
                   ]
                 }
               ]
