@@ -7,12 +7,14 @@ export interface TabsProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'o
   children?: React.ReactNode
   value?: any
   onChange?: (event: React.SyntheticEvent, value: any) => void
+  /** Simpler value-change callback (no SyntheticEvent). Used by JSON UI bindings. */
+  onValueChange?: (value: any) => void
   variant?: 'standard' | 'scrollable' | 'fullWidth' | 'secondary' | 'centered'
   fullWidth?: boolean
 }
 
 export const Tabs = forwardRef<HTMLDivElement, TabsProps>(
-  ({ children, value, onChange, variant, fullWidth, className = '', ...props }, ref) => {
+  ({ children, value, onChange, onValueChange, variant, fullWidth, className = '', ...props }, ref) => {
     const variantClasses = [
       variant === 'secondary' && styles.secondary,
       variant === 'scrollable' && styles.scrollable,
