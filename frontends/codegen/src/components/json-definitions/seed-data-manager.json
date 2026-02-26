@@ -72,7 +72,7 @@
                       "transform": "data.isLoaded"
                     }
                   },
-                  "props": { "variant": "default" },
+                  "props": { "variant": "filled" },
                   "children": [
                     {
                       "id": "load-button-content",
@@ -156,7 +156,7 @@
                     "onClick": "onClearAllData",
                     "disabled": "isLoading"
                   },
-                  "props": { "variant": "destructive" },
+                  "props": { "variant": "danger" },
                   "children": [
                     {
                       "id": "clear-button-content",
