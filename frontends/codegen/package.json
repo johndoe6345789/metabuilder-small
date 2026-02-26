@@ -1,7 +1,7 @@
 {
   "name": "codeforge",
   "private": true,
-  "version": "1.7.20",
+  "version": "1.7.21",
   "type": "module",
   "scripts": {
     "dev": "next dev --turbopack",

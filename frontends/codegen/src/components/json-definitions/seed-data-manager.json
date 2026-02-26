@@ -12,8 +12,8 @@
           "children": [
             {
               "id": "title-icon",
-              "type": "PhosphorIcon",
-              "props": { "icon": "Database", "size": 24, "weight": "duotone" }
+              "type": "Database",
+              "props": { "size": 24 }
             },
             {
               "id": "title-text",
@@ -41,8 +41,8 @@
           "children": [
             {
               "id": "alert-icon",
-              "type": "PhosphorIcon",
-              "props": { "icon": "CheckCircle", "weight": "fill" }
+              "type": "CheckCircle",
+              "props": { "size": 16 }
             },
             {
               "id": "alert-description",
@@ -81,8 +81,8 @@
                         "else": [
                           {
                             "id": "load-icon",
-                            "type": "PhosphorIcon",
-                            "props": { "icon": "Database", "size": 16, "weight": "fill" }
+                            "type": "Database",
+                            "props": { "size": 16 }
                           },
                           {
                             "id": "load-text",
@@ -94,8 +94,8 @@
                       "children": [
                         {
                           "id": "loading-spin-1",
-                          "type": "PhosphorIcon",
-                          "props": { "icon": "CircleNotch", "className": "animate-spin", "size": 16 }
+                          "type": "Refresh",
+                          "props": { "className": "animate-spin", "size": 16 }
                         },
                         {
                           "id": "loading-text-1",
@@ -123,8 +123,8 @@
                         "else": [
                           {
                             "id": "reset-icon",
-                            "type": "PhosphorIcon",
-                            "props": { "icon": "ArrowClockwise", "size": 16, "weight": "bold" }
+                            "type": "ArrowClockwise",
+                            "props": { "size": 16 }
                           },
                           {
                             "id": "reset-text",
@@ -136,8 +136,8 @@
                       "children": [
                         {
                           "id": "loading-spin-2",
-                          "type": "PhosphorIcon",
-                          "props": { "icon": "CircleNotch", "className": "animate-spin", "size": 16 }
+                          "type": "Refresh",
+                          "props": { "className": "animate-spin", "size": 16 }
                         },
                         {
                           "id": "loading-text-2",
@@ -165,8 +165,8 @@
                         "else": [
                           {
                             "id": "clear-icon",
-                            "type": "PhosphorIcon",
-                            "props": { "icon": "Trash", "size": 16, "weight": "fill" }
+                            "type": "Trash",
+                            "props": { "size": 16 }
                           },
                           {
                             "id": "clear-text",
@@ -178,8 +178,8 @@
                       "children": [
                         {
                           "id": "loading-spin-3",
-                          "type": "PhosphorIcon",
-                          "props": { "icon": "CircleNotch", "className": "animate-spin", "size": 16 }
+                          "type": "Refresh",
+                          "props": { "className": "animate-spin", "size": 16 }
                         },
                         {
                           "id": "loading-text-3",

@@ -8,7 +8,7 @@ interface BindingSourceOptions {
 }
 
 export function resolveDataBinding(
-  binding: string | { source: string; sourceType?: 'data' | 'bindings' | 'state'; path?: string; transform?: BindingTransform },
+  binding: string | { source?: string; sourceType?: 'data' | 'bindings' | 'state'; path?: string; transform?: BindingTransform; value?: unknown },
   dataMap: Record<string, any>,
   context: Record<string, any> = {},
   options: BindingSourceOptions = {},
@@ -35,6 +35,13 @@ export function resolveDataBinding(
   }
 
   const { source, sourceType, path, transform } = binding
+
+  // Static literal binding: { value: <anything> } — return the value directly.
+  // Supports { "value": "string" }, { "value": { ...styleObj } }, etc.
+  if (!source && 'value' in binding) {
+    return applyTransform(binding.value, transform)
+  }
+
   if (!source) {
     return applyTransform(undefined, transform)
   }
