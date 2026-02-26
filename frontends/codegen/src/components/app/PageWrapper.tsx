@@ -5,7 +5,7 @@ import { getPageById, resolveProps } from '@/config/page-loader'
 import { JSONSchemaPageLoader } from '@/components/JSONSchemaPageLoader'
 import { PageRenderer } from '@/lib/json-ui/page-renderer'
 import { ComponentRegistry } from '@/lib/component-registry'
-import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from 'react-resizable-panels'
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable'
 import useAppProject from '@/hooks/use-app-project'
 
 class PageErrorBoundary extends React.Component<
