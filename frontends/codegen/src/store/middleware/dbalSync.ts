@@ -10,6 +10,16 @@
  */
 
 const DBAL_API_URL = process.env.NEXT_PUBLIC_DBAL_API_URL || 'http://localhost:8080'
+
+/** Returns true for network-level failures (service unreachable, CORS, etc.).
+ *  These are expected when the DBAL daemon is not running — warn, don't error. */
+function isConnectionError(error: unknown): boolean {
+  return error instanceof TypeError && (
+    (error.message === 'Failed to fetch') ||
+    (error.message === 'Load failed') || // Safari
+    (error.message.startsWith('NetworkError'))
+  )
+}
 const DBAL_TENANT = process.env.NEXT_PUBLIC_DBAL_TENANT || 'default'
 /** Admin token — not prefixed with NEXT_PUBLIC_ to avoid client-side bundle exposure.
  *  Admin endpoints should be called from server-side API routes. */
@@ -73,7 +83,11 @@ export async function syncToDBAL(
       throw new Error(`DBAL sync failed: ${response.status} ${response.statusText}`)
     }
   } catch (error) {
-    console.error('[DBALSync] Error syncing to DBAL:', error)
+    if (isConnectionError(error)) {
+      console.warn('[DBALSync] DBAL not reachable — sync skipped')
+    } else {
+      console.error('[DBALSync] Error syncing to DBAL:', error)
+    }
     throw error
   }
 }
@@ -95,7 +109,11 @@ export async function createInDBAL(
     }
     return await response.json()
   } catch (error) {
-    console.error('[DBALSync] Error creating in DBAL:', error)
+    if (isConnectionError(error)) {
+      console.warn('[DBALSync] DBAL not reachable — create skipped')
+    } else {
+      console.error('[DBALSync] Error creating in DBAL:', error)
+    }
     throw error
   }
 }
@@ -114,7 +132,9 @@ export async function fetchFromDBAL(
     }
     return await response.json()
   } catch (error) {
-    console.error('[DBALSync] Error fetching from DBAL:', error)
+    if (!isConnectionError(error)) {
+      console.error('[DBALSync] Error fetching from DBAL:', error)
+    }
     return null
   }
 }
@@ -136,7 +156,9 @@ export async function listFromDBAL(
     const result = await response.json()
     return Array.isArray(result) ? result : result.data ?? []
   } catch (error) {
-    console.error('[DBALSync] Error listing from DBAL:', error)
+    if (!isConnectionError(error)) {
+      console.error('[DBALSync] Error listing from DBAL:', error)
+    }
     return []
   }
 }
@@ -153,7 +175,11 @@ export async function deleteFromDBAL(
       throw new Error(`DBAL delete failed: ${response.status} ${response.statusText}`)
     }
   } catch (error) {
-    console.error('[DBALSync] Error deleting from DBAL:', error)
+    if (isConnectionError(error)) {
+      console.warn('[DBALSync] DBAL not reachable — delete skipped')
+    } else {
+      console.error('[DBALSync] Error deleting from DBAL:', error)
+    }
     throw error
   }
 }
