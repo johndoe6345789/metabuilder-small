@@ -7,7 +7,7 @@
 ARG BASE_REGISTRY=metabuilder
 FROM ${BASE_REGISTRY}/base-node-deps:latest AS builder
 
-# ── Shared packages (resolved by transpilePackages + webpack aliases) ────────
+# ── Shared packages (resolved by transpilePackages + turbopack resolveAlias) ──
 # Each COPY targets only the source tree that workflowui actually imports.
 #
 # types + interfaces (TS type definitions)
@@ -62,7 +62,7 @@ RUN for ws in redux/core redux/slices redux/hooks redux/adapters \
 done
 
 # Build the app
-RUN cd frontends/workflowui && npx next build --webpack
+RUN cd frontends/workflowui && npx next build --turbopack
 
 # --- Runtime stage ---
 FROM node:20-alpine
