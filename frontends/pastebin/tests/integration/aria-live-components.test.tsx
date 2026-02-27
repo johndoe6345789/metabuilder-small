@@ -160,7 +160,7 @@ describe('Aria-Live Regions Integration Tests', () => {
     })
 
     it('should announce errors immediately with assertive aria-live', () => {
-      const MockErrorAlert = ({ lastError = null }) => (
+      const MockErrorAlert = ({ lastError = undefined as string | undefined }) => (
         <>
           {lastError && (
             <div
@@ -176,7 +176,7 @@ describe('Aria-Live Regions Integration Tests', () => {
         </>
       )
 
-      const { rerender } = render(<MockErrorAlert lastError={null} />)
+      const { rerender } = render(<MockErrorAlert lastError={undefined} />)
       expect(screen.queryByTestId('terminal-error-alert')).not.toBeInTheDocument()
 
       rerender(<MockErrorAlert lastError="Division by zero" />)

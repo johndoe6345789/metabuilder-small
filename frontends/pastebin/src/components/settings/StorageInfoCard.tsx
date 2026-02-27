@@ -1,7 +1,6 @@
 'use client'
 
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Card, CardHeader, CardContent, Alert, AlertDescription } from '@metabuilder/components/fakemui'
 
 interface StorageInfoCardProps {
   storageType?: 'indexeddb' | 'localstorage' | 'none'
@@ -11,13 +10,13 @@ export function StorageInfoCard({ storageType }: StorageInfoCardProps) {
   return (
     <Card data-testid="storage-info-card">
       <CardHeader>
-        <CardTitle>Storage Information</CardTitle>
-        <CardDescription>
+        <h3 style={{fontWeight:600, marginBottom:'4px'}}>Storage Information</h3>
+        <p style={{color:'var(--mat-sys-on-surface-variant)',fontSize:'0.875rem',marginBottom:'8px'}}>
           How your data is stored
-        </CardDescription>
+        </p>
       </CardHeader>
       <CardContent>
-        <Alert role="status" aria-label="Storage type information">
+        <Alert severity="info" role="status" aria-label="Storage type information">
           <AlertDescription data-testid="storage-type-description">
             {storageType === 'indexeddb' ? (
               <>

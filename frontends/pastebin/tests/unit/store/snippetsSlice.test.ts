@@ -36,7 +36,7 @@ describe('snippetsSlice Redux Reducer', () => {
     isTemplate: false,
   };
 
-  const initialState = {
+  const initialState: ReturnType<typeof snippetsReducer> = {
     items: [],
     loading: false,
     error: null,

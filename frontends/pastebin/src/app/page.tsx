@@ -19,8 +19,8 @@ export default function HomePage() {
         transition={{ duration: 0.4 }}
       >
         <div className="mb-8">
-          <h1 className="text-3xl font-bold tracking-tight mb-2">My Snippets</h1>
-          <p className="text-muted-foreground">Save, organize, and share your code snippets</p>
+          <h1 style={{ fontFamily: 'var(--mat-sys-headline-large-font)', fontSize: '2rem', fontWeight: 700, letterSpacing: '-0.02em', marginBottom: 6, color: 'var(--mat-sys-on-surface)' }}>My Snippets</h1>
+          <p style={{ color: 'var(--mat-sys-on-surface-variant)', fontSize: '1rem' }}>Save, organize, and share your code snippets</p>
         </div>
         <SnippetManagerRedux />
       </motion.div>

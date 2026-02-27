@@ -41,7 +41,8 @@ $fallbacks: m3-button.get-tokens();
   outline: none;
   line-height: inherit;
   -webkit-appearance: none;
-  overflow: visible;
+  appearance: none;
+  overflow: hidden;
   vertical-align: middle;
   background: transparent;
   padding: 0 8px;
@@ -267,14 +268,14 @@ $fallbacks: m3-button.get-tokens();
 }
 
 // ─── Outlined button ripple offset ──────────────────────────────
+// Note: offset removed since overflow:hidden clips at bounds
 
 .mat-mdc-outlined-button .mat-mdc-button-ripple,
 .mat-mdc-outlined-button .mdc-button__ripple {
-  $offset: -1px;
-  top: $offset;
-  left: $offset;
-  bottom: $offset;
-  right: $offset;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
 }
 
 // ─── Focus indicator offsets ────────────────────────────────────

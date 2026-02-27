@@ -40,7 +40,7 @@ describe('CsvReporter', () => {
       architecture: {
         enabled: true,
         components: { enabled: true, maxLines: 500, warningLines: 300, validateAtomicDesign: true, validatePropTypes: true },
-        dependencies: { enabled: true, allowCircularDependencies: false },
+        dependencies: { enabled: true, allowCircularDependencies: false, allowCrossLayerDependencies: false },
         patterns: { enabled: true, validateRedux: true, validateHooks: true, validateReactBestPractices: true },
       },
       security: {
@@ -528,7 +528,7 @@ describe('CsvReporter', () => {
         },
       };
 
-      const csv = reporter.generate(resultWithTrend);
+      const csv = reporter.generate(resultWithTrend as unknown as ScoringResult);
 
       expect(csv).toContain('Trend');
       expect(csv).toContain('Current Score');
@@ -547,7 +547,7 @@ describe('CsvReporter', () => {
         },
       };
 
-      const csv = reporter.generate(resultWithTrend);
+      const csv = reporter.generate(resultWithTrend as unknown as ScoringResult);
 
       expect(csv).toContain('+5.0%');
       expect(csv).toContain('improving');

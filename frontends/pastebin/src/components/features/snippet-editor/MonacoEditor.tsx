@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react'
-import { Skeleton } from '@/components/ui/skeleton'
+import { Skeleton } from '@metabuilder/components/fakemui'
 import { configureMonacoTypeScript, getMonacoLanguage } from '@/lib/monaco-config'
 import type { Monaco } from '@monaco-editor/react'
 

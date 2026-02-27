@@ -119,6 +119,10 @@ body {
   --mat-sys-state-focus-state-layer-opacity: 0.12;
   --mat-sys-state-pressed-state-layer-opacity: 0.12;
   --mat-sys-state-dragged-state-layer-opacity: 0.16;
+  /* Aliases without 'state-' prefix — what the M3 button tokens actually reference */
+  --mat-sys-hover-state-layer-opacity: 0.08;
+  --mat-sys-focus-state-layer-opacity: 0.12;
+  --mat-sys-pressed-state-layer-opacity: 0.12;
 
   /* ============================================ */
   /* M3 Elevation (Box Shadows) */

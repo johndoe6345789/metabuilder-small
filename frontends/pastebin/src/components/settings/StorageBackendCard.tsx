@@ -1,11 +1,6 @@
 'use client'
 
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { Card, CardHeader, CardContent, Button, Input, FormLabel, Alert, AlertDescription, RadioGroup, Radio, FormControlLabel } from '@metabuilder/components/fakemui'
 import { Database, CloudArrowUp, CloudCheck, CloudSlash, Upload, Download } from '@phosphor-icons/react'
 import { type StorageBackend } from '@/lib/storage'
 
@@ -39,17 +34,17 @@ export function StorageBackendCard({
   return (
     <Card data-testid="storage-backend-card">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
+        <h3 style={{fontWeight:600, marginBottom:'4px'}} className="flex items-center gap-2">
           <CloudArrowUp weight="duotone" size={24} aria-hidden="true" />
           Storage Backend
-        </CardTitle>
-        <CardDescription>
+        </h3>
+        <p style={{color:'var(--mat-sys-on-surface-variant)',fontSize:'0.875rem',marginBottom:'8px'}}>
           Choose where your snippets are stored
-        </CardDescription>
+        </p>
       </CardHeader>
       <CardContent className="space-y-6">
         {envVarSet && (
-          <Alert className="border-accent bg-accent/10" data-testid="env-var-alert" role="status">
+          <Alert severity="info" className="border-accent bg-accent/10" data-testid="env-var-alert" role="status">
             <AlertDescription className="flex items-center gap-2">
               <CloudCheck weight="fill" size={16} className="text-accent" aria-hidden="true" />
               <span>
@@ -61,37 +56,47 @@ export function StorageBackendCard({
         
         <RadioGroup
           value={storageBackend}
-          onValueChange={(value) => onStorageBackendChange(value as StorageBackend)}
+          onChange={(e) => onStorageBackendChange(e.target.value as StorageBackend)}
         >
           <div className="flex items-start space-x-3 space-y-0" data-testid="storage-option-indexeddb">
-            <RadioGroupItem value="indexeddb" id="storage-indexeddb" disabled={envVarSet} />
-            <div className="flex-1">
-              <Label htmlFor="storage-indexeddb" className={`font-semibold ${envVarSet ? 'opacity-50' : 'cursor-pointer'}`}>
-                IndexedDB (Local Browser Storage)
-              </Label>
-              <p className="text-sm text-muted-foreground mt-1">
-                Store snippets locally in your browser. Data persists on this device only.
-              </p>
-            </div>
+            <FormControlLabel
+              value="indexeddb"
+              control={<Radio id="storage-indexeddb" disabled={envVarSet} />}
+              label={
+                <div className="flex-1">
+                  <FormLabel htmlFor="storage-indexeddb" className={`font-semibold ${envVarSet ? 'opacity-50' : 'cursor-pointer'}`}>
+                    IndexedDB (Local Browser Storage)
+                  </FormLabel>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Store snippets locally in your browser. Data persists on this device only.
+                  </p>
+                </div>
+              }
+            />
           </div>
           
           <div className="flex items-start space-x-3 space-y-0 mt-4" data-testid="storage-option-flask">
-            <RadioGroupItem value="flask" id="storage-flask" disabled={envVarSet} />
-            <div className="flex-1">
-              <Label htmlFor="storage-flask" className={`font-semibold ${envVarSet ? 'opacity-50' : 'cursor-pointer'}`}>
-                Flask Backend (Remote Server)
-              </Label>
-              <p className="text-sm text-muted-foreground mt-1">
-                Store snippets on a Flask backend server. Data is accessible from any device.
-              </p>
-            </div>
+            <FormControlLabel
+              value="flask"
+              control={<Radio id="storage-flask" disabled={envVarSet} />}
+              label={
+                <div className="flex-1">
+                  <FormLabel htmlFor="storage-flask" className={`font-semibold ${envVarSet ? 'opacity-50' : 'cursor-pointer'}`}>
+                    Flask Backend (Remote Server)
+                  </FormLabel>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Store snippets on a Flask backend server. Data is accessible from any device.
+                  </p>
+                </div>
+              }
+            />
           </div>
         </RadioGroup>
 
         {storageBackend === 'flask' && (
           <div className="space-y-4 p-4 border border-border rounded-lg bg-muted/50" data-testid="flask-config-section">
             <div>
-              <Label htmlFor="flask-url">Flask Backend URL</Label>
+              <FormLabel htmlFor="flask-url">Flask Backend URL</FormLabel>
               <div className="flex gap-2 mt-2">
                 <Input
                   id="flask-url"
@@ -105,7 +110,7 @@ export function StorageBackendCard({
                 />
                 <Button
                   onClick={onTestConnection}
-                  variant="outline"
+                  variant="outlined"
                   disabled={testingConnection || !flaskUrl}
                   data-testid="test-flask-btn"
                   aria-label="Test flask connection"
@@ -131,7 +136,7 @@ export function StorageBackendCard({
             <div className="pt-2 space-y-2">
               <Button
                 onClick={onMigrateToFlask}
-                variant="outline"
+                variant="outlined"
                 size="sm"
                 className="w-full gap-2"
                 data-testid="migrate-to-flask-btn"
@@ -142,7 +147,7 @@ export function StorageBackendCard({
               </Button>
               <Button
                 onClick={onMigrateToIndexedDB}
-                variant="outline"
+                variant="outlined"
                 size="sm"
                 className="w-full gap-2"
                 data-testid="migrate-to-indexeddb-btn"

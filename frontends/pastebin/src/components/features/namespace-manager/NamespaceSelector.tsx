@@ -1,11 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+import { Select, MenuItem } from '@metabuilder/components/fakemui'
+import type { SelectChangeEvent } from '@metabuilder/components/fakemui'
 import { Folder } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { Namespace } from '@/lib/types'
@@ -34,7 +29,7 @@ export function NamespaceSelector({ selectedNamespaceId, onNamespaceChange }: Na
     try {
       const loadedNamespaces = await getAllNamespaces()
       setNamespaces(loadedNamespaces)
-      
+
       if (!selectedNamespaceId && loadedNamespaces.length > 0) {
         const defaultNamespace = loadedNamespaces.find(n => n.isDefault)
         if (defaultNamespace) {
@@ -85,14 +80,14 @@ export function NamespaceSelector({ selectedNamespaceId, onNamespaceChange }: Na
     try {
       await deleteNamespace(namespaceToDelete.id)
       setNamespaces(prev => prev.filter(n => n.id !== namespaceToDelete.id))
-      
+
       if (selectedNamespaceId === namespaceToDelete.id) {
         const defaultNamespace = namespaces.find(n => n.isDefault)
         if (defaultNamespace) {
           onNamespaceChange(defaultNamespace.id)
         }
       }
-      
+
       setDeleteDialogOpen(false)
       setNamespaceToDelete(null)
       toast.success('Namespace deleted, snippets moved to default')
@@ -114,32 +109,26 @@ export function NamespaceSelector({ selectedNamespaceId, onNamespaceChange }: Na
       </div>
 
       <Select
-        value={selectedNamespaceId || undefined}
-        onValueChange={onNamespaceChange}
+        value={selectedNamespaceId || ''}
+        onChange={(e: SelectChangeEvent) => onNamespaceChange(e.target.value as string)}
+        data-testid="namespace-selector-trigger"
+        aria-label="Select namespace"
+        style={{ width: '200px' }}
       >
-        <SelectTrigger
-          className="w-[200px]"
-          data-testid="namespace-selector-trigger"
-          aria-label="Select namespace"
-        >
-          <SelectValue placeholder={selectedNamespace?.name || 'Select namespace'} />
-        </SelectTrigger>
-        <SelectContent data-testid="namespace-selector-content">
-          {namespaces.map(namespace => (
-            <SelectItem
-              key={namespace.id}
-              value={namespace.id}
-              data-testid={`namespace-option-${namespace.id}`}
-            >
-              <div className="flex items-center gap-2">
-                <span>{namespace.name}</span>
-                {namespace.isDefault && (
-                  <span className="text-xs text-muted-foreground">(Default)</span>
-                )}
-              </div>
-            </SelectItem>
-          ))}
-        </SelectContent>
+        {namespaces.map(namespace => (
+          <MenuItem
+            key={namespace.id}
+            value={namespace.id}
+            data-testid={`namespace-option-${namespace.id}`}
+          >
+            <div className="flex items-center gap-2">
+              <span>{namespace.name}</span>
+              {namespace.isDefault && (
+                <span className="text-xs" style={{ color: 'var(--mat-sys-on-surface-variant)' }}>(Default)</span>
+              )}
+            </div>
+          </MenuItem>
+        ))}
       </Select>
 
       <CreateNamespaceDialog

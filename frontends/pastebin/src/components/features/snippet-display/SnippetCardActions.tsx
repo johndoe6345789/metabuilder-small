@@ -1,14 +1,5 @@
-import { Button } from '@/components/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+import { useState } from 'react'
+import { Button, Menu, MenuItem, Divider } from '@metabuilder/components/fakemui'
 import { Copy, Pencil, Trash, Eye, DotsThree, FolderOpen } from '@phosphor-icons/react'
 import { Namespace } from '@/lib/types'
 import { strings } from '@/lib/config'
@@ -34,6 +25,8 @@ export function SnippetCardActions({
   onDelete,
   onMoveToNamespace,
 }: SnippetCardActionsProps) {
+  const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null)
+
   return (
     <div className="flex items-center justify-between gap-2 pt-2" data-testid="snippet-card-actions" role="group" aria-label="Snippet actions">
       <div className="flex-1 flex items-center gap-2">
@@ -70,64 +63,70 @@ export function SnippetCardActions({
         >
           <Pencil className="h-4 w-4" aria-hidden="true" />
         </Button>
-        
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={(e) => e.stopPropagation()}
-              data-testid="snippet-card-actions-menu"
-              aria-label="More options"
-              aria-haspopup="menu"
+
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={(e) => { e.stopPropagation(); setMenuAnchor(e.currentTarget) }}
+          data-testid="snippet-card-actions-menu"
+          aria-label="More options"
+          aria-haspopup="menu"
+        >
+          <DotsThree className="h-4 w-4" weight="bold" aria-hidden="true" />
+        </Button>
+
+        <Menu
+          open={Boolean(menuAnchor)}
+          anchorEl={menuAnchor}
+          onClose={() => setMenuAnchor(null)}
+          data-testid="snippet-actions-menu-content"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {availableNamespaces.length > 0 && (
+            <MenuItem
+              disabled
+              style={{ opacity: 0.6, fontSize: '0.75rem' }}
+              aria-hidden="true"
             >
-              <DotsThree className="h-4 w-4" weight="bold" aria-hidden="true" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()} data-testid="snippet-actions-menu-content">
-            <DropdownMenuSub>
-              <DropdownMenuSubTrigger
-                disabled={isMoving || availableNamespaces.length === 0}
-                data-testid="snippet-card-move-submenu"
-                aria-label="Move snippet to another namespace"
-              >
-                <FolderOpen className="h-4 w-4 mr-2" aria-hidden="true" />
-                <span>Move to...</span>
-              </DropdownMenuSubTrigger>
-              <DropdownMenuSubContent data-testid="move-to-namespaces-list">
-                {availableNamespaces.length === 0 ? (
-                  <DropdownMenuItem disabled data-testid="no-namespaces-item">
-                    No other namespaces
-                  </DropdownMenuItem>
-                ) : (
-                  availableNamespaces.map((namespace) => (
-                    <DropdownMenuItem
-                      key={namespace.id}
-                      onClick={() => onMoveToNamespace(namespace.id)}
-                      data-testid={`move-to-namespace-${namespace.id}`}
-                      aria-label={`Move to ${namespace.name}${namespace.isDefault ? ' (Default)' : ''}`}
-                    >
-                      {namespace.name}
-                      {namespace.isDefault && (
-                        <span className="ml-2 text-xs text-muted-foreground">(Default)</span>
-                      )}
-                    </DropdownMenuItem>
-                  ))
-                )}
-              </DropdownMenuSubContent>
-            </DropdownMenuSub>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={onDelete}
-              className="text-destructive focus:text-destructive"
-              data-testid="snippet-card-delete-btn"
-              aria-label="Delete snippet"
+              <FolderOpen className="h-4 w-4 mr-2" aria-hidden="true" />
+              Move to:
+            </MenuItem>
+          )}
+          {availableNamespaces.length === 0 && (
+            <MenuItem
+              disabled
+              data-testid="snippet-card-move-submenu"
+              aria-label="Move snippet to another namespace"
             >
-              <Trash className="h-4 w-4 mr-2" aria-hidden="true" />
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+              <FolderOpen className="h-4 w-4 mr-2" aria-hidden="true" />
+              No other namespaces
+            </MenuItem>
+          )}
+          {availableNamespaces.map((namespace) => (
+            <MenuItem
+              key={namespace.id}
+              onClick={() => { onMoveToNamespace(namespace.id); setMenuAnchor(null) }}
+              data-testid={`move-to-namespace-${namespace.id}`}
+              aria-label={`Move to ${namespace.name}${namespace.isDefault ? ' (Default)' : ''}`}
+              disabled={isMoving}
+            >
+              {namespace.name}
+              {namespace.isDefault && (
+                <span className="ml-2 text-xs" style={{ color: 'var(--mat-sys-on-surface-variant)' }}>(Default)</span>
+              )}
+            </MenuItem>
+          ))}
+          {availableNamespaces.length > 0 && <Divider />}
+          <MenuItem
+            onClick={(e) => { e.stopPropagation(); onDelete(e); setMenuAnchor(null) }}
+            style={{ color: 'var(--mat-sys-error)' }}
+            data-testid="snippet-card-delete-btn"
+            aria-label="Delete snippet"
+          >
+            <Trash className="h-4 w-4 mr-2" aria-hidden="true" />
+            Delete
+          </MenuItem>
+        </Menu>
       </div>
     </div>
   )

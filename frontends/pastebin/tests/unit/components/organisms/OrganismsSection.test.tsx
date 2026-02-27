@@ -183,7 +183,7 @@ describe('OrganismsSection', () => {
     })
 
     it('should accept snippet type in callback', () => {
-      const onSaveSnippet = vi.fn((snippet: Omit<Snippet, 'id' | 'createdAt' | 'updatedAt'>) => {
+      const onSaveSnippet = jest.fn((snippet: Omit<Snippet, 'id' | 'createdAt' | 'updatedAt'>) => {
         // Callback should handle snippet save
       })
       render(<OrganismsSection onSaveSnippet={onSaveSnippet} />)
@@ -368,7 +368,7 @@ describe('OrganismsSection', () => {
     })
 
     it('should maintain structure even with failing callbacks', () => {
-      const failingCallback = vi.fn(() => {
+      const failingCallback = jest.fn(() => {
         throw new Error('Test error')
       })
       render(<OrganismsSection onSaveSnippet={failingCallback} />)

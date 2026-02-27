@@ -1,6 +1,6 @@
-import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
-import { Separator } from '@/components/ui/separator'
+import { Button, IconButton } from '@metabuilder/components/fakemui'
+import { Card } from '@metabuilder/components/fakemui'
+import { Divider } from '@metabuilder/components/fakemui'
 import {
   Heart,
   Star,
@@ -41,14 +41,14 @@ export function ButtonsSection({ onSaveSnippet }: ButtonsSectionProps) {
               <div className="flex flex-wrap gap-4">
                 <Button>Default</Button>
                 <Button variant="secondary">Secondary</Button>
-                <Button variant="destructive">Destructive</Button>
-                <Button variant="outline">Outline</Button>
+                <Button variant="danger">Destructive</Button>
+                <Button variant="outlined">Outline</Button>
                 <Button variant="ghost">Ghost</Button>
-                <Button variant="link">Link</Button>
+                <Button variant="text">Link</Button>
               </div>
             </div>
 
-            <Separator />
+            <Divider />
 
             <div className="space-y-3">
               <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
@@ -56,15 +56,15 @@ export function ButtonsSection({ onSaveSnippet }: ButtonsSectionProps) {
               </h3>
               <div className="flex flex-wrap items-center gap-4">
                 <Button size="sm">Small</Button>
-                <Button size="default">Default</Button>
+                <Button>Default</Button>
                 <Button size="lg">Large</Button>
-                <Button size="icon">
+                <IconButton aria-label="Heart">
                   <Heart weight="fill" aria-hidden="true" />
-                </Button>
+                </IconButton>
               </div>
             </div>
 
-            <Separator />
+            <Divider />
 
             <div className="space-y-3">
               <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
@@ -75,7 +75,7 @@ export function ButtonsSection({ onSaveSnippet }: ButtonsSectionProps) {
                   <Star weight="fill" aria-hidden="true" />
                   Favorite
                 </Button>
-                <Button variant="outline">
+                <Button variant="outlined">
                   <Plus weight="bold" aria-hidden="true" />
                   Add Item
                 </Button>
@@ -86,7 +86,7 @@ export function ButtonsSection({ onSaveSnippet }: ButtonsSectionProps) {
               </div>
             </div>
 
-            <Separator />
+            <Divider />
 
             <div className="space-y-3">
               <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
@@ -94,7 +94,7 @@ export function ButtonsSection({ onSaveSnippet }: ButtonsSectionProps) {
               </h3>
               <div className="flex flex-wrap gap-4">
                 <Button disabled>Disabled</Button>
-                <Button variant="outline" disabled>
+                <Button variant="outlined" disabled>
                   Disabled Outline
                 </Button>
               </div>

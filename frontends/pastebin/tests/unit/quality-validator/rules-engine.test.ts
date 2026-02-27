@@ -609,7 +609,7 @@ describe('RulesLoader', () => {
         },
       ];
 
-      const validation = rulesLoader.validateRulesConfig(rules);
+      const validation = rulesLoader.validateRulesConfig(rules as unknown as import('@/lib/quality-validator/rules').CustomRule[]);
       expect(validation.valid).toBe(false);
     });
   });

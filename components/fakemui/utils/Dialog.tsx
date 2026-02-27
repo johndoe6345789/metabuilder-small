@@ -17,6 +17,8 @@ export interface DialogPanelProps extends React.HTMLAttributes<HTMLDivElement> {
   lg?: boolean
   xl?: boolean
   fullScreen?: boolean
+  /** Stretch dialog to its maxWidth boundary */
+  fullWidth?: boolean
   /** Set to true when dialog is open to trigger animations */
   open?: boolean
   /** Show dialog with actions - adjusts content padding per Angular Material */
@@ -29,6 +31,7 @@ export const DialogPanel: React.FC<DialogPanelProps> = ({
   lg,
   xl,
   fullScreen,
+  fullWidth,
   open = true,
   className = '',
   ...props
@@ -41,6 +44,7 @@ export const DialogPanel: React.FC<DialogPanelProps> = ({
     <div className={openClass} {...props}>
       <div
         className={`${styles.dialogContainer} ${sizeClass} ${fullScreenClass} ${className}`}
+        style={fullWidth ? { width: '100%' } : undefined}
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"

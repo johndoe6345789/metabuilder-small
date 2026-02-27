@@ -1,5 +1,5 @@
-import { Card } from '@/components/ui/card'
-import { Separator } from '@/components/ui/separator'
+import { Card } from '@metabuilder/components/fakemui'
+import { Divider } from '@metabuilder/components/fakemui'
 
 export function TypographySection() {
   return (
@@ -19,28 +19,28 @@ export function TypographySection() {
               Bricolage Grotesque Bold / 48px
             </p>
           </div>
-          <Separator />
+          <Divider />
           <div>
             <h2 className="text-4xl font-semibold mb-2">Heading 2</h2>
             <p className="text-sm text-muted-foreground">
               Bricolage Grotesque Semibold / 36px
             </p>
           </div>
-          <Separator />
+          <Divider />
           <div>
             <h3 className="text-3xl font-semibold mb-2">Heading 3</h3>
             <p className="text-sm text-muted-foreground">
               Bricolage Grotesque Semibold / 30px
             </p>
           </div>
-          <Separator />
+          <Divider />
           <div>
             <h4 className="text-2xl font-medium mb-2">Heading 4</h4>
             <p className="text-sm text-muted-foreground">
               Bricolage Grotesque Medium / 24px
             </p>
           </div>
-          <Separator />
+          <Divider />
           <div>
             <p className="text-base mb-2">
               Body text - The quick brown fox jumps over the lazy dog. This is
@@ -48,14 +48,14 @@ export function TypographySection() {
             </p>
             <p className="text-sm text-muted-foreground">Inter Regular / 16px</p>
           </div>
-          <Separator />
+          <Divider />
           <div>
             <p className="text-sm text-muted-foreground mb-2">
               Small text - Additional information, captions, and secondary content.
             </p>
             <p className="text-sm text-muted-foreground">Inter Regular / 14px</p>
           </div>
-          <Separator />
+          <Divider />
           <div>
             <code className="text-sm bg-muted px-2 py-1 rounded">
               const example = "code text";

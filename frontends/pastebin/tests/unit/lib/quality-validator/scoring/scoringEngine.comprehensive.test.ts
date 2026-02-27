@@ -684,7 +684,7 @@ describe('ScoringEngine - Comprehensive Tests (150+ cases)', () => {
         dependencies: {
           totalModules: 100,
           circularDependencies: [
-            { modules: ['moduleA', 'moduleB'], chain: 2 },
+            { modules: ['moduleA', 'moduleB'], chain: 2 } as any,
             { modules: ['moduleC', 'moduleD'], chain: 2 },
           ],
           layerViolations: [],
@@ -704,8 +704,8 @@ describe('ScoringEngine - Comprehensive Tests (150+ cases)', () => {
           totalCount: 50,
           byType: { atoms: 20, molecules: 15, organisms: 10, templates: 5, unknown: 0 },
           oversized: [
-            { file: 'src/BigComponent.tsx', lines: 500 },
-            { file: 'src/AnotherBig.tsx', lines: 450 },
+            { file: 'src/BigComponent.tsx', lines: 500 } as any,
+            { file: 'src/AnotherBig.tsx', lines: 450 } as any,
           ],
           misplaced: [],
           averageSize: 200,
@@ -721,8 +721,8 @@ describe('ScoringEngine - Comprehensive Tests (150+ cases)', () => {
     it('should generate recommendations for critical vulnerabilities', () => {
       const criticalVulns = createMockSecurityMetrics({
         vulnerabilities: [
-          { id: 'v1', severity: 'critical', title: 'Critical Vuln', description: 'Critical issue', library: 'lib1', version: '1.0.0', fixedVersion: '1.1.0' },
-          { id: 'v2', severity: 'critical', title: 'Critical Vuln 2', description: 'Critical issue', library: 'lib2', version: '2.0.0', fixedVersion: '2.1.0' },
+          { id: 'v1', severity: 'critical', title: 'Critical Vuln', description: 'Critical issue', library: 'lib1', version: '1.0.0', fixedVersion: '1.1.0' } as any,
+          { id: 'v2', severity: 'critical', title: 'Critical Vuln 2', description: 'Critical issue', library: 'lib2', version: '2.0.0', fixedVersion: '2.1.0' } as any,
         ],
       });
 

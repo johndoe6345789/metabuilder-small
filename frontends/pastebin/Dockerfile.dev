@@ -1,0 +1,42 @@
+# Dev-mode Dockerfile for pastebin — mounts src/ for hot reload
+# Does NOT build the app; runs `next dev --turbopack` instead.
+# Context: monorepo root (..)
+
+FROM metabuilder/base-node-deps:latest
+
+# Copy pyodide runtime into public/ — needed at dev runtime, not mounted
+RUN mkdir -p /app/frontends/pastebin/public/pyodide && \
+    cp /app/node_modules/pyodide/pyodide.js \
+       /app/node_modules/pyodide/pyodide.mjs \
+       /app/node_modules/pyodide/pyodide.asm.js \
+       /app/node_modules/pyodide/pyodide.asm.wasm \
+       /app/node_modules/pyodide/python_stdlib.zip \
+       /app/node_modules/pyodide/pyodide-lock.json \
+       /app/frontends/pastebin/public/pyodide/
+
+# Config files baked in — changing these still requires a container restart
+COPY frontends/pastebin/package.json         ./frontends/pastebin/
+COPY frontends/pastebin/next.config.js       ./frontends/pastebin/
+COPY frontends/pastebin/tsconfig.json        ./frontends/pastebin/
+COPY frontends/pastebin/postcss.config.mjs   ./frontends/pastebin/
+
+# Shared source packages — mounted as volumes for hot reload
+# (hooks, components, scss, icons; redux/workflow stay from base image)
+COPY hooks/       ./hooks/
+COPY icons/       ./icons/
+COPY scss/        ./scss/
+COPY components/  ./components/
+
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+ENV NODE_ENV=development
+ENV NEXT_PUBLIC_FLASK_BACKEND_URL=/pastebin-api
+ENV NEXT_TELEMETRY_DISABLED=1
+
+WORKDIR /app/frontends/pastebin
+
+EXPOSE 3000
+HEALTHCHECK --interval=20s --timeout=10s --start-period=120s --retries=5 \
+    CMD wget --quiet --tries=1 --spider http://127.0.0.1:3000/pastebin || exit 1
+
+CMD ["npm", "run", "dev"]

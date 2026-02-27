@@ -8,7 +8,6 @@ import {
   getAllNamespaces,
   createNamespace,
   deleteNamespace,
-  wipeDatabase,
   getSnippetsByNamespace,
   getNamespace,
   clearDatabase
@@ -186,13 +185,13 @@ describe('IndexedDB Storage', () => {
 
   describe('Transaction Operations', () => {
     it('should get object store from transaction', () => {
-      const store = mockTransaction.objectStore('snippets')
+      const store = (mockTransaction.objectStore as jest.Mock)('snippets')
       expect(store).toBe(mockObjectStore)
     })
 
     it('should support multiple store accesses', () => {
-      const store1 = mockTransaction.objectStore('snippets')
-      const store2 = mockTransaction.objectStore('namespaces')
+      const store1 = (mockTransaction.objectStore as jest.Mock)('snippets')
+      const store2 = (mockTransaction.objectStore as jest.Mock)('namespaces')
 
       expect(mockTransaction.objectStore).toHaveBeenCalledTimes(2)
       expect(store1).toBeDefined()

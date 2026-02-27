@@ -740,7 +740,8 @@ describe('FlaskStorageAdapter', () => {
         adapter.createNamespace({
           id: 'ns1',
           name: 'Test',
-          color: '#000000'
+          createdAt: Date.now(),
+          isDefault: false,
         })
       ).rejects.toThrow('Invalid Flask backend URL')
     })
@@ -754,7 +755,8 @@ describe('FlaskStorageAdapter', () => {
       await adapter.createNamespace({
         id: 'ns1',
         name: 'Test Namespace',
-        color: '#000000'
+        createdAt: Date.now(),
+        isDefault: false,
       })
 
       expect(mockFetch).toHaveBeenCalledWith(
@@ -777,7 +779,8 @@ describe('FlaskStorageAdapter', () => {
         adapter.createNamespace({
           id: 'ns1',
           name: 'Test',
-          color: '#000000'
+          createdAt: Date.now(),
+          isDefault: false,
         })
       ).rejects.toThrow('Failed to create namespace')
     })
@@ -1035,7 +1038,7 @@ describe('FlaskStorageAdapter', () => {
           }
         ],
         namespaces: [
-          { id: 'ns1', name: 'Namespace', color: '#000000' }
+          { id: 'ns1', name: 'Namespace', createdAt: Date.now(), isDefault: false }
         ]
       })
 

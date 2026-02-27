@@ -41,7 +41,7 @@ describe('HtmlReporter', () => {
       architecture: {
         enabled: true,
         components: { enabled: true, maxLines: 500, warningLines: 300, validateAtomicDesign: true, validatePropTypes: true },
-        dependencies: { enabled: true, allowCircularDependencies: false },
+        dependencies: { enabled: true, allowCircularDependencies: false, allowCrossLayerDependencies: false },
         patterns: { enabled: true, validateRedux: true, validateHooks: true, validateReactBestPractices: true },
       },
       security: {
@@ -416,7 +416,7 @@ describe('HtmlReporter', () => {
         },
       };
 
-      const html = reporter.generate(resultWithTrend);
+      const html = reporter.generate(resultWithTrend as unknown as ScoringResult);
 
       expect(html).toContain('Trend');
       expect(html).toContain('improving');
@@ -433,7 +433,7 @@ describe('HtmlReporter', () => {
         },
       };
 
-      const html = reporter.generate(resultWithPartialTrend);
+      const html = reporter.generate(resultWithPartialTrend as unknown as ScoringResult);
 
       expect(html).toContain('Trend');
       expect(html).toContain('85.5');
@@ -528,7 +528,7 @@ describe('HtmlReporter', () => {
         overall: { ...mockResult.overall, grade: 'A', score: 92 },
       };
 
-      const html = reporter.generate(gradeAResult);
+      const html = reporter.generate(gradeAResult as unknown as ScoringResult);
       expect(html).toContain('A');
     });
 
@@ -538,7 +538,7 @@ describe('HtmlReporter', () => {
         overall: { ...mockResult.overall, grade: 'F', score: 45 },
       };
 
-      const html = reporter.generate(gradeFResult);
+      const html = reporter.generate(gradeFResult as unknown as ScoringResult);
       expect(html).toContain('F');
     });
   });

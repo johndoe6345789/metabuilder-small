@@ -1,6 +1,6 @@
 'use client'
 
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
+import { Card, CardHeader, CardContent } from '@metabuilder/components/fakemui'
 import { Database } from '@phosphor-icons/react'
 
 interface DatabaseStatsCardProps {
@@ -18,13 +18,13 @@ export function DatabaseStatsCard({ loading, stats, formatBytes }: DatabaseStats
   return (
     <Card data-testid="database-stats-card">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
+        <h3 style={{fontWeight:600, marginBottom:'4px'}} className="flex items-center gap-2">
           <Database weight="duotone" size={24} aria-hidden="true" />
           Database Statistics
-        </CardTitle>
-        <CardDescription>
+        </h3>
+        <p style={{color:'var(--mat-sys-on-surface-variant)',fontSize:'0.875rem',marginBottom:'8px'}}>
           Information about your local database storage
-        </CardDescription>
+        </p>
       </CardHeader>
       <CardContent>
         {loading ? (

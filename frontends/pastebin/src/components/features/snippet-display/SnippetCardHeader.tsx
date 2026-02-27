@@ -1,5 +1,4 @@
-import { Badge } from '@/components/ui/badge'
-import { Checkbox } from '@/components/ui/checkbox'
+import { Chip, Checkbox } from '@metabuilder/components/fakemui'
 import { Snippet } from '@/lib/types'
 import { LANGUAGE_COLORS } from '@/lib/config'
 
@@ -11,12 +10,12 @@ interface SnippetCardHeaderProps {
   onToggleSelect: () => void
 }
 
-export function SnippetCardHeader({ 
-  snippet, 
-  description, 
-  selectionMode, 
-  isSelected, 
-  onToggleSelect 
+export function SnippetCardHeader({
+  snippet,
+  description,
+  selectionMode,
+  isSelected,
+  onToggleSelect
 }: SnippetCardHeaderProps) {
   return (
     <div className="flex items-start justify-between gap-3">
@@ -24,7 +23,7 @@ export function SnippetCardHeader({
         {selectionMode && (
           <Checkbox
             checked={isSelected}
-            onCheckedChange={onToggleSelect}
+            onChange={(e) => { e.stopPropagation(); onToggleSelect() }}
             onClick={(e) => e.stopPropagation()}
             className="mt-1"
             data-testid={`snippet-select-checkbox-${snippet.id}`}
@@ -48,13 +47,12 @@ export function SnippetCardHeader({
           )}
         </div>
       </div>
-      <Badge
+      <Chip
+        label={snippet.language}
         className={`shrink-0 ${LANGUAGE_COLORS[snippet.language] || LANGUAGE_COLORS['Other']}`}
         data-testid={`snippet-language-badge-${snippet.id}`}
         aria-label={`Language: ${snippet.language}`}
-      >
-        {snippet.language}
-      </Badge>
+      />
     </div>
   )
 }

@@ -26,6 +26,7 @@ export function Dialog({
   onClose,
   children,
   maxWidth = 'sm',
+  fullWidth = false,
   fullScreen = false,
   disableEscapeKeyDown = false,
   disableBackdropClick = false,
@@ -71,6 +72,7 @@ export function Dialog({
       <DialogPanel
         open={open}
         fullScreen={fullScreen}
+        fullWidth={fullWidth}
         sm={sizeProps.sm}
         lg={sizeProps.lg}
         xl={sizeProps.xl}

@@ -201,7 +201,7 @@ describe('ScoringEngine - Extended Edge Case Tests', () => {
           distribution: { good: 10, warning: 10, critical: 80 },
         },
         duplication: { percent: 2.5, lines: 50, blocks: [], status: 'good' },
-        linting: { errors: 0, warnings: 3, info: 0, violations: [], byRule: new Map() },
+        linting: { errors: 0, warnings: 3, info: 0, violations: [], byRule: new Map() } as any,
       });
 
       // Act
@@ -317,7 +317,7 @@ describe('ScoringEngine - Extended Edge Case Tests', () => {
     it('should handle null duplication', () => {
       // Arrange
       const codeQuality = createMockCodeQualityMetrics({
-        duplication: { percent: undefined, lines: 0, blocks: [], status: 'good' },
+        duplication: { percent: undefined, lines: 0, blocks: [], status: 'good' } as any,
       });
 
       // Act
@@ -344,7 +344,7 @@ describe('ScoringEngine - Extended Edge Case Tests', () => {
     it('should score 100 for no errors or warnings', () => {
       // Arrange
       const codeQuality = createMockCodeQualityMetrics({
-        linting: { errors: 0, warnings: 0, info: 0, violations: [], byRule: new Map() },
+        linting: { errors: 0, warnings: 0, info: 0, violations: [], byRule: new Map() } as any,
       });
 
       // Act
@@ -365,7 +365,7 @@ describe('ScoringEngine - Extended Edge Case Tests', () => {
     it('should penalize errors significantly', () => {
       // Arrange
       const codeQuality = createMockCodeQualityMetrics({
-        linting: { errors: 10, warnings: 0, info: 0, violations: [], byRule: new Map() },
+        linting: { errors: 10, warnings: 0, info: 0, violations: [], byRule: new Map() } as any,
       });
 
       // Act
@@ -386,7 +386,7 @@ describe('ScoringEngine - Extended Edge Case Tests', () => {
     it('should handle warnings above threshold', () => {
       // Arrange
       const codeQuality = createMockCodeQualityMetrics({
-        linting: { errors: 0, warnings: 15, info: 0, violations: [], byRule: new Map() },
+        linting: { errors: 0, warnings: 15, info: 0, violations: [], byRule: new Map() } as any,
       });
 
       // Act
@@ -407,7 +407,7 @@ describe('ScoringEngine - Extended Edge Case Tests', () => {
     it('should handle null linting metrics', () => {
       // Arrange
       const codeQuality = createMockCodeQualityMetrics({
-        linting: { errors: undefined, warnings: undefined, info: 0, violations: [], byRule: new Map() },
+        linting: { errors: undefined, warnings: undefined, info: 0, violations: [], byRule: new Map() } as any,
       });
 
       // Act
@@ -531,8 +531,8 @@ describe('ScoringEngine - Extended Edge Case Tests', () => {
           totalCount: 10,
           byType: { atoms: 3, molecules: 3, organisms: 3, templates: 1, unknown: 0 },
           oversized: [
-            { file: 'component.tsx', lines: 2000 },
-            { file: 'component2.tsx', lines: 1500 },
+            { file: 'component.tsx', lines: 2000 } as any,
+            { file: 'component2.tsx', lines: 1500 } as any,
           ],
           misplaced: [],
           averageSize: 500,
@@ -560,8 +560,8 @@ describe('ScoringEngine - Extended Edge Case Tests', () => {
         dependencies: {
           totalModules: 50,
           circularDependencies: [
-            ['module-a', 'module-b'],
-            ['module-b', 'module-a'],
+            ['module-a', 'module-b'] as any,
+            ['module-b', 'module-a'] as any,
           ],
           layerViolations: [],
           externalDependencies: new Map(),
@@ -631,8 +631,8 @@ describe('ScoringEngine - Extended Edge Case Tests', () => {
       // Arrange
       const security = createMockSecurityMetrics({
         vulnerabilities: [
-          { id: 'vuln1', severity: 'critical', title: 'Critical', description: 'Test' },
-          { id: 'vuln2', severity: 'critical', title: 'Critical', description: 'Test' },
+          { id: 'vuln1', severity: 'critical', title: 'Critical', description: 'Test' } as any,
+          { id: 'vuln2', severity: 'critical', title: 'Critical', description: 'Test' } as any,
         ],
         codePatterns: [],
         performanceIssues: [],
@@ -657,9 +657,9 @@ describe('ScoringEngine - Extended Edge Case Tests', () => {
       // Arrange
       const security = createMockSecurityMetrics({
         vulnerabilities: [
-          { id: 'vuln1', severity: 'high', title: 'High', description: 'Test' },
-          { id: 'vuln2', severity: 'high', title: 'High', description: 'Test' },
-          { id: 'vuln3', severity: 'high', title: 'High', description: 'Test' },
+          { id: 'vuln1', severity: 'high', title: 'High', description: 'Test' } as any,
+          { id: 'vuln2', severity: 'high', title: 'High', description: 'Test' } as any,
+          { id: 'vuln3', severity: 'high', title: 'High', description: 'Test' } as any,
         ],
         codePatterns: [],
         performanceIssues: [],
@@ -685,8 +685,8 @@ describe('ScoringEngine - Extended Edge Case Tests', () => {
       const security = createMockSecurityMetrics({
         vulnerabilities: [],
         codePatterns: [
-          { id: 'pattern1', severity: 'high', title: 'Pattern Issue', description: 'Test' },
-          { id: 'pattern2', severity: 'high', title: 'Pattern Issue', description: 'Test' },
+          { id: 'pattern1', severity: 'high', title: 'Pattern Issue', description: 'Test' } as any,
+          { id: 'pattern2', severity: 'high', title: 'Pattern Issue', description: 'Test' } as any,
         ],
         performanceIssues: [],
       });
@@ -712,9 +712,9 @@ describe('ScoringEngine - Extended Edge Case Tests', () => {
         vulnerabilities: [],
         codePatterns: [],
         performanceIssues: [
-          { id: 'perf1', title: 'Performance Issue', description: 'Test' },
-          { id: 'perf2', title: 'Performance Issue', description: 'Test' },
-          { id: 'perf3', title: 'Performance Issue', description: 'Test' },
+          { id: 'perf1', title: 'Performance Issue', description: 'Test' } as any,
+          { id: 'perf2', title: 'Performance Issue', description: 'Test' } as any,
+          { id: 'perf3', title: 'Performance Issue', description: 'Test' } as any,
         ],
       });
 
@@ -824,9 +824,9 @@ describe('ScoringEngine - Extended Edge Case Tests', () => {
       // Arrange
       const security = createMockSecurityMetrics({
         vulnerabilities: [
-          { id: 'v1', severity: 'critical', title: 'Critical', description: 'Test' },
-          { id: 'v2', severity: 'critical', title: 'Critical', description: 'Test' },
-          { id: 'v3', severity: 'critical', title: 'Critical', description: 'Test' },
+          { id: 'v1', severity: 'critical', title: 'Critical', description: 'Test' } as any,
+          { id: 'v2', severity: 'critical', title: 'Critical', description: 'Test' } as any,
+          { id: 'v3', severity: 'critical', title: 'Critical', description: 'Test' } as any,
         ],
         codePatterns: [],
         performanceIssues: [],
@@ -889,8 +889,8 @@ describe('ScoringEngine - Extended Edge Case Tests', () => {
       // Arrange
       const security = createMockSecurityMetrics({
         vulnerabilities: [
-          { id: 'v1', severity: 'critical', title: 'Critical', description: 'Test' },
-          { id: 'v2', severity: 'critical', title: 'Critical', description: 'Test' },
+          { id: 'v1', severity: 'critical', title: 'Critical', description: 'Test' } as any,
+          { id: 'v2', severity: 'critical', title: 'Critical', description: 'Test' } as any,
         ],
         codePatterns: [],
         performanceIssues: [],
@@ -975,10 +975,10 @@ describe('ScoringEngine - Extended Edge Case Tests', () => {
       // Arrange
       const testCoverage = createMockTestCoverageMetrics({
         overall: {
-          lines: { total: 1000, covered: 700, percentage: 70, status: 'warning' },
-          branches: { total: 500, covered: 350, percentage: 70, status: 'warning' },
-          functions: { total: 100, covered: 70, percentage: 70, status: 'warning' },
-          statements: { total: 1200, covered: 840, percentage: 70, status: 'warning' },
+          lines: { total: 1000, covered: 700, percentage: 70, status: 'warning' as any },
+          branches: { total: 500, covered: 350, percentage: 70, status: 'warning' as any },
+          functions: { total: 100, covered: 70, percentage: 70, status: 'warning' as any },
+          statements: { total: 1200, covered: 840, percentage: 70, status: 'warning' as any },
         },
       });
 
@@ -1002,7 +1002,7 @@ describe('ScoringEngine - Extended Edge Case Tests', () => {
       // Arrange
       const security = createMockSecurityMetrics({
         vulnerabilities: [
-          { id: 'v1', severity: 'critical', title: 'Critical Vuln', description: 'Test' },
+          { id: 'v1', severity: 'critical', title: 'Critical Vuln', description: 'Test' } as any,
         ],
         codePatterns: [],
         performanceIssues: [],
@@ -1039,17 +1039,17 @@ describe('ScoringEngine - Extended Edge Case Tests', () => {
 
       const testCoverage = createMockTestCoverageMetrics({
         overall: {
-          lines: { total: 1000, covered: 700, percentage: 70, status: 'warning' },
-          branches: { total: 500, covered: 350, percentage: 70, status: 'warning' },
-          functions: { total: 100, covered: 70, percentage: 70, status: 'warning' },
-          statements: { total: 1200, covered: 840, percentage: 70, status: 'warning' },
+          lines: { total: 1000, covered: 700, percentage: 70, status: 'warning' as any },
+          branches: { total: 500, covered: 350, percentage: 70, status: 'warning' as any },
+          functions: { total: 100, covered: 70, percentage: 70, status: 'warning' as any },
+          statements: { total: 1200, covered: 840, percentage: 70, status: 'warning' as any },
         },
       });
 
       const architecture = createMockArchitectureMetrics({
         dependencies: {
           totalModules: 100,
-          circularDependencies: [['a', 'b']],
+          circularDependencies: [['a', 'b'] as any],
           layerViolations: [],
           externalDependencies: new Map(),
         },

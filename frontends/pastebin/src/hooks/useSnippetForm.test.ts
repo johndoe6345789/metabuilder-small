@@ -303,13 +303,13 @@ describe('useSnippetForm', () => {
 
   test('clears editing snippet when editingSnippet changes to null', () => {
     const { result, rerender } = renderHook(
-      ({ snippet, open }) => useSnippetForm(snippet, open),
-      { initialProps: { snippet: mockSnippet, open: true } }
+      ({ snippet, open }: { snippet: Snippet | undefined, open: boolean }) => useSnippetForm(snippet, open),
+      { initialProps: { snippet: mockSnippet as Snippet | undefined, open: true } }
     )
 
     expect(result.current.title).toBe('Test Snippet')
 
-    rerender({ snippet: null, open: true })
+    rerender({ snippet: undefined, open: true })
 
     expect(result.current.title).toBe('')
     expect(result.current.description).toBe('')

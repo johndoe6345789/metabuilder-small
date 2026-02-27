@@ -11,13 +11,13 @@ import * as db from '@/lib/db';
 
 jest.mock('sonner');
 jest.mock('@/lib/db');
-jest.mock('react-redux', () => ({
+jest.mock('@/store/hooks', () => ({
   useAppDispatch: () => jest.fn(),
   useAppSelector: jest.fn(),
 }));
 
 // We need to mock the Redux hooks properly
-import * as reduxHooks from 'react-redux';
+import * as reduxHooks from '@/store/hooks';
 
 describe('useSnippetManager Hook', () => {
   const mockTemplates: SnippetTemplate[] = [
@@ -29,7 +29,6 @@ describe('useSnippetManager Hook', () => {
       code: 'console.log("template")',
       category: 'general',
       hasPreview: false,
-      isTemplate: true,
     },
   ];
 
@@ -42,8 +41,8 @@ describe('useSnippetManager Hook', () => {
   describe('initialization', () => {
     it('should initialize with empty state', () => {
       const mockDispatch = jest.fn();
-      (reduxHooks.useAppDispatch as jest.Mock).mockReturnValue(mockDispatch);
-      (reduxHooks.useAppSelector as jest.Mock).mockReturnValue([]);
+      (reduxHooks.useAppDispatch as unknown as jest.Mock).mockReturnValue(mockDispatch);
+      (reduxHooks.useAppSelector as unknown as jest.Mock).mockReturnValue([]);
 
       const { result } = renderHook(() => useSnippetManager(mockTemplates));
 
@@ -54,8 +53,8 @@ describe('useSnippetManager Hook', () => {
 
     it('should seed database and sync templates on mount', async () => {
       const mockDispatch = jest.fn().mockReturnValue({ unwrap: jest.fn().mockResolvedValue({}) });
-      (reduxHooks.useAppDispatch as jest.Mock).mockReturnValue(mockDispatch);
-      (reduxHooks.useAppSelector as jest.Mock).mockReturnValue([]);
+      (reduxHooks.useAppDispatch as unknown as jest.Mock).mockReturnValue(mockDispatch);
+      (reduxHooks.useAppSelector as unknown as jest.Mock).mockReturnValue([]);
 
       await act(async () => {
         renderHook(() => useSnippetManager(mockTemplates));
@@ -70,8 +69,8 @@ describe('useSnippetManager Hook', () => {
       (db.seedDatabase as jest.Mock).mockRejectedValue(new Error('Seed failed'));
 
       const mockDispatch = jest.fn().mockReturnValue({ unwrap: jest.fn().mockResolvedValue({}) });
-      (reduxHooks.useAppDispatch as jest.Mock).mockReturnValue(mockDispatch);
-      (reduxHooks.useAppSelector as jest.Mock).mockReturnValue([]);
+      (reduxHooks.useAppDispatch as unknown as jest.Mock).mockReturnValue(mockDispatch);
+      (reduxHooks.useAppSelector as unknown as jest.Mock).mockReturnValue([]);
 
       await act(async () => {
         renderHook(() => useSnippetManager(mockTemplates));
@@ -88,8 +87,8 @@ describe('useSnippetManager Hook', () => {
     beforeEach(() => {
       mockDispatch = jest.fn();
       mockDispatch.mockReturnValue({ unwrap: jest.fn().mockResolvedValue({}) });
-      (reduxHooks.useAppDispatch as jest.Mock).mockReturnValue(mockDispatch);
-      (reduxHooks.useAppSelector as jest.Mock).mockImplementation((selector) => {
+      (reduxHooks.useAppDispatch as unknown as jest.Mock).mockReturnValue(mockDispatch);
+      (reduxHooks.useAppSelector as unknown as jest.Mock).mockImplementation((selector) => {
         // Return appropriate mock data based on selector
         return [];
       });
@@ -120,7 +119,7 @@ describe('useSnippetManager Hook', () => {
       mockDispatch.mockReturnValue({ unwrap: jest.fn().mockResolvedValue({}) });
 
       // Mock selector to return an editing snippet
-      (reduxHooks.useAppSelector as jest.Mock).mockImplementation((selector) => {
+      (reduxHooks.useAppSelector as unknown as jest.Mock).mockImplementation((selector) => {
         if (selector.toString().includes('editingSnippet')) {
           return { id: '1', title: 'Existing' };
         }
@@ -258,11 +257,11 @@ describe('useSnippetManager Hook', () => {
 
     beforeEach(() => {
       mockDispatch = jest.fn().mockReturnValue({ unwrap: jest.fn().mockResolvedValue({}) });
-      (reduxHooks.useAppDispatch as jest.Mock).mockReturnValue(mockDispatch);
+      (reduxHooks.useAppDispatch as unknown as jest.Mock).mockReturnValue(mockDispatch);
     });
 
     it('should toggle selection mode', () => {
-      (reduxHooks.useAppSelector as jest.Mock).mockReturnValue([]);
+      (reduxHooks.useAppSelector as unknown as jest.Mock).mockReturnValue([]);
 
       const { result } = renderHook(() => useSnippetManager(mockTemplates));
 
@@ -274,7 +273,7 @@ describe('useSnippetManager Hook', () => {
     });
 
     it('should toggle snippet selection', () => {
-      (reduxHooks.useAppSelector as jest.Mock).mockReturnValue([]);
+      (reduxHooks.useAppSelector as unknown as jest.Mock).mockReturnValue([]);
 
       const { result } = renderHook(() => useSnippetManager(mockTemplates));
 
@@ -286,7 +285,7 @@ describe('useSnippetManager Hook', () => {
     });
 
     it('should select all snippets', () => {
-      (reduxHooks.useAppSelector as jest.Mock).mockImplementation((selector) => {
+      (reduxHooks.useAppSelector as unknown as jest.Mock).mockImplementation((selector) => {
         if (selector.toString().includes('selectedIds')) {
           return [];
         }
@@ -309,7 +308,7 @@ describe('useSnippetManager Hook', () => {
       const selectedIds = ['1', '2'];
       const filteredSnippets = [{ id: '1' }, { id: '2' }];
 
-      (reduxHooks.useAppSelector as jest.Mock).mockImplementation((selector) => {
+      (reduxHooks.useAppSelector as unknown as jest.Mock).mockImplementation((selector) => {
         if (selector.toString().includes('selectedIds')) {
           return selectedIds;
         }
@@ -334,11 +333,11 @@ describe('useSnippetManager Hook', () => {
 
     beforeEach(() => {
       mockDispatch = jest.fn().mockReturnValue({ unwrap: jest.fn().mockResolvedValue({}) });
-      (reduxHooks.useAppDispatch as jest.Mock).mockReturnValue(mockDispatch);
+      (reduxHooks.useAppDispatch as unknown as jest.Mock).mockReturnValue(mockDispatch);
     });
 
     it('should handle bulk move with selected snippets', async () => {
-      (reduxHooks.useAppSelector as jest.Mock).mockImplementation((selector) => {
+      (reduxHooks.useAppSelector as unknown as jest.Mock).mockImplementation((selector) => {
         if (selector.toString().includes('selectedIds')) {
           return ['1', '2'];
         }
@@ -361,7 +360,7 @@ describe('useSnippetManager Hook', () => {
     });
 
     it('should reject bulk move with no selection', async () => {
-      (reduxHooks.useAppSelector as jest.Mock).mockReturnValue([]);
+      (reduxHooks.useAppSelector as unknown as jest.Mock).mockReturnValue([]);
 
       const { result } = renderHook(() => useSnippetManager(mockTemplates));
 
@@ -377,7 +376,7 @@ describe('useSnippetManager Hook', () => {
         unwrap: jest.fn().mockRejectedValue(new Error('Move failed')),
       });
 
-      (reduxHooks.useAppSelector as jest.Mock).mockImplementation((selector) => {
+      (reduxHooks.useAppSelector as unknown as jest.Mock).mockImplementation((selector) => {
         if (selector.toString().includes('selectedIds')) {
           return ['1'];
         }
@@ -399,8 +398,8 @@ describe('useSnippetManager Hook', () => {
 
     beforeEach(() => {
       mockDispatch = jest.fn().mockReturnValue({ unwrap: jest.fn().mockResolvedValue({}) });
-      (reduxHooks.useAppDispatch as jest.Mock).mockReturnValue(mockDispatch);
-      (reduxHooks.useAppSelector as jest.Mock).mockReturnValue([]);
+      (reduxHooks.useAppDispatch as unknown as jest.Mock).mockReturnValue(mockDispatch);
+      (reduxHooks.useAppSelector as unknown as jest.Mock).mockReturnValue([]);
     });
 
     it('should create new snippet from template', () => {
@@ -430,8 +429,8 @@ describe('useSnippetManager Hook', () => {
 
     beforeEach(() => {
       mockDispatch = jest.fn();
-      (reduxHooks.useAppDispatch as jest.Mock).mockReturnValue(mockDispatch);
-      (reduxHooks.useAppSelector as jest.Mock).mockReturnValue([]);
+      (reduxHooks.useAppDispatch as unknown as jest.Mock).mockReturnValue(mockDispatch);
+      (reduxHooks.useAppSelector as unknown as jest.Mock).mockReturnValue([]);
     });
 
     it('should create new snippet', () => {
@@ -470,8 +469,8 @@ describe('useSnippetManager Hook', () => {
 
     beforeEach(() => {
       mockDispatch = jest.fn();
-      (reduxHooks.useAppDispatch as jest.Mock).mockReturnValue(mockDispatch);
-      (reduxHooks.useAppSelector as jest.Mock).mockReturnValue([]);
+      (reduxHooks.useAppDispatch as unknown as jest.Mock).mockReturnValue(mockDispatch);
+      (reduxHooks.useAppSelector as unknown as jest.Mock).mockReturnValue([]);
     });
 
     it('should handle search change', () => {
@@ -508,8 +507,8 @@ describe('useSnippetManager Hook', () => {
   describe('returned state and handlers', () => {
     it('should return all required state properties', () => {
       const mockDispatch = jest.fn();
-      (reduxHooks.useAppDispatch as jest.Mock).mockReturnValue(mockDispatch);
-      (reduxHooks.useAppSelector as jest.Mock).mockReturnValue([]);
+      (reduxHooks.useAppDispatch as unknown as jest.Mock).mockReturnValue(mockDispatch);
+      (reduxHooks.useAppSelector as unknown as jest.Mock).mockReturnValue([]);
 
       const { result } = renderHook(() => useSnippetManager(mockTemplates));
 
@@ -529,8 +528,8 @@ describe('useSnippetManager Hook', () => {
 
     it('should return all required handler functions', () => {
       const mockDispatch = jest.fn();
-      (reduxHooks.useAppDispatch as jest.Mock).mockReturnValue(mockDispatch);
-      (reduxHooks.useAppSelector as jest.Mock).mockReturnValue([]);
+      (reduxHooks.useAppDispatch as unknown as jest.Mock).mockReturnValue(mockDispatch);
+      (reduxHooks.useAppSelector as unknown as jest.Mock).mockReturnValue([]);
 
       const { result } = renderHook(() => useSnippetManager(mockTemplates));
 

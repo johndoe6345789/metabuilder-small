@@ -40,7 +40,7 @@ describe('useSnippetManager Hook', () => {
     mockDb.seedDatabase.mockResolvedValue(undefined)
     mockDb.syncTemplatesFromJSON.mockResolvedValue(undefined)
     // Mock database operations that are called during initialization
-    mockDb.ensureDefaultNamespace.mockResolvedValue(undefined)
+    mockDb.ensureDefaultNamespace.mockResolvedValue({ id: 'default', name: 'Default', createdAt: Date.now(), isDefault: true })
     mockDb.getAllNamespaces.mockResolvedValue([
       { id: 'default', name: 'Default', createdAt: Date.now(), isDefault: true },
     ] as Awaited<ReturnType<typeof mockDb.getAllNamespaces>>)

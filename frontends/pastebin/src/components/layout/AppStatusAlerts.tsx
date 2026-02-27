@@ -1,7 +1,7 @@
 'use client';
 
 import { CheckCircle, WarningCircle } from '@phosphor-icons/react'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Alert, AlertTitle } from '@metabuilder/components/fakemui'
 import { getStorageConfig } from '@/lib/storage'
 
 /**
@@ -16,33 +16,30 @@ export function AppStatusAlerts() {
     <div className="space-y-2" data-testid="status-alerts" role="region" aria-label="Application status alerts">
       <Alert
         data-testid="alert-success"
-        className="bg-emerald-500/5 border-emerald-500/20"
+        className="alert-m3-success"
         role="status"
         aria-live="polite"
+        severity="success"
+        icon={<CheckCircle className="col-start-1 mt-0.5 text-emerald-500" weight="fill" aria-hidden="true" />}
       >
-        <CheckCircle className="col-start-1 mt-0.5 text-emerald-500" weight="fill" aria-hidden="true" />
         <AlertTitle>Workspace ready</AlertTitle>
-        <AlertDescription>
-          {usingLocal
-            ? 'Running in local-first mode so you can work offline without a backend.'
-            : 'Connected to your configured backend. Live sync is enabled.'}
-        </AlertDescription>
+        {usingLocal
+          ? 'Running in local-first mode so you can work offline without a backend.'
+          : 'Connected to your configured backend. Live sync is enabled.'}
       </Alert>
 
       {usingLocal && (
         <Alert
           data-testid="alert-error"
-          variant="destructive"
-          className="bg-destructive/10 border-destructive/40"
+          className="alert-m3-error"
           role="alert"
           aria-live="assertive"
+          severity="error"
+          icon={<WarningCircle className="col-start-1 mt-0.5" weight="fill" aria-hidden="true" />}
         >
-          <WarningCircle className="col-start-1 mt-0.5" weight="fill" aria-hidden="true" />
           <AlertTitle>Cloud backend unavailable</AlertTitle>
-          <AlertDescription>
-            No Flask backend detected. Saving and loading will stay on this device until a server
-            URL is configured.
-          </AlertDescription>
+          No Flask backend detected. Saving and loading will stay on this device until a server
+          URL is configured.
         </Alert>
       )}
     </div>

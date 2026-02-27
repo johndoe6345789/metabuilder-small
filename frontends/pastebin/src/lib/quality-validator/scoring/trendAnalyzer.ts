@@ -39,7 +39,7 @@ export class TrendAnalyzer {
 
     const trend: AnalyzedTrend = {
       currentScore,
-      componentTrends: this.analyzeComponentTrends(componentScores),
+      componentTrends: this.analyzeComponentTrends(componentScores) as TrendData['componentTrends'],
     };
 
     if (lastRecord) {

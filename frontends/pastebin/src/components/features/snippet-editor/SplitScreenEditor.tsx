@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import dynamic from 'next/dynamic'
-import { Button } from '@/components/ui/button'
+import { Button } from '@metabuilder/components/fakemui'
 import { Code, Eye, SplitHorizontal } from '@phosphor-icons/react'
 import { InputParameter } from '@/lib/types'
 

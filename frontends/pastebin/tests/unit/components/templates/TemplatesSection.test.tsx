@@ -199,7 +199,7 @@ describe('TemplatesSection', () => {
     })
 
     it('should accept snippet type in callback', () => {
-      const callback = vi.fn((snippet: Omit<Snippet, 'id' | 'createdAt' | 'updatedAt'>) => {
+      const callback = jest.fn((snippet: Omit<Snippet, 'id' | 'createdAt' | 'updatedAt'>) => {
         // Callback should handle snippet save
       })
       render(<TemplatesSection onSaveSnippet={callback} />)
@@ -306,7 +306,7 @@ describe('TemplatesSection', () => {
     })
 
     it('should handle failing callback gracefully', () => {
-      const failingCallback = vi.fn(() => {
+      const failingCallback = jest.fn(() => {
         throw new Error('Test error')
       })
       render(<TemplatesSection onSaveSnippet={failingCallback} />)
@@ -414,8 +414,8 @@ describe('TemplatesSection', () => {
     it('should accept various callback implementations', () => {
       const callbacks = [
         jest.fn(),
-        vi.fn((snippet) => snippet),
-        vi.fn(async (snippet) => Promise.resolve(snippet)),
+        jest.fn((snippet) => snippet),
+        jest.fn(async (snippet) => Promise.resolve(snippet)),
       ]
 
       callbacks.forEach((callback) => {

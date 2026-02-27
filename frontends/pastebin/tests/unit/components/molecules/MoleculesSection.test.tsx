@@ -176,7 +176,7 @@ describe('MoleculesSection', () => {
     })
 
     it('should accept different snippet types', () => {
-      const onSaveSnippet = vi.fn((snippet: Omit<Snippet, 'id' | 'createdAt' | 'updatedAt'>) => {
+      const onSaveSnippet = jest.fn((snippet: Omit<Snippet, 'id' | 'createdAt' | 'updatedAt'>) => {
         // Callback should handle snippet save
       })
       render(<MoleculesSection onSaveSnippet={onSaveSnippet} />)

@@ -1,6 +1,6 @@
-import { Input } from '@/components/ui/input'
-import { Card } from '@/components/ui/card'
-import { Separator } from '@/components/ui/separator'
+import { Input } from '@metabuilder/components/fakemui'
+import { Card } from '@metabuilder/components/fakemui'
+import { Divider } from '@metabuilder/components/fakemui'
 import { MagnifyingGlass } from '@phosphor-icons/react'
 import { ComponentShowcase } from '@/components/demo/ComponentShowcase'
 import { atomsCodeSnippets } from '@/lib/component-code-snippets'
@@ -43,7 +43,7 @@ export function InputsSection({ onSaveSnippet }: InputsSectionProps) {
               </div>
             </div>
 
-            <Separator />
+            <Divider />
 
             <div className="space-y-3">
               <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">

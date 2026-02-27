@@ -5,7 +5,10 @@
 
 # --- Build stage ---
 ARG BASE_REGISTRY=metabuilder
+ARG NEXT_PUBLIC_FLASK_BACKEND_URL=/pastebin-api
 FROM ${BASE_REGISTRY}/base-node-deps:latest AS builder
+ARG NEXT_PUBLIC_FLASK_BACKEND_URL
+ENV NEXT_PUBLIC_FLASK_BACKEND_URL=${NEXT_PUBLIC_FLASK_BACKEND_URL}
 
 # ── Shared packages (resolved by transpilePackages + webpack aliases) ────────
 # Each COPY targets only the source tree that pastebin actually imports.
@@ -47,6 +50,17 @@ COPY workflow/ ./workflow/
 # ── Pastebin (the app itself) ────────────────────────────────────────────────
 COPY frontends/pastebin/ ./frontends/pastebin/
 
+# Copy pyodide runtime files from npm package to public dir so Next.js serves them locally.
+# This avoids any CDN dependency — files are served at /pastebin/pyodide/ via basePath.
+RUN mkdir -p frontends/pastebin/public/pyodide && \
+    cp node_modules/pyodide/pyodide.js \
+       node_modules/pyodide/pyodide.mjs \
+       node_modules/pyodide/pyodide.asm.js \
+       node_modules/pyodide/pyodide.asm.wasm \
+       node_modules/pyodide/python_stdlib.zip \
+       node_modules/pyodide/pyodide-lock.json \
+       frontends/pastebin/public/pyodide/
+
 # Build workspace library packages
 RUN for ws in redux/core redux/slices redux/hooks redux/adapters \
     redux/hooks-async redux/api-clients redux/persist \
@@ -63,6 +77,8 @@ WORKDIR /app
 
 COPY --from=builder /app/frontends/pastebin/.next/standalone ./
 COPY --from=builder /app/frontends/pastebin/.next/static ./frontends/pastebin/.next/static
+# Public files (including pyodide runtime) must be alongside server.js in standalone mode
+COPY --from=builder /app/frontends/pastebin/public ./frontends/pastebin/public
 
 ENV NODE_ENV=production
 ENV PORT=3000

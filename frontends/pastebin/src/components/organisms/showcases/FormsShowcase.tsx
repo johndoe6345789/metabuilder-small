@@ -1,8 +1,4 @@
-import { Card } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Separator } from '@/components/ui/separator'
+import { Card, Button, Input, FormLabel, Divider } from '@metabuilder/components/fakemui'
 import {
   Envelope,
   Lock,
@@ -28,21 +24,21 @@ export function FormsShowcase() {
             </p>
           </div>
 
-          <Separator />
+          <Divider />
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="firstName">First Name</Label>
+              <FormLabel htmlFor="firstName">First Name</FormLabel>
               <Input id="firstName" placeholder="John" />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="lastName">Last Name</Label>
+              <FormLabel htmlFor="lastName">Last Name</FormLabel>
               <Input id="lastName" placeholder="Doe" />
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="formEmail">Email</Label>
+            <FormLabel htmlFor="formEmail">Email</FormLabel>
             <div className="relative">
               <Envelope className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" aria-hidden="true" />
               <Input id="formEmail" type="email" placeholder="john@example.com" className="pl-10" />
@@ -50,7 +46,7 @@ export function FormsShowcase() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="formPassword">Password</Label>
+            <FormLabel htmlFor="formPassword">Password</FormLabel>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" aria-hidden="true" />
               <Input id="formPassword" type="password" placeholder="••••••••" className="pl-10" />
@@ -60,10 +56,10 @@ export function FormsShowcase() {
             </p>
           </div>
 
-          <Separator />
+          <Divider />
 
           <div className="flex items-center justify-between gap-4">
-            <Button variant="outline" type="button">
+            <Button variant="outlined" type="button">
               Cancel
             </Button>
             <Button type="submit">

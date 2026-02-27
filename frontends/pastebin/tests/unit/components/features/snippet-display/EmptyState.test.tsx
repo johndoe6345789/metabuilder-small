@@ -329,6 +329,7 @@ describe('EmptyState', () => {
     it('should handle onCreateClick being optional', () => {
       render(
         <EmptyState
+          onCreateClick={jest.fn()}
           onCreateFromTemplate={jest.fn()}
         />
       )

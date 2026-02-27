@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import * as React from 'react'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Alert, AlertDescription } from '@metabuilder/components/fakemui'
 import { AIErrorHelper } from '@/components/error/AIErrorHelper'
 import { WarningCircle } from '@phosphor-icons/react'
 import { InputParameter } from '@/lib/types'
@@ -57,7 +57,7 @@ export function ReactPreview({ code, language, functionName, inputParameters }: 
         aria-live="assertive"
         aria-atomic="true"
       >
-        <Alert variant="destructive" className="mb-4" data-testid="preview-error-alert">
+        <Alert severity="error" className="mb-4" data-testid="preview-error-alert">
           <WarningCircle className="h-4 w-4" aria-hidden="true" />
           <AlertDescription className="font-mono text-xs whitespace-pre-wrap" data-testid="preview-error-message">
             {error}

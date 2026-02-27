@@ -525,7 +525,7 @@ describe('CoverageAnalyzer - Comprehensive Tests', () => {
         const metrics = result.metrics as any;
         expect(metrics.gaps).toBeDefined();
 
-        const gapsByFile = new Map(metrics.gaps.map((g: any) => [g.file, g]));
+        const gapsByFile = new Map<string, any>(metrics.gaps.map((g: any) => [g.file, g]));
         if (gapsByFile.has('src/critical.ts')) {
           expect(gapsByFile.get('src/critical.ts').criticality).toBe('critical');
         }
@@ -577,7 +577,7 @@ describe('CoverageAnalyzer - Comprehensive Tests', () => {
         const result = await analyzer.analyze();
 
         const metrics = result.metrics as any;
-        const gapsByFile = new Map(metrics.gaps.map((g: any) => [g.file, g]));
+        const gapsByFile = new Map<string, any>(metrics.gaps.map((g: any) => [g.file, g]));
 
         if (gapsByFile.has('src/utils/helpers.ts')) {
           expect(gapsByFile.get('src/utils/helpers.ts').suggestedTests).toBeDefined();

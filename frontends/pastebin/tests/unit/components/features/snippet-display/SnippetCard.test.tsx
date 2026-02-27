@@ -58,11 +58,10 @@ describe('SnippetCard', () => {
     language: 'JavaScript',
     description: 'A test snippet',
     category: 'basics',
-    tags: ['test'],
     hasPreview: false,
     namespaceId: 'ns-1',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
   }
 
   const defaultProps = {

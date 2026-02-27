@@ -1,6 +1,6 @@
-import { Badge } from '@/components/ui/badge'
-import { Card } from '@/components/ui/card'
-import { Separator } from '@/components/ui/separator'
+import { Chip } from '@metabuilder/components/fakemui'
+import { Card } from '@metabuilder/components/fakemui'
+import { Divider } from '@metabuilder/components/fakemui'
 import { Check, X, Star } from '@phosphor-icons/react'
 import { ComponentShowcase } from '@/components/demo/ComponentShowcase'
 import { atomsCodeSnippets } from '@/lib/component-code-snippets'
@@ -34,32 +34,32 @@ export function BadgesSection({ onSaveSnippet }: BadgesSectionProps) {
                 Variants
               </h3>
               <div className="flex flex-wrap gap-4">
-                <Badge>Default</Badge>
-                <Badge variant="secondary">Secondary</Badge>
-                <Badge variant="destructive">Destructive</Badge>
-                <Badge variant="outline">Outline</Badge>
+                <Chip>Default</Chip>
+                <Chip color="secondary">Secondary</Chip>
+                <Chip color="error">Destructive</Chip>
+                <Chip variant="outlined">Outline</Chip>
               </div>
             </div>
 
-            <Separator />
+            <Divider />
 
             <div className="space-y-3">
               <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
                 With Icons
               </h3>
               <div className="flex flex-wrap gap-4">
-                <Badge>
+                <Chip>
                   <Check weight="bold" className="mr-1" />
                   Completed
-                </Badge>
-                <Badge variant="destructive">
+                </Chip>
+                <Chip color="error">
                   <X weight="bold" className="mr-1" />
                   Failed
-                </Badge>
-                <Badge variant="secondary">
+                </Chip>
+                <Chip color="secondary">
                   <Star weight="fill" className="mr-1" />
                   Featured
-                </Badge>
+                </Chip>
               </div>
             </div>
           </div>

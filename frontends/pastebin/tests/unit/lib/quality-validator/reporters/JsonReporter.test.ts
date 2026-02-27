@@ -41,7 +41,7 @@ describe('JsonReporter', () => {
       architecture: {
         enabled: true,
         components: { enabled: true, maxLines: 500, warningLines: 300, validateAtomicDesign: true, validatePropTypes: true },
-        dependencies: { enabled: true, allowCircularDependencies: false },
+        dependencies: { enabled: true, allowCircularDependencies: false, allowCrossLayerDependencies: false },
         patterns: { enabled: true, validateRedux: true, validateHooks: true, validateReactBestPractices: true },
       },
       security: {
@@ -485,7 +485,7 @@ describe('JsonReporter', () => {
         },
       };
 
-      const json = reporter.generate(resultWithTrend);
+      const json = reporter.generate(resultWithTrend as unknown as ScoringResult);
       const parsed: JsonReport = reporter.parse(json);
 
       expect(parsed.trend).toBeDefined();

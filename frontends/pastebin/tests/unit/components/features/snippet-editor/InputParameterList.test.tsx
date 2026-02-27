@@ -163,7 +163,7 @@ describe('InputParameterList', () => {
     })
 
     it('should render correct number of parameter items', () => {
-      const threeParams = [...mockInputParameters, { name: 'param3', type: 'boolean', defaultValue: 'true' }]
+      const threeParams = [...mockInputParameters, { name: 'param3', type: 'boolean' as const, defaultValue: 'true' }]
       render(<InputParameterList {...defaultProps} inputParameters={threeParams} />)
       expect(screen.getByTestId('param-item-0')).toBeInTheDocument()
       expect(screen.getByTestId('param-item-1')).toBeInTheDocument()

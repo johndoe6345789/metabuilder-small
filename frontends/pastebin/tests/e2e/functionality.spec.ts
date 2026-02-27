@@ -434,7 +434,7 @@ test.describe("Functionality Tests - Core Features", () => {
     test("memory usage doesn't spike excessively", async ({ page }) => {
       await page.goto("/")
 
-      const metrics1 = await (page as Record<string, unknown>).metrics() as Record<string, number>
+      const metrics1 = await (page as unknown as { metrics(): Promise<Record<string, number>> }).metrics()
       const initialMemory = metrics1.JSHeapUsedSize
 
       // Perform multiple interactions
@@ -443,7 +443,7 @@ test.describe("Functionality Tests - Core Features", () => {
         await page.waitForLoadState("networkidle")
       }
 
-      const metrics2 = await (page as Record<string, unknown>).metrics() as Record<string, number>
+      const metrics2 = await (page as unknown as { metrics(): Promise<Record<string, number>> }).metrics()
       const finalMemory = metrics2.JSHeapUsedSize
 
       // Memory increase should be reasonable (not growing unbounded)

@@ -13,9 +13,8 @@ jest.mock('framer-motion', () => ({
 
 jest.mock('next/dynamic', () => ({
   __esModule: true,
-  default: (fn: any) => {
+  default: (_fn: any) => {
     const Component = () => <div data-testid="split-screen-editor">Editor</div>;
-    Component.preload ? Component.preload() : Component.render?.preload?.();
     return Component;
   },
 }));

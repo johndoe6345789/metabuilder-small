@@ -1,8 +1,7 @@
 'use client'
 
 import dynamic from 'next/dynamic'
-import { Label } from '@/components/ui/label'
-import { Checkbox } from '@/components/ui/checkbox'
+import { FormLabel, Checkbox } from '@metabuilder/components/fakemui'
 import { InputParameter } from '@/lib/types'
 import { appConfig } from '@/lib/config'
 
@@ -25,6 +24,7 @@ interface CodeEditorSectionProps {
   errors: { code?: string }
   onCodeChange: (value: string) => void
   onPreviewChange: (checked: boolean) => void
+  height?: string
 }
 
 export function CodeEditorSection({
@@ -36,68 +36,68 @@ export function CodeEditorSection({
   errors,
   onCodeChange,
   onPreviewChange,
+  height,
 }: CodeEditorSectionProps) {
   const isPreviewSupported = appConfig.previewEnabledLanguages.includes(language)
 
   return (
-    <>
-      {isPreviewSupported && (
-        <div className="flex items-center space-x-2 py-2">
-          <Checkbox
-            id="hasPreview"
-            checked={hasPreview}
-            onCheckedChange={(checked) => onPreviewChange(checked as boolean)}
-            data-testid="enable-preview-checkbox"
-            aria-label="Enable live preview"
-          />
-          <Label
+    <div className="space-y-2">
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <FormLabel htmlFor="code">Code *</FormLabel>
+        {isPreviewSupported && (
+          <label
             htmlFor="hasPreview"
-            className="text-sm font-normal cursor-pointer"
+            className="flex items-center gap-2 cursor-pointer"
+            style={{ fontSize: '0.875rem', color: 'var(--mat-sys-on-surface-variant)' }}
             data-testid="enable-preview-label"
           >
-            Enable live preview
-          </Label>
-        </div>
-      )}
-
-      <div className="space-y-2">
-        <Label htmlFor="code">Code *</Label>
-        {hasPreview && isPreviewSupported ? (
-          <div
-            className={errors.code ? 'ring-2 ring-destructive/20 rounded-md' : ''}
-            data-testid="split-screen-editor-container"
-            role="region"
-            aria-label="Code editor with split screen view"
-          >
-            <SplitScreenEditor
-              value={code}
-              onChange={onCodeChange}
-              language={language}
-              height="500px"
-              functionName={functionName}
-              inputParameters={inputParameters}
+            <Checkbox
+              id="hasPreview"
+              checked={hasPreview}
+              onChange={(e) => onPreviewChange(e.target.checked)}
+              data-testid="enable-preview-checkbox"
+              aria-label="Enable live preview"
             />
-          </div>
-        ) : (
-          <div
-            className={`rounded-md border overflow-hidden ${
-              errors.code ? 'border-destructive ring-2 ring-destructive/20' : 'border-border'
-            }`}
-            data-testid="code-editor-container"
-            role="region"
-            aria-label="Code editor"
-            aria-invalid={!!errors.code}
-            aria-describedby={errors.code ? "code-error" : undefined}
-          >
-            <MonacoEditor value={code} onChange={onCodeChange} language={language} height="400px" />
-          </div>
-        )}
-        {errors.code && (
-          <p className="text-sm text-destructive" id="code-error" data-testid="code-error-message" role="alert">
-            {errors.code}
-          </p>
+            Live preview
+          </label>
         )}
       </div>
-    </>
+
+      {hasPreview && isPreviewSupported ? (
+        <div
+          className={errors.code ? 'ring-2 ring-destructive/20 rounded-md' : ''}
+          data-testid="split-screen-editor-container"
+          role="region"
+          aria-label="Code editor with split screen view"
+        >
+          <SplitScreenEditor
+            value={code}
+            onChange={onCodeChange}
+            language={language}
+            height={height ?? '340px'}
+            functionName={functionName}
+            inputParameters={inputParameters}
+          />
+        </div>
+      ) : (
+        <div
+          className={`rounded-md border ${
+            errors.code ? 'border-destructive ring-2 ring-destructive/20' : 'border-border'
+          }`}
+          data-testid="code-editor-container"
+          role="region"
+          aria-label="Code editor"
+          aria-invalid={!!errors.code}
+          aria-describedby={errors.code ? "code-error" : undefined}
+        >
+          <MonacoEditor value={code} onChange={onCodeChange} language={language} height={height ?? '280px'} />
+        </div>
+      )}
+      {errors.code && (
+        <p className="text-sm text-destructive" id="code-error" data-testid="code-error-message" role="alert">
+          {errors.code}
+        </p>
+      )}
+    </div>
   )
 }

@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
-import { Input } from '@/components/ui/input'
+import { Input } from '@metabuilder/components/fakemui'
 
 interface TerminalInputProps {
   waitingForInput: boolean

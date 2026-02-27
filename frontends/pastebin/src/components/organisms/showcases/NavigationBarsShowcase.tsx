@@ -1,6 +1,6 @@
-import { Card } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Card } from '@metabuilder/components/fakemui'
+import { Button } from '@metabuilder/components/fakemui'
+import { Avatar } from '@metabuilder/components/fakemui'
 import {
   Bell,
   Gear,
@@ -54,16 +54,13 @@ export function NavigationBarsShowcase({ onSaveSnippet }: NavigationBarsShowcase
                 </nav>
               </div>
               <div className="flex items-center gap-2">
-                <Button variant="ghost" size="icon">
+                <Button variant="ghost">
                   <Bell aria-hidden="true" />
                 </Button>
-                <Button variant="ghost" size="icon">
+                <Button variant="ghost">
                   <Gear aria-hidden="true" />
                 </Button>
-                <Avatar className="h-8 w-8">
-                  <AvatarImage src="https://i.pravatar.cc/150?img=3" />
-                  <AvatarFallback>U</AvatarFallback>
-                </Avatar>
+                <Avatar className="h-8 w-8" src="https://i.pravatar.cc/150?img=3" alt="User">U</Avatar>
               </div>
             </div>
           </div>
@@ -86,7 +83,7 @@ export function NavigationBarsShowcase({ onSaveSnippet }: NavigationBarsShowcase
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm">
+              <Button variant="outlined" size="sm">
                 Sign In
               </Button>
               <Button size="sm">Get Started</Button>

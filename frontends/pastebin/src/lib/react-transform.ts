@@ -1,21 +1,17 @@
 import * as React from 'react'
 import * as Babel from '@babel/standalone'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Switch } from '@/components/ui/switch'
-import { Badge } from '@/components/ui/badge'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { Separator } from '@/components/ui/separator'
-import { Progress } from '@/components/ui/progress'
-import { Slider } from '@/components/ui/slider'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
+import {
+  Button,
+  Card, CardContent, CardHeader, CardActions,
+  Input, Textarea, Select, MenuItem,
+  Checkbox, Switch,
+  Chip,
+  Tabs, Tab, TabPanel,
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogActions,
+  Divider, LinearProgress, Slider, Avatar,
+  Accordion, AccordionSummary, AccordionDetails,
+  FormLabel,
+} from '@metabuilder/components/fakemui'
 import { toast } from 'sonner'
 import * as PhosphorIcons from '@phosphor-icons/react'
 
@@ -49,44 +45,53 @@ export function transformReactCode(code: string, functionName?: string): React.C
       const Button = arguments[1];
       const Card = arguments[2];
       const CardContent = arguments[3];
-      const CardDescription = arguments[4];
-      const CardFooter = arguments[5];
-      const CardHeader = arguments[6];
-      const CardTitle = arguments[7];
-      const Input = arguments[8];
-      const Label = arguments[9];
-      const Textarea = arguments[10];
-      const Select = arguments[11];
-      const SelectContent = arguments[12];
-      const SelectItem = arguments[13];
-      const SelectTrigger = arguments[14];
-      const SelectValue = arguments[15];
-      const Checkbox = arguments[16];
-      const Switch = arguments[17];
-      const Badge = arguments[18];
-      const Tabs = arguments[19];
-      const TabsContent = arguments[20];
-      const TabsList = arguments[21];
-      const TabsTrigger = arguments[22];
-      const Dialog = arguments[23];
-      const DialogContent = arguments[24];
-      const DialogDescription = arguments[25];
-      const DialogFooter = arguments[26];
-      const DialogHeader = arguments[27];
-      const DialogTitle = arguments[28];
-      const DialogTrigger = arguments[29];
-      const Separator = arguments[30];
-      const Progress = arguments[31];
-      const Slider = arguments[32];
-      const Avatar = arguments[33];
-      const AvatarFallback = arguments[34];
-      const AvatarImage = arguments[35];
-      const Accordion = arguments[36];
-      const AccordionContent = arguments[37];
-      const AccordionItem = arguments[38];
-      const AccordionTrigger = arguments[39];
-      const toast = arguments[40];
-      const PhosphorIcons = arguments[41];
+      const CardHeader = arguments[4];
+      const CardActions = arguments[5];
+      const CardTitle = ({ children, className }) => React.createElement('h3', { className, style: { fontWeight: 600, fontSize: '1.125rem' } }, children);
+      const CardDescription = ({ children, className }) => React.createElement('p', { className, style: { color: 'var(--mat-sys-on-surface-variant, #6b7280)', fontSize: '0.875rem' } }, children);
+      const CardFooter = CardActions;
+      const Input = arguments[6];
+      const Label = arguments[7];
+      const Textarea = arguments[8];
+      const Select = arguments[9];
+      const MenuItem = arguments[10];
+      const SelectContent = ({ children }) => children;
+      const SelectTrigger = ({ children }) => children;
+      const SelectValue = () => null;
+      const SelectItem = MenuItem;
+      const Checkbox = arguments[11];
+      const Switch = arguments[12];
+      const Chip = arguments[13];
+      const Badge = Chip;
+      const Tabs = arguments[14];
+      const Tab = arguments[15];
+      const TabPanel = arguments[16];
+      const TabsContent = TabPanel;
+      const TabsList = ({ children }) => children;
+      const TabsTrigger = Tab;
+      const Dialog = arguments[17];
+      const DialogContent = arguments[18];
+      const DialogHeader = arguments[19];
+      const DialogTitle = arguments[20];
+      const DialogActions = arguments[21];
+      const DialogFooter = DialogActions;
+      const DialogDescription = ({ children }) => React.createElement('p', null, children);
+      const DialogTrigger = ({ children }) => children;
+      const Separator = arguments[22];
+      const Divider = Separator;
+      const Progress = arguments[23];
+      const Slider = arguments[24];
+      const Avatar = arguments[25];
+      const AvatarFallback = ({ children }) => children;
+      const AvatarImage = () => null;
+      const Accordion = arguments[26];
+      const AccordionSummary = arguments[27];
+      const AccordionDetails = arguments[28];
+      const AccordionContent = AccordionDetails;
+      const AccordionItem = ({ children }) => children;
+      const AccordionTrigger = AccordionSummary;
+      const toast = arguments[29];
+      const PhosphorIcons = arguments[30];
       const { Plus, Minus, ArrowCounterClockwise, PaperPlaneRight, Trash, User, Gear, Bell, MagnifyingGlass } = PhosphorIcons;
       
       ${transformedCode}
@@ -99,48 +104,37 @@ export function transformReactCode(code: string, functionName?: string): React.C
 
   const componentFactory = eval(wrappedCode)
   const CreatedComponent = componentFactory(
-    React,
-    Button,
-    Card,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-    Input,
-    Label,
-    Textarea,
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-    Checkbox,
-    Switch,
-    Badge,
-    Tabs,
-    TabsContent,
-    TabsList,
-    TabsTrigger,
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-    Separator,
-    Progress,
-    Slider,
-    Avatar,
-    AvatarFallback,
-    AvatarImage,
-    Accordion,
-    AccordionContent,
-    AccordionItem,
-    AccordionTrigger,
-    toast,
-    PhosphorIcons
+    React,           // [0]
+    Button,          // [1]
+    Card,            // [2]
+    CardContent,     // [3]
+    CardHeader,      // [4] → wrappedCode: CardHeader (aliases: CardTitle)
+    CardActions,     // [5] → wrappedCode: CardActions (aliases: CardFooter, CardDescription=CardContent)
+    Input,           // [6]
+    FormLabel,       // [7] → wrappedCode: Label
+    Textarea,        // [8]
+    Select,          // [9]
+    MenuItem,        // [10] → wrappedCode: MenuItem (aliases: SelectItem=MenuItem)
+    Checkbox,        // [11]
+    Switch,          // [12]
+    Chip,            // [13] → wrappedCode: Chip (aliases: Badge=Chip)
+    Tabs,            // [14]
+    Tab,             // [15]
+    TabPanel,        // [16] → wrappedCode: TabPanel (aliases: TabsContent=TabPanel, TabsTrigger=Tab)
+    Dialog,          // [17]
+    DialogContent,   // [18]
+    DialogHeader,    // [19]
+    DialogTitle,     // [20]
+    DialogActions,   // [21] → wrappedCode: DialogActions (aliases: DialogFooter=DialogActions)
+    Divider,         // [22] → wrappedCode: Separator (aliases: Divider=Separator)
+    LinearProgress,  // [23] → wrappedCode: Progress
+    Slider,          // [24]
+    Avatar,          // [25]
+    Accordion,       // [26]
+    AccordionSummary,   // [27]
+    AccordionDetails,   // [28] → wrappedCode: AccordionDetails (aliases: AccordionContent=AccordionDetails)
+    toast,           // [29]
+    PhosphorIcons    // [30]
   )
 
   if (typeof CreatedComponent === 'function') {

@@ -1,16 +1,10 @@
-import { Code, Plus, CaretDown } from '@phosphor-icons/react'
-import { Button } from '@/components/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-  DropdownMenuLabel,
-} from '@/components/ui/dropdown-menu'
+import { useState } from 'react'
+import { Code, CaretDown } from '@phosphor-icons/react'
+import { Button } from '@metabuilder/components/fakemui'
 import { strings } from '@/lib/config'
 import { SnippetTemplate } from '@/lib/types'
 import templatesData from '@/data/templates.json'
+import { TemplatePicker } from '@/components/features/snippet-editor/TemplatePicker'
 
 const templates = templatesData as SnippetTemplate[]
 
@@ -20,6 +14,8 @@ interface EmptyStateProps {
 }
 
 export function EmptyState({ onCreateClick, onCreateFromTemplate }: EmptyStateProps) {
+  const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null)
+
   return (
     <div
       className="flex flex-col items-center justify-center py-20 px-4 text-center"
@@ -28,7 +24,6 @@ export function EmptyState({ onCreateClick, onCreateFromTemplate }: EmptyStatePr
       aria-live="polite"
       aria-label="No snippets available"
     >
-      {/* Aria-live region for empty state announcement */}
       <div
         className="sr-only"
         role="status"
@@ -39,131 +34,40 @@ export function EmptyState({ onCreateClick, onCreateFromTemplate }: EmptyStatePr
         {strings.emptyState.title}. {strings.emptyState.description}
       </div>
 
-      <div className="rounded-full bg-accent/10 p-6 mb-6" aria-hidden="true">
-        <Code className="h-16 w-16 text-accent" weight="duotone" />
+      <div style={{ width: 96, height: 96, borderRadius: '50%', backgroundColor: 'var(--mat-sys-primary-container)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 24 }} aria-hidden="true">
+        <Code style={{ width: 48, height: 48, color: 'var(--mat-sys-on-primary-container)' }} weight="duotone" />
       </div>
-      <h2 className="text-2xl font-semibold mb-2">{strings.emptyState.title}</h2>
+      <h2 style={{ fontFamily: 'var(--mat-sys-headline-small-font)', fontSize: '1.5rem', fontWeight: 600, marginBottom: 8, color: 'var(--mat-sys-on-surface)' }}>{strings.emptyState.title}</h2>
       <p className="text-muted-foreground mb-8 max-w-sm">
         {strings.emptyState.description}
       </p>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            size="lg"
-            className="gap-2"
-            data-testid="empty-state-create-menu"
-            aria-label="Create new snippet from templates"
-          >
-            <Code className="h-5 w-5" weight="bold" aria-hidden="true" />
-            {strings.emptyState.buttonText}
-            <CaretDown weight="bold" aria-hidden="true" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent
-          align="center"
-          className="w-72 max-h-[500px] overflow-y-auto"
-          data-testid="empty-state-menu-content"
-        >
-          <DropdownMenuItem
-            onClick={onCreateClick}
-            data-testid="create-blank-snippet-item"
-          >
-            <Plus className="mr-2 h-4 w-4" weight="bold" aria-hidden="true" />
-            Blank Snippet
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuLabel>React Components</DropdownMenuLabel>
-          {templates.filter((t) => t.category === 'react').map((template) => (
-            <DropdownMenuItem
-              key={template.id}
-              onClick={() => onCreateFromTemplate?.(template.id)}
-              data-testid={`template-react-${template.id}`}
-            >
-              <div className="flex flex-col gap-1 py-1">
-                <span className="font-medium">{template.title}</span>
-                <span className="text-xs text-muted-foreground line-clamp-1">
-                  {template.description}
-                </span>
-              </div>
-            </DropdownMenuItem>
-          ))}
-          <DropdownMenuSeparator />
-          <DropdownMenuLabel>JavaScript / TypeScript</DropdownMenuLabel>
-          {templates.filter((t) => ['api', 'basics', 'async', 'types'].includes(t.category)).map((template) => (
-            <DropdownMenuItem
-              key={template.id}
-              onClick={() => onCreateFromTemplate?.(template.id)}
-            >
-              <div className="flex flex-col gap-1 py-1">
-                <span className="font-medium">{template.title}</span>
-                <span className="text-xs text-muted-foreground line-clamp-1">
-                  {template.description}
-                </span>
-              </div>
-            </DropdownMenuItem>
-          ))}
-          <DropdownMenuSeparator />
-          <DropdownMenuLabel>CSS Layouts</DropdownMenuLabel>
-          {templates.filter((t) => t.category === 'layout').map((template) => (
-            <DropdownMenuItem
-              key={template.id}
-              onClick={() => onCreateFromTemplate?.(template.id)}
-            >
-              <div className="flex flex-col gap-1 py-1">
-                <span className="font-medium">{template.title}</span>
-                <span className="text-xs text-muted-foreground line-clamp-1">
-                  {template.description}
-                </span>
-              </div>
-            </DropdownMenuItem>
-          ))}
-          <DropdownMenuSeparator />
-          <DropdownMenuLabel>Python - Project Euler</DropdownMenuLabel>
-          {templates.filter((t) => t.category === 'euler').map((template) => (
-            <DropdownMenuItem
-              key={template.id}
-              onClick={() => onCreateFromTemplate?.(template.id)}
-            >
-              <div className="flex flex-col gap-1 py-1">
-                <span className="font-medium">{template.title}</span>
-                <span className="text-xs text-muted-foreground line-clamp-1">
-                  {template.description}
-                </span>
-              </div>
-            </DropdownMenuItem>
-          ))}
-          <DropdownMenuSeparator />
-          <DropdownMenuLabel>Python - Algorithms</DropdownMenuLabel>
-          {templates.filter((t) => t.category === 'algorithms' && t.language === 'Python').map((template) => (
-            <DropdownMenuItem
-              key={template.id}
-              onClick={() => onCreateFromTemplate?.(template.id)}
-            >
-              <div className="flex flex-col gap-1 py-1">
-                <span className="font-medium">{template.title}</span>
-                <span className="text-xs text-muted-foreground line-clamp-1">
-                  {template.description}
-                </span>
-              </div>
-            </DropdownMenuItem>
-          ))}
-          <DropdownMenuSeparator />
-          <DropdownMenuLabel>Python - Interactive Programs</DropdownMenuLabel>
-          {templates.filter((t) => t.category === 'interactive').map((template) => (
-            <DropdownMenuItem
-              key={template.id}
-              onClick={() => onCreateFromTemplate?.(template.id)}
-            >
-              <div className="flex flex-col gap-1 py-1">
-                <span className="font-medium">{template.title}</span>
-                <span className="text-xs text-muted-foreground line-clamp-1">
-                  {template.description}
-                </span>
-              </div>
-            </DropdownMenuItem>
-          ))}
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <Button
+        size="lg"
+        className="gap-2"
+        data-testid="empty-state-create-menu"
+        aria-label="Create new snippet from templates"
+        aria-haspopup="menu"
+        onClick={(e) => setMenuAnchor(e.currentTarget)}
+      >
+        <Code className="h-5 w-5" weight="bold" aria-hidden="true" />
+        {strings.emptyState.buttonText}
+        <CaretDown weight="bold" aria-hidden="true" />
+      </Button>
+      <TemplatePicker
+        anchor={menuAnchor}
+        onClose={() => setMenuAnchor(null)}
+        onCreateNew={onCreateClick}
+        onCreateFromTemplate={(id) => { onCreateFromTemplate?.(id) }}
+        data-testid="empty-state-menu-content"
+        sections={[
+          { label: 'React Components', templates: templates.filter(t => t.category === 'react') },
+          { label: 'JavaScript / TypeScript', templates: templates.filter(t => ['api', 'basics', 'async', 'types'].includes(t.category)) },
+          { label: 'CSS Layouts', templates: templates.filter(t => t.category === 'layout') },
+          { label: 'Python — Project Euler', templates: templates.filter(t => t.category === 'euler') },
+          { label: 'Python — Algorithms', templates: templates.filter(t => t.category === 'algorithms' && t.language === 'Python') },
+          { label: 'Python — Interactive', templates: templates.filter(t => t.category === 'interactive') },
+        ]}
+      />
     </div>
   )
 }

@@ -262,3 +262,159 @@
 /* Lists */
 .list-disc { list-style-type: disc; }
 .list-inside { list-style-position: inside; }
+
+/* ── Additional utilities ───────────────────────────────── */
+
+/* Background opacity variants */
+.bg-background\/95 { background-color: color-mix(in srgb, var(--mat-sys-background) 95%, transparent); }
+.bg-background\/80 { background-color: color-mix(in srgb, var(--mat-sys-background) 80%, transparent); }
+.bg-surface-container { background-color: var(--mat-sys-surface-container, #f3edf7); }
+.bg-surface-container-low { background-color: var(--mat-sys-surface-container-low, #f7f2fa); }
+
+/* Success (emerald) tints */
+.bg-emerald-500\/5  { background-color: rgba(16, 185, 129, 0.05); }
+.bg-emerald-500\/10 { background-color: rgba(16, 185, 129, 0.10); }
+.border-emerald-500\/20 { border-color: rgba(16, 185, 129, 0.25); }
+.text-emerald-500   { color: #10b981; }
+.text-emerald-600   { color: #059669; }
+
+/* Destructive (error) tints */
+.bg-destructive\/10  { background-color: var(--mat-sys-error-container, #f9dedc); }
+.bg-destructive\/20  { background-color: rgba(179, 38, 30, 0.20); }
+.border-destructive  { border-color: var(--mat-sys-error, #b3261e); }
+.border-destructive\/40 { border-color: rgba(179, 38, 30, 0.40); }
+.border-destructive\/50 { border-color: rgba(179, 38, 30, 0.50); }
+.text-destructive    { color: var(--mat-sys-error, #b3261e); }
+
+/* Border aliases */
+.border-border { border-color: var(--mat-sys-outline-variant, #cac7d0); }
+
+/* Backdrop blur */
+.backdrop-blur-sm  { backdrop-filter: blur(4px);  -webkit-backdrop-filter: blur(4px); }
+.backdrop-blur-md  { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+.backdrop-blur-lg  { backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); }
+
+/* Container */
+.container { width: 100%; max-width: 1280px; padding-left: 16px; padding-right: 16px; }
+
+/* Position */
+.relative { position: relative; }
+.absolute { position: absolute; }
+.sticky   { position: sticky; }
+.fixed    { position: fixed; }
+.inset-0  { inset: 0; }
+
+/* Z-index */
+.z-0  { z-index: 0; }
+.z-10 { z-index: 10; }
+.z-20 { z-index: 20; }
+.z-50 { z-index: 50; }
+
+/* Top / bottom / left / right */
+.top-0    { top: 0; }
+.bottom-0 { bottom: 0; }
+.left-0   { left: 0; }
+.right-0  { right: 0; }
+
+/* Overflow */
+.overflow-hidden  { overflow: hidden; }
+.overflow-y-auto  { overflow-y: auto; }
+.overflow-x-auto  { overflow-x: auto; }
+.overflow-y-scroll { overflow-y: scroll; }
+
+/* Flex direction */
+.flex-col { flex-direction: column; }
+.flex-row { flex-direction: row; }
+.flex-nowrap { flex-wrap: nowrap; }
+
+/* Shrink / grow */
+.shrink-0 { flex-shrink: 0; }
+.grow     { flex-grow: 1; }
+
+/* Typography */
+.tracking-tight  { letter-spacing: -0.025em; }
+.tracking-normal { letter-spacing: 0; }
+.tracking-wide   { letter-spacing: 0.025em; }
+.leading-none    { line-height: 1; }
+.leading-tight   { line-height: 1.25; }
+.leading-relaxed { line-height: 1.625; }
+.truncate        { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.line-clamp-1    { overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 1; }
+.line-clamp-2    { overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.whitespace-nowrap { white-space: nowrap; }
+
+/* Cursors */
+.cursor-pointer      { cursor: pointer; }
+.cursor-not-allowed  { cursor: not-allowed; }
+.cursor-default      { cursor: default; }
+.pointer-events-none { pointer-events: none; }
+
+/* Accessibility */
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border-width: 0; }
+
+/* Select / user-select */
+.select-none { user-select: none; }
+.select-text { user-select: text; }
+
+/* Transition */
+.transition-all    { transition: all 150ms ease; }
+.transition-colors { transition: color 150ms ease, background-color 150ms ease, border-color 150ms ease; }
+.duration-200      { transition-duration: 200ms; }
+
+/* Grid columns */
+.grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+.grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+/* Additional spacing */
+.py-8  { padding-top: 32px; padding-bottom: 32px; }
+.py-20 { padding-top: 80px; padding-bottom: 80px; }
+.px-1  { padding-left: 4px;  padding-right: 4px; }
+.pt-0  { padding-top: 0; }
+.pb-0  { padding-bottom: 0; }
+.mt-0\.5 { margin-top: 2px; }
+.mb-6  { margin-bottom: 24px; }
+
+/* Column layout */
+.col-start-1  { grid-column-start: 1; }
+.translate-y-\[-3px\] { transform: translateY(-3px); }
+
+/* Sizes */
+.h-16 { height: 64px; }
+.w-16 { width: 64px; }
+.h-6  { height: 24px; }
+.w-6  { width: 24px; }
+.h-3  { height: 12px; }
+.w-3  { width: 12px; }
+.size-4 { width: 16px; height: 16px; }
+.size-5 { width: 20px; height: 20px; }
+
+/* Max height */
+.max-h-\[500px\] { max-height: 500px; }
+
+/* Width specific */
+.w-\[200px\] { width: 200px; }
+.w-72 { width: 288px; }
+
+/* Responsive – sm breakpoint (≥640px) */
+@media (min-width: 640px) {
+  .sm\:px-6      { padding-left: 24px; padding-right: 24px; }
+  .sm\:py-6      { padding-top: 24px;  padding-bottom: 24px; }
+  .sm\:py-8      { padding-top: 32px;  padding-bottom: 32px; }
+  .sm\:flex-nowrap { flex-wrap: nowrap; }
+  .sm\:text-sm   { font-size: 14px; line-height: 20px; }
+  .sm\:text-base { font-size: 16px; line-height: 24px; }
+  .sm\:px-3      { padding-left: 12px; padding-right: 12px; }
+  .sm\:px-4      { padding-left: 16px; padding-right: 16px; }
+}
+/* Responsive – md breakpoint (≥768px) */
+@media (min-width: 768px) {
+  .md\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .md\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .md\:flex        { display: flex; }
+}
+/* Responsive – lg breakpoint (≥1024px) */
+@media (min-width: 1024px) {
+  .lg\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .lg\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}

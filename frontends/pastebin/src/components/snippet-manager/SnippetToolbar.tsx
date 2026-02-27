@@ -1,16 +1,9 @@
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { useState } from 'react'
+import { Button, Input } from '@metabuilder/components/fakemui'
 import { Plus, MagnifyingGlass, CaretDown, CheckSquare, X } from '@phosphor-icons/react'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-  DropdownMenuLabel,
-} from '@/components/ui/dropdown-menu'
 import { strings } from '@/lib/config'
 import { SnippetTemplate } from '@/lib/types'
+import { TemplatePicker } from '@/components/features/snippet-editor/TemplatePicker'
 
 interface SnippetToolbarProps {
   searchQuery: string
@@ -31,6 +24,8 @@ export function SnippetToolbar({
   onCreateFromTemplate,
   templates,
 }: SnippetToolbarProps) {
+  const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null)
+
   return (
     <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between" data-testid="snippet-toolbar" role="toolbar" aria-label="Snippet management toolbar">
       <div className="relative flex-1 w-full sm:max-w-md" data-testid="search-container">
@@ -68,77 +63,29 @@ export function SnippetToolbar({
             </>
           )}
         </Button>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              className="gap-2 w-full sm:w-auto"
-              data-testid="snippet-create-menu-trigger"
-              aria-label="Create new snippet"
-              aria-haspopup="menu"
-            >
-              <Plus weight="bold" aria-hidden="true" />
-              {strings.app.header.newSnippetButton}
-              <CaretDown weight="bold" aria-hidden="true" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-72 max-h-[500px] overflow-y-auto" data-testid="create-menu-content">
-            <DropdownMenuItem
-              onClick={onCreateNew}
-              data-testid="snippet-create-blank-item"
-            >
-              <Plus className="mr-2 h-4 w-4" weight="bold" aria-hidden="true" />
-              Blank Snippet
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuLabel>React Components</DropdownMenuLabel>
-            {templates.filter((t) => t.category === 'react').map((template) => (
-              <DropdownMenuItem
-                key={template.id}
-                onClick={() => onCreateFromTemplate(template.id)}
-                data-testid={`snippet-template-react-${template.id}`}
-              >
-                <div className="flex flex-col gap-1 py-1">
-                  <span className="font-medium">{template.title}</span>
-                  <span className="text-xs text-muted-foreground line-clamp-1">
-                    {template.description}
-                  </span>
-                </div>
-              </DropdownMenuItem>
-            ))}
-            <DropdownMenuSeparator />
-            <DropdownMenuLabel>Python Scripts</DropdownMenuLabel>
-            {templates.filter((t) => t.category === 'python').map((template) => (
-              <DropdownMenuItem
-                key={template.id}
-                onClick={() => onCreateFromTemplate(template.id)}
-                data-testid={`snippet-template-python-${template.id}`}
-              >
-                <div className="flex flex-col gap-1 py-1">
-                  <span className="font-medium">{template.title}</span>
-                  <span className="text-xs text-muted-foreground line-clamp-1">
-                    {template.description}
-                  </span>
-                </div>
-              </DropdownMenuItem>
-            ))}
-            <DropdownMenuSeparator />
-            <DropdownMenuLabel>JavaScript Utils</DropdownMenuLabel>
-            {templates.filter((t) => t.category === 'javascript').map((template) => (
-              <DropdownMenuItem
-                key={template.id}
-                onClick={() => onCreateFromTemplate(template.id)}
-                data-testid={`snippet-template-javascript-${template.id}`}
-              >
-                <div className="flex flex-col gap-1 py-1">
-                  <span className="font-medium">{template.title}</span>
-                  <span className="text-xs text-muted-foreground line-clamp-1">
-                    {template.description}
-                  </span>
-                </div>
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <Button
+          className="gap-2 w-full sm:w-auto"
+          onClick={(e) => setMenuAnchor(e.currentTarget)}
+          data-testid="snippet-create-menu-trigger"
+          aria-label="Create new snippet"
+          aria-haspopup="menu"
+        >
+          <Plus weight="bold" aria-hidden="true" />
+          {strings.app.header.newSnippetButton}
+          <CaretDown weight="bold" aria-hidden="true" />
+        </Button>
+        <TemplatePicker
+          anchor={menuAnchor}
+          onClose={() => setMenuAnchor(null)}
+          onCreateNew={onCreateNew}
+          onCreateFromTemplate={onCreateFromTemplate}
+          data-testid="create-menu-content"
+          sections={[
+            { label: 'React Components', templates: templates.filter(t => t.category === 'react') },
+            { label: 'Python Scripts', templates: templates.filter(t => t.category === 'python') },
+            { label: 'JavaScript Utils', templates: templates.filter(t => t.category === 'javascript') },
+          ]}
+        />
       </div>
     </div>
   )

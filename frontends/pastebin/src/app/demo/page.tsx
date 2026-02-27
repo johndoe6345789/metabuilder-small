@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import dynamic from 'next/dynamic';
 import { motion } from 'framer-motion';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@metabuilder/components/fakemui';
 import { Sparkle } from '@phosphor-icons/react';
 import { DEMO_CODE } from '@/components/demo/demo-constants';
 import { DemoFeatureCards } from '@/components/demo/DemoFeatureCards';
@@ -42,14 +42,14 @@ export default function DemoPage() {
 
         <Card className="border-accent/20 bg-card/50 backdrop-blur">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <h3 style={{fontWeight:600, marginBottom:'2px'}} className="flex items-center gap-2">
               <Sparkle className="h-5 w-5 text-accent" weight="fill" />
               Interactive Code Editor
-            </CardTitle>
-            <CardDescription>
+            </h3>
+            <p style={{color:'var(--mat-sys-on-surface-variant)',fontSize:'0.875rem'}}>
               This editor supports JSX, TSX, JavaScript, and TypeScript with live preview. 
               Try switching between Code, Split, and Preview modes using the buttons above the editor.
-            </CardDescription>
+            </p>
           </CardHeader>
           <CardContent>
             <SplitScreenEditor

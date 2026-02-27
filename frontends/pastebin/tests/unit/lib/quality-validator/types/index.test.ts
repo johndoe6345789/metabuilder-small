@@ -286,7 +286,7 @@ describe('Quality Validator Types - Exports', () => {
 
 describe('Quality Validator Types - Error Classes', () => {
   it('should create QualityValidationError instance', () => {
-    const error = new QualityValidationError('Test error', 'TEST_CODE');
+    const error = new (QualityValidationError as any)('Test error', 'TEST_CODE');
     expect(error).toBeInstanceOf(Error);
     expect(error.message).toBe('Test error');
     expect(error.code).toBe('TEST_CODE');

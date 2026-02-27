@@ -519,13 +519,13 @@ describe('useSnippetForm Hook', () => {
 
     it('should handle null snippet', () => {
       const { result, rerender } = renderHook(
-        ({ snippet }) => useSnippetForm(snippet),
-        { initialProps: { snippet: mockSnippet } }
+        ({ snippet }: { snippet: Snippet | undefined }) => useSnippetForm(snippet),
+        { initialProps: { snippet: mockSnippet as Snippet | undefined } }
       );
 
       expect(result.current.title).toBe('Test Snippet');
 
-      rerender({ snippet: null });
+      rerender({ snippet: undefined });
 
       expect(result.current.title).toBe('');
       expect(result.current.code).toBe('');
@@ -534,7 +534,7 @@ describe('useSnippetForm Hook', () => {
 
   describe('dialog open/close', () => {
     it('should reset form when dialog opens', () => {
-      const { result } = renderHook(
+      const { result, rerender } = renderHook(
         ({ open }) => useSnippetForm(null, open),
         { initialProps: { open: false } }
       );
@@ -543,7 +543,6 @@ describe('useSnippetForm Hook', () => {
         result.current.setTitle('Title');
       });
 
-      const { rerender } = result;
       rerender({ open: true });
 
       expect(result.current.title).toBe('');

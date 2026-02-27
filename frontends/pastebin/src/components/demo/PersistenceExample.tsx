@@ -1,8 +1,5 @@
 import { useState } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { Card, CardContent, CardHeader, Button, Input, FormLabel } from '@metabuilder/components/fakemui'
 import { useAppDispatch } from '@/store/hooks'
 import { createSnippet } from '@/store/slices/snippetsSlice'
 import { FloppyDisk, Plus } from '@phosphor-icons/react'
@@ -40,16 +37,16 @@ export function PersistenceExample() {
             <FloppyDisk className="h-5 w-5 text-accent" weight="duotone" />
           </div>
           <div>
-            <CardTitle>Auto-Persistence Example</CardTitle>
-            <CardDescription>
+            <h3 style={{ fontWeight: 600 }}>Auto-Persistence Example</h3>
+            <p className="text-sm text-muted-foreground">
               Create a snippet and watch it automatically save to the database
-            </CardDescription>
+            </p>
           </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2" data-testid="title-field">
-          <Label htmlFor="example-title">Snippet Title</Label>
+          <FormLabel htmlFor="example-title">Snippet Title</FormLabel>
           <Input
             id="example-title"
             placeholder="My Awesome Snippet"
@@ -61,7 +58,7 @@ export function PersistenceExample() {
         </div>
 
         <div className="space-y-2" data-testid="code-field">
-          <Label htmlFor="example-code">Code</Label>
+          <FormLabel htmlFor="example-code">Code</FormLabel>
           <textarea
             id="example-code"
             placeholder="console.log('Hello World')"

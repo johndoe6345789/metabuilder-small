@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react'
-import { Card } from '@/components/ui/card'
+import { Card } from '@metabuilder/components/fakemui'
 import { Snippet, Namespace } from '@/lib/types'
 import { strings, appConfig } from '@/lib/config'
 import { getAllNamespaces, moveSnippetToNamespace } from '@/lib/db'

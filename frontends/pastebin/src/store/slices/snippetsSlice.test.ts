@@ -58,15 +58,19 @@ const mockSnippets: Snippet[] = [
   },
 ]
 
+function makeTestStore() {
+  return configureStore({
+    reducer: {
+      snippets: snippetsReducer,
+    },
+  })
+}
+
 describe('snippetsSlice', () => {
-  let store: ReturnType<typeof configureStore>
+  let store: ReturnType<typeof makeTestStore>
 
   beforeEach(() => {
-    store = configureStore({
-      reducer: {
-        snippets: snippetsReducer,
-      },
-    })
+    store = makeTestStore()
     jest.clearAllMocks()
   })
 

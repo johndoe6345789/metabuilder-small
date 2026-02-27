@@ -1,7 +1,6 @@
 'use client'
 
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, Button } from '@metabuilder/components/fakemui'
 import { CloudCheck, CloudSlash } from '@phosphor-icons/react'
 
 interface BackendAutoConfigCardProps {
@@ -24,13 +23,13 @@ export function BackendAutoConfigCard({
   return (
     <Card className="border-accent" data-testid="backend-auto-config-card">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-accent">
+        <h3 style={{fontWeight:600, marginBottom:'4px'}} className="flex items-center gap-2 text-accent">
           <CloudCheck weight="fill" size={24} aria-hidden="true" />
           Backend Auto-Configured
-        </CardTitle>
-        <CardDescription>
+        </h3>
+        <p style={{color:'var(--mat-sys-on-surface-variant)',fontSize:'0.875rem',marginBottom:'8px'}}>
           Flask backend is configured via environment variable
-        </CardDescription>
+        </p>
       </CardHeader>
       <CardContent>
         <div className="space-y-3">
@@ -59,7 +58,7 @@ export function BackendAutoConfigCard({
             {flaskConnectionStatus === 'unknown' && (
               <Button
                 onClick={onTestConnection}
-                variant="outline"
+                variant="outlined"
                 size="sm"
                 disabled={testingConnection}
                 data-testid="test-connection-btn"

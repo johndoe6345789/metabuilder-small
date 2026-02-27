@@ -9,15 +9,9 @@ jest.mock('./useDatabaseOperations')
 jest.mock('./useStorageConfig')
 jest.mock('./useStorageMigration')
 
-const mockUseDatabaseOperations = hookModule.useDatabaseOperations as jest.Mocked<
-  typeof hookModule.useDatabaseOperations
->
-const mockUseStorageConfig = storageConfigModule.useStorageConfig as jest.Mocked<
-  typeof storageConfigModule.useStorageConfig
->
-const mockUseStorageMigration = storageMigrationModule.useStorageMigration as jest.Mocked<
-  typeof storageMigrationModule.useStorageMigration
->
+const mockUseDatabaseOperations = hookModule.useDatabaseOperations as jest.Mock
+const mockUseStorageConfig = storageConfigModule.useStorageConfig as jest.Mock
+const mockUseStorageMigration = storageMigrationModule.useStorageMigration as jest.Mock
 
 describe('useSettingsState Hook', () => {
   beforeEach(() => {
@@ -447,7 +441,7 @@ describe('useSettingsState Hook', () => {
 
       await act(async () => {
         await Promise.all([
-          result.current.handleExport(new File([], 'export.json')),
+          result.current.handleExport(),
           result.current.handleTestConnection(),
         ])
       })

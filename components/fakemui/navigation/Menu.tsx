@@ -1,10 +1,13 @@
-import React, { forwardRef, useEffect, useState } from 'react'
+import React, { forwardRef, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import classNames from 'classnames'
 import { Backdrop } from '../feedback/Backdrop'
 import styles from '../../../scss/atoms/mat-menu.module.scss'
 
 const s = (key: string): string => styles[key] || key
+
+const EDGE_GAP = 8
+const ANCHOR_GAP = 4
 
 export interface MenuProps extends React.HTMLAttributes<HTMLDivElement> {
   children?: React.ReactNode
@@ -17,6 +20,10 @@ export interface MenuProps extends React.HTMLAttributes<HTMLDivElement> {
   anchorBottom?: boolean
   /** Dense variant with smaller items */
   dense?: boolean
+  /** Lay items out in multiple columns (max-height in px before wrapping to next column) */
+  multiColumn?: boolean
+  /** Max height per column when multiColumn is true (default 80vh) */
+  columnHeight?: number
 }
 
 export const Menu: React.FC<MenuProps> = ({
@@ -27,31 +34,70 @@ export const Menu: React.FC<MenuProps> = ({
   anchorRight,
   anchorBottom,
   dense,
+  multiColumn,
+  columnHeight,
   className,
   style,
   ...props
 }) => {
   const [mounted, setMounted] = useState(false)
+  const menuRef = useRef<HTMLDivElement>(null)
+  const [position, setPosition] = useState<React.CSSProperties>({ position: 'fixed', visibility: 'hidden' })
 
   useEffect(() => {
     setMounted(true)
   }, [])
 
-  if (!open || !mounted) return null
+  // Clamp position within viewport after render (runs before paint — no flicker)
+  useLayoutEffect(() => {
+    if (!open || !mounted) return
+    const el = menuRef.current
+    if (!el) return
 
-  const rect = anchorEl?.getBoundingClientRect()
-  const menuStyle: React.CSSProperties = {
-    position: 'fixed',
-    top: rect ? rect.bottom + 4 : 0,
-    zIndex: 'var(--z-menu, 1300)',
-    ...(anchorRight ? { right: rect ? window.innerWidth - rect.right : 0 } : { left: rect?.left ?? 0 }),
-    ...style,
-  }
+    const rect = anchorEl?.getBoundingClientRect()
+    const menuRect = el.getBoundingClientRect()
+    const vw = window.innerWidth
+    const vh = window.innerHeight
+
+    // Vertical: open below anchor, flip above if it would overflow
+    let top = rect ? rect.bottom + ANCHOR_GAP : EDGE_GAP
+    if (top + menuRect.height > vh - EDGE_GAP) {
+      const flippedTop = rect ? rect.top - menuRect.height - ANCHOR_GAP : EDGE_GAP
+      top = flippedTop >= EDGE_GAP ? flippedTop : Math.max(EDGE_GAP, vh - menuRect.height - EDGE_GAP)
+    }
+
+    // Horizontal
+    let left: number | undefined
+    let right: number | undefined
+    if (anchorRight) {
+      right = rect ? window.innerWidth - rect.right : EDGE_GAP
+      // Clamp: prevent going off the left edge
+      if (right + menuRect.width > vw - EDGE_GAP) {
+        right = Math.max(EDGE_GAP, vw - menuRect.width - EDGE_GAP)
+      }
+    } else {
+      left = rect ? rect.left : EDGE_GAP
+      // Clamp: prevent going off the right edge
+      if (left + menuRect.width > vw - EDGE_GAP) {
+        left = Math.max(EDGE_GAP, vw - menuRect.width - EDGE_GAP)
+      }
+    }
+
+    setPosition({
+      position: 'fixed',
+      top,
+      ...(anchorRight ? { right } : { left }),
+      visibility: 'visible',
+    })
+  }, [open, mounted, anchorEl, anchorRight])
+
+  if (!open || !mounted) return null
 
   return createPortal(
     <>
       <Backdrop open invisible onClick={onClose} />
       <div
+        ref={menuRef}
         className={classNames(
           s('mat-mdc-menu-panel'),
           styles.matMenu,
@@ -59,14 +105,32 @@ export const Menu: React.FC<MenuProps> = ({
             [styles.menuRight]: anchorRight,
             [styles.menuBottom]: anchorBottom,
             [styles.menuDense]: dense,
+            [styles.menuMultiColumn]: multiColumn,
           },
           className
         )}
         role="menu"
-        style={menuStyle}
+        style={{
+          ...position,
+          ...(multiColumn ? {
+            maxWidth: 'none',
+            overflow: 'auto',
+            maxHeight: `${Math.round(window.innerHeight * 0.9)}px`,
+          } : {}),
+          ...style,
+        }}
         {...props}
       >
-        <div className={s('mat-mdc-menu-content')}>
+        <div
+          className={s('mat-mdc-menu-content')}
+          style={multiColumn ? {
+            display: 'flex',
+            flexDirection: 'column',
+            flexWrap: 'wrap',
+            alignContent: 'flex-start',
+            maxHeight: `${columnHeight ?? Math.round(window.innerHeight * 0.8)}px`,
+          } : undefined}
+        >
           {children}
         </div>
       </div>

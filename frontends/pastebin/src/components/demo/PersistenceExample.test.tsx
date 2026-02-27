@@ -16,7 +16,7 @@ describe('PersistenceExample', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
-    ;(useAppDispatch as jest.Mock).mockReturnValue(mockDispatch)
+    ;(useAppDispatch as unknown as jest.Mock).mockReturnValue(mockDispatch)
     ;(toast.error as jest.Mock).mockImplementation(mockToastError)
     ;(toast.success as jest.Mock).mockImplementation(mockToastSuccess)
   })

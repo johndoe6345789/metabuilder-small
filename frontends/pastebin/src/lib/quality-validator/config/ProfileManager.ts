@@ -503,7 +503,7 @@ export class ProfileManager {
    * Detect current environment from NODE_ENV
    */
   private detectEnvironment(): EnvironmentType {
-    const nodeEnv = process.env.NODE_ENV || 'dev';
+    const nodeEnv: string = process.env.NODE_ENV || 'dev';
     if (nodeEnv.includes('production') || nodeEnv === 'prod') {
       return 'production';
     }

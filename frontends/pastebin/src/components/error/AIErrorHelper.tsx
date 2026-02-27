@@ -1,13 +1,5 @@
 import { useState } from 'react'
-import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Button, Dialog, DialogHeader, DialogTitle, DialogContent, Alert } from '@metabuilder/components/fakemui'
 import { Sparkle } from '@phosphor-icons/react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { analyzeErrorWithAI } from './analyzeError'
@@ -59,7 +51,7 @@ export function AIErrorHelper({ error, context, className }: AIErrorHelperProps)
       >
         <Button
           onClick={analyzeError}
-          variant="outline"
+          variant="outlined"
           size="sm"
           className="gap-2 border-accent/50 text-accent hover:bg-accent/10 hover:text-accent hover:border-accent transition-all"
           data-testid="ai-helper-btn"
@@ -76,30 +68,40 @@ export function AIErrorHelper({ error, context, className }: AIErrorHelperProps)
         </Button>
       </motion.div>
 
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden flex flex-col" data-testid="ai-analysis-dialog">
-          <DialogHeader className="pr-8">
-            <DialogTitle className="flex items-center gap-2" data-testid="ai-analysis-title">
+      <Dialog open={open} onClose={() => setOpen(false)} maxWidth="md" fullWidth>
+        <DialogHeader className="pr-8">
+          <DialogTitle>
+            <span className="flex items-center gap-2" data-testid="ai-analysis-title">
               <Sparkle className="h-5 w-5 text-accent" weight="fill" aria-hidden="true" />
               AI Error Analysis
-            </DialogTitle>
-            <DialogDescription>
-              Let me help you understand and fix this error
-            </DialogDescription>
-          </DialogHeader>
+            </span>
+          </DialogTitle>
+        </DialogHeader>
+
+        <DialogContent data-testid="ai-analysis-dialog" className="max-h-[80vh] overflow-hidden flex flex-col">
+          <p style={{ color: 'var(--mat-sys-on-surface-variant)', marginBottom: '16px' }}>
+            Let me help you understand and fix this error
+          </p>
 
           <div className="flex-1 overflow-y-auto space-y-4" role="region" aria-label="Error analysis results">
-            <Alert className="bg-destructive/10 border-destructive/30" data-testid="error-message-alert">
-              <AlertDescription className="text-sm font-mono">
-                {errorMessage}
-              </AlertDescription>
+            <Alert
+              severity="error"
+              variant="outlined"
+              className="bg-destructive/10 border-destructive/30"
+              data-testid="error-message-alert"
+            >
+              <span className="text-sm font-mono">{errorMessage}</span>
             </Alert>
 
             {isAnalyzing && <LoadingAnalysis />}
 
             {analysisError && (
-              <Alert variant="destructive" data-testid="analysis-error-alert" role="alert">
-                <AlertDescription>{analysisError}</AlertDescription>
+              <Alert
+                severity="error"
+                data-testid="analysis-error-alert"
+                role="alert"
+              >
+                {analysisError}
               </Alert>
             )}
 

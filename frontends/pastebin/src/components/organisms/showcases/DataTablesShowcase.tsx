@@ -1,14 +1,4 @@
-import { Card } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
+import { Card, Button, Chip, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@metabuilder/components/fakemui'
 
 export function DataTablesShowcase() {
   return (
@@ -24,55 +14,57 @@ export function DataTablesShowcase() {
         <div className="p-4 border-b border-border">
           <div className="flex items-center justify-between">
             <h3 className="font-semibold text-lg">Recent Transactions</h3>
-            <Button variant="outline" size="sm">
+            <Button variant="outlined" size="sm">
               Export
             </Button>
           </div>
         </div>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Status</TableHead>
-              <TableHead>Transaction</TableHead>
-              <TableHead>Date</TableHead>
-              <TableHead className="text-right">Amount</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            <TableRow>
-              <TableCell>
-                <Badge>Completed</Badge>
-              </TableCell>
-              <TableCell className="font-medium">Payment received</TableCell>
-              <TableCell>Mar 15, 2024</TableCell>
-              <TableCell className="text-right">$250.00</TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>
-                <Badge variant="secondary">Pending</Badge>
-              </TableCell>
-              <TableCell className="font-medium">Processing payment</TableCell>
-              <TableCell>Mar 14, 2024</TableCell>
-              <TableCell className="text-right">$150.00</TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>
-                <Badge>Completed</Badge>
-              </TableCell>
-              <TableCell className="font-medium">Refund issued</TableCell>
-              <TableCell>Mar 13, 2024</TableCell>
-              <TableCell className="text-right text-destructive">-$75.00</TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>
-                <Badge variant="destructive">Failed</Badge>
-              </TableCell>
-              <TableCell className="font-medium">Payment declined</TableCell>
-              <TableCell>Mar 12, 2024</TableCell>
-              <TableCell className="text-right">$0.00</TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
+        <TableContainer>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>Status</TableCell>
+                <TableCell>Transaction</TableCell>
+                <TableCell>Date</TableCell>
+                <TableCell className="text-right">Amount</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              <TableRow>
+                <TableCell>
+                  <Chip>Completed</Chip>
+                </TableCell>
+                <TableCell className="font-medium">Payment received</TableCell>
+                <TableCell>Mar 15, 2024</TableCell>
+                <TableCell className="text-right">$250.00</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>
+                  <Chip color="secondary">Pending</Chip>
+                </TableCell>
+                <TableCell className="font-medium">Processing payment</TableCell>
+                <TableCell>Mar 14, 2024</TableCell>
+                <TableCell className="text-right">$150.00</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>
+                  <Chip>Completed</Chip>
+                </TableCell>
+                <TableCell className="font-medium">Refund issued</TableCell>
+                <TableCell>Mar 13, 2024</TableCell>
+                <TableCell className="text-right text-destructive">-$75.00</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>
+                  <Chip color="error">Failed</Chip>
+                </TableCell>
+                <TableCell className="font-medium">Payment declined</TableCell>
+                <TableCell>Mar 12, 2024</TableCell>
+                <TableCell className="text-right">$0.00</TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </TableContainer>
       </Card>
     </section>
   )

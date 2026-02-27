@@ -1,15 +1,6 @@
 import { Trash } from '@phosphor-icons/react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+import { Button, Card, CardContent, Input, FormLabel, Select, MenuItem } from '@metabuilder/components/fakemui'
+import type { SelectChangeEvent } from '@metabuilder/components/fakemui'
 import { InputParameter } from '@/lib/types'
 
 interface InputParameterItemProps {
@@ -43,9 +34,9 @@ export function InputParameterItem({ param, index, onUpdate, onRemove }: InputPa
         <div className="flex items-start gap-2">
           <div className="flex-1 grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label htmlFor={`param-name-${index}`} className="text-xs">
+              <FormLabel htmlFor={`param-name-${index}`} className="text-xs">
                 Name *
-              </Label>
+              </FormLabel>
               <Input
                 id={`param-name-${index}`}
                 placeholder="paramName"
@@ -59,28 +50,26 @@ export function InputParameterItem({ param, index, onUpdate, onRemove }: InputPa
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor={`param-type-${index}`} className="text-xs">
+              <FormLabel htmlFor={`param-type-${index}`} className="text-xs">
                 Type
-              </Label>
+              </FormLabel>
               <Select
                 value={param.type}
-                onValueChange={(value) => onUpdate(index, 'type', value)}
+                onChange={(e: SelectChangeEvent) => onUpdate(index, 'type', e.target.value as string)}
+                inputProps={{
+                  id: `param-type-${index}`,
+                  className: 'h-8 text-sm',
+                  'data-testid': `param-type-select-${index}`,
+                  'aria-label': `Parameter ${index + 1} type`,
+                }}
+                data-testid={`param-type-options-${index}`}
+                aria-label="Parameter type options"
               >
-                <SelectTrigger
-                  id={`param-type-${index}`}
-                  className="h-8 text-sm"
-                  data-testid={`param-type-select-${index}`}
-                  aria-label={`Parameter ${index + 1} type`}
-                >
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent data-testid={`param-type-options-${index}`} aria-label="Parameter type options">
-                  <SelectItem value="string" data-testid="type-string">string</SelectItem>
-                  <SelectItem value="number" data-testid="type-number">number</SelectItem>
-                  <SelectItem value="boolean" data-testid="type-boolean">boolean</SelectItem>
-                  <SelectItem value="array" data-testid="type-array">array</SelectItem>
-                  <SelectItem value="object" data-testid="type-object">object</SelectItem>
-                </SelectContent>
+                <MenuItem value="string" data-testid="type-string">string</MenuItem>
+                <MenuItem value="number" data-testid="type-number">number</MenuItem>
+                <MenuItem value="boolean" data-testid="type-boolean">boolean</MenuItem>
+                <MenuItem value="array" data-testid="type-array">array</MenuItem>
+                <MenuItem value="object" data-testid="type-object">object</MenuItem>
               </Select>
             </div>
           </div>
@@ -96,9 +85,9 @@ export function InputParameterItem({ param, index, onUpdate, onRemove }: InputPa
           </Button>
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor={`param-default-${index}`} className="text-xs">
+          <FormLabel htmlFor={`param-default-${index}`} className="text-xs">
             Default Value *
-          </Label>
+          </FormLabel>
           <Input
             id={`param-default-${index}`}
             placeholder={getPlaceholder(param.type)}
@@ -112,9 +101,9 @@ export function InputParameterItem({ param, index, onUpdate, onRemove }: InputPa
           />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor={`param-desc-${index}`} className="text-xs">
+          <FormLabel htmlFor={`param-desc-${index}`} className="text-xs">
             Description (Optional)
-          </Label>
+          </FormLabel>
           <Input
             id={`param-desc-${index}`}
             placeholder="What does this parameter do?"

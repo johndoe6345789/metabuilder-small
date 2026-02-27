@@ -1,10 +1,28 @@
-type PyodideInterface = Record<string, unknown> // Avoid importing pyodide at type-check time
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type PyodideInterface = any
+// NOTE: `any` is intentional here. Pyodide's actual type (`typeof PyodideAPI_`) uses `PyProxy`
+// for `globals`, which does not structurally match any reasonable TypeScript interface we can
+// define without re-exporting the full Pyodide type hierarchy. Additionally, test mocks assign
+// `Record<string, unknown>` directly to the module-level `pyodideLoading`/`pyodideInstance`
+// variables. Defining a stricter interface breaks both the Pyodide type assignment and the
+// existing test infrastructure. `runPython` and `runPythonAsync` return arbitrary Python values,
+// making `any` the only accurate return type. A minimal interface would provide no real safety
+// benefit while creating spurious type errors against the library's own types.
+
+// Pyodide runtime files are served from public/pyodide/ (copied from node_modules/pyodide at build
+// time). webpack externalises import('pyodide') as a native browser ESM import of pyodide.mjs so
+// webpack's chunk loader never intercepts pyodide's own internal fetches for asm.js / wasm / stdlib.
+const PYODIDE_INDEX_URL = '/pastebin/pyodide/'
 
 let pyodideInstance: PyodideInterface | null = null
 let pyodideLoading: Promise<PyodideInterface> | null = null
 let initializationError: Error | null = null
 
 export async function getPyodide(): Promise<PyodideInterface> {
+  if (typeof window === 'undefined') {
+    throw new Error('Pyodide is browser-only')
+  }
+
   // If we had an initialization error, throw it
   if (initializationError) {
     throw initializationError
@@ -22,7 +40,7 @@ export async function getPyodide(): Promise<PyodideInterface> {
     const { loadPyodide } = await import('pyodide')
 
     pyodideLoading = loadPyodide({
-      indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.27.0/full/',
+      indexURL: PYODIDE_INDEX_URL,
     }).then((pyodide) => {
       pyodideInstance = pyodide
       initializationError = null

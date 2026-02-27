@@ -29,7 +29,7 @@ export interface UseDragResizeParams {
 }
 
 export interface UseDragResizeReturn {
-  cardRef: React.RefObject<HTMLDivElement>;
+  cardRef: React.RefObject<HTMLDivElement | null>;
   isDragging: boolean;
   isResizing: boolean;
   handleDragStart: (e: React.MouseEvent) => void;

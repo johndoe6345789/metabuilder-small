@@ -1,5 +1,5 @@
 import { Play, CircleNotch, Terminal as TerminalIcon } from '@phosphor-icons/react'
-import { Button } from '@/components/ui/button'
+import { Button } from '@metabuilder/components/fakemui'
 
 interface TerminalHeaderProps {
   onRun: () => void

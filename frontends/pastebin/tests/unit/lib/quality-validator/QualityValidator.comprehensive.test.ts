@@ -420,8 +420,8 @@ describe('QualityValidator - Comprehensive Tests (60+ cases)', () => {
         },
         findings: [],
         recommendations: [],
-        metadata: {},
-        trend: {},
+        metadata: {} as any,
+        trend: {} as any,
       });
 
       const exitCode = await validator.validate({});
@@ -486,7 +486,7 @@ describe('QualityValidator - Comprehensive Tests (60+ cases)', () => {
     });
 
     it('should handle missing configuration gracefully', async () => {
-      const mockLoadConfig = jest.spyOn(configLoaderModule.configLoader, 'loadConfiguration').mockResolvedValue(null);
+      const mockLoadConfig = jest.spyOn(configLoaderModule.configLoader, 'loadConfiguration').mockResolvedValue(null as any);
 
       try {
         await validator.validate({});
@@ -575,8 +575,8 @@ describe('QualityValidator - Comprehensive Tests (60+ cases)', () => {
         componentScores: {} as any,
         findings: [],
         recommendations: [],
-        metadata: {},
-        trend: {},
+        metadata: {} as any,
+        trend: {} as any,
       });
 
       try {
@@ -598,7 +598,7 @@ describe('QualityValidator - Comprehensive Tests (60+ cases)', () => {
         scoring: { weights: { codeQuality: 0.25, testCoverage: 0.25, architecture: 0.25, security: 0.25 } },
         reporting: { defaultFormat: 'console' },
         excludePaths: [],
-      });
+      } as any);
 
       const exitCode = await validator.validate({});
       expect([0, 1, 2, 3]).toContain(exitCode);

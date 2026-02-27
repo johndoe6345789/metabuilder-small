@@ -18,7 +18,7 @@ export function PageLayout({ children }: { children: ReactNode }) {
   };
 
   return (
-    <div className="min-h-screen bg-background" data-testid="page-layout">
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--mat-sys-background)' }} data-testid="page-layout">
       <div className="grid-pattern" aria-hidden="true" />
 
       <NavigationSidebar />
@@ -29,7 +29,7 @@ export function PageLayout({ children }: { children: ReactNode }) {
         transition={{ type: 'spring', damping: 30, stiffness: 300 }}
         className="relative z-10 flex flex-col min-h-screen"
       >
-        <header className="border-b border-border bg-background/95 backdrop-blur-md sticky top-0 z-20 overflow-hidden" data-testid="page-header">
+        <header className="border-b border-border sticky top-0 z-20 overflow-hidden" style={{ backgroundColor: 'color-mix(in srgb, var(--mat-sys-surface-container) 97%, transparent)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }} data-testid="page-header">
           <div
             className="container mx-auto px-2 py-3 sm:px-6 sm:py-6 w-full min-w-0"
             style={{
@@ -50,6 +50,24 @@ export function PageLayout({ children }: { children: ReactNode }) {
                 </div>
                 <span className="logo-text" aria-label="CodeSnippet" data-testid="logo-text">
                   CodeSnippet
+                </span>
+                <span
+                  style={{
+                    fontSize: '0.6rem',
+                    fontWeight: 600,
+                    letterSpacing: '0.05em',
+                    padding: '2px 5px',
+                    borderRadius: '4px',
+                    background: 'var(--mat-sys-primary)',
+                    color: 'var(--mat-sys-on-primary)',
+                    lineHeight: 1,
+                    alignSelf: 'flex-start',
+                    marginTop: '2px',
+                    opacity: 0.85,
+                  }}
+                  aria-label="Version 0.2.1"
+                >
+                  v0.2.1
                 </span>
               </motion.div>
               <motion.div
@@ -74,7 +92,7 @@ export function PageLayout({ children }: { children: ReactNode }) {
           {children}
         </main>
 
-        <footer className="border-t border-border">
+        <footer className="border-t border-border" style={{ backgroundColor: 'var(--mat-sys-surface-container-low)' }}>
           <div
             className="container mx-auto px-3 py-4 sm:px-6 sm:py-8"
             style={{

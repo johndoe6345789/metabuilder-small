@@ -40,7 +40,7 @@ describe('ConsoleReporter', () => {
       architecture: {
         enabled: true,
         components: { enabled: true, maxLines: 500, warningLines: 300, validateAtomicDesign: true, validatePropTypes: true },
-        dependencies: { enabled: true, allowCircularDependencies: false },
+        dependencies: { enabled: true, allowCircularDependencies: false, allowCrossLayerDependencies: false },
         patterns: { enabled: true, validateRedux: true, validateHooks: true, validateReactBestPractices: true },
       },
       security: {
@@ -244,7 +244,7 @@ describe('ConsoleReporter', () => {
         overall: { ...mockResult.overall, score: 45, grade: 'F', status: 'fail' },
       };
 
-      const output = reporter.generate(failResult, false);
+      const output = reporter.generate(failResult as unknown as ScoringResult, false);
 
       expect(output).toContain('FAIL');
     });
@@ -425,7 +425,7 @@ describe('ConsoleReporter', () => {
         },
       };
 
-      const output = reporter.generate(resultWithTrend, false);
+      const output = reporter.generate(resultWithTrend as unknown as ScoringResult, false);
 
       expect(output).toContain('TREND');
       expect(output).toContain('85.0%');
@@ -442,7 +442,7 @@ describe('ConsoleReporter', () => {
         },
       };
 
-      const output = reporter.generate(resultWithTrend, false);
+      const output = reporter.generate(resultWithTrend as unknown as ScoringResult, false);
 
       expect(output).toContain('+5.0');
     });
@@ -457,7 +457,7 @@ describe('ConsoleReporter', () => {
         },
       };
 
-      const output = reporter.generate(resultDegrading, false);
+      const output = reporter.generate(resultDegrading as unknown as ScoringResult, false);
 
       expect(output).toContain('degrading');
       expect(output).toContain('-5.0');
@@ -508,7 +508,7 @@ describe('ConsoleReporter', () => {
         overall: { ...mockResult.overall, grade: 'F', status: 'fail' },
       };
 
-      const output = reporter.generate(failResult, true);
+      const output = reporter.generate(failResult as unknown as ScoringResult, true);
 
       // Should have formatting
       expect(output).toContain('FAIL');
@@ -666,7 +666,7 @@ describe('ConsoleReporter', () => {
         },
       };
 
-      const output = reporter.generate(perfectResult, false);
+      const output = reporter.generate(perfectResult as unknown as ScoringResult, false);
 
       expect(output).toContain('100');
       expect(output).toContain('A');
@@ -684,7 +684,7 @@ describe('ConsoleReporter', () => {
         },
       };
 
-      const output = reporter.generate(lowResult, false);
+      const output = reporter.generate(lowResult as unknown as ScoringResult, false);
 
       expect(output).toContain('25');
       expect(output).toContain('F');

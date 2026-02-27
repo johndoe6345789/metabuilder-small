@@ -75,7 +75,7 @@ export class RulesScoringIntegration {
           adjustedScore: scoringResult.overall.score,
           adjustment: 0,
           adjustmentReason: 'No rules violations to apply',
-          violationsSummary: rulesResult.violationsBySeverity,
+          violationsSummary: { total: rulesResult.totalViolations, ...rulesResult.violationsBySeverity },
         },
       };
     }
@@ -117,7 +117,7 @@ export class RulesScoringIntegration {
       adjustedScore: newOverallScore,
       adjustment,
       adjustmentReason: this.generateAdjustmentReason(rulesResult.violationsBySeverity, adjustment),
-      violationsSummary: rulesResult.violationsBySeverity,
+      violationsSummary: { total: rulesResult.totalViolations, ...rulesResult.violationsBySeverity },
     };
 
     return {

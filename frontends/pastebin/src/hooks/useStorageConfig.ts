@@ -80,6 +80,7 @@ export function useStorageConfig() {
     testingConnection,
     envVarSet,
     loadConfig,
+    testFlaskConnection,
     handleTestConnection,
     handleSaveStorageConfig,
   }

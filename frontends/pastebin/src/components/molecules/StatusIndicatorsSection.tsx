@@ -1,6 +1,4 @@
-import { Card } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
+import { Card, Chip, Divider } from '@metabuilder/components/fakemui'
 
 export function StatusIndicatorsSection() {
   return (
@@ -19,27 +17,27 @@ export function StatusIndicatorsSection() {
               <div className="h-3 w-3 rounded-full bg-accent animate-pulse" />
               <span className="font-medium">System Online</span>
             </div>
-            <Badge>Active</Badge>
+            <Chip>Active</Chip>
           </div>
 
-          <Separator />
+          <Divider />
 
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="h-3 w-3 rounded-full bg-destructive" />
               <span className="font-medium">Service Unavailable</span>
             </div>
-            <Badge variant="destructive">Error</Badge>
+            <Chip color="error">Error</Chip>
           </div>
 
-          <Separator />
+          <Divider />
 
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="h-3 w-3 rounded-full bg-muted" />
               <span className="font-medium">Maintenance Mode</span>
             </div>
-            <Badge variant="secondary">Scheduled</Badge>
+            <Chip color="secondary">Scheduled</Chip>
           </div>
         </div>
       </Card>

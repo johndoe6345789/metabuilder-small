@@ -1,14 +1,4 @@
-import { Button } from '@/components/ui/button'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
+import { Button, IconButton, Dialog, DialogHeader, DialogTitle, DialogContent, DialogActions } from '@metabuilder/components/fakemui'
 import { Trash } from '@phosphor-icons/react'
 import { Namespace } from '@/lib/types'
 
@@ -34,39 +24,41 @@ export function DeleteNamespaceDialog({
   return (
     <>
       {showTrigger && (
-        <Button
-          variant="outline"
-          size="icon"
+        <IconButton
           onClick={onOpenDialog}
           data-testid="delete-namespace-trigger"
           aria-label="Delete namespace"
         >
           <Trash weight="bold" aria-hidden="true" />
-        </Button>
+        </IconButton>
       )}
 
-      <AlertDialog open={open} onOpenChange={onOpenChange}>
-        <AlertDialogContent data-testid="delete-namespace-dialog">
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Namespace</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete "{namespace?.name}"? All snippets in this namespace will be moved to the default namespace.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel data-testid="delete-namespace-cancel-btn">
-              Cancel
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={onDeleteNamespace}
-              disabled={loading}
-              data-testid="delete-namespace-confirm-btn"
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <Dialog open={open} onClose={() => onOpenChange(false)} maxWidth="sm" fullWidth>
+        <DialogHeader>
+          <DialogTitle>Delete Namespace</DialogTitle>
+        </DialogHeader>
+        <DialogContent data-testid="delete-namespace-dialog">
+          <p>
+            Are you sure you want to delete "{namespace?.name}"? All snippets in this namespace will be moved to the default namespace.
+          </p>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            variant="outlined"
+            onClick={() => onOpenChange(false)}
+            data-testid="delete-namespace-cancel-btn"
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={onDeleteNamespace}
+            disabled={loading}
+            data-testid="delete-namespace-confirm-btn"
+          >
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   )
 }

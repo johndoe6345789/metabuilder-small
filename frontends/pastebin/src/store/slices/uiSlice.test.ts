@@ -33,15 +33,19 @@ const mockSnippet2: Snippet = {
   updatedAt: 2000,
 }
 
+function makeTestStore() {
+  return configureStore({
+    reducer: {
+      ui: uiReducer,
+    },
+  })
+}
+
 describe('uiSlice', () => {
-  let store: ReturnType<typeof configureStore>
+  let store: ReturnType<typeof makeTestStore>
 
   beforeEach(() => {
-    store = configureStore({
-      reducer: {
-        ui: uiReducer,
-      },
-    })
+    store = makeTestStore()
   })
 
   describe('initial state', () => {

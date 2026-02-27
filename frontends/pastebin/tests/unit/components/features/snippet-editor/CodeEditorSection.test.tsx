@@ -174,7 +174,7 @@ describe('CodeEditorSection', () => {
 
   describe('Code Changes', () => {
     it('should call onCodeChange when code is modified in MonacoEditor', () => {
-      const onCodeChange = vi.fn()
+      const onCodeChange = jest.fn()
       render(
         <CodeEditorSection
           {...defaultProps}
@@ -188,7 +188,7 @@ describe('CodeEditorSection', () => {
     })
 
     it('should call onCodeChange when code is modified in SplitScreenEditor', () => {
-      const onCodeChange = vi.fn()
+      const onCodeChange = jest.fn()
       render(
         <CodeEditorSection
           {...defaultProps}

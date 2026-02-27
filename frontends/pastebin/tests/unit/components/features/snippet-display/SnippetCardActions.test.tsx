@@ -5,9 +5,9 @@ import { Namespace } from '@/lib/types'
 
 describe('SnippetCardActions', () => {
   const mockNamespaces: Namespace[] = [
-    { id: 'ns-1', name: 'Archive', isDefault: false },
-    { id: 'ns-2', name: 'Favorites', isDefault: false },
-    { id: 'ns-3', name: 'Shared', isDefault: false },
+    { id: 'ns-1', name: 'Archive', isDefault: false, createdAt: Date.now() },
+    { id: 'ns-2', name: 'Favorites', isDefault: false, createdAt: Date.now() },
+    { id: 'ns-3', name: 'Shared', isDefault: false, createdAt: Date.now() },
   ]
 
   const defaultProps = {
@@ -233,8 +233,8 @@ describe('SnippetCardActions', () => {
 
     it('should display default namespace indicator', () => {
       const defaultNamespaces: Namespace[] = [
-        { id: 'ns-1', name: 'Default', isDefault: true },
-        { id: 'ns-2', name: 'Custom', isDefault: false },
+        { id: 'ns-1', name: 'Default', isDefault: true, createdAt: Date.now() },
+        { id: 'ns-2', name: 'Custom', isDefault: false, createdAt: Date.now() },
       ]
       render(
         <SnippetCardActions
@@ -313,7 +313,7 @@ describe('SnippetCardActions', () => {
 
     it('should have proper aria-labels for namespace items', () => {
       const defaultNamespaces: Namespace[] = [
-        { id: 'ns-1', name: 'Archive', isDefault: true },
+        { id: 'ns-1', name: 'Archive', isDefault: true, createdAt: Date.now() },
       ]
       render(
         <SnippetCardActions
@@ -445,7 +445,7 @@ describe('SnippetCardActions', () => {
   describe('Edge Cases', () => {
     it('should handle single namespace', () => {
       const singleNamespace: Namespace[] = [
-        { id: 'ns-1', name: 'Single', isDefault: true },
+        { id: 'ns-1', name: 'Single', isDefault: true, createdAt: Date.now() },
       ]
       render(
         <SnippetCardActions
@@ -464,6 +464,7 @@ describe('SnippetCardActions', () => {
         id: `ns-${i}`,
         name: `Namespace ${i}`,
         isDefault: i === 0,
+        createdAt: Date.now(),
       }))
 
       render(
@@ -485,7 +486,7 @@ describe('SnippetCardActions', () => {
     it('should handle long namespace names', () => {
       const longName = 'A'.repeat(100)
       const longNamespace: Namespace[] = [
-        { id: 'ns-1', name: longName, isDefault: false },
+        { id: 'ns-1', name: longName, isDefault: false, createdAt: Date.now() },
       ]
 
       render(

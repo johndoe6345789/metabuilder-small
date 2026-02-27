@@ -156,8 +156,7 @@ describe('ComponentShowcase', () => {
     })
 
     it('has default language as tsx', () => {
-      const propsWithoutLanguage = { ...defaultProps }
-      delete propsWithoutLanguage.language
+      const { language: _lang, ...propsWithoutLanguage } = { ...defaultProps, language: undefined as string | undefined }
       render(
         <ComponentShowcase
           {...propsWithoutLanguage}

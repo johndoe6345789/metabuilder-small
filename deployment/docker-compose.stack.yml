@@ -3,7 +3,7 @@
 # Gateway:    nginx on port 80 with welcome portal + subpath routing
 # Apps:       WorkflowUI, CodeForge, Pastebin, Postgres Dashboard,
 #             Email Client, Exploded Diagrams, Storybook, Frontend App
-# Backend:    DBAL C++, Email Service (Flask)
+# Backend:    DBAL C++, Email Service (Flask), Pastebin Backend (Flask)
 # Infra:      PostgreSQL, MySQL, MongoDB, Redis, Elasticsearch,
 #             phpMyAdmin, Mongo Express, RedisInsight, Kibana
 # Mail:       Postfix, Dovecot, SMTP Relay
@@ -29,6 +29,7 @@
 #   http://localhost/storybook    Storybook
 #   http://localhost/app          Frontend App
 #   http://localhost/api          DBAL API
+#   http://localhost/pastebin-api Pastebin Flask API
 #   http://localhost/phpmyadmin/  phpMyAdmin (MySQL admin)
 #   http://localhost/mongo-express/ Mongo Express (MongoDB admin)
 #   http://localhost/redis-insight/ RedisInsight (Redis admin)
@@ -527,25 +528,59 @@ services:
     networks:
       - metabuilder
 
-  # Pastebin - Code snippet sharing
+  # Pastebin - Code snippet sharing (dev mode: Turbopack + hot reload)
   pastebin:
     build:
       context: ..
-      dockerfile: frontends/pastebin/Dockerfile
+      dockerfile: frontends/pastebin/Dockerfile.dev
     container_name: metabuilder-pastebin
     restart: unless-stopped
     ports:
       - "3003:3000"
     environment:
-      NODE_ENV: production
+      NODE_ENV: development
       PORT: 3000
       HOSTNAME: "0.0.0.0"
+      NEXT_PUBLIC_FLASK_BACKEND_URL: /pastebin-api
+      NEXT_TELEMETRY_DISABLED: "1"
+    volumes:
+      # Mount pastebin src for instant hot reload — no rebuild needed for src changes
+      - ../frontends/pastebin/src:/app/frontends/pastebin/src
+      # Mount shared source packages for hot reload
+      - ../hooks:/app/hooks
+      - ../components:/app/components
+      - ../scss:/app/scss
+      - ../icons:/app/icons
+    depends_on:
+      pastebin-backend:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://127.0.0.1:3000/pastebin"]
       interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 120s
+    networks:
+      - metabuilder
+
+  # Pastebin Flask Backend - REST API for snippet storage
+  pastebin-backend:
+    build:
+      context: ..
+      dockerfile: frontends/pastebin/backend/Dockerfile
+    container_name: metabuilder-pastebin-backend
+    restart: unless-stopped
+    environment:
+      DATABASE_PATH: /app/data/snippets.db
+      CORS_ALLOWED_ORIGINS: "*"
+    volumes:
+      - pastebin-backend-data:/app/data
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000/health')"]
+      interval: 15s
       timeout: 5s
       retries: 3
-      start_period: 30s
+      start_period: 20s
     networks:
       - metabuilder
 
@@ -1066,6 +1101,8 @@ volumes:
   retro-saves:
     driver: local
   retro-roms:
+    driver: local
+  pastebin-backend-data:
     driver: local
 
 # ============================================================================

@@ -16,7 +16,7 @@
  * - Performance with large files
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from '@jest/globals';
+import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
 import { RulesEngine, type RulesExecutionResult, type CustomRule } from '../../../../../src/lib/quality-validator/rules/RulesEngine';
 import { tmpdir } from 'os';
 import { join } from 'path';
@@ -232,7 +232,7 @@ console.log('Also should be caught');
 
       // Should find 2 violations (not 4), as lines with "// console.log" are excluded
       expect(result.totalViolations).toBe(2);
-      expect(result.violations.every(v => !v.evidence.includes('//'))).toBe(true);
+      expect(result.violations.every(v => !(v.evidence ?? '').includes('//'))).toBe(true);
     });
 
     it('should handle multiple exclude patterns', async () => {
@@ -555,7 +555,7 @@ function f3(a, b) {}
       const result = await engine.executeRules([testFile]);
 
       expect(result.violationsBySeverity.critical).toBeGreaterThanOrEqual(1);
-      expect(result.violations.some(v => v.evidence.includes('3'))).toBe(true);
+      expect(result.violations.some(v => ( v.evidence ?? '').includes('3'))).toBe(true);
     });
   });
 
@@ -817,9 +817,9 @@ const InvalidArrow = () => {};
       const result = await engine.executeRules([testFile]);
 
       expect(result.totalViolations).toBeGreaterThanOrEqual(2);
-      expect(result.violations.some(v => v.evidence.includes('MyFunction'))).toBe(true);
-      expect(result.violations.some(v => v.evidence.includes('MY_FUNCTION'))).toBe(true);
-      expect(result.violations.some(v => v.evidence.includes('InvalidArrow'))).toBe(true);
+      expect(result.violations.some(v => ( v.evidence ?? '').includes('MyFunction'))).toBe(true);
+      expect(result.violations.some(v => ( v.evidence ?? '').includes('MY_FUNCTION'))).toBe(true);
+      expect(result.violations.some(v => ( v.evidence ?? '').includes('InvalidArrow'))).toBe(true);
     });
 
     it('should detect both declaration and arrow function violations', async () => {

@@ -1,7 +1,4 @@
-import { Card } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Separator } from '@/components/ui/separator'
+import { Card, Button, Input, Divider } from '@metabuilder/components/fakemui'
 import { MagnifyingGlass } from '@phosphor-icons/react'
 import { ComponentShowcase } from '@/components/demo/ComponentShowcase'
 import { moleculesCodeSnippets } from '@/lib/component-code-snippets'
@@ -35,7 +32,7 @@ export function SearchBarsSection({ onSaveSnippet }: SearchBarsSectionProps) {
               <Input placeholder="Search..." className="pl-10" />
             </div>
 
-            <Separator />
+            <Divider />
 
             <div className="flex gap-2 max-w-md">
               <div className="relative flex-1">
@@ -45,7 +42,7 @@ export function SearchBarsSection({ onSaveSnippet }: SearchBarsSectionProps) {
               <Button>Search</Button>
             </div>
 
-            <Separator />
+            <Divider />
 
             <div className="relative max-w-md">
               <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" aria-hidden="true" />

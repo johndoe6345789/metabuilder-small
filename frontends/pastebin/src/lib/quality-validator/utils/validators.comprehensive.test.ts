@@ -197,7 +197,7 @@ describe('Validators - Finding Validation', () => {
 
     it('should reject finding without id', () => {
       const finding = createValidFinding();
-      delete finding.id;
+      (finding as Partial<typeof finding>).id = undefined;
       const errors = validateFinding(finding);
       expect(errors).toContain(expect.stringContaining('id'));
     });
@@ -235,21 +235,21 @@ describe('Validators - Finding Validation', () => {
 
     it('should reject finding without title', () => {
       const finding = createValidFinding();
-      delete finding.title;
+      (finding as Partial<typeof finding>).title = undefined;
       const errors = validateFinding(finding);
       expect(errors).toContain(expect.stringContaining('title'));
     });
 
     it('should reject finding without description', () => {
       const finding = createValidFinding();
-      delete finding.description;
+      (finding as Partial<typeof finding>).description = undefined;
       const errors = validateFinding(finding);
       expect(errors).toContain(expect.stringContaining('description'));
     });
 
     it('should reject finding without remediation', () => {
       const finding = createValidFinding();
-      delete finding.remediation;
+      (finding as Partial<typeof finding>).remediation = undefined;
       const errors = validateFinding(finding);
       expect(errors).toContain(expect.stringContaining('remediation'));
     });
@@ -431,21 +431,21 @@ describe('Validators - Recommendation Validation', () => {
 
     it('should reject recommendation without issue', () => {
       const rec = createValidRecommendation();
-      delete rec.issue;
+      (rec as Partial<typeof rec>).issue = undefined;
       const errors = validateRecommendation(rec);
       expect(errors).toContain(expect.stringContaining('issue'));
     });
 
     it('should reject recommendation without remediation', () => {
       const rec = createValidRecommendation();
-      delete rec.remediation;
+      (rec as Partial<typeof rec>).remediation = undefined;
       const errors = validateRecommendation(rec);
       expect(errors).toContain(expect.stringContaining('remediation'));
     });
 
     it('should reject recommendation without expectedImpact', () => {
       const rec = createValidRecommendation();
-      delete rec.expectedImpact;
+      (rec as Partial<typeof rec>).expectedImpact = undefined;
       const errors = validateRecommendation(rec);
       expect(errors).toContain(expect.stringContaining('expectedImpact'));
     });
@@ -578,10 +578,12 @@ describe('Validators - Metrics and Scoring', () => {
         score: 85,
         grade: 'B',
         status: 'pass',
+        summary: '',
+        passesThresholds: true,
       },
       findings: [],
       recommendations: [],
-    });
+    } as unknown as ScoringResult);
 
     it('should validate complete scoring result', () => {
       const result = createValidResult();
@@ -591,7 +593,7 @@ describe('Validators - Metrics and Scoring', () => {
 
     it('should reject result without overall score', () => {
       const result = createValidResult();
-      delete result.overall;
+      (result as Partial<typeof result>).overall = undefined;
       const errors = validateScoringResult(result);
       expect(errors).toContain(expect.stringContaining('overall'));
     });
@@ -1185,11 +1187,13 @@ describe('Validators - Version and URL Validators', () => {
 
 describe('Validators - Integration Scenarios', () => {
   it('should validate complete analysis result workflow', () => {
-    const result: ScoringResult = {
+    const result = {
       overall: {
         score: 85,
         grade: 'B',
         status: 'pass',
+        summary: '',
+        passesThresholds: true,
       },
       findings: [
         {
@@ -1212,7 +1216,7 @@ describe('Validators - Integration Scenarios', () => {
           expectedImpact: 'Improves security',
         },
       ],
-    };
+    } as unknown as ScoringResult;
 
     const errors = validateScoringResult(result);
     expect(errors).toHaveLength(0);

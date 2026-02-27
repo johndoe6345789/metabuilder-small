@@ -200,7 +200,7 @@ test.describe("Advanced Styling and CSS Tests", () => {
       // Some elements might have shadows
       expect(shadowElements).toBeTruthy()
 
-      const metrics = await (page as Record<string, unknown>).metrics() as Record<string, number>
+      const metrics = await (page as unknown as { metrics(): Promise<Record<string, number>> }).metrics()
       // Rendering should not be excessively slow
       expect(metrics.LayoutCount).toBeLessThan(500)
     })

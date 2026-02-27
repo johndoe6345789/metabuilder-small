@@ -462,7 +462,7 @@ describe('FlaskStorageAdapter', () => {
   describe('namespace operations', () => {
     it('should fetch all namespaces', async () => {
       const mockNamespaces: Namespace[] = [
-        { id: '1', name: 'Default', description: '', createdAt: Date.now() },
+        { id: '1', name: 'Default', createdAt: Date.now(), isDefault: true },
       ];
       (global.fetch as jest.Mock).mockResolvedValue({
         ok: true,
@@ -476,7 +476,7 @@ describe('FlaskStorageAdapter', () => {
     it('should create namespace', async () => {
       (global.fetch as jest.Mock).mockResolvedValue({ ok: true });
       const adapter = new FlaskStorageAdapter(baseUrl);
-      const namespace: Namespace = { id: '1', name: 'New', description: '', createdAt: Date.now() };
+      const namespace: Namespace = { id: '1', name: 'New', createdAt: Date.now(), isDefault: false };
       await expect(adapter.createNamespace(namespace)).resolves.not.toThrow();
     });
 
@@ -490,8 +490,8 @@ describe('FlaskStorageAdapter', () => {
       const mockNamespace: Namespace = {
         id: '1',
         name: 'Test',
-        description: '',
         createdAt: Date.now(),
+        isDefault: false,
       };
       (global.fetch as jest.Mock).mockResolvedValue({
         ok: true,

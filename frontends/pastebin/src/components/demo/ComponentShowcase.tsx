@@ -1,6 +1,5 @@
 import { useState } from 'react'
-import { Card } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
+import { Card, Button } from '@metabuilder/components/fakemui'
 import { FloppyDisk } from '@phosphor-icons/react'
 import { Snippet } from '@/lib/types'
 import { SnippetDialog } from '@/components/features/snippet-editor/SnippetDialog'

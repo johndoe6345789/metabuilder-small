@@ -42,15 +42,19 @@ const mockNamespaces: Namespace[] = [
   },
 ]
 
+function makeTestStore() {
+  return configureStore({
+    reducer: {
+      namespaces: namespacesReducer,
+    },
+  })
+}
+
 describe('namespacesSlice', () => {
-  let store: ReturnType<typeof configureStore>
+  let store: ReturnType<typeof makeTestStore>
 
   beforeEach(() => {
-    store = configureStore({
-      reducer: {
-        namespaces: namespacesReducer,
-      },
-    })
+    store = makeTestStore()
     jest.clearAllMocks()
   })
 

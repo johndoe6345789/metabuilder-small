@@ -15,6 +15,7 @@ $select-placeholder-arrow-space: 2 * ($select-arrow-size + $select-arrow-margin)
   display: inline-block;
   width: 100%;
   outline: none;
+  position: relative;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: var(--mat-select-enabled-trigger-text-color, rgba(0, 0, 0, 0.87));
@@ -187,7 +188,37 @@ $select-placeholder-arrow-space: 2 * ($select-arrow-size + $select-arrow-margin)
 
 // React-specific variant wrappers
 .outlined {
-  // Outlined variant styling - matches mat-form-field-appearance-outline
+  .trigger {
+    border: 1px solid var(--mat-sys-outline, rgba(0, 0, 0, 0.38));
+    border-radius: var(--mat-sys-corner-extra-small, 4px);
+    padding: 14px 40px 14px 16px;
+    background: transparent;
+    color: var(--mat-sys-on-surface, rgba(0, 0, 0, 0.87));
+    font-family: var(--mat-sys-body-large-font, inherit);
+    font-size: var(--mat-sys-body-large-size, 1rem);
+    transition: border-color var(--mat-sys-motion-duration-short4, 200ms) ease,
+                outline var(--mat-sys-motion-duration-short4, 200ms) ease;
+
+    &:hover {
+      border-color: var(--mat-sys-on-surface, rgba(0, 0, 0, 0.87));
+    }
+  }
+
+  &.open .trigger,
+  &:focus-within .trigger {
+    outline: 2px solid var(--mat-sys-primary, #6750a4);
+    outline-offset: -1px;
+    border-color: var(--mat-sys-primary, #6750a4);
+  }
+
+  // Position arrow absolutely inside the trigger padding
+  .arrowWrapper {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
 }
 
 .filled {

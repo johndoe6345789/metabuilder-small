@@ -3,7 +3,7 @@
 import { ErrorBoundary } from 'react-error-boundary';
 import { Provider } from 'react-redux';
 import { usePersistGate } from '@metabuilder/redux-persist';
-import { Toaster } from '@/components/ui/sonner';
+import { Toaster } from 'sonner';
 import { store, persistor } from '@/store';
 import { ErrorFallback } from '@/components/error/ErrorFallback';
 import { NavigationProvider } from '@/components/layout/navigation/NavigationProvider';

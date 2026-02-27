@@ -1,8 +1,4 @@
-import { Card } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Separator } from '@/components/ui/separator'
+import { Card, Button, Chip, Avatar, Divider } from '@metabuilder/components/fakemui'
 import { ArrowRight } from '@phosphor-icons/react'
 
 export function BlogTemplate() {
@@ -29,17 +25,14 @@ export function BlogTemplate() {
         <div className="max-w-4xl mx-auto">
           <div className="space-y-6 mb-8">
             <div className="flex gap-2">
-              <Badge>Design</Badge>
-              <Badge variant="secondary">Tutorial</Badge>
+              <Chip>Design</Chip>
+              <Chip color="secondary">Tutorial</Chip>
             </div>
             <h1 className="text-5xl font-bold">
               Building a Comprehensive Component Library
             </h1>
             <div className="flex items-center gap-4">
-              <Avatar className="h-12 w-12">
-                <AvatarImage src="https://i.pravatar.cc/150?img=5" />
-                <AvatarFallback>AW</AvatarFallback>
-              </Avatar>
+              <Avatar className="h-12 w-12" src="https://i.pravatar.cc/150?img=5" alt="Alex Writer">AW</Avatar>
               <div>
                 <p className="font-medium">Alex Writer</p>
                 <p className="text-sm text-muted-foreground">
@@ -49,7 +42,7 @@ export function BlogTemplate() {
             </div>
           </div>
 
-          <Separator className="my-8" />
+          <Divider className="my-8" />
 
           <div className="prose prose-invert max-w-none space-y-6">
             <div className="aspect-video rounded-lg bg-gradient-to-br from-primary to-accent" />
@@ -84,10 +77,10 @@ export function BlogTemplate() {
             </p>
           </div>
 
-          <Separator className="my-12" />
+          <Divider className="my-12" />
 
           <div className="flex items-center justify-between">
-            <Button variant="outline">
+            <Button variant="outlined">
               Previous Article
             </Button>
             <Button>

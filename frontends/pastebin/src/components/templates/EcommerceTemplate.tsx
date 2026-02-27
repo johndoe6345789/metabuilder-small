@@ -1,9 +1,4 @@
-import { Card } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { Separator } from '@/components/ui/separator'
+import { Card, Button, Input, Chip, Avatar, Divider } from '@metabuilder/components/fakemui'
 import {
   MagnifyingGlass,
   ShoppingCart,
@@ -22,12 +17,10 @@ export function EcommerceTemplate() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon">
+            <Button variant="ghost">
               <ShoppingCart />
             </Button>
-            <Avatar className="h-8 w-8">
-              <AvatarFallback>U</AvatarFallback>
-            </Avatar>
+            <Avatar className="h-8 w-8" alt="User">U</Avatar>
           </div>
         </div>
       </div>
@@ -48,7 +41,7 @@ export function EcommerceTemplate() {
 
           <div className="space-y-6">
             <div>
-              <Badge className="mb-3">New Arrival</Badge>
+              <Chip className="mb-3">New Arrival</Chip>
               <h1 className="text-4xl font-bold mb-2">Premium Product Name</h1>
               <div className="flex items-baseline gap-3">
                 <span className="text-3xl font-bold">$299.00</span>
@@ -58,7 +51,7 @@ export function EcommerceTemplate() {
               </div>
             </div>
 
-            <Separator />
+            <Divider />
 
             <div>
               <h3 className="font-semibold mb-2">Description</h3>
@@ -78,14 +71,14 @@ export function EcommerceTemplate() {
               </ul>
             </div>
 
-            <Separator />
+            <Divider />
 
             <div className="space-y-4">
               <Button size="lg" className="w-full">
                 <ShoppingCart className="mr-2" />
                 Add to Cart
               </Button>
-              <Button size="lg" variant="outline" className="w-full">
+              <Button size="lg" variant="outlined" className="w-full">
                 Add to Wishlist
               </Button>
             </div>

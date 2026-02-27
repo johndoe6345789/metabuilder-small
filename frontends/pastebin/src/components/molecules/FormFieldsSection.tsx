@@ -1,6 +1,6 @@
-import { Card } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { Card } from '@metabuilder/components/fakemui'
+import { Input } from '@metabuilder/components/fakemui'
+import { FormLabel } from '@metabuilder/components/fakemui'
 import { Envelope, Lock } from '@phosphor-icons/react'
 import { ComponentShowcase } from '@/components/demo/ComponentShowcase'
 import { moleculesCodeSnippets } from '@/lib/component-code-snippets'
@@ -30,12 +30,12 @@ export function FormFieldsSection({ onSaveSnippet }: FormFieldsSectionProps) {
         <Card className="p-6">
           <div className="space-y-6 max-w-md">
             <div className="space-y-2">
-              <Label htmlFor="name">Full Name</Label>
+              <FormLabel htmlFor="name">Full Name</FormLabel>
               <Input id="name" placeholder="John Doe" />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="email">Email Address</Label>
+              <FormLabel htmlFor="email">Email Address</FormLabel>
               <div className="relative">
                 <Envelope className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <Input id="email" type="email" placeholder="john@example.com" className="pl-10" />
@@ -46,7 +46,7 @@ export function FormFieldsSection({ onSaveSnippet }: FormFieldsSectionProps) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <FormLabel htmlFor="password">Password</FormLabel>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <Input id="password" type="password" placeholder="••••••••" className="pl-10" />

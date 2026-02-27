@@ -1,3 +1,4 @@
+import React from 'react'
 import { renderHook, act, waitFor } from '@testing-library/react'
 import { usePythonTerminal } from './usePythonTerminal'
 import * as pyodideModule from '@/lib/pyodide-runner'
@@ -161,7 +162,7 @@ describe('usePythonTerminal Hook', () => {
     it('should not submit input if not waiting for input', () => {
       const { result } = renderHook(() => usePythonTerminal())
 
-      const mockEvent = { preventDefault: jest.fn() } as Record<string, jest.Mock>
+      const mockEvent = { preventDefault: jest.fn() } as unknown as React.FormEvent<HTMLFormElement>
 
       const initialValue = 'initial'
       act(() => {

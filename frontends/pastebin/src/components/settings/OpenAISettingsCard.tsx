@@ -1,10 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardHeader, Input, Button, FormLabel } from '@metabuilder/components/fakemui';
 import { Eye, EyeClosed, Key } from '@phosphor-icons/react';
 
 export function OpenAISettingsCard() {
@@ -36,15 +33,15 @@ export function OpenAISettingsCard() {
       <CardHeader>
         <div className="flex items-center gap-2">
           <Key className="h-5 w-5 text-primary" weight="duotone" aria-hidden="true" />
-          <CardTitle>OpenAI API Settings</CardTitle>
+          <h3 style={{fontWeight:600, marginBottom:'4px'}}>OpenAI API Settings</h3>
         </div>
-        <CardDescription>
+        <p style={{color:'var(--mat-sys-on-surface-variant)',fontSize:'0.875rem',marginBottom:'8px'}}>
           Configure your OpenAI API key for AI-powered error analysis. Your key is stored locally in your browser.
-        </CardDescription>
+        </p>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="openai-key">OpenAI API Key</Label>
+          <FormLabel htmlFor="openai-key">OpenAI API Key</FormLabel>
           <div className="flex gap-2">
             <div className="relative flex-1">
               <Input
@@ -94,7 +91,7 @@ export function OpenAISettingsCard() {
           {apiKey && (
             <Button
               onClick={handleClear}
-              variant="outline"
+              variant="outlined"
               data-testid="clear-api-key-btn"
               aria-label="Clear OpenAI API key"
             >

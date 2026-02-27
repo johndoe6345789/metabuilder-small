@@ -1,6 +1,4 @@
-import { Card } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Separator } from '@/components/ui/separator'
+import { Card, Button, Divider } from '@metabuilder/components/fakemui'
 import { Heart, ChatCircle, Share, DotsThree } from '@phosphor-icons/react'
 
 export function SocialActionsSection() {
@@ -30,15 +28,15 @@ export function SocialActionsSection() {
             </Button>
           </div>
 
-          <Separator />
+          <Divider />
 
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <Button variant="outline" size="sm">
+              <Button variant="outlined" size="sm">
                 <Heart weight="fill" className="text-destructive mr-2" />
                 <span className="text-foreground">256</span>
               </Button>
-              <Button variant="outline" size="sm">
+              <Button variant="outlined" size="sm">
                 <ChatCircle className="mr-2" />
                 <span>42</span>
               </Button>

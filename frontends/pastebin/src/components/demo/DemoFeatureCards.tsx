@@ -1,6 +1,6 @@
 'use client'
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader } from '@metabuilder/components/fakemui'
 
 export const DemoFeatureCards = () => {
   return (
@@ -12,7 +12,7 @@ export const DemoFeatureCards = () => {
     >
       <Card className="border-primary/20" data-testid="feature-card-realtime">
         <CardHeader>
-          <CardTitle className="text-lg">Real-Time Updates</CardTitle>
+          <h3 style={{fontWeight:600, marginBottom:'2px'}} className="text-lg">Real-Time Updates</h3>
         </CardHeader>
         <CardContent className="text-sm text-muted-foreground">
           Watch your React components render instantly as you type. No refresh needed.
@@ -21,7 +21,7 @@ export const DemoFeatureCards = () => {
 
       <Card className="border-accent/20" data-testid="feature-card-resizable">
         <CardHeader>
-          <CardTitle className="text-lg">Resizable Panels</CardTitle>
+          <h3 style={{fontWeight:600, marginBottom:'2px'}} className="text-lg">Resizable Panels</h3>
         </CardHeader>
         <CardContent className="text-sm text-muted-foreground">
           Drag the center divider to adjust the editor and preview panel sizes to your preference.
@@ -30,7 +30,7 @@ export const DemoFeatureCards = () => {
 
       <Card className="border-primary/20" data-testid="feature-card-viewmodes">
         <CardHeader>
-          <CardTitle className="text-lg">Multiple View Modes</CardTitle>
+          <h3 style={{fontWeight:600, marginBottom:'2px'}} className="text-lg">Multiple View Modes</h3>
         </CardHeader>
         <CardContent className="text-sm text-muted-foreground">
           Switch between code-only, split-screen, or preview-only modes with the toggle buttons.

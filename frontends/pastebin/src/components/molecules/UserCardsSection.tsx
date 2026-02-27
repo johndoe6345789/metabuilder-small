@@ -1,7 +1,4 @@
-import { Card } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Card, Button, Chip, Avatar } from '@metabuilder/components/fakemui'
 
 export function UserCardsSection() {
   return (
@@ -16,10 +13,7 @@ export function UserCardsSection() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card className="p-6">
           <div className="flex items-start gap-4">
-            <Avatar className="h-12 w-12">
-              <AvatarImage src="https://i.pravatar.cc/150?img=1" />
-              <AvatarFallback>AM</AvatarFallback>
-            </Avatar>
+            <Avatar className="h-12 w-12" src="https://i.pravatar.cc/150?img=1" alt="Alex Morgan">AM</Avatar>
             <div className="flex-1 min-w-0">
               <h3 className="font-semibold text-lg">Alex Morgan</h3>
               <p className="text-sm text-muted-foreground">@alexmorgan</p>
@@ -27,7 +21,7 @@ export function UserCardsSection() {
                 Product designer passionate about creating delightful user experiences.
               </p>
             </div>
-            <Button size="sm" variant="outline">
+            <Button size="sm" variant="outlined">
               Follow
             </Button>
           </div>
@@ -35,16 +29,13 @@ export function UserCardsSection() {
 
         <Card className="p-6">
           <div className="flex items-center gap-4">
-            <Avatar className="h-16 w-16">
-              <AvatarImage src="https://i.pravatar.cc/150?img=2" />
-              <AvatarFallback>JD</AvatarFallback>
-            </Avatar>
+            <Avatar className="h-16 w-16" src="https://i.pravatar.cc/150?img=2" alt="Jordan Davis">JD</Avatar>
             <div className="flex-1 min-w-0">
               <h3 className="font-semibold text-lg">Jordan Davis</h3>
               <p className="text-sm text-muted-foreground mb-2">Senior Developer</p>
               <div className="flex gap-2">
-                <Badge variant="secondary">React</Badge>
-                <Badge variant="secondary">TypeScript</Badge>
+                <Chip color="secondary">React</Chip>
+                <Chip color="secondary">TypeScript</Chip>
               </div>
             </div>
           </div>

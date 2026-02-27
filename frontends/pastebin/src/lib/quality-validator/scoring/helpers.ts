@@ -308,7 +308,7 @@ export function projectScore(historicalScores: number[], periods: number): numbe
   }
 
   // Calculate average change per period
-  const changes = [];
+  const changes: number[] = [];
   for (let i = 1; i < historicalScores.length; i++) {
     changes.push(historicalScores[i] - historicalScores[i - 1]);
   }

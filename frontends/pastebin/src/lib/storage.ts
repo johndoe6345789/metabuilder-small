@@ -69,6 +69,7 @@ export class FlaskStorageAdapter {
   }
 
   private isValidUrl(): boolean {
+    if (this.baseUrl.startsWith('/')) return true
     try {
       new URL(this.baseUrl)
       return true
@@ -83,8 +84,8 @@ export class FlaskStorageAdapter {
     }
 
     try {
-      const url = new URL('/health', this.baseUrl)
-      const response = await fetch(url.toString(), {
+      const healthUrl = `${this.baseUrl}/health`
+      const response = await fetch(healthUrl, {
         method: 'GET',
         signal: AbortSignal.timeout(5000)
       })

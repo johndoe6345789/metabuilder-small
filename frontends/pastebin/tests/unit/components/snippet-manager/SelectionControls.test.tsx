@@ -11,9 +11,9 @@ import type { Namespace } from '@/lib/types';
 
 describe('SelectionControls Component', () => {
   const mockNamespaces: Namespace[] = [
-    { id: '1', name: 'Default', isDefault: true },
-    { id: '2', name: 'Work', isDefault: false },
-    { id: '3', name: 'Personal', isDefault: false },
+    { id: '1', name: 'Default', isDefault: true, createdAt: Date.now() },
+    { id: '2', name: 'Work', isDefault: false, createdAt: Date.now() },
+    { id: '3', name: 'Personal', isDefault: false, createdAt: Date.now() },
   ];
 
   const defaultProps = {
@@ -636,9 +636,9 @@ describe('SelectionControls Component', () => {
     });
 
     it('should update when namespaces changes', () => {
-      const newNamespaces = [
-        { id: '1', name: 'Default', isDefault: true },
-        { id: '2', name: 'Work', isDefault: false },
+      const newNamespaces: Namespace[] = [
+        { id: '1', name: 'Default', isDefault: true, createdAt: Date.now() },
+        { id: '2', name: 'Work', isDefault: false, createdAt: Date.now() },
       ];
 
       const { rerender } = render(

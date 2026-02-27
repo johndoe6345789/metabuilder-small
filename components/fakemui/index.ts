@@ -55,6 +55,7 @@ export {
 } from './inputs'
 
 export type { RadioProps, RadioColor, RadioSize } from './inputs'
+export type { SelectChangeEvent } from './inputs/Select'
 
 // =============================================================================
 // SURFACE COMPONENTS
@@ -141,6 +142,7 @@ export {
 export {
   Alert,
   AlertTitle,
+  AlertDescription,
   Backdrop,
   CircularProgress,
   Dialog,
@@ -189,8 +191,10 @@ export {
   StepIcon,
   Tabs,
   Tab,
+  TabPanel,
   type TabsProps,
   type TabProps,
+  type TabPanelProps,
   BottomNavigation,
   BottomNavigationAction,
   SpeedDial,
@@ -214,6 +218,8 @@ export {
   DialogContent,
   DialogContentText,
   DialogActions,
+  DialogClose,
+  DialogIcon,
   Popover,
   Popper,
   Portal,

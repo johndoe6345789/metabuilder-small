@@ -16,11 +16,11 @@ const createTestSnippet = (overrides?: Partial<Snippet>): Snippet => ({
   description: 'A test snippet',
   code: 'console.log("test")',
   language: 'javascript',
+  category: 'javascript',
   namespaceId: 'default',
   createdAt: Date.now(),
   updatedAt: Date.now(),
   isTemplate: false,
-  tags: [],
   ...overrides,
 });
 
@@ -39,7 +39,6 @@ describe('db - Unified Storage Interface', () => {
     mockStorageModule.getStorageConfig.mockReturnValue({
       backend: 'indexeddb',
       flaskUrl: '',
-      preferredBackend: 'indexeddb',
     });
   });
 
@@ -48,7 +47,6 @@ describe('db - Unified Storage Interface', () => {
       mockStorageModule.getStorageConfig.mockReturnValue({
         backend: 'indexeddb',
         flaskUrl: '',
-        preferredBackend: 'indexeddb',
       });
     });
 
@@ -142,9 +140,8 @@ describe('db - Unified Storage Interface', () => {
       mockStorageModule.getStorageConfig.mockReturnValue({
         backend: 'flask',
         flaskUrl: 'http://localhost:5000',
-        preferredBackend: 'flask',
       });
-      mockStorageModule.FlaskStorageAdapter = jest.fn(() => mockFlaskAdapter);
+      mockStorageModule.FlaskStorageAdapter = jest.fn(() => mockFlaskAdapter) as any;
     });
 
     it('should route snippet operations to Flask backend', async () => {
@@ -263,8 +260,8 @@ describe('db - Unified Storage Interface', () => {
         description: 'A template',
         code: 'code',
         language: 'js',
+        category: 'javascript',
         namespaceId: 'default',
-        tags: [],
       };
       mockIndexedDBModule.createSnippet.mockResolvedValue(undefined);
 
@@ -369,7 +366,7 @@ describe('db - Unified Storage Interface', () => {
 
   describe('Database operations', () => {
     it('should initialize database', async () => {
-      mockIndexedDBModule.openDB.mockResolvedValue(undefined);
+      mockIndexedDBModule.openDB.mockResolvedValue({} as IDBDatabase);
       mockIndexedDBModule.getAllNamespaces.mockResolvedValue([]);
       mockIndexedDBModule.createNamespace.mockResolvedValue(undefined);
 
@@ -383,12 +380,11 @@ describe('db - Unified Storage Interface', () => {
       mockStorageModule.getStorageConfig.mockReturnValue({
         backend: 'flask',
         flaskUrl: 'http://localhost:5000',
-        preferredBackend: 'flask',
       });
       const mockFlask = {
         testConnection: jest.fn().mockResolvedValue(false),
       };
-      mockStorageModule.FlaskStorageAdapter = jest.fn(() => mockFlask);
+      mockStorageModule.FlaskStorageAdapter = jest.fn(() => mockFlask) as any;
 
       await expect(db.initDB()).rejects.toThrow('Failed to connect to Flask backend');
     });
@@ -402,7 +398,7 @@ describe('db - Unified Storage Interface', () => {
     });
 
     it('should get database stats', async () => {
-      const stats = { snippetCount: 5, namespaceCount: 2 };
+      const stats = { snippetCount: 5, templateCount: 0, namespaceCount: 2, storageType: 'indexeddb' as const, databaseSize: 0 };
       mockIndexedDBModule.getDatabaseStats.mockResolvedValue(stats);
 
       const result = await db.getDatabaseStats();

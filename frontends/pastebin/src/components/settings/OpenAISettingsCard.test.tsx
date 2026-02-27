@@ -48,7 +48,7 @@ describe('OpenAISettingsCard', () => {
       render(<OpenAISettingsCard />);
 
       const input = screen.getByTestId('openai-api-key-input');
-      await user.type(input, 'sk-test', { delay: 1 });
+      await user.type(input, 'sk-test');
 
       expect(screen.getByTestId('clear-api-key-btn')).toBeInTheDocument();
     });
@@ -87,7 +87,7 @@ describe('OpenAISettingsCard', () => {
       render(<OpenAISettingsCard />);
 
       const input = screen.getByTestId('openai-api-key-input');
-      await user.type(input, 'sk-test', { delay: 1 });
+      await user.type(input, 'sk-test');
 
       expect((input as HTMLInputElement).value).toContain('sk-test');
     });
@@ -155,7 +155,7 @@ describe('OpenAISettingsCard', () => {
       render(<OpenAISettingsCard />);
 
       const input = screen.getByTestId('openai-api-key-input');
-      await user.type(input, 'sk-testkey123', { delay: 1 });
+      await user.type(input, 'sk-testkey123');
 
       const saveButton = screen.getByTestId('save-api-key-btn');
       await user.click(saveButton);
@@ -174,7 +174,7 @@ describe('OpenAISettingsCard', () => {
       render(<OpenAISettingsCard />);
 
       const input = screen.getByTestId('openai-api-key-input');
-      await user.type(input, 'sk-test', { delay: 1 });
+      await user.type(input, 'sk-test');
 
       const saveButton = screen.getByTestId('save-api-key-btn');
       expect(saveButton).not.toBeDisabled();
@@ -206,7 +206,7 @@ describe('OpenAISettingsCard', () => {
       const input = screen.getByTestId('openai-api-key-input');
       expect(screen.queryByTestId('clear-api-key-btn')).not.toBeInTheDocument();
 
-      await user.type(input, 'sk-test', { delay: 1 });
+      await user.type(input, 'sk-test');
       expect(screen.getByTestId('clear-api-key-btn')).toBeInTheDocument();
     });
   });

@@ -96,7 +96,7 @@ export const WorkflowCard: React.FC<WorkflowCardProps> = ({
         onDelete={onDelete}
         itemId={item.id}
       />
-      <WorkflowCardPreview nodeCount={nodeCount} isMinimized={item.minimized} />
+      <WorkflowCardPreview nodeCount={nodeCount} isMinimized={item.minimized ?? false} />
       <WorkflowCardFooter
         nodeCount={nodeCount}
         connectionCount={connectionCount}

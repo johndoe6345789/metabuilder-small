@@ -125,14 +125,15 @@ export class OfflineStore {
   private openInternal(storeName?: string): Promise<IDBDatabase | null> {
     return new Promise((resolve) => {
       // Close existing connection before version bump
+      const prevDbVersion = this.db?.version
       if (this.db) {
         this.db.close()
         this.db = null
       }
 
       // Determine version: bump if we need a new store
-      const nextVersion = this.db
-        ? this.db.version + 1
+      const nextVersion = prevDbVersion != null
+        ? prevDbVersion + 1
         : storeName && !this.knownStores.has(storeName)
           ? (this.knownStores.size + 2) // +1 base, +1 for new store
           : DB_VERSION + this.knownStores.size

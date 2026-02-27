@@ -301,7 +301,7 @@ jobs:
     needs: gate-1-start
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -401,7 +401,7 @@ jobs:
     needs: schema-check
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -438,7 +438,7 @@ jobs:
     needs: schema-check
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -486,7 +486,7 @@ jobs:
     needs: schema-check
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -524,7 +524,7 @@ jobs:
     needs: schema-check
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Check for oversized files
         run: |
@@ -559,7 +559,7 @@ jobs:
     needs: schema-check
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Check code complexity
         run: |
@@ -596,7 +596,7 @@ jobs:
     needs: schema-check
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Detect stubs and placeholder code
         run: |
@@ -699,7 +699,7 @@ jobs:
     needs: gate-2-start
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -772,7 +772,7 @@ jobs:
     needs: gate-2-start
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -822,7 +822,7 @@ jobs:
     needs: gate-2-start
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -935,7 +935,7 @@ jobs:
       build-success: ${{ steps.build-step.outcome }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -981,7 +981,7 @@ jobs:
     if: github.event_name == 'pull_request'
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -1060,7 +1060,7 @@ jobs:
     if: github.event_name == 'pull_request' && !github.event.pull_request.draft
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -1229,7 +1229,7 @@ jobs:
       url: https://staging.metabuilder.example.com
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -1282,7 +1282,7 @@ jobs:
       url: https://metabuilder.example.com
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -1354,7 +1354,7 @@ jobs:
             platforms: linux/amd64,linux/arm64
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -1395,7 +1395,7 @@ jobs:
           cache-from: type=gha,scope=${{ matrix.image }}
           cache-to: type=gha,mode=max,scope=${{ matrix.image }}
           build-args: |
-            BUILD_DATE=${{ github.event.head_commit.timestamp }}
+            BUILD_DATE=${{ github.event.head_commit.timestamp || github.run_started_at }}
             VCS_REF=${{ github.sha }}
 
       - name: Generate artifact attestation
@@ -1422,7 +1422,7 @@ jobs:
             platforms: linux/amd64,linux/arm64
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -1464,7 +1464,7 @@ jobs:
           cache-to: type=gha,mode=max,scope=${{ matrix.image }}
           build-args: |
             BASE_REGISTRY=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-            BUILD_DATE=${{ github.event.head_commit.timestamp }}
+            BUILD_DATE=${{ github.event.head_commit.timestamp || github.run_started_at }}
             VCS_REF=${{ github.sha }}
 
       - name: Generate artifact attestation
@@ -1481,7 +1481,7 @@ jobs:
     needs: container-base-tier2
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -1523,7 +1523,7 @@ jobs:
           cache-to: type=gha,mode=max,scope=devcontainer
           build-args: |
             BASE_REGISTRY=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-            BUILD_DATE=${{ github.event.head_commit.timestamp }}
+            BUILD_DATE=${{ github.event.head_commit.timestamp || github.run_started_at }}
             VCS_REF=${{ github.sha }}
 
       - name: Generate artifact attestation
@@ -1566,7 +1566,7 @@ jobs:
             dockerfile: ./frontends/exploded-diagrams/Dockerfile
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -1604,7 +1604,7 @@ jobs:
           cache-to: type=gha,mode=max,scope=${{ matrix.image }}
           build-args: |
             BASE_REGISTRY=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-            BUILD_DATE=${{ github.event.head_commit.timestamp }}
+            BUILD_DATE=${{ github.event.head_commit.timestamp || github.run_started_at }}
             VCS_REF=${{ github.sha }}
             VERSION=${{ steps.meta.outputs.version }}
 
@@ -1640,7 +1640,7 @@ jobs:
           - exploded-diagrams
     steps:
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@0.28.0
         with:
           image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/${{ matrix.image }}:${{ github.ref_name }}
           format: 'sarif'
@@ -1668,14 +1668,14 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Create and push manifests for all images
+      - name: Verify multi-arch manifests
+        # build-push-action with platforms: linux/amd64,linux/arm64 already pushes
+        # a combined manifest — this step confirms all images are reachable.
         run: |
           for image in base-apt base-node-deps base-pip-deps base-conan-deps base-android-sdk devcontainer; do
-            docker manifest create \
-              "$REGISTRY/$IMAGE_NAME/$image:$REF_NAME" \
-              --amend "$REGISTRY/$IMAGE_NAME/$image:${REF_NAME}-amd64" \
-              --amend "$REGISTRY/$IMAGE_NAME/$image:${REF_NAME}-arm64"
-            docker manifest push "$REGISTRY/$IMAGE_NAME/$image:$REF_NAME"
+            echo "Inspecting $REGISTRY/$IMAGE_NAME/$image:$REF_NAME"
+            docker manifest inspect "$REGISTRY/$IMAGE_NAME/$image:$REF_NAME" || \
+              echo "WARNING: manifest not found for $image (may not have been built on this run)"
           done
 
   # ============================================================================

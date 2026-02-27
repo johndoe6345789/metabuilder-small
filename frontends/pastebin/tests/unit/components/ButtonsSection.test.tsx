@@ -90,7 +90,8 @@ describe('ButtonsSection Component', () => {
 
     it('should render disabled buttons', () => {
       render(<ButtonsSection onSaveSnippet={mockOnSaveSnippet} />)
-      const disabledButtons = screen.getAllByRole('button', { disabled: true })
+      const allButtons = screen.getAllByRole('button')
+      const disabledButtons = allButtons.filter(btn => btn.hasAttribute('disabled'))
       expect(disabledButtons.length).toBeGreaterThan(0)
     })
   })

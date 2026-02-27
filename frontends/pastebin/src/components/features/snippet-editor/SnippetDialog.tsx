@@ -1,20 +1,12 @@
 "use client"
 
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
+import { useState, useEffect } from 'react'
+import { Dialog, DialogTitle, DialogContent, DialogActions, DialogClose, Button } from '@metabuilder/components/fakemui'
+import { X } from '@phosphor-icons/react'
 import { Snippet } from '@/lib/types'
 import { strings, appConfig } from '@/lib/config'
 import { useSnippetForm } from '@/hooks/useSnippetForm'
-import { SnippetFormFields } from '@/components/features/snippet-editor/SnippetFormFields'
-import { CodeEditorSection } from '@/components/features/snippet-editor/CodeEditorSection'
-import { InputParameterList } from '@/components/features/snippet-editor/InputParameterList'
+import { SnippetDialogTabs } from './SnippetDialogTabs'
 
 interface SnippetDialogProps {
   open: boolean
@@ -24,101 +16,92 @@ interface SnippetDialogProps {
 }
 
 export function SnippetDialog({ open, onOpenChange, onSave, editingSnippet }: SnippetDialogProps) {
+  const [activeTab, setActiveTab] = useState(0)
+
+  useEffect(() => {
+    if (open) setActiveTab(0)
+  }, [open])
+
   const {
-    title,
-    description,
-    language,
-    code,
-    hasPreview,
-    functionName,
-    inputParameters,
-    errors,
-    setTitle,
-    setDescription,
-    setLanguage,
-    setCode,
-    setHasPreview,
-    setFunctionName,
-    handleAddParameter,
-    handleRemoveParameter,
-    handleUpdateParameter,
-    validate,
-    getFormData,
-    resetForm,
+    title, description, language, code, hasPreview,
+    functionName, inputParameters, errors,
+    setTitle, setDescription, setLanguage, setCode, setHasPreview,
+    setFunctionName, handleAddParameter, handleRemoveParameter,
+    handleUpdateParameter, validate, getFormData, resetForm,
   } = useSnippetForm(editingSnippet, open)
+
+  const isPreviewSupported = appConfig.previewEnabledLanguages.includes(language)
+  const showPreviewTab = isPreviewSupported && hasPreview
+  const tabCount = showPreviewTab ? 3 : 2
 
   const handleSave = () => {
     if (!validate()) {
+      if (errors.code) setActiveTab(1)
       return
     }
-
     onSave(getFormData())
     resetForm()
     onOpenChange(false)
   }
 
-  const isPreviewSupported = appConfig.previewEnabledLanguages.includes(language)
-
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent
-        className="sm:max-w-[900px] max-h-[90vh] overflow-hidden flex flex-col"
-        data-testid="snippet-dialog"
-      >
-        <DialogHeader className="pr-8">
-          <DialogTitle className="text-2xl">
-            {editingSnippet?.id ? strings.snippetDialog.edit.title : strings.snippetDialog.create.title}
-          </DialogTitle>
-          <DialogDescription>
-            {editingSnippet?.id
-              ? strings.snippetDialog.edit.description
-              : strings.snippetDialog.create.description}
-          </DialogDescription>
-        </DialogHeader>
+    <Dialog open={open} onClose={() => onOpenChange(false)} maxWidth="lg" fullWidth>
+      <DialogClose onClick={() => onOpenChange(false)} aria-label="Close dialog">
+        <X size={20} />
+      </DialogClose>
 
-        <div className="space-y-4 py-4 overflow-y-auto flex-1">
-          <SnippetFormFields
-            title={title}
-            description={description}
-            language={language}
-            errors={errors}
-            onTitleChange={setTitle}
-            onDescriptionChange={setDescription}
-            onLanguageChange={setLanguage}
-          />
+      <DialogTitle>
+        {editingSnippet?.id ? strings.snippetDialog.edit.title : strings.snippetDialog.create.title}
+      </DialogTitle>
 
-          <CodeEditorSection
-            code={code}
-            language={language}
-            hasPreview={hasPreview}
-            functionName={functionName}
-            inputParameters={inputParameters}
-            errors={errors}
-            onCodeChange={setCode}
-            onPreviewChange={setHasPreview}
-          />
+      <DialogContent dividers data-testid="snippet-dialog" style={{ minHeight: '400px' }}>
+        <SnippetDialogTabs
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          title={title}
+          description={description}
+          language={language}
+          code={code}
+          hasPreview={hasPreview}
+          functionName={functionName}
+          inputParameters={inputParameters}
+          errors={errors}
+          onTitleChange={setTitle}
+          onDescriptionChange={setDescription}
+          onLanguageChange={setLanguage}
+          onCodeChange={setCode}
+          onPreviewChange={setHasPreview}
+          onFunctionNameChange={setFunctionName}
+          onAddParameter={handleAddParameter}
+          onRemoveParameter={handleRemoveParameter}
+          onUpdateParameter={handleUpdateParameter}
+        />
+      </DialogContent>
 
-          {hasPreview && isPreviewSupported && (
-            <InputParameterList
-              inputParameters={inputParameters}
-              functionName={functionName}
-              onFunctionNameChange={setFunctionName}
-              onAddParameter={handleAddParameter}
-              onRemoveParameter={handleRemoveParameter}
-              onUpdateParameter={handleUpdateParameter}
-            />
-          )}
-        </div>
-
-        <DialogFooter>
+      <DialogActions>
+        {activeTab > 0 && (
           <Button
-            variant="outline"
-            onClick={() => onOpenChange(false)}
-            data-testid="snippet-dialog-cancel-btn"
-            aria-label="Cancel editing snippet"
+            variant="outlined"
+            onClick={() => setActiveTab(t => t - 1)}
+            aria-label="Go to previous tab"
+            style={{ marginRight: 'auto' }}
           >
-            {strings.snippetDialog.buttons.cancel}
+            Back
           </Button>
+        )}
+        <Button
+          variant="outlined"
+          onClick={() => onOpenChange(false)}
+          data-testid="snippet-dialog-cancel-btn"
+          aria-label="Cancel editing snippet"
+        >
+          {strings.snippetDialog.buttons.cancel}
+        </Button>
+        {activeTab < tabCount - 1 ? (
+          <Button onClick={() => setActiveTab(t => t + 1)} aria-label="Go to next tab">
+            Next
+          </Button>
+        ) : (
           <Button
             onClick={handleSave}
             data-testid="snippet-dialog-save-btn"
@@ -126,8 +109,8 @@ export function SnippetDialog({ open, onOpenChange, onSave, editingSnippet }: Sn
           >
             {editingSnippet ? strings.snippetDialog.buttons.update : strings.snippetDialog.buttons.create} Snippet
           </Button>
-        </DialogFooter>
-      </DialogContent>
+        )}
+      </DialogActions>
     </Dialog>
   )
 }

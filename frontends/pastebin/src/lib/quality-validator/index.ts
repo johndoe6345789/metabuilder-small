@@ -426,5 +426,32 @@ export * from './utils/validators.js';
 // Export utility formatters
 export * from './utils/formatters.js';
 
-// Export result processor utilities
-export * from './utils/resultProcessor.js';
+// Export result processor utilities (exclude sortFindingsBySeverity which is also in formatters)
+export {
+  aggregateFindings,
+  deduplicateFindings,
+  deduplicateRecommendations,
+  mergeFindingsArrays,
+  mergeRecommendationsArrays,
+  calculateWeightedScore,
+  scoreToGrade,
+  determineStatus,
+  generateSummary,
+  calculateScoreChange,
+  determineTrend,
+  countFindingsBySeverity,
+  countRecommendationsByPriority,
+  groupFindingsByCategory,
+  sortRecommendationsByPriority,
+  getTopFindings,
+  getTopRecommendations,
+  extractMetricsFromResults,
+  extractFindingsFromResults,
+  extractExecutionTimes,
+  calculateTotalExecutionTime,
+  calculateAverageComponentScore,
+  getScoreExtremes,
+  getCriticalFindings,
+  getLowPriorityFindings,
+  generateMetricsSummary,
+} from './utils/resultProcessor.js';

@@ -1,16 +1,6 @@
 "use client"
 
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog'
+import { Button, Dialog, DialogHeader, DialogTitle, DialogContent, DialogActions, Input } from '@metabuilder/components/fakemui'
 import { Plus } from '@phosphor-icons/react'
 
 interface CreateNamespaceDialogProps {
@@ -31,34 +21,40 @@ export function CreateNamespaceDialog({
   loading,
 }: CreateNamespaceDialogProps) {
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogTrigger
-        className="px-2 py-1 rounded border border-input hover:bg-accent hover:text-accent-foreground"
+    <>
+      <Button
+        variant="outlined"
+        size="sm"
+        onClick={() => onOpenChange(true)}
+        className="px-2 py-1"
         data-testid="create-namespace-trigger"
         aria-label="Create new namespace"
       >
         <Plus weight="bold" aria-hidden="true" />
-      </DialogTrigger>
-      <DialogContent data-testid="create-namespace-dialog">
+      </Button>
+
+      <Dialog open={open} onClose={() => onOpenChange(false)} maxWidth="sm" fullWidth>
         <DialogHeader>
           <DialogTitle>Create Namespace</DialogTitle>
-          <DialogDescription>
-            Create a new namespace to organize your snippets
-          </DialogDescription>
         </DialogHeader>
-        <div className="space-y-4 py-4">
-          <Input
-            placeholder="Namespace name"
-            value={namespaceName}
-            onChange={(e) => onNamespaceNameChange(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && onCreateNamespace()}
-            data-testid="namespace-name-input"
-            aria-label="Namespace name"
-          />
-        </div>
-        <DialogFooter>
+        <DialogContent data-testid="create-namespace-dialog">
+          <p style={{ color: 'var(--mat-sys-on-surface-variant)', marginBottom: '16px' }}>
+            Create a new namespace to organize your snippets
+          </p>
+          <div className="space-y-4">
+            <Input
+              placeholder="Namespace name"
+              value={namespaceName}
+              onChange={(e) => onNamespaceNameChange(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && onCreateNamespace()}
+              data-testid="namespace-name-input"
+              aria-label="Namespace name"
+            />
+          </div>
+        </DialogContent>
+        <DialogActions>
           <Button
-            variant="outline"
+            variant="outlined"
             onClick={() => onOpenChange(false)}
             data-testid="create-namespace-cancel-btn"
           >
@@ -71,8 +67,8 @@ export function CreateNamespaceDialog({
           >
             Create
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </DialogActions>
+      </Dialog>
+    </>
   )
 }

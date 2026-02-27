@@ -1,6 +1,4 @@
-import { Card } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
+import { Card, Button, Chip } from '@metabuilder/components/fakemui'
 import {
   List,
   GridFour,
@@ -25,15 +23,13 @@ export function ContentGridsShowcase() {
             <h3 className="font-semibold text-lg">Projects</h3>
             <div className="flex items-center gap-2">
               <Button
-                variant={viewMode === 'grid' ? 'filled' : 'outline'}
-                size="icon"
+                variant={viewMode === 'grid' ? 'filled' : 'outlined'}
                 onClick={() => setViewMode('grid')}
               >
                 <GridFour aria-hidden="true" />
               </Button>
               <Button
-                variant={viewMode === 'list' ? 'filled' : 'outline'}
-                size="icon"
+                variant={viewMode === 'list' ? 'filled' : 'outlined'}
                 onClick={() => setViewMode('list')}
               >
                 <List aria-hidden="true" />
@@ -53,7 +49,7 @@ export function ContentGridsShowcase() {
                     A brief description of this project and its goals.
                   </p>
                   <div className="flex items-center justify-between pt-2">
-                    <Badge variant="outline">Active</Badge>
+                    <Chip variant="outlined">Active</Chip>
                     <Button variant="ghost" size="sm">
                       View
                     </Button>
@@ -74,7 +70,7 @@ export function ContentGridsShowcase() {
                       A brief description of this project
                     </p>
                   </div>
-                  <Badge variant="outline">Active</Badge>
+                  <Chip variant="outlined">Active</Chip>
                   <Button variant="ghost" size="sm">
                     View
                   </Button>

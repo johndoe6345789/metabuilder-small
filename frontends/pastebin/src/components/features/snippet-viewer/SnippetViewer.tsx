@@ -1,10 +1,6 @@
 "use client"
 
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-} from '@/components/ui/dialog'
+import { Dialog, DialogHeader, DialogContent } from '@metabuilder/components/fakemui'
 import { Snippet } from '@/lib/types'
 import { useState } from 'react'
 import dynamic from 'next/dynamic'
@@ -41,30 +37,30 @@ export function SnippetViewer({ snippet, open, onOpenChange, onEdit, onCopy }: S
     onOpenChange(false)
     onEdit(snippet)
   }
-  
+
   const canPreview = !!(snippet.hasPreview && appConfig.previewEnabledLanguages.includes(snippet.language))
   const isPython = snippet.language === 'Python'
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onClose={() => onOpenChange(false)} maxWidth="xl" fullWidth>
+      <DialogHeader className="px-6 pt-6 pb-4 pr-14 border-b border-border">
+        <SnippetViewerHeader
+          snippet={snippet}
+          isCopied={isCopied}
+          canPreview={canPreview}
+          showPreview={showPreview}
+          onCopy={handleCopy}
+          onEdit={handleEdit}
+          onTogglePreview={() => setShowPreview(!showPreview)}
+        />
+      </DialogHeader>
+
       <DialogContent
-        className="sm:max-w-[95vw] sm:max-h-[95vh] h-[95vh] overflow-hidden flex flex-col p-0"
         data-testid="snippet-viewer-dialog"
+        className="sm:max-w-[95vw] sm:max-h-[95vh] h-[95vh] overflow-hidden flex flex-col p-0"
       >
-        <DialogHeader className="px-6 pt-6 pb-4 pr-14 border-b border-border">
-          <SnippetViewerHeader 
-            snippet={snippet}
-            isCopied={isCopied}
-            canPreview={canPreview}
-            showPreview={showPreview}
-            onCopy={handleCopy}
-            onEdit={handleEdit}
-            onTogglePreview={() => setShowPreview(!showPreview)}
-          />
-        </DialogHeader>
-        
         <div className="flex-1 overflow-hidden flex">
-          <SnippetViewerContent 
+          <SnippetViewerContent
             snippet={snippet}
             canPreview={canPreview}
             showPreview={showPreview}

@@ -633,8 +633,9 @@ export class RulesEngine {
     }
 
     for (const rule of this.rules) {
+      const ruleId = (rule as BaseRule).id;
       if (!this.validateRule(rule)) {
-        errors.push(`Invalid rule: ${rule.id}`);
+        errors.push(`Invalid rule: ${ruleId}`);
       }
     }
 

@@ -1,8 +1,5 @@
 import { Plus } from '@phosphor-icons/react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { Button, Card, CardContent, CardHeader, Input, FormLabel } from '@metabuilder/components/fakemui'
 import { InputParameter } from '@/lib/types'
 import { InputParameterItem } from './InputParameterItem'
 
@@ -26,10 +23,14 @@ export function InputParameterList({
   return (
     <Card className="bg-muted/30" data-testid="input-parameters-card">
       <CardHeader className="pb-3">
-        <CardTitle className="text-base font-semibold flex items-center justify-between" data-testid="preview-config-title">
+        <h3
+          style={{ fontWeight: 600 }}
+          className="text-base flex items-center justify-between"
+          data-testid="preview-config-title"
+        >
           <span>Preview Configuration</span>
           <Button
-            variant="outline"
+            variant="outlined"
             size="sm"
             onClick={onAddParameter}
             className="gap-2"
@@ -39,13 +40,13 @@ export function InputParameterList({
             <Plus className="h-3 w-3" aria-hidden="true" />
             Add Parameter
           </Button>
-        </CardTitle>
+        </h3>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="functionName" className="text-sm">
+          <FormLabel htmlFor="functionName" className="text-sm">
             Function/Component Name (Optional)
-          </Label>
+          </FormLabel>
           <Input
             id="functionName"
             placeholder="e.g., MyComponent"
@@ -74,7 +75,7 @@ export function InputParameterList({
               {inputParameters.length} parameter{inputParameters.length !== 1 ? 's' : ''} configured
             </div>
 
-            <Label className="text-sm font-medium">Input Parameters (Props)</Label>
+            <FormLabel className="text-sm font-medium">Input Parameters (Props)</FormLabel>
             {inputParameters.map((param, index) => (
               <InputParameterItem
                 key={index}

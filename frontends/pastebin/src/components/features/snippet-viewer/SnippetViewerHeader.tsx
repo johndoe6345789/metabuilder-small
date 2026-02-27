@@ -1,11 +1,8 @@
 "use client"
 
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { DialogTitle } from '@/components/ui/dialog'
+import { Button, Chip } from '@metabuilder/components/fakemui'
 import { Copy, Pencil, Check, SplitVertical } from '@phosphor-icons/react'
 import { Snippet } from '@/lib/types'
-import { cn } from '@/lib/utils'
 import { strings, LANGUAGE_COLORS } from '@/lib/config'
 
 interface SnippetViewerHeaderProps {
@@ -31,18 +28,15 @@ export function SnippetViewerHeader({
     <div className="flex items-start justify-between gap-4">
       <div className="flex-1 min-w-0 space-y-2">
         <div className="flex items-center gap-3">
-          <DialogTitle className="text-2xl font-bold truncate">
+          <h2 className="text-2xl font-bold truncate">
             {snippet.title}
-          </DialogTitle>
-          <Badge 
-            variant="outline" 
-            className={cn(
-              "shrink-0 border font-medium text-xs px-2 py-1",
-              LANGUAGE_COLORS[snippet.language] || LANGUAGE_COLORS['Other']
-            )}
-          >
-            {snippet.language}
-          </Badge>
+          </h2>
+          <Chip
+            label={snippet.language}
+            variant="outlined"
+            size="small"
+            className={`shrink-0 font-medium text-xs px-2 py-1 ${LANGUAGE_COLORS[snippet.language] || LANGUAGE_COLORS['Other']}`}
+          />
         </div>
         {snippet.description && (
           <p className="text-sm text-muted-foreground">
@@ -69,7 +63,7 @@ export function SnippetViewerHeader({
           </Button>
         )}
         <Button
-          variant="outline"
+          variant="outlined"
           size="sm"
           onClick={onCopy}
           className="gap-2"
@@ -90,7 +84,7 @@ export function SnippetViewerHeader({
           )}
         </Button>
         <Button
-          variant="outline"
+          variant="outlined"
           size="sm"
           onClick={onEdit}
           className="gap-2"

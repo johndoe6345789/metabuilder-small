@@ -294,7 +294,7 @@ More content`
     })
 
     it('handles very large content', () => {
-      const lines = []
+      const lines: string[] = []
       for (let i = 0; i < 100; i++) {
         lines.push(`Line ${i}`)
       }

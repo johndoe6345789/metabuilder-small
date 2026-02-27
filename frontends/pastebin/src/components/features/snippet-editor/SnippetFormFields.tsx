@@ -1,13 +1,5 @@
-import { Label } from '@/components/ui/label'
-import { Input } from '@/components/ui/input'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import { Textarea } from '@/components/ui/textarea'
+import { FormLabel, Input, Select, MenuItem, Textarea } from '@metabuilder/components/fakemui'
+import type { SelectChangeEvent } from '@metabuilder/components/fakemui'
 import { LANGUAGES } from '@/lib/config'
 
 interface SnippetFormFieldsProps {
@@ -31,55 +23,58 @@ export function SnippetFormFields({
 }: SnippetFormFieldsProps) {
   return (
     <>
-      <div className="space-y-2">
-        <Label htmlFor="title">Title *</Label>
-        <Input
-          id="title"
-          placeholder="e.g., React Counter Component"
-          value={title}
-          onChange={(e) => onTitleChange(e.target.value)}
-          className={errors.title ? 'border-destructive ring-destructive' : ''}
-          data-testid="snippet-title-input"
-          required
-          aria-required="true"
-          aria-invalid={!!errors.title}
-          aria-describedby={errors.title ? "title-error" : undefined}
-        />
-        {errors.title && (
-          <p className="text-sm text-destructive" id="title-error">
-            {errors.title}
-          </p>
-        )}
-      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '16px', alignItems: 'flex-start' }}>
+        <div className="space-y-2">
+          <FormLabel htmlFor="title">Title *</FormLabel>
+          <Input
+            id="title"
+            placeholder="e.g., React Counter Component"
+            value={title}
+            onChange={(e) => onTitleChange(e.target.value)}
+            className={errors.title ? 'border-destructive ring-destructive' : ''}
+            data-testid="snippet-title-input"
+            required
+            aria-required="true"
+            aria-invalid={!!errors.title}
+            aria-describedby={errors.title ? "title-error" : undefined}
+          />
+          {errors.title && (
+            <p className="text-sm text-destructive" id="title-error">
+              {errors.title}
+            </p>
+          )}
+        </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="language">Language</Label>
-        <Select value={language} onValueChange={onLanguageChange}>
-          <SelectTrigger
-            id="language"
-            data-testid="snippet-language-select"
-            aria-label="Select programming language"
+        <div className="space-y-2" style={{ minWidth: '180px' }}>
+          <FormLabel htmlFor="language">Language</FormLabel>
+          <Select
+            value={language}
+            onChange={(e: SelectChangeEvent) => onLanguageChange(e.target.value as string)}
+            inputProps={{
+              id: 'language',
+              'data-testid': 'snippet-language-select',
+              'aria-label': 'Select programming language',
+            }}
+            data-testid="snippet-language-options"
           >
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent data-testid="snippet-language-options">
             {LANGUAGES.map((lang) => (
-              <SelectItem key={lang} value={lang} data-testid={`language-option-${lang}`}>
+              <MenuItem key={lang} value={lang} data-testid={`language-option-${lang}`}>
                 {lang}
-              </SelectItem>
+              </MenuItem>
             ))}
-          </SelectContent>
-        </Select>
+          </Select>
+        </div>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="description">Description</Label>
+        <FormLabel htmlFor="description">Description</FormLabel>
         <Textarea
           id="description"
           placeholder="A brief description of your snippet"
           value={description}
           onChange={(e) => onDescriptionChange(e.target.value)}
-          rows={2}
+          rows={3}
+          style={{ resize: 'vertical' }}
           data-testid="snippet-description-textarea"
           aria-label="Snippet description"
         />

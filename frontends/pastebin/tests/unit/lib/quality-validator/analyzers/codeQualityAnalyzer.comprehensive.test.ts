@@ -166,7 +166,7 @@ describe('CodeQualityAnalyzer - Comprehensive Tests (120+ cases)', () => {
       );
 
       const result = await analyzer.analyze(['src/simple.ts']);
-      const metrics = result.metrics as CodeQualityMetrics;
+      const metrics = result.metrics as unknown as CodeQualityMetrics;
 
       expect(metrics.complexity).toBeDefined();
       mockReadFile.mockRestore();
@@ -191,7 +191,7 @@ describe('CodeQualityAnalyzer - Comprehensive Tests (120+ cases)', () => {
       );
 
       const result = await analyzer.analyze(['src/complex.ts']);
-      const metrics = result.metrics as CodeQualityMetrics;
+      const metrics = result.metrics as unknown as CodeQualityMetrics;
 
       expect(metrics.complexity).toBeDefined();
       mockReadFile.mockRestore();
@@ -212,7 +212,7 @@ describe('CodeQualityAnalyzer - Comprehensive Tests (120+ cases)', () => {
       );
 
       const result = await analyzer.analyze(['src/veryComplex.ts']);
-      const metrics = result.metrics as CodeQualityMetrics;
+      const metrics = result.metrics as unknown as CodeQualityMetrics;
 
       expect(metrics.complexity).toBeDefined();
       mockReadFile.mockRestore();
@@ -227,7 +227,7 @@ describe('CodeQualityAnalyzer - Comprehensive Tests (120+ cases)', () => {
       );
 
       const result = await analyzer.analyze(['src/test.ts']);
-      const metrics = result.metrics as CodeQualityMetrics;
+      const metrics = result.metrics as unknown as CodeQualityMetrics;
 
       expect(metrics.complexity.averagePerFile).toBeGreaterThanOrEqual(0);
       mockReadFile.mockRestore();
@@ -242,7 +242,7 @@ describe('CodeQualityAnalyzer - Comprehensive Tests (120+ cases)', () => {
       );
 
       const result = await analyzer.analyze(['src/mixed.ts']);
-      const metrics = result.metrics as CodeQualityMetrics;
+      const metrics = result.metrics as unknown as CodeQualityMetrics;
 
       expect(metrics.complexity.maximum).toBeGreaterThanOrEqual(0);
       mockReadFile.mockRestore();
@@ -258,7 +258,7 @@ describe('CodeQualityAnalyzer - Comprehensive Tests (120+ cases)', () => {
       );
 
       const result = await analyzer.analyze(['src/test.ts']);
-      const metrics = result.metrics as CodeQualityMetrics;
+      const metrics = result.metrics as unknown as CodeQualityMetrics;
 
       expect(metrics.complexity.distribution).toBeDefined();
       expect(metrics.complexity.distribution.good).toBeGreaterThanOrEqual(0);
@@ -431,7 +431,7 @@ describe('CodeQualityAnalyzer - Comprehensive Tests (120+ cases)', () => {
       );
 
       const result = await analyzer.analyze(['src/unique.ts']);
-      const metrics = result.metrics as CodeQualityMetrics;
+      const metrics = result.metrics as unknown as CodeQualityMetrics;
 
       expect(metrics.duplication.percent).toBeGreaterThanOrEqual(0);
       mockReadFile.mockRestore();
@@ -446,7 +446,7 @@ describe('CodeQualityAnalyzer - Comprehensive Tests (120+ cases)', () => {
       );
 
       const result = await analyzer.analyze(['src/dup.ts']);
-      const metrics = result.metrics as CodeQualityMetrics;
+      const metrics = result.metrics as unknown as CodeQualityMetrics;
 
       expect(metrics.duplication.percent).toBeGreaterThanOrEqual(0);
       expect(metrics.duplication.percent).toBeLessThanOrEqual(100);
@@ -455,14 +455,14 @@ describe('CodeQualityAnalyzer - Comprehensive Tests (120+ cases)', () => {
 
     it('should track duplicate lines', async () => {
       const result = await analyzer.analyze(['src/test.ts']);
-      const metrics = result.metrics as CodeQualityMetrics;
+      const metrics = result.metrics as unknown as CodeQualityMetrics;
 
       expect(metrics.duplication.lines).toBeGreaterThanOrEqual(0);
     });
 
     it('should classify duplication status', async () => {
       const result = await analyzer.analyze([]);
-      const metrics = result.metrics as CodeQualityMetrics;
+      const metrics = result.metrics as unknown as CodeQualityMetrics;
 
       expect(['good', 'warning', 'critical']).toContain(metrics.duplication.status);
     });
@@ -475,7 +475,7 @@ describe('CodeQualityAnalyzer - Comprehensive Tests (120+ cases)', () => {
       );
 
       const result = await analyzer.analyze(['src/single.ts']);
-      const metrics = result.metrics as CodeQualityMetrics;
+      const metrics = result.metrics as unknown as CodeQualityMetrics;
 
       expect(metrics.duplication.percent).toBeGreaterThanOrEqual(0);
       mockReadFile.mockRestore();
@@ -496,7 +496,7 @@ describe('CodeQualityAnalyzer - Comprehensive Tests (120+ cases)', () => {
       );
 
       const result = await analyzer.analyze(['src/style.ts']);
-      const metrics = result.metrics as CodeQualityMetrics;
+      const metrics = result.metrics as unknown as CodeQualityMetrics;
 
       expect(metrics.linting.errors).toBeGreaterThanOrEqual(0);
       mockReadFile.mockRestore();
@@ -504,21 +504,21 @@ describe('CodeQualityAnalyzer - Comprehensive Tests (120+ cases)', () => {
 
     it('should track linting warnings', async () => {
       const result = await analyzer.analyze([]);
-      const metrics = result.metrics as CodeQualityMetrics;
+      const metrics = result.metrics as unknown as CodeQualityMetrics;
 
       expect(metrics.linting.warnings).toBeGreaterThanOrEqual(0);
     });
 
     it('should track linting info messages', async () => {
       const result = await analyzer.analyze([]);
-      const metrics = result.metrics as CodeQualityMetrics;
+      const metrics = result.metrics as unknown as CodeQualityMetrics;
 
       expect(metrics.linting.info).toBeGreaterThanOrEqual(0);
     });
 
     it('should track violations by rule', async () => {
       const result = await analyzer.analyze([]);
-      const metrics = result.metrics as CodeQualityMetrics;
+      const metrics = result.metrics as unknown as CodeQualityMetrics;
 
       expect(metrics.linting.byRule).toBeDefined();
       expect(metrics.linting.byRule instanceof Map).toBe(true);
@@ -526,7 +526,7 @@ describe('CodeQualityAnalyzer - Comprehensive Tests (120+ cases)', () => {
 
     it('should classify linting status', async () => {
       const result = await analyzer.analyze([]);
-      const metrics = result.metrics as CodeQualityMetrics;
+      const metrics = result.metrics as unknown as CodeQualityMetrics;
 
       expect(['good', 'warning', 'critical']).toContain(metrics.linting.status);
     });
@@ -540,7 +540,7 @@ describe('CodeQualityAnalyzer - Comprehensive Tests (120+ cases)', () => {
       );
 
       const result = await analyzer.analyze(['src/multi.ts']);
-      const metrics = result.metrics as CodeQualityMetrics;
+      const metrics = result.metrics as unknown as CodeQualityMetrics;
 
       expect(metrics.linting.byRule.size).toBeGreaterThanOrEqual(0);
       mockReadFile.mockRestore();
@@ -645,7 +645,7 @@ describe('CodeQualityAnalyzer - Comprehensive Tests (120+ cases)', () => {
       );
 
       const result = await analyzer.analyze(['src/good.ts']);
-      const metrics = result.metrics as CodeQualityMetrics;
+      const metrics = result.metrics as unknown as CodeQualityMetrics;
 
       expect(metrics.linting.violations).toBeDefined();
       expect(Array.isArray(metrics.linting.violations)).toBe(true);
@@ -662,7 +662,7 @@ describe('CodeQualityAnalyzer - Comprehensive Tests (120+ cases)', () => {
       const result = await analyzer.analyze([]);
 
       expect(result.metrics).toBeDefined();
-      const metrics = result.metrics as CodeQualityMetrics;
+      const metrics = result.metrics as unknown as CodeQualityMetrics;
       expect(metrics.complexity).toBeDefined();
       expect(metrics.duplication).toBeDefined();
       expect(metrics.linting).toBeDefined();
@@ -670,7 +670,7 @@ describe('CodeQualityAnalyzer - Comprehensive Tests (120+ cases)', () => {
 
     it('should have complexity with required fields', async () => {
       const result = await analyzer.analyze([]);
-      const metrics = result.metrics as CodeQualityMetrics;
+      const metrics = result.metrics as unknown as CodeQualityMetrics;
 
       expect(metrics.complexity.functions).toBeDefined();
       expect(Array.isArray(metrics.complexity.functions)).toBe(true);
@@ -681,7 +681,7 @@ describe('CodeQualityAnalyzer - Comprehensive Tests (120+ cases)', () => {
 
     it('should have duplication with required fields', async () => {
       const result = await analyzer.analyze([]);
-      const metrics = result.metrics as CodeQualityMetrics;
+      const metrics = result.metrics as unknown as CodeQualityMetrics;
 
       expect(metrics.duplication.percent).toBeGreaterThanOrEqual(0);
       expect(metrics.duplication.lines).toBeGreaterThanOrEqual(0);
@@ -691,7 +691,7 @@ describe('CodeQualityAnalyzer - Comprehensive Tests (120+ cases)', () => {
 
     it('should have linting with required fields', async () => {
       const result = await analyzer.analyze([]);
-      const metrics = result.metrics as CodeQualityMetrics;
+      const metrics = result.metrics as unknown as CodeQualityMetrics;
 
       expect(metrics.linting.errors).toBeGreaterThanOrEqual(0);
       expect(metrics.linting.warnings).toBeGreaterThanOrEqual(0);

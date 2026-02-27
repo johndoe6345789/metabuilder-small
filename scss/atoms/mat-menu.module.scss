@@ -17,6 +17,7 @@
   border-radius: var(--mat-menu-container-shape, 4px);
   box-shadow: var(--mat-menu-container-elevation-shadow, 0 2px 4px -1px rgba(0 0 0 / 0.2), 0 4px 5px rgba(0 0 0 / 0.14), 0 1px 10px rgba(0 0 0 / 0.12));
   overflow: auto;
+  z-index: 1300;
 }
 
 // M3 menu content wrapper
@@ -96,6 +97,16 @@
 
 .menuBottom {
   transform-origin: bottom left;
+}
+
+// Multi-column layout: layout handled via inline styles; this fixes item sizing
+.menuMultiColumn {
+  .mat-mdc-menu-item {
+    width: max-content;
+    min-width: 160px;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
 }
 
 // React-specific dense variant adjustments

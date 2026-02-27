@@ -26,7 +26,7 @@ describe('PersistenceExample Component', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
-    ;(useAppDispatch as jest.Mock).mockReturnValue(mockDispatch)
+    ;(useAppDispatch as unknown as jest.Mock).mockReturnValue(mockDispatch)
   })
 
   describe('Rendering', () => {

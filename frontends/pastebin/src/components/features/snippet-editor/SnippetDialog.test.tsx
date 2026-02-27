@@ -226,6 +226,7 @@ describe('SnippetDialog Component', () => {
         language: 'JavaScript',
         code: 'code',
         category: 'general',
+        hasPreview: false,
       }))
 
       render(<SnippetDialog {...defaultProps} />)
@@ -403,6 +404,7 @@ describe('SnippetDialog Component', () => {
         language: 'Python',
         code: 'print("hello")',
         category: 'general',
+        hasPreview: false,
       }))
 
       render(<SnippetDialog {...defaultProps} />)
@@ -431,6 +433,7 @@ describe('SnippetDialog Component', () => {
       mockUseSnippetForm.validate = jest.fn(() => true)
       mockUseSnippetForm.getFormData = jest.fn(() => ({
         ...snippet,
+        hasPreview: false,
       }))
 
       render(<SnippetDialog {...defaultProps} editingSnippet={snippet} />)

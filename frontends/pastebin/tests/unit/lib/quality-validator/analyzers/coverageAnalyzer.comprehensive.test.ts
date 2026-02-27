@@ -61,7 +61,7 @@ describe('CoverageAnalyzer - Comprehensive Tests (80+ cases)', () => {
 
     it('should return default metrics when no coverage file found', async () => {
       const result = await analyzer.analyze();
-      const metrics = result.metrics as TestCoverageMetrics;
+      const metrics = result.metrics as unknown as TestCoverageMetrics;
 
       expect(metrics.overall).toBeDefined();
       expect(metrics.overall.lines).toBeDefined();
@@ -100,7 +100,7 @@ describe('CoverageAnalyzer - Comprehensive Tests (80+ cases)', () => {
       });
 
       const result = await analyzer.analyze();
-      const metrics = result.metrics as TestCoverageMetrics;
+      const metrics = result.metrics as unknown as TestCoverageMetrics;
 
       expect(metrics.overall.lines.percentage).toBeGreaterThanOrEqual(0);
       expect(metrics.overall.lines.percentage).toBeLessThanOrEqual(100);
@@ -120,7 +120,7 @@ describe('CoverageAnalyzer - Comprehensive Tests (80+ cases)', () => {
       });
 
       const result = await analyzer.analyze();
-      const metrics = result.metrics as TestCoverageMetrics;
+      const metrics = result.metrics as unknown as TestCoverageMetrics;
 
       expect(metrics.overall.branches.percentage).toBeGreaterThanOrEqual(0);
       expect(metrics.overall.branches.percentage).toBeLessThanOrEqual(100);
@@ -140,7 +140,7 @@ describe('CoverageAnalyzer - Comprehensive Tests (80+ cases)', () => {
       });
 
       const result = await analyzer.analyze();
-      const metrics = result.metrics as TestCoverageMetrics;
+      const metrics = result.metrics as unknown as TestCoverageMetrics;
 
       expect(metrics.overall.functions.percentage).toBeGreaterThanOrEqual(0);
       expect(metrics.overall.functions.percentage).toBeLessThanOrEqual(100);
@@ -160,7 +160,7 @@ describe('CoverageAnalyzer - Comprehensive Tests (80+ cases)', () => {
       });
 
       const result = await analyzer.analyze();
-      const metrics = result.metrics as TestCoverageMetrics;
+      const metrics = result.metrics as unknown as TestCoverageMetrics;
 
       expect(metrics.overall.statements.percentage).toBeGreaterThanOrEqual(0);
       expect(metrics.overall.statements.percentage).toBeLessThanOrEqual(100);
@@ -180,7 +180,7 @@ describe('CoverageAnalyzer - Comprehensive Tests (80+ cases)', () => {
       });
 
       const result = await analyzer.analyze();
-      const metrics = result.metrics as TestCoverageMetrics;
+      const metrics = result.metrics as unknown as TestCoverageMetrics;
 
       expect(metrics.overall.lines.percentage).toBe(0);
       mockPathExists.mockRestore();
@@ -199,7 +199,7 @@ describe('CoverageAnalyzer - Comprehensive Tests (80+ cases)', () => {
       });
 
       const result = await analyzer.analyze();
-      const metrics = result.metrics as TestCoverageMetrics;
+      const metrics = result.metrics as unknown as TestCoverageMetrics;
 
       expect(metrics.overall.lines.percentage).toBe(100);
       mockPathExists.mockRestore();
@@ -218,7 +218,7 @@ describe('CoverageAnalyzer - Comprehensive Tests (80+ cases)', () => {
       });
 
       const result = await analyzer.analyze();
-      const metrics = result.metrics as TestCoverageMetrics;
+      const metrics = result.metrics as unknown as TestCoverageMetrics;
 
       expect(metrics.overall.lines.total).toBeGreaterThanOrEqual(0);
       expect(metrics.overall.lines.covered).toBeGreaterThanOrEqual(0);
@@ -250,7 +250,7 @@ describe('CoverageAnalyzer - Comprehensive Tests (80+ cases)', () => {
       });
 
       const result = await analyzer.analyze();
-      const metrics = result.metrics as TestCoverageMetrics;
+      const metrics = result.metrics as unknown as TestCoverageMetrics;
 
       expect(metrics.byFile).toBeDefined();
       expect(Object.keys(metrics.byFile).length).toBeGreaterThanOrEqual(0);
@@ -276,7 +276,7 @@ describe('CoverageAnalyzer - Comprehensive Tests (80+ cases)', () => {
       });
 
       const result = await analyzer.analyze();
-      const metrics = result.metrics as TestCoverageMetrics;
+      const metrics = result.metrics as unknown as TestCoverageMetrics;
 
       expect(metrics.overall.lines.status).toBeDefined();
       mockPathExists.mockRestore();
@@ -295,7 +295,7 @@ describe('CoverageAnalyzer - Comprehensive Tests (80+ cases)', () => {
       });
 
       const result = await analyzer.analyze();
-      const metrics = result.metrics as TestCoverageMetrics;
+      const metrics = result.metrics as unknown as TestCoverageMetrics;
 
       expect(['excellent', 'acceptable', 'poor']).toContain(metrics.overall.lines.status);
       mockPathExists.mockRestore();
@@ -314,7 +314,7 @@ describe('CoverageAnalyzer - Comprehensive Tests (80+ cases)', () => {
       });
 
       const result = await analyzer.analyze();
-      const metrics = result.metrics as TestCoverageMetrics;
+      const metrics = result.metrics as unknown as TestCoverageMetrics;
 
       expect(['excellent', 'acceptable', 'poor']).toContain(metrics.overall.lines.status);
       mockPathExists.mockRestore();
@@ -339,7 +339,7 @@ describe('CoverageAnalyzer - Comprehensive Tests (80+ cases)', () => {
       });
 
       const result = await analyzer.analyze();
-      const metrics = result.metrics as TestCoverageMetrics;
+      const metrics = result.metrics as unknown as TestCoverageMetrics;
 
       expect(metrics.gaps).toBeDefined();
       expect(Array.isArray(metrics.gaps)).toBe(true);
@@ -371,7 +371,7 @@ describe('CoverageAnalyzer - Comprehensive Tests (80+ cases)', () => {
       });
 
       const result = await analyzer.analyze();
-      const metrics = result.metrics as TestCoverageMetrics;
+      const metrics = result.metrics as unknown as TestCoverageMetrics;
 
       metrics.gaps.forEach((gap) => {
         expect(['critical', 'high', 'medium', 'low']).toContain(gap.criticality);
@@ -398,7 +398,7 @@ describe('CoverageAnalyzer - Comprehensive Tests (80+ cases)', () => {
       });
 
       const result = await analyzer.analyze();
-      const metrics = result.metrics as TestCoverageMetrics;
+      const metrics = result.metrics as unknown as TestCoverageMetrics;
 
       metrics.gaps.forEach((gap) => {
         expect(gap.uncoveredLines).toBeGreaterThanOrEqual(0);
@@ -425,7 +425,7 @@ describe('CoverageAnalyzer - Comprehensive Tests (80+ cases)', () => {
       });
 
       const result = await analyzer.analyze();
-      const metrics = result.metrics as TestCoverageMetrics;
+      const metrics = result.metrics as unknown as TestCoverageMetrics;
 
       metrics.gaps.forEach((gap) => {
         expect(gap.suggestedTests).toBeDefined();
@@ -451,7 +451,7 @@ describe('CoverageAnalyzer - Comprehensive Tests (80+ cases)', () => {
       const mockReadJsonFile = jest.spyOn(fileSystemModule, 'readJsonFile').mockReturnValue(coverageData);
 
       const result = await analyzer.analyze();
-      const metrics = result.metrics as TestCoverageMetrics;
+      const metrics = result.metrics as unknown as TestCoverageMetrics;
 
       expect(metrics.gaps.length).toBeLessThanOrEqual(10);
       mockPathExists.mockRestore();
@@ -466,7 +466,7 @@ describe('CoverageAnalyzer - Comprehensive Tests (80+ cases)', () => {
   describe('Trend Calculation', () => {
     it('should analyze test effectiveness', async () => {
       const result = await analyzer.analyze();
-      const metrics = result.metrics as TestCoverageMetrics;
+      const metrics = result.metrics as unknown as TestCoverageMetrics;
 
       expect(metrics.effectiveness).toBeDefined();
       expect(metrics.effectiveness.effectivenessScore).toBeGreaterThanOrEqual(0);
@@ -475,14 +475,14 @@ describe('CoverageAnalyzer - Comprehensive Tests (80+ cases)', () => {
 
     it('should track total test count', async () => {
       const result = await analyzer.analyze();
-      const metrics = result.metrics as TestCoverageMetrics;
+      const metrics = result.metrics as unknown as TestCoverageMetrics;
 
       expect(metrics.effectiveness.totalTests).toBeGreaterThanOrEqual(0);
     });
 
     it('should track tests with meaningful names', async () => {
       const result = await analyzer.analyze();
-      const metrics = result.metrics as TestCoverageMetrics;
+      const metrics = result.metrics as unknown as TestCoverageMetrics;
 
       expect(metrics.effectiveness.testsWithMeaningfulNames).toBeGreaterThanOrEqual(0);
       expect(metrics.effectiveness.testsWithMeaningfulNames).toBeLessThanOrEqual(metrics.effectiveness.totalTests);
@@ -490,35 +490,35 @@ describe('CoverageAnalyzer - Comprehensive Tests (80+ cases)', () => {
 
     it('should track average assertions per test', async () => {
       const result = await analyzer.analyze();
-      const metrics = result.metrics as TestCoverageMetrics;
+      const metrics = result.metrics as unknown as TestCoverageMetrics;
 
       expect(metrics.effectiveness.averageAssertionsPerTest).toBeGreaterThanOrEqual(0);
     });
 
     it('should identify tests without assertions', async () => {
       const result = await analyzer.analyze();
-      const metrics = result.metrics as TestCoverageMetrics;
+      const metrics = result.metrics as unknown as TestCoverageMetrics;
 
       expect(metrics.effectiveness.testsWithoutAssertions).toBeGreaterThanOrEqual(0);
     });
 
     it('should identify excessively mocked tests', async () => {
       const result = await analyzer.analyze();
-      const metrics = result.metrics as TestCoverageMetrics;
+      const metrics = result.metrics as unknown as TestCoverageMetrics;
 
       expect(metrics.effectiveness.excessivelyMockedTests).toBeGreaterThanOrEqual(0);
     });
 
     it('should track test issues', async () => {
       const result = await analyzer.analyze();
-      const metrics = result.metrics as TestCoverageMetrics;
+      const metrics = result.metrics as unknown as TestCoverageMetrics;
 
       expect(Array.isArray(metrics.effectiveness.issues)).toBe(true);
     });
 
     it('should calculate effectiveness score based on multiple factors', async () => {
       const result = await analyzer.analyze();
-      const metrics = result.metrics as TestCoverageMetrics;
+      const metrics = result.metrics as unknown as TestCoverageMetrics;
 
       const effectivenessScore = metrics.effectiveness.effectivenessScore;
       expect(effectivenessScore).toBeGreaterThanOrEqual(0);
@@ -596,7 +596,7 @@ describe('CoverageAnalyzer - Comprehensive Tests (80+ cases)', () => {
       });
 
       const result = await analyzer.analyze();
-      const metrics = result.metrics as TestCoverageMetrics;
+      const metrics = result.metrics as unknown as TestCoverageMetrics;
 
       expect(metrics.overall.lines.percentage).toBe(100);
       mockPathExists.mockRestore();

@@ -12,4 +12,4 @@ logger.configure({ verbose: false, useColors: false });
 jest.setTimeout(10000);
 
 // Mock environment
-process.env.NODE_ENV = 'test';
+(process.env as Record<string, string>).NODE_ENV = 'test';

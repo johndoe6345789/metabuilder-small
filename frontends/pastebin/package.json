@@ -1,9 +1,10 @@
 {
   "name": "codesnippet",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "private": true,
   "scripts": {
+    "copy:pyodide": "node -e \"const{mkdirSync,copyFileSync}=require('fs');const{join,resolve}=require('path');const src=resolve(__dirname,'../../node_modules/pyodide');const dst=resolve(__dirname,'public/pyodide');mkdirSync(dst,{recursive:true});['pyodide.js','pyodide.mjs','pyodide.asm.js','pyodide.asm.wasm','python_stdlib.zip','pyodide-lock.json'].forEach(f=>copyFileSync(join(src,f),join(dst,f)));console.log('Pyodide files copied to public/pyodide/');\"",
     "dev": "next dev --turbopack",
     "build": "next build --webpack",
     "start": "next start",

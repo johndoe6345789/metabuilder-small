@@ -1,6 +1,4 @@
-import { Card } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
+import { Card, Button, Chip } from '@metabuilder/components/fakemui'
 import {
   ChartBar,
   Users,
@@ -33,7 +31,7 @@ export function LandingPageTemplate() {
       </div>
 
       <div className="p-12 text-center bg-gradient-to-br from-primary/20 to-accent/20">
-        <Badge className="mb-4">New Release</Badge>
+        <Chip className="mb-4">New Release</Chip>
         <h1 className="text-5xl font-bold mb-6">
           Build Amazing Products Faster
         </h1>
@@ -46,7 +44,7 @@ export function LandingPageTemplate() {
             Get Started
             <ArrowRight className="ml-2" />
           </Button>
-          <Button size="lg" variant="outline">
+          <Button size="lg" variant="outlined">
             View Demo
           </Button>
         </div>

@@ -1,6 +1,4 @@
-import { Card } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
+import { Card, Button, Chip } from '@metabuilder/components/fakemui'
 import {
   CheckCircle,
   Clock,
@@ -39,7 +37,7 @@ export function TaskListsShowcase() {
                   Complete the component library documentation
                 </p>
                 <div className="flex items-center gap-4 mt-3">
-                  <Badge variant="secondary">Design</Badge>
+                  <Chip color="secondary">Design</Chip>
                   <span className="text-xs text-muted-foreground">Completed</span>
                 </div>
               </div>
@@ -55,7 +53,7 @@ export function TaskListsShowcase() {
                   Connect frontend to backend services
                 </p>
                 <div className="flex items-center gap-4 mt-3">
-                  <Badge>Development</Badge>
+                  <Chip>Development</Chip>
                   <span className="text-xs text-muted-foreground">In Progress</span>
                 </div>
               </div>
@@ -71,7 +69,7 @@ export function TaskListsShowcase() {
                   Improve page load times and reduce bundle size
                 </p>
                 <div className="flex items-center gap-4 mt-3">
-                  <Badge variant="destructive">Blocked</Badge>
+                  <Chip color="error">Blocked</Chip>
                   <span className="text-xs text-muted-foreground">Needs review</span>
                 </div>
               </div>

@@ -1,6 +1,4 @@
-import { Card } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Card, Button, Avatar } from '@metabuilder/components/fakemui'
 import {
   Bell,
   Gear,
@@ -21,16 +19,13 @@ export function DashboardTemplate() {
             <h3 className="text-xl font-bold">Dashboard</h3>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon">
+            <Button variant="ghost">
               <Bell />
             </Button>
-            <Button variant="ghost" size="icon">
+            <Button variant="ghost">
               <Gear />
             </Button>
-            <Avatar className="h-8 w-8">
-              <AvatarImage src="https://i.pravatar.cc/150?img=4" />
-              <AvatarFallback>U</AvatarFallback>
-            </Avatar>
+            <Avatar className="h-8 w-8" src="https://i.pravatar.cc/150?img=4" alt="User">U</Avatar>
           </div>
         </div>
       </div>
@@ -121,10 +116,7 @@ export function DashboardTemplate() {
                 <div className="p-4 space-y-4">
                   {[1, 2, 3].map((i) => (
                     <div key={i} className="flex items-start gap-3">
-                      <Avatar className="h-8 w-8">
-                        <AvatarImage src={`https://i.pravatar.cc/150?img=${i + 10}`} />
-                        <AvatarFallback>U</AvatarFallback>
-                      </Avatar>
+                      <Avatar className="h-8 w-8" src={`https://i.pravatar.cc/150?img=${i + 10}`} alt={`User ${i}`}>U</Avatar>
                       <div className="flex-1">
                         <p className="text-sm">
                           <span className="font-medium">User {i}</span> completed a task
@@ -141,15 +133,15 @@ export function DashboardTemplate() {
                   <h3 className="font-semibold">Quick Actions</h3>
                 </div>
                 <div className="p-4 space-y-3">
-                  <Button className="w-full justify-start" variant="outline">
+                  <Button className="w-full justify-start" variant="outlined">
                     <Plus className="mr-2" />
                     Create New Project
                   </Button>
-                  <Button className="w-full justify-start" variant="outline">
+                  <Button className="w-full justify-start" variant="outlined">
                     <Users className="mr-2" />
                     Invite Team Members
                   </Button>
-                  <Button className="w-full justify-start" variant="outline">
+                  <Button className="w-full justify-start" variant="outlined">
                     <Folder className="mr-2" />
                     Browse Templates
                   </Button>

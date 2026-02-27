@@ -1,11 +1,6 @@
-import { Button } from '@/components/ui/button'
+import { useState } from 'react'
+import { Button, Menu, MenuItem } from '@metabuilder/components/fakemui'
 import { FolderOpen } from '@phosphor-icons/react'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
 import { Namespace } from '@/lib/types'
 
 interface SelectionControlsProps {
@@ -25,10 +20,12 @@ export function SelectionControls({
   onSelectAll,
   onBulkMove,
 }: SelectionControlsProps) {
+  const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null)
+
   return (
     <div className="flex items-center gap-2 p-4 bg-muted/50 rounded-lg" data-testid="selection-controls" role="region" aria-label="Selection controls">
       <Button
-        variant="outline"
+        variant="outlined"
         size="sm"
         onClick={onSelectAll}
         data-testid="select-all-btn"
@@ -41,34 +38,37 @@ export function SelectionControls({
           <span className="text-sm text-muted-foreground" data-testid="selection-count" role="status" aria-live="polite">
             {selectedIds.length} selected
           </span>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                className="gap-2"
-                data-testid="bulk-move-menu-trigger"
-                aria-label="Move selected snippets to another namespace"
-                aria-haspopup="menu"
+          <Button
+            variant="outlined"
+            size="sm"
+            className="gap-2"
+            onClick={(e) => setMenuAnchor(e.currentTarget)}
+            data-testid="bulk-move-menu-trigger"
+            aria-label="Move selected snippets to another namespace"
+            aria-haspopup="menu"
+          >
+            <FolderOpen weight="bold" className="h-4 w-4" aria-hidden="true" />
+            Move to...
+          </Button>
+          <Menu
+            open={Boolean(menuAnchor)}
+            anchorEl={menuAnchor}
+            onClose={() => setMenuAnchor(null)}
+            data-testid="bulk-move-menu"
+            aria-label="Namespace options for moving snippets"
+          >
+            {namespaces.map((namespace) => (
+              <MenuItem
+                key={namespace.id}
+                onClick={() => { onBulkMove(namespace.id); setMenuAnchor(null) }}
+                disabled={namespace.id === currentNamespaceId}
+                data-testid={`bulk-move-to-namespace-${namespace.id}`}
+                aria-label={`Move to ${namespace.name}${namespace.isDefault ? ' (Default)' : ''}`}
               >
-                <FolderOpen weight="bold" className="h-4 w-4" aria-hidden="true" />
-                Move to...
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent data-testid="bulk-move-menu" aria-label="Namespace options for moving snippets">
-              {namespaces.map((namespace) => (
-                <DropdownMenuItem
-                  key={namespace.id}
-                  onClick={() => onBulkMove(namespace.id)}
-                  disabled={namespace.id === currentNamespaceId}
-                  data-testid={`bulk-move-to-namespace-${namespace.id}`}
-                  aria-label={`Move to ${namespace.name}${namespace.isDefault ? ' (Default)' : ''}`}
-                >
-                  {namespace.name} {namespace.isDefault && '(Default)'}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
+                {namespace.name} {namespace.isDefault && '(Default)'}
+              </MenuItem>
+            ))}
+          </Menu>
         </>
       )}
     </div>

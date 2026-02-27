@@ -1,7 +1,6 @@
 'use client'
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardHeader, Chip } from '@metabuilder/components/fakemui'
 import { FloppyDisk } from '@phosphor-icons/react'
 
 const PERSIST_CONFIG = {
@@ -20,10 +19,10 @@ export function PersistenceSettings() {
             <FloppyDisk className="h-5 w-5 text-primary" weight="duotone" />
           </div>
           <div>
-            <CardTitle>Redux Persistence</CardTitle>
-            <CardDescription>
+            <h3 style={{fontWeight:600, marginBottom:'2px'}}>Redux Persistence</h3>
+            <p style={{color:'var(--mat-sys-on-surface-variant)',fontSize:'0.875rem'}}>
               Automatic IndexedDB persistence via @metabuilder/redux-persist
-            </CardDescription>
+            </p>
           </div>
         </div>
       </CardHeader>
@@ -50,13 +49,13 @@ export function PersistenceSettings() {
         <div className="border-t pt-4 space-y-2" data-testid="persisted-slices-section" role="region" aria-label="Persisted slices">
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">Persisted Slices</span>
-            <Badge data-testid="slices-count">{PERSIST_CONFIG.whitelist.length}</Badge>
+            <Chip data-testid="slices-count">{PERSIST_CONFIG.whitelist.length}</Chip>
           </div>
           <div className="flex flex-wrap gap-1">
             {PERSIST_CONFIG.whitelist.map((slice) => (
-              <Badge key={slice} variant="outline" className="text-xs font-mono" data-testid={`slice-badge-${slice}`}>
+              <Chip key={slice} variant="outlined" className="text-xs font-mono" data-testid={`slice-badge-${slice}`}>
                 {slice}
-              </Badge>
+              </Chip>
             ))}
           </div>
         </div>

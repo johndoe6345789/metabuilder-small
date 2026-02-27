@@ -92,7 +92,7 @@ describe('IndexedDB Storage', () => {
     });
 
     it('should create snippets store on upgrade', async () => {
-      mockDB.objectStoreNames.contains = jest.fn(name => false);
+      mockDB.objectStoreNames.contains = jest.fn(name => false) as any;
 
       const promise = idbStorage.openDB();
       await new Promise(resolve => setTimeout(resolve, 10));
@@ -112,7 +112,7 @@ describe('IndexedDB Storage', () => {
     });
 
     it('should create namespaces store on upgrade', async () => {
-      mockDB.objectStoreNames.contains = jest.fn(name => false);
+      mockDB.objectStoreNames.contains = jest.fn(name => false) as any;
 
       const promise = idbStorage.openDB();
       await new Promise(resolve => setTimeout(resolve, 10));
@@ -132,7 +132,7 @@ describe('IndexedDB Storage', () => {
     });
 
     it('should skip store creation if already exists', async () => {
-      mockDB.objectStoreNames.contains = jest.fn(name => true);
+      mockDB.objectStoreNames.contains = jest.fn(name => true) as any;
       const createObjectStoreSpy = jest.spyOn(mockDB, 'createObjectStore');
 
       const promise = idbStorage.openDB();
@@ -494,7 +494,7 @@ describe('IndexedDB Storage', () => {
     describe('getAllNamespaces', () => {
       it('should retrieve all namespaces', async () => {
         const namespaces: Namespace[] = [
-          { id: '1', name: 'Default', description: '', createdAt: Date.now() },
+          { id: '1', name: 'Default', createdAt: Date.now(), isDefault: true },
         ];
 
         mockObjectStore.getAll = jest.fn(() => ({
@@ -521,8 +521,8 @@ describe('IndexedDB Storage', () => {
         const namespace: Namespace = {
           id: '1',
           name: 'Test',
-          description: '',
           createdAt: Date.now(),
+          isDefault: false,
         };
 
         mockObjectStore.get = jest.fn(() => ({
@@ -568,8 +568,8 @@ describe('IndexedDB Storage', () => {
         const namespace: Namespace = {
           id: '1',
           name: 'New',
-          description: '',
           createdAt: Date.now(),
+          isDefault: false,
         };
 
         mockObjectStore.add = jest.fn(() => ({
@@ -594,8 +594,8 @@ describe('IndexedDB Storage', () => {
         const namespace: Namespace = {
           id: '1',
           name: 'Updated',
-          description: 'New description',
           createdAt: Date.now(),
+          isDefault: false,
         };
 
         mockObjectStore.put = jest.fn(() => ({

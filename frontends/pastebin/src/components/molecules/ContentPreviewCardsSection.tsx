@@ -1,5 +1,5 @@
-import { Card } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+import { Card } from '@metabuilder/components/fakemui'
+import { Chip } from '@metabuilder/components/fakemui'
 import { Calendar } from '@phosphor-icons/react'
 
 export function ContentPreviewCardsSection() {
@@ -34,8 +34,8 @@ export function ContentPreviewCardsSection() {
               <span>5 min read</span>
             </div>
             <div className="flex gap-2">
-              <Badge variant="outline">Design</Badge>
-              <Badge variant="outline">System</Badge>
+              <Chip variant="outlined">Design</Chip>
+              <Chip variant="outlined">System</Chip>
             </div>
           </div>
         </Card>
@@ -61,8 +61,8 @@ export function ContentPreviewCardsSection() {
               <span>8 min read</span>
             </div>
             <div className="flex gap-2">
-              <Badge variant="outline">TypeScript</Badge>
-              <Badge variant="outline">Tutorial</Badge>
+              <Chip variant="outlined">TypeScript</Chip>
+              <Chip variant="outlined">Tutorial</Chip>
             </div>
           </div>
         </Card>

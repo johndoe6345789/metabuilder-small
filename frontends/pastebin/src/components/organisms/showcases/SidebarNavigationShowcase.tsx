@@ -1,6 +1,4 @@
-import { Card } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Separator } from '@/components/ui/separator'
+import { Card, Button, Divider } from '@metabuilder/components/fakemui'
 import {
   Gear,
   SignOut,
@@ -48,7 +46,7 @@ export function SidebarNavigationShowcase() {
                 </Button>
               </nav>
 
-              <Separator />
+              <Divider />
 
               <nav className="space-y-1">
                 <Button variant="ghost" className="w-full justify-start">

@@ -6,7 +6,7 @@
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'fs';
 import { join } from 'path';
 import { logger } from '../utils/logger.js';
-import type { CustomRule, PatternRule, ComplexityRule, NamingRule, StructureRule } from './RulesEngine.js';
+import type { CustomRule, PatternRule, ComplexityRule, NamingRule, StructureRule, BaseRule } from './RulesEngine.js';
 
 /**
  * Configuration for rules loader
@@ -133,20 +133,22 @@ export class RulesLoader {
       }
       ruleIds.add(rule.id);
 
-      if (!rule.type) {
-        errors.push(`${rulePrefix} (${rule.id}): Missing required field 'type'`);
-      } else if (!['pattern', 'complexity', 'naming', 'structure'].includes(rule.type)) {
-        errors.push(`${rulePrefix} (${rule.id}): Invalid type '${rule.type}'`);
+      // Use base type for runtime validation of fields that may be missing at runtime
+      const ruleBase = rule as BaseRule;
+      if (!ruleBase.type) {
+        errors.push(`${rulePrefix} (${ruleBase.id}): Missing required field 'type'`);
+      } else if (!['pattern', 'complexity', 'naming', 'structure'].includes(ruleBase.type)) {
+        errors.push(`${rulePrefix} (${ruleBase.id}): Invalid type '${ruleBase.type}'`);
       }
 
-      if (!rule.severity) {
-        errors.push(`${rulePrefix} (${rule.id}): Missing required field 'severity'`);
-      } else if (!['critical', 'warning', 'info'].includes(rule.severity)) {
-        errors.push(`${rulePrefix} (${rule.id}): Invalid severity '${rule.severity}'`);
+      if (!ruleBase.severity) {
+        errors.push(`${rulePrefix} (${ruleBase.id}): Missing required field 'severity'`);
+      } else if (!['critical', 'warning', 'info'].includes(ruleBase.severity)) {
+        errors.push(`${rulePrefix} (${ruleBase.id}): Invalid severity '${ruleBase.severity}'`);
       }
 
-      if (!rule.message) {
-        errors.push(`${rulePrefix} (${rule.id}): Missing required field 'message'`);
+      if (!ruleBase.message) {
+        errors.push(`${rulePrefix} (${ruleBase.id}): Missing required field 'message'`);
       }
 
       // Type-specific validation
