@@ -24,7 +24,7 @@
     "@sentry/nextjs": "^10.39.0",
     "@spotlightjs/spotlight": "^4.10.0",
     "@storybook/react": "^10.2.10",
-    "@storybook/react-vite": "^10.2.12",
+    "@storybook/react-vite": "^10.2.13",
     "@tailwindcss/vite": "^4.2.0",
     "checkly": "^7.1.0",
     "eslint": "^10.0.1",
