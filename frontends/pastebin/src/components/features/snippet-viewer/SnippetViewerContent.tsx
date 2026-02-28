@@ -19,7 +19,7 @@ export function SnippetViewerContent({
   if (canPreview && showPreview) {
     return (
       <>
-        <div className="flex-1 overflow-hidden border-r border-border" data-testid="viewer-code-pane" role="region" aria-label="Code viewer">
+        <div className="flex-1 overflow-hidden border-b md:border-b-0 md:border-r border-border" data-testid="viewer-code-pane" role="region" aria-label="Code viewer">
           <MonacoEditor
             value={snippet.code}
             onChange={() => {}}

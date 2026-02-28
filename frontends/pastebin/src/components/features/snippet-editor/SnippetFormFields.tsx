@@ -23,8 +23,8 @@ export function SnippetFormFields({
 }: SnippetFormFieldsProps) {
   return (
     <>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '16px', alignItems: 'flex-start' }}>
-        <div className="space-y-2">
+      <div className="flex flex-col sm:flex-row gap-4 items-start">
+        <div className="flex-1 space-y-2">
           <FormLabel htmlFor="title">Title *</FormLabel>
           <Input
             id="title"
@@ -45,7 +45,7 @@ export function SnippetFormFields({
           )}
         </div>
 
-        <div className="space-y-2" style={{ minWidth: '180px' }}>
+        <div className="space-y-2 w-full sm:w-auto sm:min-w-[180px]">
           <FormLabel htmlFor="language">Language</FormLabel>
           <Select
             value={language}

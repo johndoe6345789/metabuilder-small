@@ -57,9 +57,9 @@ export function SnippetViewer({ snippet, open, onOpenChange, onEdit, onCopy }: S
 
       <DialogContent
         data-testid="snippet-viewer-dialog"
-        className="sm:max-w-[95vw] sm:max-h-[95vh] h-[95vh] overflow-hidden flex flex-col p-0"
+        className="sm:max-w-[95vw] h-[80vh] sm:h-[95vh] overflow-hidden flex flex-col p-0"
       >
-        <div className="flex-1 overflow-hidden flex">
+        <div className="flex-1 overflow-hidden flex flex-col md:flex-row">
           <SnippetViewerContent
             snippet={snippet}
             canPreview={canPreview}

@@ -133,8 +133,8 @@ export function SplitScreenEditor({
         )}
 
         {viewMode === 'split' && (
-          <div className="grid grid-cols-2 h-full" style={{ gap: '1px', backgroundColor: 'var(--mat-sys-outline-variant)' }} data-testid="split-screen-grid">
-            <div className="overflow-auto" style={{ backgroundColor: 'var(--mat-sys-surface)' }} data-testid="split-screen-code-pane">
+          <div className="flex flex-col md:flex-row h-full" style={{ gap: '1px', backgroundColor: 'var(--mat-sys-outline-variant)' }} data-testid="split-screen-grid">
+            <div className="flex-1 overflow-auto" style={{ backgroundColor: 'var(--mat-sys-surface)' }} data-testid="split-screen-code-pane">
               <MonacoEditor
                 value={value}
                 onChange={onChange}
@@ -142,7 +142,7 @@ export function SplitScreenEditor({
                 height="100%"
               />
             </div>
-            <div className="overflow-auto" style={{ backgroundColor: 'var(--mat-sys-surface)' }} data-testid="split-screen-preview-pane">
+            <div className="flex-1 overflow-auto" style={{ backgroundColor: 'var(--mat-sys-surface)' }} data-testid="split-screen-preview-pane">
               {isPython ? (
                 <PythonOutput code={value} />
               ) : (
