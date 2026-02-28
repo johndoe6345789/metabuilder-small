@@ -17,8 +17,22 @@ import {
   setWorkspaceError,
 } from '@metabuilder/redux-slices';
 import type { Workspace } from '@metabuilder/types';
-import { useDBAL } from '@metabuilder/api-clients';
 import { useUINotifications } from './ui/useUINotifications';
+
+const dbalUrl = () =>
+  (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_DBAL_API_URL) ||
+  'http://localhost:8080'
+
+async function dbalFetch<T>(method: string, path: string, body?: unknown): Promise<T> {
+  const res = await fetch(`${dbalUrl()}/${path}`, {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+    body: body !== undefined ? JSON.stringify(body) : undefined,
+  })
+  if (!res.ok) throw new Error(`DBAL ${res.status}`)
+  const json = await res.json() as Record<string, unknown>
+  return ('data' in json ? json.data : json) as T
+}
 
 // Re-export Workspace type for consumers
 export type { Workspace } from '@metabuilder/types';
@@ -56,7 +70,6 @@ interface RootState {
  */
 export function useWorkspace() {
   const dispatch = useDispatch();
-  const dbal = useDBAL();
   const { success, error: showError } = useUINotifications();
 
   // Redux state selectors
@@ -82,7 +95,7 @@ export function useWorkspace() {
   const loadWorkspaces = useCallback(async () => {
     dispatch(setWorkspaceLoading(true));
     try {
-      const response = await dbal.list<{ data: Workspace[]; total: number }>('workspace');
+      const response = await dbalFetch<{ data: Workspace[]; total: number }>('GET', 'default/core/workspace');
 
       if (response && response.data) {
         const loadedWorkspaces = response.data;
@@ -119,8 +132,7 @@ export function useWorkspace() {
     } finally {
       dispatch(setWorkspaceLoading(false));
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, dbal]);
+  }, [dispatch]);
 
   // Load workspaces once on mount
   useEffect(() => {
@@ -145,7 +157,7 @@ export function useWorkspace() {
           color: data.color || '#1976d2',
         };
 
-        const response = await dbal.create<Workspace>('Workspace', workspaceData);
+        const response = await dbalFetch<Workspace>('POST', 'default/core/workspace', workspaceData);
 
         if (!response) {
           throw new Error('Failed to create workspace - no response');
@@ -164,7 +176,7 @@ export function useWorkspace() {
         dispatch(setWorkspaceLoading(false));
       }
     },
-    [dispatch, getTenantId, dbal, success, showError]
+    [dispatch, getTenantId, success, showError]
   );
 
   // Update workspace
@@ -172,7 +184,7 @@ export function useWorkspace() {
     async (id: string, data: UpdateWorkspaceRequest): Promise<Workspace> => {
       dispatch(setWorkspaceLoading(true));
       try {
-        const response = await dbal.update<Workspace>('Workspace', id, data);
+        const response = await dbalFetch<Workspace>('PUT', `default/core/workspace/${id}`, data);
 
         if (!response) {
           throw new Error('Failed to update workspace - no response');
@@ -191,7 +203,7 @@ export function useWorkspace() {
         dispatch(setWorkspaceLoading(false));
       }
     },
-    [dispatch, dbal, success, showError]
+    [dispatch, success, showError]
   );
 
   // Delete workspace
@@ -199,7 +211,7 @@ export function useWorkspace() {
     async (id: string) => {
       dispatch(setWorkspaceLoading(true));
       try {
-        await dbal.delete('Workspace', id);
+        await dbalFetch<void>('DELETE', `default/core/workspace/${id}`);
         dispatch(removeWorkspace(id));
         success('Workspace deleted successfully!');
       } catch (err) {
@@ -212,7 +224,7 @@ export function useWorkspace() {
         dispatch(setWorkspaceLoading(false));
       }
     },
-    [dispatch, dbal, success, showError]
+    [dispatch, success, showError]
   );
 
   // Switch workspace

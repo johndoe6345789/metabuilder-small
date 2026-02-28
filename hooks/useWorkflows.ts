@@ -1,40 +1,37 @@
 /**
  * useWorkflows Hook
- * Manages workflow state and operations using DBAL
+ * Manages workflow list via DBAL REST API + Redux (persisted to IndexedDB via redux-persist)
  */
 
-import { useCallback, useState } from 'react';
-import { useDBAL } from '@metabuilder/api-clients';
+import { useCallback } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { useUINotifications } from './ui/useUINotifications';
+import {
+  setWorkflows,
+  addWorkflowToList,
+  updateWorkflowInList,
+  removeWorkflowFromList,
+  setWorkflowsLoading,
+  setWorkflowsError,
+  selectWorkflows,
+  selectWorkflowsIsLoading,
+  selectWorkflowsError,
+  type WorkflowsState,
+} from '@metabuilder/redux-slices';
 
-export interface Workflow {
-  id: string;
-  name: string;
-  description?: string;
-  version: string;
-  category: string;
-  status: 'draft' | 'published' | 'deprecated' | 'active' | 'paused';
-  nodes: any[];
-  connections: Record<string, any>;
-  metadata?: {
-    author?: string;
-    tags?: string[];
-    labels?: Record<string, string>;
-  };
-  executionConfig?: {
-    timeout?: number;
-    retryStrategy?: 'fail' | 'fallback' | 'skip' | 'retry';
-    maxRetries?: number;
-    parallelNodes?: boolean;
-  };
-  isPublished: boolean;
-  isArchived: boolean;
-  createdAt: number;
-  updatedAt: number;
-  publishedAt?: number;
-  createdBy?: string;
-  updatedBy?: string;
-  tenantId: string;
+const dbalUrl = () =>
+  (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_DBAL_API_URL) ||
+  'http://localhost:8080'
+
+async function dbalFetch<T>(method: string, path: string, body?: unknown): Promise<T> {
+  const res = await fetch(`${dbalUrl()}/${path}`, {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+    body: body !== undefined ? JSON.stringify(body) : undefined,
+  })
+  if (!res.ok) throw new Error(`DBAL ${res.status}`)
+  const json = await res.json() as Record<string, unknown>
+  return ('data' in json ? json.data : json) as T
 }
 
 export interface CreateWorkflowRequest {
@@ -43,9 +40,9 @@ export interface CreateWorkflowRequest {
   version?: string;
   category?: string;
   status?: 'draft' | 'active';
-  nodes?: any[];
-  connections?: Record<string, any>;
-  metadata?: Record<string, any>;
+  nodes?: unknown[];
+  connections?: Record<string, unknown>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface UpdateWorkflowRequest {
@@ -54,9 +51,9 @@ export interface UpdateWorkflowRequest {
   version?: string;
   category?: string;
   status?: string;
-  nodes?: any[];
-  connections?: Record<string, any>;
-  metadata?: Record<string, any>;
+  nodes?: unknown[];
+  connections?: Record<string, unknown>;
+  metadata?: Record<string, unknown>;
   isPublished?: boolean;
 }
 
@@ -68,11 +65,17 @@ export interface ListWorkflowsOptions {
   page?: number;
 }
 
+interface RootState {
+  workflows: WorkflowsState;
+}
+
 export function useWorkflows() {
-  const dbal = useDBAL();
+  const dispatch = useDispatch();
   const { success, error: showError } = useUINotifications();
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+
+  const workflows = useSelector((state: RootState) => selectWorkflows(state));
+  const isLoading = useSelector((state: RootState) => selectWorkflowsIsLoading(state));
+  const error = useSelector((state: RootState) => selectWorkflowsError(state));
 
   const getTenantId = useCallback(() => {
     if (typeof window !== 'undefined') {
@@ -82,9 +85,9 @@ export function useWorkflows() {
   }, []);
 
   const listWorkflows = useCallback(
-    async (options: ListWorkflowsOptions = {}): Promise<Workflow[]> => {
-      setIsLoading(true);
-      setError(null);
+    async (options: ListWorkflowsOptions = {}): Promise<void> => {
+      dispatch(setWorkflowsLoading(true));
+      dispatch(setWorkflowsError(null));
       try {
         const params: Record<string, string> = {};
         if (options.status) params.status = options.status;
@@ -93,49 +96,42 @@ export function useWorkflows() {
         if (options.limit) params.limit = String(options.limit);
         if (options.page) params.page = String(options.page);
 
-        const response = await dbal.list<{ data: Workflow[]; total: number }>('Workflow', params);
+        const qs = new URLSearchParams(params).toString()
+        const response = await dbalFetch<{ data: unknown[]; total: number }>(
+          'GET', `default/core/workflow${qs ? `?${qs}` : ''}`
+        );
 
-        if (response && response.data) {
-          return response.data;
-        }
-        return [];
+        dispatch(setWorkflows((response?.data ?? []) as Parameters<typeof setWorkflows>[0]));
       } catch (err) {
         const errorMsg = err instanceof Error ? err.message : 'Failed to load workflows';
-        setError(errorMsg);
+        dispatch(setWorkflowsError(errorMsg));
         console.error('Failed to load workflows:', err);
-        return [];
       } finally {
-        setIsLoading(false);
+        dispatch(setWorkflowsLoading(false));
       }
     },
-    [dbal]
+    [dispatch]
   );
 
   const getWorkflow = useCallback(
-    async (id: string): Promise<Workflow | null> => {
-      setIsLoading(true);
-      setError(null);
+    async (id: string): Promise<unknown | null> => {
       try {
-        const response = await dbal.get<Workflow>('Workflow', id);
-        return response;
+        return await dbalFetch<unknown>('GET', `default/core/workflow/${id}`);
       } catch (err) {
         const errorMsg = err instanceof Error ? err.message : 'Failed to load workflow';
-        setError(errorMsg);
+        dispatch(setWorkflowsError(errorMsg));
         console.error('Failed to load workflow:', err);
         return null;
-      } finally {
-        setIsLoading(false);
       }
     },
-    [dbal]
+    [dispatch]
   );
 
   const createWorkflow = useCallback(
-    async (data: CreateWorkflowRequest): Promise<Workflow | null> => {
-      setIsLoading(true);
-      setError(null);
+    async (data: CreateWorkflowRequest): Promise<unknown | null> => {
+      dispatch(setWorkflowsLoading(true));
+      dispatch(setWorkflowsError(null));
       try {
-        // Generate ID from name: lowercase, replace spaces with underscores, prefix with workflow_
         const generateId = (name: string): string => {
           const base = name.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
           return `workflow_${base}_${Date.now()}`;
@@ -159,95 +155,90 @@ export function useWorkflows() {
           tenantId: getTenantId(),
         };
 
-        const response = await dbal.create<Workflow>('Workflow', workflowData);
+        const response = await dbalFetch<unknown>('POST', 'default/core/workflow', workflowData);
         if (response) {
+          dispatch(addWorkflowToList(response as Parameters<typeof addWorkflowToList>[0]));
           success(`Workflow "${data.name}" created successfully!`);
         }
         return response;
       } catch (err) {
         const errorMsg = err instanceof Error ? err.message : 'Failed to create workflow';
-        setError(errorMsg);
+        dispatch(setWorkflowsError(errorMsg));
         showError(errorMsg);
         console.error('Failed to create workflow:', err);
         return null;
       } finally {
-        setIsLoading(false);
+        dispatch(setWorkflowsLoading(false));
       }
     },
-    [dbal, getTenantId, success, showError]
+    [dispatch, getTenantId, success, showError]
   );
 
   const updateWorkflow = useCallback(
-    async (id: string, data: UpdateWorkflowRequest): Promise<Workflow | null> => {
-      setIsLoading(true);
-      setError(null);
+    async (id: string, data: UpdateWorkflowRequest): Promise<unknown | null> => {
+      dispatch(setWorkflowsLoading(true));
+      dispatch(setWorkflowsError(null));
       try {
-        const response = await dbal.update<Workflow>('Workflow', id, data);
+        const response = await dbalFetch<unknown>('PUT', `default/core/workflow/${id}`, data);
         if (response) {
+          dispatch(updateWorkflowInList(response as Parameters<typeof updateWorkflowInList>[0]));
           success('Workflow updated successfully!');
         }
         return response;
       } catch (err) {
         const errorMsg = err instanceof Error ? err.message : 'Failed to update workflow';
-        setError(errorMsg);
+        dispatch(setWorkflowsError(errorMsg));
         showError(errorMsg);
         console.error('Failed to update workflow:', err);
         return null;
       } finally {
-        setIsLoading(false);
+        dispatch(setWorkflowsLoading(false));
       }
     },
-    [dbal, success, showError]
+    [dispatch, success, showError]
   );
 
   const deleteWorkflow = useCallback(
     async (id: string): Promise<boolean> => {
-      setIsLoading(true);
-      setError(null);
+      dispatch(setWorkflowsLoading(true));
+      dispatch(setWorkflowsError(null));
       try {
-        await dbal.delete('Workflow', id);
+        await dbalFetch<void>('DELETE', `default/core/workflow/${id}`);
+        dispatch(removeWorkflowFromList(id));
         success('Workflow deleted successfully!');
         return true;
       } catch (err) {
         const errorMsg = err instanceof Error ? err.message : 'Failed to delete workflow';
-        setError(errorMsg);
+        dispatch(setWorkflowsError(errorMsg));
         showError(errorMsg);
         console.error('Failed to delete workflow:', err);
         return false;
       } finally {
-        setIsLoading(false);
+        dispatch(setWorkflowsLoading(false));
       }
     },
-    [dbal, success, showError]
+    [dispatch, success, showError]
   );
 
   const executeWorkflow = useCallback(
     async (id: string): Promise<{ executionId: string; status: string } | null> => {
-      setIsLoading(true);
-      setError(null);
       try {
         // TODO: Once execution engine is implemented, make actual API call
-        // For now, return a simulated execution result
         const executionId = `exec_${id}_${Date.now()}`;
         console.log('Simulated workflow execution:', { id, executionId });
-
-        return {
-          executionId,
-          status: 'simulated',
-        };
+        return { executionId, status: 'simulated' };
       } catch (err) {
         const errorMsg = err instanceof Error ? err.message : 'Failed to execute workflow';
-        setError(errorMsg);
+        dispatch(setWorkflowsError(errorMsg));
         console.error('Failed to execute workflow:', err);
         return null;
-      } finally {
-        setIsLoading(false);
       }
     },
-    [dbal]
+    [dispatch]
   );
 
   return {
+    workflows,
     isLoading,
     error,
     listWorkflows,

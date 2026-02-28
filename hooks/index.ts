@@ -180,10 +180,6 @@ export { useDebouncedSave } from './useDebouncedSave'
 export { useLastSaved } from './useLastSaved'
 
 // DBAL REST API hooks
-export { useDBALClient } from './src/useDBALClient'
-export type { UseDBALClientReturn } from './src/useDBALClient'
-export { useDBALEntity } from './src/useDBALEntity'
-export type { UseDBALEntityOptions, UseDBALEntityReturn } from './src/useDBALEntity'
 export { useBlobStorage } from './src/useBlobStorage'
 export type { UseBlobStorageReturn } from './src/useBlobStorage'
 export { useKVStore } from './src/useKVStore'

@@ -120,6 +120,15 @@ export {
   selectProjectIsLoading, selectProjectError
 } from './slices/projectSlice'
 
+// Workflows list (distinct from workflowSlice which manages a single open DAG)
+export { workflowsSlice, type WorkflowsState } from './slices/workflowsSlice'
+export {
+  setWorkflows, addWorkflowToList, updateWorkflowInList,
+  removeWorkflowFromList, clearWorkflows,
+  setLoading as setWorkflowsLoading, setError as setWorkflowsError,
+  selectWorkflows, selectWorkflowsIsLoading, selectWorkflowsError
+} from './slices/workflowsSlice'
+
 // Workspace
 export { workspaceSlice } from './slices/workspaceSlice'
 export {
@@ -169,6 +178,7 @@ export type AppDispatch = any
 // RootState includes all slice state types for selector compatibility
 export interface RootState {
   workflow: import('./slices/workflowSlice').WorkflowState;
+  workflows: import('./slices/workflowsSlice').WorkflowsState;
   canvas: any;
   canvasItems: any;
   editor: any;

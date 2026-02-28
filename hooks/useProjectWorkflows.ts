@@ -4,7 +4,21 @@
  */
 
 import { useCallback, useEffect, useState } from 'react';
-import { useDBALEntity } from './src/useDBALEntity';
+
+const dbalUrl = () =>
+  (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_DBAL_API_URL) ||
+  'http://localhost:8080'
+
+async function dbalFetch<T>(method: string, path: string, body?: unknown): Promise<T> {
+  const res = await fetch(`${dbalUrl()}/${path}`, {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+    body: body !== undefined ? JSON.stringify(body) : undefined,
+  })
+  if (!res.ok) throw new Error(`DBAL ${res.status}`);
+  const json = await res.json() as Record<string, unknown>
+  return ('data' in json ? json.data : json) as T
+}
 
 export interface ProjectWorkflow {
   id: string;
@@ -30,11 +44,12 @@ interface UseProjectWorkflowsOptions {
 }
 
 /**
- * Hook for managing workflows within a project via the DBAL REST API
+ * Hook for managing workflows within a project via the DBAL REST API.
+ * Project-scoped: uses local state (not Redux) since results are filtered by projectId.
  */
 export function useProjectWorkflows(options: UseProjectWorkflowsOptions) {
   const { projectId, autoLoad = true } = options;
-  const [workflows, setWorkflows] = useState<ProjectWorkflow[]>([]);
+  const [workflows, setWorkflowsState] = useState<ProjectWorkflow[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -42,8 +57,7 @@ export function useProjectWorkflows(options: UseProjectWorkflowsOptions) {
     options.tenant ??
     (typeof window !== 'undefined' ? localStorage.getItem('tenantId') ?? 'default' : 'default');
   const packageId = options.packageId ?? 'core';
-
-  const entity = useDBALEntity<Record<string, unknown>>('workflow', { tenant, packageId });
+  const base = `${tenant}/${packageId}/workflow`;
 
   /**
    * Fetch workflows for the current project from DBAL REST API
@@ -53,17 +67,12 @@ export function useProjectWorkflows(options: UseProjectWorkflowsOptions) {
     setError(null);
 
     try {
-      const result = await entity.list({
-        filter: {
-          isArchived: false,
-        },
-        sort: {
-          updatedAt: 'desc',
-        },
-      });
+      const qs = new URLSearchParams({ isArchived: 'false', projectId }).toString();
+      const result = await dbalFetch<{ data: Record<string, unknown>[] }>(
+        'GET', `${base}?${qs}`
+      );
 
-      // Transform DBAL records to ProjectWorkflow format
-      const transformed: ProjectWorkflow[] = result.data.map((workflow: Record<string, unknown>) => ({
+      const transformed: ProjectWorkflow[] = (result?.data ?? []).map((workflow) => ({
         id: workflow.id as string,
         name: workflow.name as string,
         description: workflow.description as string | undefined,
@@ -83,7 +92,7 @@ export function useProjectWorkflows(options: UseProjectWorkflowsOptions) {
           : undefined,
       }));
 
-      setWorkflows(transformed);
+      setWorkflowsState(transformed);
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : 'Failed to load workflows';
       setError(errorMsg);
@@ -91,7 +100,7 @@ export function useProjectWorkflows(options: UseProjectWorkflowsOptions) {
     } finally {
       setIsLoading(false);
     }
-  }, [projectId, entity]);
+  }, [projectId, base]);
 
   /**
    * Create a new workflow via DBAL REST API
@@ -106,7 +115,7 @@ export function useProjectWorkflows(options: UseProjectWorkflowsOptions) {
       setError(null);
 
       try {
-        const workflow = await entity.create({
+        const workflow = await dbalFetch<Record<string, unknown>>('POST', base, {
           name: data.name,
           description: data.description || '',
           version: '1.0.0',
@@ -129,24 +138,21 @@ export function useProjectWorkflows(options: UseProjectWorkflowsOptions) {
           isArchived: false,
         });
 
-        // Transform to ProjectWorkflow format
         const transformed: ProjectWorkflow = {
-          id: (workflow as Record<string, unknown>).id as string,
-          name: (workflow as Record<string, unknown>).name as string,
-          description: (workflow as Record<string, unknown>).description as string | undefined,
+          id: workflow.id as string,
+          name: workflow.name as string,
+          description: workflow.description as string | undefined,
           nodeCount: 1,
-          status: (workflow as Record<string, unknown>).status as ProjectWorkflow['status'],
+          status: workflow.status as ProjectWorkflow['status'],
           lastModified: Date.now(),
-          category: (workflow as Record<string, unknown>).category as string | undefined,
-          version: (workflow as Record<string, unknown>).version as string | undefined,
+          category: workflow.category as string | undefined,
+          version: workflow.version as string | undefined,
           isPublished: false,
           createdAt: Date.now(),
           updatedAt: Date.now(),
         };
 
-        // Update local state
-        setWorkflows((prev) => [transformed, ...prev]);
-
+        setWorkflowsState((prev) => [transformed, ...prev]);
         return transformed;
       } catch (err) {
         const errorMsg = err instanceof Error ? err.message : 'Failed to create workflow';
@@ -157,11 +163,11 @@ export function useProjectWorkflows(options: UseProjectWorkflowsOptions) {
         setIsLoading(false);
       }
     },
-    [projectId, entity]
+    [base]
   );
 
   /**
-   * Delete a workflow via DBAL REST API (soft delete)
+   * Delete a workflow via DBAL REST API (soft delete via isArchived)
    */
   const deleteWorkflow = useCallback(
     async (workflowId: string) => {
@@ -169,13 +175,8 @@ export function useProjectWorkflows(options: UseProjectWorkflowsOptions) {
       setError(null);
 
       try {
-        // Soft delete by setting isArchived
-        await entity.update(workflowId, {
-          isArchived: true,
-        });
-
-        // Update local state
-        setWorkflows((prev) => prev.filter((w) => w.id !== workflowId));
+        await dbalFetch<void>('PUT', `${base}/${workflowId}`, { isArchived: true });
+        setWorkflowsState((prev) => prev.filter((w) => w.id !== workflowId));
       } catch (err) {
         const errorMsg = err instanceof Error ? err.message : 'Failed to delete workflow';
         setError(errorMsg);
@@ -185,7 +186,7 @@ export function useProjectWorkflows(options: UseProjectWorkflowsOptions) {
         setIsLoading(false);
       }
     },
-    [projectId, entity]
+    [base]
   );
 
   // Auto-load workflows on mount if enabled

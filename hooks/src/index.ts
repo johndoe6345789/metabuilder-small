@@ -24,14 +24,6 @@ export {
   useActiveSelection,
 } from './ui'
 
-// Core transport hook
-export { useDBALClient, isNetworkError } from './useDBALClient'
-export type { UseDBALClientReturn } from './useDBALClient'
-
-// Entity CRUD hook
-export { useDBALEntity } from './useDBALEntity'
-export type { UseDBALEntityOptions, UseDBALEntityReturn } from './useDBALEntity'
-
 // Blob storage hook
 export { useBlobStorage } from './useBlobStorage'
 export type { UseBlobStorageReturn } from './useBlobStorage'

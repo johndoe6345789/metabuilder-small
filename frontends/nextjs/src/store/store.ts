@@ -16,6 +16,7 @@ import {
   collaborationSlice,
   realtimeSlice,
   documentationSlice,
+  workflowsSlice,
 } from '@metabuilder/redux-slices'
 
 const isDev = process.env.NODE_ENV === 'development'
@@ -35,10 +36,11 @@ const { store, persistor } = createPersistedStore({
     collaboration: collaborationSlice.reducer,
     realtime: realtimeSlice.reducer,
     documentation: documentationSlice.reducer,
+    workflows: workflowsSlice.reducer,
   },
   persist: {
     key: 'nextjs-frontend',
-    whitelist: ['auth', 'ui', 'workspace', 'project'],
+    whitelist: ['auth', 'ui', 'workspace', 'project', 'workflows'],
   },
   middleware: (base) => {
     let middleware = base
