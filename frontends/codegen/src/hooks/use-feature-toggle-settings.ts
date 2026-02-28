@@ -23,7 +23,7 @@ const featureLabels: Record<string, string> = {
 
 const featureDescriptions: Record<string, string> = {
   codeEditor: 'Monaco-based code editor with syntax highlighting and IntelliSense',
-  models: 'Prisma schema editor and data model designer',
+  models: 'Data model designer',
   components: 'Visual component builder and JSON definition editor',
   componentTrees: 'Hierarchical component tree manager and inspector',
   workflows: 'DAG workflow editor for multi-step automations',

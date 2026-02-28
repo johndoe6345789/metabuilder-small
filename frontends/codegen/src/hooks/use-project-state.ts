@@ -26,7 +26,7 @@ import {
 import { useUIState } from '@/hooks/use-ui-state'
 import {
   ProjectFile,
-  PrismaModel,
+  DbModel,
   ComponentNode,
   ComponentTree,
   ThemeConfig,
@@ -116,7 +116,7 @@ const DEFAULT_FILES: ProjectFile[] = [
   },
 ]
 
-const DEFAULT_MODELS: PrismaModel[] = [
+const DEFAULT_MODELS: DbModel[] = [
   {
     id: 'model-1',
     name: 'User',
@@ -215,7 +215,7 @@ export function useProjectState() {
 
   // ── Safe accessors (defensive — ensures arrays/objects, falls back to defaults when empty) ─
   const safeFiles = (Array.isArray(sliceFiles) && sliceFiles.length > 0) ? sliceFiles as unknown as ProjectFile[] : DEFAULT_FILES
-  const safeModels = (Array.isArray(sliceModels) && sliceModels.length > 0) ? sliceModels as unknown as PrismaModel[] : DEFAULT_MODELS
+  const safeModels = (Array.isArray(sliceModels) && sliceModels.length > 0) ? sliceModels as unknown as DbModel[] : DEFAULT_MODELS
   const safeComponents = (Array.isArray(sliceComponents) && sliceComponents.length > 0) ? sliceComponents as unknown as ComponentNode[] : DEFAULT_COMPONENTS
   const safeComponentTrees = Array.isArray(componentTrees) ? componentTrees : []
   const safeWorkflows = (Array.isArray(sliceWorkflows) && sliceWorkflows.length > 0) ? sliceWorkflows as unknown as Workflow[] : DEFAULT_WORKFLOWS
@@ -239,7 +239,7 @@ export function useProjectState() {
     }
   }, [dispatch, safeFiles])
 
-  const handleSetModels = useCallback((value: PrismaModel[] | ((prev: PrismaModel[]) => PrismaModel[])) => {
+  const handleSetModels = useCallback((value: DbModel[] | ((prev: DbModel[]) => DbModel[])) => {
     if (typeof value === 'function') {
       const next = value(safeModels)
       dispatch(setModels(next as any))

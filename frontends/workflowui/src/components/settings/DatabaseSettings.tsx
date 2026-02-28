@@ -51,7 +51,6 @@ const ADAPTER_FIELDS: Record<string, string[]> = {
   cassandra: ['host', 'port', 'keyspace'],
   surrealdb: ['host', 'port', 'namespace', 'database'],
   supabase: ['host', 'apiKey', 'database'],
-  prisma: ['endpoint'],
   dynamodb: ['region', 'accessKey', 'secretKey', 'table'],
 };
 
@@ -74,10 +73,6 @@ function buildUrl(adapter: string, fields: Record<string, string>): string {
   if (adapter === 'mongodb') {
     return fields.connectionString || `mongodb://localhost:27017/${fields.database || 'metabuilder'}`;
   }
-  if (adapter === 'prisma') {
-    return `prisma://${fields.endpoint || 'localhost:5555'}`;
-  }
-
   const user = fields.user || '';
   const password = fields.password || '';
   const host = fields.host || 'localhost';

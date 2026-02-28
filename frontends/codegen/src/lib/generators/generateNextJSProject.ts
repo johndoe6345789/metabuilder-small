@@ -1,10 +1,10 @@
-import { ComponentNode, PrismaModel, ThemeConfig } from '@/types/project'
+import { ComponentNode, DbModel, ThemeConfig } from '@/types/project'
 import { generateMUITheme } from './generateMUITheme'
 import { generatePrismaSchema } from './generatePrismaSchema'
 
 export function generateNextJSProject(
   projectName: string,
-  models: PrismaModel[],
+  models: DbModel[],
   components: ComponentNode[],
   theme: ThemeConfig
 ): Record<string, string> {

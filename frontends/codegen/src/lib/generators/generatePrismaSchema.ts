@@ -1,6 +1,6 @@
-import { PrismaModel } from '@/types/project'
+import { DbModel } from '@/types/project'
 
-export function generatePrismaSchema(models: PrismaModel[]): string {
+export function generatePrismaSchema(models: DbModel[]): string {
   let schema = `generator client {\n  provider = "prisma-client-js"\n}\n\n`
   schema += `datasource db {\n  provider = "postgresql"\n  url      = env("DATABASE_URL")\n}\n\n`
 

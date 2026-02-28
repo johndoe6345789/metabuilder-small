@@ -1,4 +1,4 @@
-import { PrismaModel, ComponentNode, ThemeConfig, ProjectFile } from '@/types/project'
+import { DbModel, ComponentNode, ThemeConfig, ProjectFile } from '@/types/project'
 import { ProtectedLLMService } from './protected-llm-service'
 import { llmPrompt } from '@/lib/llm-service'
 import { toast } from '@/components/ui/sonner'
@@ -138,7 +138,7 @@ Make sure to use appropriate Material UI components and props. Keep the structur
     }
   }
 
-  static async generatePrismaModel(description: string, existingModels: PrismaModel[]): Promise<PrismaModel | null> {
+  static async generateDbModel(description: string, existingModels: DbModel[]): Promise<DbModel | null> {
     try {
       const existingModelNames = existingModels.map(m => m.name).join(', ')
 
@@ -345,7 +345,7 @@ Provide a clear, concise explanation suitable for developers.`
     }
   }
 
-  static async generateCompleteApp(description: string): Promise<{ files: ProjectFile[], models: PrismaModel[], theme: Partial<ThemeConfig> } | null> {
+  static async generateCompleteApp(description: string): Promise<{ files: ProjectFile[], models: DbModel[], theme: Partial<ThemeConfig> } | null> {
     try {
       const prompt = llmPrompt`You are a full-stack architect. Generate a complete Next.js application structure based on this description: ${description}
 

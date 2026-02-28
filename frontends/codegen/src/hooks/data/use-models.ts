@@ -1,18 +1,18 @@
 import { useAppDispatch, useAppSelector } from '@/store'
 import { addModel as addModelAction, updateModel as updateModelAction, removeModel, setModels } from '@/store/slices/modelsSlice'
 import { useCallback } from 'react'
-import { PrismaModel } from '@/types/project'
+import { DbModel } from '@/types/project'
 
 export function useModels() {
   const dispatch = useAppDispatch()
   const sliceModels = useAppSelector((s) => s.models?.models ?? [])
-  const models = sliceModels as unknown as PrismaModel[]
+  const models = sliceModels as unknown as DbModel[]
   
-  const addModel = useCallback((model: PrismaModel) => {
+  const addModel = useCallback((model: DbModel) => {
     dispatch(addModelAction(model as any))
   }, [dispatch])
   
-  const updateModel = useCallback((modelId: string, updates: Partial<PrismaModel>) => {
+  const updateModel = useCallback((modelId: string, updates: Partial<DbModel>) => {
     const existing = models.find(m => m.id === modelId)
     if (existing) {
       dispatch(updateModelAction({ ...existing, ...updates } as any))

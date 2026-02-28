@@ -3,7 +3,7 @@ import type {
   ComponentTree,
   Lambda,
   PlaywrightTest,
-  PrismaModel,
+  DbModel,
   ProjectFile,
   StorybookStory,
   UnitTest,
@@ -18,7 +18,7 @@ export interface AppDialogsProps {
   previewOpen: boolean
   onPreviewOpenChange: (open: boolean) => void
   files: ProjectFile[]
-  models: PrismaModel[]
+  models: DbModel[]
   components: ComponentNode[]
   componentTrees: ComponentTree[]
   workflows: Workflow[]

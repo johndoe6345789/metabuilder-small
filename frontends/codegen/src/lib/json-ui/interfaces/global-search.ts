@@ -3,7 +3,7 @@ import {
   ComponentTree,
   Lambda,
   PlaywrightTest,
-  PrismaModel,
+  DbModel,
   ProjectFile,
   StorybookStory,
   UnitTest,
@@ -26,7 +26,7 @@ export interface GlobalSearchProps {
   handleSelect?: (item: any) => void
   handleHistorySelect?: (item: any) => void
   files?: ProjectFile[]
-  models?: PrismaModel[]
+  models?: DbModel[]
   components?: ComponentNode[]
   componentTrees?: ComponentTree[]
   workflows?: Workflow[]

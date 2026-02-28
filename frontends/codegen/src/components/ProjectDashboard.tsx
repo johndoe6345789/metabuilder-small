@@ -1,10 +1,10 @@
 import { JSONPageRenderer } from '@/components/JSONPageRenderer'
 import dashboardSchema from '@/config/pages/dashboard.json'
-import { ProjectFile, PrismaModel, ComponentNode, ThemeConfig, PlaywrightTest, StorybookStory, UnitTest, FlaskConfig, NextJsConfig } from '@/types/project'
+import { ProjectFile, DbModel, ComponentNode, ThemeConfig, PlaywrightTest, StorybookStory, UnitTest, FlaskConfig, NextJsConfig } from '@/types/project'
 
 interface ProjectDashboardProps {
   files: ProjectFile[]
-  models: PrismaModel[]
+  models: DbModel[]
   components: ComponentNode[]
   theme: ThemeConfig
   playwrightTests: PlaywrightTest[]

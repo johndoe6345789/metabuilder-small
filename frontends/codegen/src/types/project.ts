@@ -6,13 +6,13 @@ export interface ProjectFile {
   language: string
 }
 
-export interface PrismaModel {
+export interface DbModel {
   id: string
   name: string
-  fields: PrismaField[]
+  fields: DbField[]
 }
 
-export interface PrismaField {
+export interface DbField {
   id: string
   name: string
   type: string
@@ -289,7 +289,7 @@ export interface FeatureToggles {
 export interface Project {
   name: string
   files: ProjectFile[]
-  models: PrismaModel[]
+  models: DbModel[]
   components: ComponentNode[]
   componentTrees: ComponentTree[]
   workflows: Workflow[]

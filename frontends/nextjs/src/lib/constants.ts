@@ -42,9 +42,9 @@ export function hasMinLevel(role: string, minLevel: number): boolean {
  */
 export const ENV_DEFAULTS = {
   /** Default DBAL adapter when not specified */
-  DBAL_ADAPTER: 'prisma',
+  DBAL_ADAPTER: 'sqlite',
   /** Default database URL for development */
-  DATABASE_URL: 'file:./dev.db',
+  DATABASE_URL: 'sqlite://:memory:',
   /** Default page size for DBAL queries */
   DEV_PAGE_SIZE: 50,
 } as const

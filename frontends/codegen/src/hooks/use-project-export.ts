@@ -3,7 +3,7 @@ import { toast } from '@/components/ui/sonner'
 import JSZip from 'jszip'
 import {
   ProjectFile,
-  PrismaModel,
+  DbModel,
   ComponentNode,
   ThemeConfig,
   PlaywrightTest,
@@ -25,7 +25,7 @@ import {
 
 export function useProjectExport(
   files: ProjectFile[],
-  models: PrismaModel[],
+  models: DbModel[],
   components: ComponentNode[],
   theme: ThemeConfig,
   playwrightTests: PlaywrightTest[],

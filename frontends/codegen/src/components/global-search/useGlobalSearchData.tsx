@@ -27,7 +27,7 @@ import {
   ComponentTree,
   Lambda,
   PlaywrightTest,
-  PrismaModel,
+  DbModel,
   ProjectFile,
   StorybookStory,
   UnitTest,
@@ -72,7 +72,7 @@ interface UseGlobalSearchDataProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   files: ProjectFile[]
-  models: PrismaModel[]
+  models: DbModel[]
   components: ComponentNode[]
   componentTrees: ComponentTree[]
   workflows: Workflow[]
@@ -180,7 +180,7 @@ export function useGlobalSearchData({
         category: 'Models',
         icon: <Database size={18} weight="duotone" />,
         action: () => onNavigate('models', model.id),
-        tags: ['prisma', 'database', 'schema', model.name.toLowerCase()],
+        tags: ['database', 'database', 'schema', model.name.toLowerCase()],
       })
     })
 

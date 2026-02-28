@@ -56,7 +56,7 @@ export const tabInfo: Record<string, TabInfo> = {
   models: {
     title: 'Models',
     icon: <Database size={24} weight="duotone" />,
-    description: 'Define Prisma data models',
+    description: 'Define data models',
   },
   components: {
     title: 'Components',

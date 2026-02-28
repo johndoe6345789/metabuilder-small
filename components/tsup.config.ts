@@ -37,8 +37,6 @@ export default defineConfig({
     '@metabuilder/redux-slices',
     '@monaco-editor/react',
     'monaco-editor',
-    '@prisma/client',
-    '.prisma/client/default',
     /^@metabuilder\//,
     /\.scss$/,
     /\.css$/,

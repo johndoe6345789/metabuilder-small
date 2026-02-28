@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { ProjectFile, PrismaModel, ComponentNode, ThemeConfig, PlaywrightTest, StorybookStory, UnitTest, FlaskConfig } from '@/types/project'
+import { ProjectFile, DbModel, ComponentNode, ThemeConfig, PlaywrightTest, StorybookStory, UnitTest, FlaskConfig } from '@/types/project'
 
 interface DashboardMetrics {
   totalFiles: number
@@ -19,7 +19,7 @@ interface DashboardMetrics {
 
 interface UseDashboardMetricsProps {
   files: ProjectFile[]
-  models: PrismaModel[]
+  models: DbModel[]
   components: ComponentNode[]
   theme: ThemeConfig
   playwrightTests: PlaywrightTest[]
