@@ -8,78 +8,78 @@
   "exports": {
     ".": {
       "types": "./src/index.ts",
-      "import": "./dist/index.js",
-      "default": "./dist/index.js"
+      "import": "./src/index.ts",
+      "default": "./src/index.ts"
     },
     "./canvasSlice": {
-      "types": "./dist/slices/canvasSlice.d.ts",
-      "import": "./dist/slices/canvasSlice.js",
-      "default": "./dist/slices/canvasSlice.js"
+      "types": "./src/slices/canvasSlice.ts",
+      "import": "./src/slices/canvasSlice.ts",
+      "default": "./src/slices/canvasSlice.ts"
     },
     "./canvasItemsSlice": {
-      "types": "./dist/slices/canvasItemsSlice.d.ts",
-      "import": "./dist/slices/canvasItemsSlice.js",
-      "default": "./dist/slices/canvasItemsSlice.js"
+      "types": "./src/slices/canvasItemsSlice.ts",
+      "import": "./src/slices/canvasItemsSlice.ts",
+      "default": "./src/slices/canvasItemsSlice.ts"
     },
     "./editorSlice": {
-      "types": "./dist/slices/editorSlice.d.ts",
-      "import": "./dist/slices/editorSlice.js",
-      "default": "./dist/slices/editorSlice.js"
+      "types": "./src/slices/editorSlice.ts",
+      "import": "./src/slices/editorSlice.ts",
+      "default": "./src/slices/editorSlice.ts"
     },
     "./uiSlice": {
-      "types": "./dist/slices/uiSlice.d.ts",
-      "import": "./dist/slices/uiSlice.js",
-      "default": "./dist/slices/uiSlice.js"
+      "types": "./src/slices/uiSlice.ts",
+      "import": "./src/slices/uiSlice.ts",
+      "default": "./src/slices/uiSlice.ts"
     },
     "./workflowSlice": {
-      "types": "./dist/slices/workflowSlice.d.ts",
-      "import": "./dist/slices/workflowSlice.js",
-      "default": "./dist/slices/workflowSlice.js"
+      "types": "./src/slices/workflowSlice.ts",
+      "import": "./src/slices/workflowSlice.ts",
+      "default": "./src/slices/workflowSlice.ts"
     },
     "./connectionSlice": {
-      "types": "./dist/slices/connectionSlice.d.ts",
-      "import": "./dist/slices/connectionSlice.js",
-      "default": "./dist/slices/connectionSlice.js"
+      "types": "./src/slices/connectionSlice.ts",
+      "import": "./src/slices/connectionSlice.ts",
+      "default": "./src/slices/connectionSlice.ts"
     },
     "./authSlice": {
-      "types": "./dist/slices/authSlice.d.ts",
-      "import": "./dist/slices/authSlice.js",
-      "default": "./dist/slices/authSlice.js"
+      "types": "./src/slices/authSlice.ts",
+      "import": "./src/slices/authSlice.ts",
+      "default": "./src/slices/authSlice.ts"
     },
     "./projectSlice": {
-      "types": "./dist/slices/projectSlice.d.ts",
-      "import": "./dist/slices/projectSlice.js",
-      "default": "./dist/slices/projectSlice.js"
+      "types": "./src/slices/projectSlice.ts",
+      "import": "./src/slices/projectSlice.ts",
+      "default": "./src/slices/projectSlice.ts"
     },
     "./nodesSlice": {
-      "types": "./dist/slices/nodesSlice.d.ts",
-      "import": "./dist/slices/nodesSlice.js",
-      "default": "./dist/slices/nodesSlice.js"
+      "types": "./src/slices/nodesSlice.ts",
+      "import": "./src/slices/nodesSlice.ts",
+      "default": "./src/slices/nodesSlice.ts"
     },
     "./workspaceSlice": {
-      "types": "./dist/slices/workspaceSlice.d.ts",
-      "import": "./dist/slices/workspaceSlice.js",
-      "default": "./dist/slices/workspaceSlice.js"
+      "types": "./src/slices/workspaceSlice.ts",
+      "import": "./src/slices/workspaceSlice.ts",
+      "default": "./src/slices/workspaceSlice.ts"
     },
     "./collaborationSlice": {
-      "types": "./dist/slices/collaborationSlice.d.ts",
-      "import": "./dist/slices/collaborationSlice.js",
-      "default": "./dist/slices/collaborationSlice.js"
+      "types": "./src/slices/collaborationSlice.ts",
+      "import": "./src/slices/collaborationSlice.ts",
+      "default": "./src/slices/collaborationSlice.ts"
     },
     "./realtimeSlice": {
-      "types": "./dist/slices/realtimeSlice.d.ts",
-      "import": "./dist/slices/realtimeSlice.js",
-      "default": "./dist/slices/realtimeSlice.js"
+      "types": "./src/slices/realtimeSlice.ts",
+      "import": "./src/slices/realtimeSlice.ts",
+      "default": "./src/slices/realtimeSlice.ts"
     },
     "./documentationSlice": {
-      "types": "./dist/slices/documentationSlice.d.ts",
-      "import": "./dist/slices/documentationSlice.js",
-      "default": "./dist/slices/documentationSlice.js"
+      "types": "./src/slices/documentationSlice.ts",
+      "import": "./src/slices/documentationSlice.ts",
+      "default": "./src/slices/documentationSlice.ts"
     },
     "./asyncDataSlice": {
-      "types": "./dist/slices/asyncDataSlice.d.ts",
-      "import": "./dist/slices/asyncDataSlice.js",
-      "default": "./dist/slices/asyncDataSlice.js"
+      "types": "./src/slices/asyncDataSlice.ts",
+      "import": "./src/slices/asyncDataSlice.ts",
+      "default": "./src/slices/asyncDataSlice.ts"
     }
   },
   "typesVersions": {
@@ -119,6 +119,6 @@
     "typescript": "^5.9.3"
   },
   "files": [
-    "dist"
+    "src"
   ]
 }

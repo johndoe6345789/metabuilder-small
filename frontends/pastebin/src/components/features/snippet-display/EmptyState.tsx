@@ -47,11 +47,12 @@ export function EmptyState({ onCreateClick, onCreateFromTemplate }: EmptyStatePr
         data-testid="empty-state-create-menu"
         aria-label="Create new snippet from templates"
         aria-haspopup="menu"
-        onClick={(e) => setMenuAnchor(e.currentTarget)}
+        aria-expanded={Boolean(menuAnchor)}
+        onClick={(e) => setMenuAnchor(menuAnchor ? null : e.currentTarget)}
       >
         <Code className="h-5 w-5" weight="bold" aria-hidden="true" />
         {strings.emptyState.buttonText}
-        <CaretDown weight="bold" aria-hidden="true" />
+        <CaretDown weight="bold" aria-hidden="true" style={{ transition: 'transform 150ms', transform: menuAnchor ? 'rotate(180deg)' : 'none' }} />
       </Button>
       <TemplatePicker
         anchor={menuAnchor}

@@ -11,8 +11,13 @@ const nextConfig = {
     '@metabuilder/components',
     '@metabuilder/fakemui',
     '@metabuilder/redux-persist',
+    '@metabuilder/redux-slices',
+    '@metabuilder/redux-core',
     '@metabuilder/hooks',
+    '@metabuilder/hooks-canvas',
+    '@metabuilder/service-adapters',
     '@metabuilder/services',
+    '@metabuilder/types',
   ],
   sassOptions: {
     loadPaths: [

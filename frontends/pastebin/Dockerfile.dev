@@ -21,11 +21,12 @@ COPY frontends/pastebin/tsconfig.json        ./frontends/pastebin/
 COPY frontends/pastebin/postcss.config.mjs   ./frontends/pastebin/
 
 # Shared source packages — mounted as volumes for hot reload
-# (hooks, components, scss, icons; redux/workflow stay from base image)
+# (hooks, components, scss, icons are mounted; redux/workflow baked in since not in base image)
 COPY hooks/       ./hooks/
 COPY icons/       ./icons/
 COPY scss/        ./scss/
 COPY components/  ./components/
+COPY redux/       ./redux/
 
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"

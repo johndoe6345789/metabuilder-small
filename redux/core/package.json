@@ -45,27 +45,32 @@
   "exports": {
     ".": {
       "types": "./src/index.ts",
-      "default": "./dist/index.js"
+      "import": "./src/index.ts",
+      "default": "./src/index.ts"
     },
     "./slices": {
-      "types": "./dist/slices/index.d.ts",
-      "default": "./dist/slices/index.js"
+      "types": "./src/slices/index.ts",
+      "import": "./src/slices/index.ts",
+      "default": "./src/slices/index.ts"
     },
     "./types": {
-      "types": "./dist/types/index.d.ts",
-      "default": "./dist/types/index.js"
+      "types": "./src/types/index.ts",
+      "import": "./src/types/index.ts",
+      "default": "./src/types/index.ts"
     },
     "./store": {
-      "types": "./dist/store/index.d.ts",
-      "default": "./dist/store/index.js"
+      "types": "./src/store/index.ts",
+      "import": "./src/store/index.ts",
+      "default": "./src/store/index.ts"
     },
     "./middleware": {
-      "types": "./dist/middleware/index.d.ts",
-      "default": "./dist/middleware/index.js"
+      "types": "./src/middleware/index.ts",
+      "import": "./src/middleware/index.ts",
+      "default": "./src/middleware/index.ts"
     }
   },
   "files": [
-    "dist",
+    "src",
     "README.md",
     "package.json"
   ],

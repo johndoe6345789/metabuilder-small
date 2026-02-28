@@ -48,6 +48,18 @@ export const Menu: React.FC<MenuProps> = ({
     setMounted(true)
   }, [])
 
+  useEffect(() => {
+    if (!open) return
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.stopPropagation()
+        onClose?.()
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [open, onClose])
+
   // Clamp position within viewport after render (runs before paint — no flicker)
   useLayoutEffect(() => {
     if (!open || !mounted) return
