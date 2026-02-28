@@ -39,6 +39,13 @@ RUN mkdir -p /tmp/dbal-build && \
 # ── Qt6 frontend ──────────────────────────────────────────────────────────────
 COPY frontends/qt6/conanfile.txt /deps/qt6/conanfile.txt
 
+# Pre-fetch Qt recipe into Conan cache, then patch source URL to use fast UK
+# mirror (default download.qt.io is very slow outside central EU)
+ARG QT_MIRROR=https://mirrors.ukfast.co.uk/sites/qt.io
+RUN conan graph info /deps/qt6/ -s build_type=Release 2>/dev/null || true && \
+    find /root/.conan2 -name "conandata.yml" -exec grep -l "download.qt.io" {} \; | \
+      xargs -r sed -i "s|https://download.qt.io|${QT_MIRROR}|g"
+
 RUN mkdir -p /tmp/qt6-build && \
     for i in 1 2 3 4 5; do \
       conan install /deps/qt6/ \

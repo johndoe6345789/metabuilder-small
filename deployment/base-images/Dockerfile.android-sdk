@@ -12,8 +12,11 @@ ENV ANDROID_HOME=/opt/android-sdk \
     ANDROID_SDK_ROOT=/opt/android-sdk \
     GRADLE_VERSION=8.12 \
     GRADLE_HOME=/opt/gradle/gradle-8.12 \
-    PATH=/opt/android-sdk/cmdline-tools/latest/bin:/opt/android-sdk/platform-tools:/opt/gradle/gradle-8.12/bin:$PATH \
-    JAVA_HOME=/usr/lib/jvm/java-17-openjdk-arm64
+    PATH=/opt/android-sdk/cmdline-tools/latest/bin:/opt/android-sdk/platform-tools:/opt/gradle/gradle-8.12/bin:$PATH
+
+# JAVA_HOME — detect dynamically, no hardcoded arch
+RUN ln -sf "$(dirname "$(dirname "$(readlink -f "$(which java)")")")" /usr/lib/jvm/default-java
+ENV JAVA_HOME=/usr/lib/jvm/default-java
 
 # Android command-line tools (with retry — Google CDN is reliable but large)
 RUN for i in 1 2 3 4 5; do \
