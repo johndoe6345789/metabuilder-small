@@ -1,6 +1,6 @@
 # metabuilder/base-pip-deps
 #
-# Python 3.11-slim with every requirements.txt across all Python services
+# Python 3.14-slim with every requirements.txt across all Python services
 # pre-installed in site-packages.
 #
 # Build:  docker build -f Dockerfile.pip-deps -t metabuilder/base-pip-deps:latest ../../

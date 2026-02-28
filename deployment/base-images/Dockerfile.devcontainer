@@ -33,7 +33,7 @@ COPY --from=node-deps /app/node_modules     /workspace/node_modules
 # ── Python packages (from base-pip-deps) ──────────────────────────────────────
 # Copy entire site-packages + all pip-installed binaries in one go.
 # Avoids hard-coding individual binary paths (gunicorn, celery, etc.).
-COPY --from=pip-deps /usr/local/lib/python3.11 /usr/local/lib/python3.11
+COPY --from=pip-deps /usr/local/lib/python3.14 /usr/local/lib/python3.14
 COPY --from=pip-deps /usr/local/bin/           /usr/local/bin/
 
 # ── Android SDK + Gradle (from base-android-sdk) ──────────────────────────────
@@ -116,7 +116,7 @@ RUN for i in 1 2 3 4 5; do \
     done
 
 COPY --from=android-sdk /usr/lib/jvm /usr/lib/jvm
-ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-arm64
+ENV JAVA_HOME=/usr/lib/jvm/default-java
 
 # ── PATH consolidation ────────────────────────────────────────────────────────
 ENV PATH=/opt/gradle/gradle-8.12/bin:/opt/android-sdk/cmdline-tools/latest/bin:/opt/android-sdk/platform-tools:/opt/cargo/bin:/opt/go/bin:/opt/gopath/bin:/usr/local/bin:$PATH
