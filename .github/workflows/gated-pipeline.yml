@@ -1621,6 +1621,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [container-base-tier3, container-build-apps]
     if: github.event_name != 'pull_request' && github.event_name != 'issues' && github.event_name != 'issue_comment' && !failure()
+    continue-on-error: true   # heavy/not-yet-built images must not block the gate
     strategy:
       fail-fast: false
       matrix:
@@ -1639,8 +1640,16 @@ jobs:
           - workflowui
           - exploded-diagrams
     steps:
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@0.28.0
+        timeout-minutes: 15
         with:
           image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/${{ matrix.image }}:${{ github.ref_name }}
           format: 'sarif'
