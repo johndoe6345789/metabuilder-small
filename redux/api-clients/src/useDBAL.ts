@@ -95,8 +95,21 @@ export interface UseDBALResult {
  * await dbal.delete('users', 'user-123')
  * ```
  */
+/**
+ * Resolve the default base URL.
+ * Prefer the public DBAL env var so clients call the C++ daemon directly.
+ * Fall back to /api/dbal proxy for environments where the daemon isn't
+ * browser-accessible (e.g. internal Docker networks).
+ */
+function getDefaultBaseUrl(): string {
+  if (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_DBAL_API_URL) {
+    return process.env.NEXT_PUBLIC_DBAL_API_URL
+  }
+  return '/api/dbal'
+}
+
 export function useDBAL(options: UseDBALOptions = {}): UseDBALResult {
-  const { baseUrl = '/api/dbal', tenant = 'default', package: pkg = 'core' } = options
+  const { baseUrl = getDefaultBaseUrl(), tenant = 'default', package: pkg = 'core' } = options
 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<DBALError | null>(null)

@@ -1,11 +1,12 @@
 /**
- * DBAL Proxy Route
+ * DBAL Proxy Route (Docker fallback)
  *
  * Forwards requests to the C++ DBAL REST API.
  * URL pattern: /api/dbal/{tenant}/{package}/{entity}[/{id}]
  *
- * This is used by the client-side useDBAL hook which can't
- * reach the internal Docker network directly.
+ * useDBAL prefers calling the C++ daemon directly via NEXT_PUBLIC_DBAL_API_URL.
+ * This proxy is the fallback when the daemon isn't browser-accessible
+ * (e.g. internal Docker network: http://dbal:8080).
  */
 
 import type { NextRequest } from 'next/server'
