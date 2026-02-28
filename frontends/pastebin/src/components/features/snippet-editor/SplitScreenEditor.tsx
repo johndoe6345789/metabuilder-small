@@ -102,7 +102,7 @@ export function SplitScreenEditor({
       <div
         className="rounded-md overflow-hidden border"
         style={{
-          height,
+          height: viewMode === 'split' ? 'auto' : height,
           borderColor: 'var(--mat-sys-outline-variant)',
           backgroundColor: 'var(--mat-sys-surface)'
         }}
@@ -133,16 +133,16 @@ export function SplitScreenEditor({
         )}
 
         {viewMode === 'split' && (
-          <div className="flex flex-col md:flex-row h-full" style={{ gap: '1px', backgroundColor: 'var(--mat-sys-outline-variant)' }} data-testid="split-screen-grid">
-            <div className="flex-1 overflow-auto" style={{ backgroundColor: 'var(--mat-sys-surface)' }} data-testid="split-screen-code-pane">
+          <div className="flex flex-col md:flex-row" style={{ gap: '1px', backgroundColor: 'var(--mat-sys-outline-variant)' }} data-testid="split-screen-grid">
+            <div className="md:flex-1 overflow-auto" style={{ height, backgroundColor: 'var(--mat-sys-surface)' }} data-testid="split-screen-code-pane">
               <MonacoEditor
                 value={value}
                 onChange={onChange}
                 language={language}
-                height="100%"
+                height={height}
               />
             </div>
-            <div className="flex-1 overflow-auto" style={{ backgroundColor: 'var(--mat-sys-surface)' }} data-testid="split-screen-preview-pane">
+            <div className="md:flex-1 overflow-auto" style={{ height, backgroundColor: 'var(--mat-sys-surface)' }} data-testid="split-screen-preview-pane">
               {isPython ? (
                 <PythonOutput code={value} />
               ) : (

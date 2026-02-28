@@ -126,7 +126,7 @@ export function SnippetCard({
 
   if (!snippet) {
     return (
-      <Card className="p-6">
+      <Card className="p-4 sm:p-6">
         <p className="text-muted-foreground">{strings.snippetCard.errorMessage}</p>
       </Card>
     )
@@ -150,7 +150,7 @@ export function SnippetCard({
         }
       }}
     >
-      <div className="p-6 space-y-4">
+      <div className="p-4 sm:p-6 space-y-3 sm:space-y-4">
         <SnippetCardHeader 
           snippet={snippet}
           description={snippetData.description}

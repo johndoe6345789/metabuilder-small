@@ -39,7 +39,7 @@ export function SnippetCardActions({
           aria-label="View snippet"
         >
           <Eye className="h-4 w-4" aria-hidden="true" />
-          {strings.snippetCard.viewButton}
+          <span className="hidden sm:inline">{strings.snippetCard.viewButton}</span>
         </Button>
       </div>
       <div className="flex items-center gap-2">
@@ -52,7 +52,7 @@ export function SnippetCardActions({
           aria-label={strings.snippetCard.ariaLabels.copy}
         >
           <Copy className="h-4 w-4" aria-hidden="true" />
-          {isCopied ? strings.snippetCard.copiedButton : strings.snippetCard.copyButton}
+          <span className="hidden sm:inline">{isCopied ? strings.snippetCard.copiedButton : strings.snippetCard.copyButton}</span>
         </Button>
         <Button
           variant="ghost"
