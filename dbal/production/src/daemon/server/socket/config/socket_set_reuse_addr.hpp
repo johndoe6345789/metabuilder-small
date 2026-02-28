@@ -6,7 +6,7 @@
 #pragma once
 
 #include <iostream>
-#include "socket_types.hpp"
+#include "../socket_types.hpp"
 #include "socket_get_last_error.hpp"
 
 namespace dbal {

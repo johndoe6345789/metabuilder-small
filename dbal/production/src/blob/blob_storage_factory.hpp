@@ -23,7 +23,7 @@
 #include "memory_storage.hpp"
 #include "filesystem_storage.hpp"
 #include "s3_storage.hpp"
-#include "config/env_parser.hpp"
+#include "../config/env_parser.hpp"
 
 #include <memory>
 #include <string>

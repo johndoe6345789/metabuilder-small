@@ -2,6 +2,7 @@
 # Version: 1.0.0
 # Last Updated: 2026-01-23
 
+entity: Workflow
 name: workflow
 displayName: Workflow
 description: |
@@ -11,192 +12,70 @@ description: |
 # Multi-tenant isolation
 tenantId: true
 
-# Field definitions
+# Field definitions (aligned with C++ CRUD code)
 fields:
   id:
     type: string
-    description: Unique workflow identifier (generated from name)
+    description: Unique workflow identifier
     required: true
     unique: true
-    example: "workflow_data_processing"
+
+  tenantId:
+    type: string
+    description: Tenant isolation ID
+    optional: true
+    nullable: true
 
   name:
     type: string
     description: Human-readable workflow name
     required: true
-    minLength: 1
-    maxLength: 255
-    example: "Data Processing Pipeline"
 
   description:
     type: string
     description: Detailed workflow description
-    maxLength: 2000
+    optional: true
     nullable: true
-
-  version:
-    type: string
-    description: Semantic version following n8n v3.0.0+ spec
-    required: true
-    pattern: "^\\d+\\.\\d+\\.\\d+$"
-    example: "3.0.0"
-
-  category:
-    type: string
-    description: Workflow category for organization
-    enum:
-      - data_processing
-      - integration
-      - automation
-      - validation
-      - utilities
-      - custom
-    default: custom
-
-  status:
-    type: string
-    description: Workflow deployment status
-    enum:
-      - draft
-      - published
-      - deprecated
-      - active
-      - paused
-    default: draft
 
   nodes:
-    type: json
-    description: Array of workflow nodes (n8n node format)
+    type: text
+    description: Serialized JSON array of workflow nodes (n8n node format)
     required: true
-    example:
-      - id: "node_1"
-        name: "Start"
-        type: "frame.begin"
-        typeVersion: 1
-        position: [0, 0]
-        parameters:
-          inputs:
-            delta: "frame.delta"
 
-  connections:
-    type: json
-    description: |
-      N8N adjacency map defining node connections.
-      Format: { nodeId: { main|error: { 0|1: [{ node, type, index }] } } }
+  edges:
+    type: text
+    description: Serialized JSON adjacency map of node connections
     required: true
-    example:
-      node_1:
-        main:
-          "0":
-            - node: "node_2"
-              type: "main"
-              index: 0
 
-  metadata:
-    type: json
-    description: Additional workflow metadata
-    nullable: true
-    default: {}
-    fields:
-      author:
-        type: string
-        maxLength: 255
-      tags:
-        type: string[]
-        maxLength: 20
-      labels:
-        type: object
-        additionalProperties:
-          type: string
-
-  executionConfig:
-    type: json
-    description: Execution behavior configuration
-    default: {}
-    fields:
-      timeout:
-        type: integer
-        minimum: 100
-        maximum: 3600000
-        description: Execution timeout in milliseconds
-        default: 30000
-      retryStrategy:
-        type: string
-        enum:
-          - fail
-          - fallback
-          - skip
-          - retry
-        default: fail
-      maxRetries:
-        type: integer
-        minimum: 0
-        maximum: 10
-        default: 3
-      parallelNodes:
-        type: boolean
-        description: Allow parallel node execution
-        default: false
-
-  validationStatus:
-    type: json
-    description: Latest validation results
-    nullable: true
-    default: {}
-    fields:
-      valid:
-        type: boolean
-      lastValidated:
-        type: datetime
-      errors:
-        type: string[]
-      warnings:
-        type: string[]
-
-  executionHistory:
-    type: relationship
-    description: Historical execution records
-    entity: workflow_execution
-    relation: one-to-many
-    foreignKey: workflowId
-
-  isPublished:
+  enabled:
     type: boolean
-    description: Whether workflow is available for execution
+    description: Whether workflow is active
+    required: true
     default: false
 
-  isArchived:
-    type: boolean
-    description: Whether workflow is archived
-    default: false
+  version:
+    type: integer
+    description: Workflow version number
+    required: true
+    default: 1
 
   createdAt:
-    type: datetime
+    type: bigint
     description: Workflow creation timestamp
-    required: true
-    autoValue: now
+    optional: true
+    nullable: true
 
   updatedAt:
-    type: datetime
+    type: bigint
     description: Last modification timestamp
-    required: true
-    autoValue: now
-    onUpdate: now
-
-  publishedAt:
-    type: datetime
-    description: Last publication timestamp
+    optional: true
     nullable: true
 
   createdBy:
     type: string
     description: User ID of creator
-    maxLength: 255
-
-  updatedBy:
-    type: string
-    description: User ID of last updater
-    maxLength: 255
+    optional: true
+    nullable: true
 
 # Indexes for performance
 indexes:

@@ -7,7 +7,7 @@
 #ifndef DBAL_REQUEST_HANDLER_HPP
 #define DBAL_REQUEST_HANDLER_HPP
 
-#include "http_types.hpp"
+#include "../http_types.hpp"
 #include <string>
 #include <sstream>
 

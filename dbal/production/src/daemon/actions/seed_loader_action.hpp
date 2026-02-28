@@ -16,6 +16,7 @@
 #include <vector>
 #include <functional>
 #include <nlohmann/json.hpp>
+#include <yaml-cpp/yaml.h>
 #include "dbal/core/client.hpp"
 
 namespace dbal {

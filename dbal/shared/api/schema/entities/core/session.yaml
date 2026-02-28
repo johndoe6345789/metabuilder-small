@@ -30,11 +30,13 @@ fields:
 
   createdAt:
     type: bigint
-    generated: true
+    optional: true
+    nullable: true
 
   lastActivity:
     type: bigint
-    required: true
+    optional: true
+    nullable: true
 
   ipAddress:
     type: string

@@ -263,8 +263,8 @@ services:
   # DBAL Daemon - C++ backend
   dbal:
     build:
-      context: ../dbal/production
-      dockerfile: build-config/Dockerfile
+      context: ../dbal
+      dockerfile: production/build-config/Dockerfile
       args:
         BUILD_TYPE: Release
         BUILDKIT_INLINE_CACHE: 1

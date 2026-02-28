@@ -10,7 +10,7 @@
 #include <string>
 
 #include "dbal/errors.hpp"
-#include "blob/filesystem/key_to_path.hpp"
+#include "key_to_path.hpp"
 
 namespace dbal {
 namespace blob {

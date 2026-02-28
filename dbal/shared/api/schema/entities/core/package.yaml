@@ -15,7 +15,8 @@ fields:
 
   installedAt:
     type: bigint
-    required: true
+    optional: true
+    nullable: true
 
   version:
     type: string

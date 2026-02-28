@@ -46,7 +46,8 @@ fields:
 
   createdAt:
     type: bigint
-    generated: true
+    optional: true
+    nullable: true
     description: "Account creation timestamp"
 
   tenantId:
@@ -56,7 +57,8 @@ fields:
 
   isInstanceOwner:
     type: boolean
-    required: true
+    optional: true
+    nullable: true
     default: false
 
   passwordChangeTimestamp:
@@ -66,7 +68,8 @@ fields:
 
   firstLogin:
     type: boolean
-    required: true
+    optional: true
+    nullable: true
     default: false
 
 indexes:

@@ -15,8 +15,8 @@
 
 #include "dbal/blob_storage.hpp"
 #include "dbal/errors.hpp"
-#include "blob/filesystem/key_to_path.hpp"
-#include "blob/filesystem/content_type_map.hpp"
+#include "key_to_path.hpp"
+#include "content_type_map.hpp"
 
 namespace dbal {
 namespace blob {

@@ -3,7 +3,7 @@
 FROM node:22-alpine AS deps
 WORKDIR /app
 
-COPY frontends/exploded-diagrams/package.json frontends/exploded-diagrams/package-lock.json* ./frontends/exploded-diagrams/
+COPY frontends/exploded-diagrams/package.json ./frontends/exploded-diagrams/
 RUN cd frontends/exploded-diagrams && for i in 1 2 3 4 5; do \
       npm install && break \
       || (echo "npm install failed (attempt $i/5), retrying in $((i*10))s..." && sleep $((i*10))); \

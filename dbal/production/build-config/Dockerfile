@@ -1,5 +1,5 @@
 # Multi-stage build for DBAL C++ daemon
-# Context: dbal/production/ (set by docker-compose)
+# Context: dbal/ (set by docker-compose — wider context for codegen access to shared/)
 # Requires: metabuilder/base-apt:latest (Ubuntu 24.04 + build tools)
 
 ARG BUILD_TYPE=Release
@@ -11,12 +11,12 @@ ARG BUILD_TYPE
 
 WORKDIR /dbal
 
-# Install Conan and detect profile (--break-system-packages for PEP 668 on Ubuntu 24.04)
-RUN pip3 install --break-system-packages conan \
+# Install Conan and pyyaml (codegen dependency), detect Conan profile
+RUN pip3 install --break-system-packages conan pyyaml \
     && conan profile detect --force
 
 # Copy dependency manifest first (layer caching)
-COPY build-config/conanfile.py ./build-config/conanfile.py
+COPY production/build-config/conanfile.py ./build-config/conanfile.py
 
 # Install C++ dependencies via Conan (absolute output path for reliability)
 # Conan 2.x places generators under build/<build_type>/generators/
@@ -30,10 +30,18 @@ RUN cd build-config \
     && echo "Generators dir: $GENERATORS_DIR" \
     && ln -sf "$GENERATORS_DIR"/* /dbal/build/
 
-# Copy source code and build files
-COPY CMakeLists.txt ./
-COPY src/ ./src/
-COPY include/ ./include/
+# Copy source code and build files FIRST
+COPY production/CMakeLists.txt ./
+COPY production/src/ ./src/
+COPY production/include/ ./include/
+
+# Copy schemas and codegen script, then generate types into the include dir
+COPY shared/api/schema/ ./shared/api/schema/
+COPY shared/tools/codegen/gen_types.py ./shared/tools/codegen/gen_types.py
+RUN python3 shared/tools/codegen/gen_types.py \
+    --schema-dir ./shared/api/schema \
+    --cpp-output ./include/dbal/core/types.generated.hpp \
+    --cpp-only
 
 # Build with CMake (use absolute path for toolchain file)
 RUN cd /dbal/build \

@@ -7,8 +7,8 @@
 #ifndef DBAL_REQUEST_PARSER_HPP
 #define DBAL_REQUEST_PARSER_HPP
 
-#include "http_types.hpp"
-#include "security_limits.hpp"
+#include "../http_types.hpp"
+#include "../server/security_limits.hpp"
 #include <string>
 #include <sstream>
 #include <algorithm>

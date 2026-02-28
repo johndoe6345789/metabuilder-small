@@ -13,9 +13,9 @@
 
 #include "dbal/blob_storage.hpp"
 #include "dbal/errors.hpp"
-#include "blob/memory/metadata/generate_etag.hpp"
-#include "blob/filesystem/key_to_path.hpp"
-#include "blob/filesystem/content_type_map.hpp"
+#include "../memory/metadata/generate_etag.hpp"
+#include "key_to_path.hpp"
+#include "content_type_map.hpp"
 
 namespace dbal {
 namespace blob {

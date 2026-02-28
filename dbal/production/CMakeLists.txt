@@ -17,16 +17,26 @@ find_package(mongocxx REQUIRED)
 find_package(Boost REQUIRED)
 find_package(GTest REQUIRED)
 
-# Glob all source files
+# System-installed database client libraries (from base-apt)
+find_package(PostgreSQL REQUIRED)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(MYSQL REQUIRED mysqlclient)
+
+# Glob all source files (exclude adapters with unavailable deps)
 file(GLOB_RECURSE DBAL_SOURCES
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
 )
+list(FILTER DBAL_SOURCES EXCLUDE REGEX ".*/adapters/cassandra/.*")
+list(FILTER DBAL_SOURCES EXCLUDE REGEX ".*/adapters/redis/.*")
+list(FILTER DBAL_SOURCES EXCLUDE REGEX ".*/config/test_config\\.cpp")
 
 # Glob all headers
 file(GLOB_RECURSE DBAL_HEADERS
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.hpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp"
 )
+list(FILTER DBAL_HEADERS EXCLUDE REGEX ".*/adapters/cassandra/.*")
+list(FILTER DBAL_HEADERS EXCLUDE REGEX ".*/adapters/redis/.*")
 
 add_executable(dbal_daemon ${DBAL_SOURCES} ${DBAL_HEADERS})
 
@@ -37,6 +47,8 @@ target_include_directories(dbal_daemon PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/adapters
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_CURRENT_SOURCE_DIR}/include/dbal
+    ${PostgreSQL_INCLUDE_DIRS}
+    ${MYSQL_INCLUDE_DIRS}
 )
 
 target_link_libraries(dbal_daemon PRIVATE
@@ -51,6 +63,8 @@ target_link_libraries(dbal_daemon PRIVATE
     mongo::mongocxx_static
     mongo::bsoncxx_static
     Boost::boost
+    PostgreSQL::PostgreSQL
+    ${MYSQL_LIBRARIES}
 )
 
 install(TARGETS dbal_daemon DESTINATION bin)

@@ -178,7 +178,7 @@ std::vector<SeedResult> SeedLoaderAction::loadSeedFile(Client& client, const std
                 ListOptions opts;
                 opts.limit = 1;
                 auto existing = client.listEntities(entity_name, opts);
-                if (existing.ok && !existing.value.data.empty()) {
+                if (existing.isOk() && !existing.value().items.empty()) {
                     spdlog::info("Seed: skipping {} (records already exist)", entity_name);
                     result.skipped = doc["records"] ? static_cast<int>(doc["records"].size()) : 0;
                     results.push_back(result);
@@ -205,13 +205,13 @@ std::vector<SeedResult> SeedLoaderAction::loadSeedFile(Client& client, const std
                     // Insert via generic entity CRUD
                     auto create_result = client.createEntity(entity_name, record);
 
-                    if (create_result.ok) {
+                    if (create_result.isOk()) {
                         result.inserted++;
                     } else {
                         result.failed++;
                         std::string id_str = record.contains("id") ? record["id"].dump() : "unknown";
                         std::string err = "Failed to create " + entity_name + " id=" + id_str +
-                                          ": " + create_result.error.message;
+                                          ": " + std::string(create_result.error().what());
                         result.errors.push_back(err);
                         spdlog::warn("Seed: {}", err);
                     }
