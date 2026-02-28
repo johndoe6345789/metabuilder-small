@@ -8,6 +8,8 @@ import {
   getAllNamespaces,
   createNamespace,
   deleteNamespace,
+  getSnippetsByNamespace,
+  bulkMoveSnippets,
 } from '@/lib/db'
 import { CreateNamespaceDialog } from './CreateNamespaceDialog'
 import { DeleteNamespaceDialog } from './DeleteNamespaceDialog'
@@ -76,21 +78,35 @@ export function NamespaceSelector({ selectedNamespaceId, onNamespaceChange }: Na
   const handleDeleteNamespace = async () => {
     if (!namespaceToDelete) return
 
+    const defaultNamespace = namespaces.find(n => n.isDefault)
+    if (!defaultNamespace) {
+      toast.error('Cannot delete: no default namespace found')
+      return
+    }
+
     setLoading(true)
     try {
+      // Move snippets to default before deleting the namespace
+      const snippetsToMove = await getSnippetsByNamespace(namespaceToDelete.id)
+      if (snippetsToMove.length > 0) {
+        await bulkMoveSnippets(snippetsToMove.map(s => s.id), defaultNamespace.id)
+      }
+
       await deleteNamespace(namespaceToDelete.id)
       setNamespaces(prev => prev.filter(n => n.id !== namespaceToDelete.id))
 
       if (selectedNamespaceId === namespaceToDelete.id) {
-        const defaultNamespace = namespaces.find(n => n.isDefault)
-        if (defaultNamespace) {
-          onNamespaceChange(defaultNamespace.id)
-        }
+        onNamespaceChange(defaultNamespace.id)
       }
 
       setDeleteDialogOpen(false)
       setNamespaceToDelete(null)
-      toast.success('Namespace deleted, snippets moved to default')
+      const movedCount = snippetsToMove.length
+      toast.success(
+        movedCount > 0
+          ? `Namespace deleted — ${movedCount} snippet${movedCount !== 1 ? 's' : ''} moved to default`
+          : 'Namespace deleted'
+      )
     } catch (error) {
       console.error('Failed to delete namespace:', error)
       toast.error('Failed to delete namespace')

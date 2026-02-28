@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react'
-import { Card } from '@metabuilder/components/fakemui'
+import { Card, Button, Dialog, DialogHeader, DialogTitle, DialogContent, DialogActions } from '@metabuilder/components/fakemui'
 import { Snippet, Namespace } from '@/lib/types'
 import { strings, appConfig } from '@/lib/config'
 import { getAllNamespaces, moveSnippetToNamespace } from '@/lib/db'
@@ -34,6 +34,7 @@ export function SnippetCard({
   const [isCopied, setIsCopied] = useState(false)
   const [namespaces, setNamespaces] = useState<Namespace[]>([])
   const [isMoving, setIsMoving] = useState(false)
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
 
   useEffect(() => {
     loadNamespaces()
@@ -78,6 +79,11 @@ export function SnippetCard({
 
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation()
+    setDeleteConfirmOpen(true)
+  }
+
+  const handleConfirmDelete = () => {
+    setDeleteConfirmOpen(false)
     onDelete(snippet.id)
   }
 
@@ -171,6 +177,28 @@ export function SnippetCard({
           />
         )}
       </div>
+
+      <Dialog open={deleteConfirmOpen} onClose={() => setDeleteConfirmOpen(false)} maxWidth="xs" fullWidth>
+        <DialogHeader>
+          <DialogTitle>Delete snippet?</DialogTitle>
+        </DialogHeader>
+        <DialogContent>
+          <p>"{snippet.title}" will be permanently deleted.</p>
+        </DialogContent>
+        <DialogActions>
+          <Button variant="outlined" onClick={() => setDeleteConfirmOpen(false)}>
+            Cancel
+          </Button>
+          <Button
+            onClick={handleConfirmDelete}
+            data-testid="confirm-delete-snippet-btn"
+            style={{ color: 'var(--mat-sys-error)', borderColor: 'var(--mat-sys-error)' }}
+            variant="outlined"
+          >
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Card>
   )
 }

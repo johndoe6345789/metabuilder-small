@@ -58,6 +58,7 @@ export function SnippetCardActions({
           variant="ghost"
           size="sm"
           onClick={onEdit}
+          className="min-h-[44px] min-w-[44px]"
           data-testid="snippet-card-edit-btn"
           aria-label={strings.snippetCard.ariaLabels.edit}
         >
@@ -68,6 +69,7 @@ export function SnippetCardActions({
           variant="ghost"
           size="sm"
           onClick={(e) => { e.stopPropagation(); setMenuAnchor(e.currentTarget) }}
+          className="min-h-[44px] min-w-[44px]"
           data-testid="snippet-card-actions-menu"
           aria-label="More options"
           aria-haspopup="menu"

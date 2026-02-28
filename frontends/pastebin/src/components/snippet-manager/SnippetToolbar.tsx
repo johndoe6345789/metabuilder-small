@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Button, Input } from '@metabuilder/components/fakemui'
 import { Plus, MagnifyingGlass, CaretDown, CheckSquare, X } from '@phosphor-icons/react'
 import { strings } from '@/lib/config'
@@ -25,6 +25,18 @@ export function SnippetToolbar({
   templates,
 }: SnippetToolbarProps) {
   const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null)
+  const [inputValue, setInputValue] = useState(searchQuery)
+  const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    setInputValue(searchQuery)
+  }, [searchQuery])
+
+  const handleSearchInput = (value: string) => {
+    setInputValue(value)
+    if (debounceTimer.current) clearTimeout(debounceTimer.current)
+    debounceTimer.current = setTimeout(() => onSearchChange(value), 300)
+  }
 
   return (
     <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between" data-testid="snippet-toolbar" role="toolbar" aria-label="Snippet management toolbar">
@@ -35,8 +47,8 @@ export function SnippetToolbar({
         />
         <Input
           placeholder={strings.app.search.placeholder}
-          value={searchQuery}
-          onChange={(e) => onSearchChange(e.target.value)}
+          value={inputValue}
+          onChange={(e) => handleSearchInput(e.target.value)}
           className="pl-10"
           data-testid="snippet-search-input"
           aria-label="Search snippets"
