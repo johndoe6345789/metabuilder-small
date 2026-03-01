@@ -1,7 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit'
 import uiReducer, {
-  openDialog,
-  closeDialog,
   openViewer,
   closeViewer,
   setSearchQuery,
@@ -51,111 +49,16 @@ describe('uiSlice', () => {
   describe('initial state', () => {
     it('should initialize with correct default state', () => {
       const state = store.getState().ui
-      expect(state.dialogOpen).toBe(false)
       expect(state.viewerOpen).toBe(false)
-      expect(state.editingSnippet).toBe(null)
       expect(state.viewingSnippet).toBe(null)
       expect(state.searchQuery).toBe('')
     })
 
     it('should have all expected properties', () => {
       const state = store.getState().ui
-      expect(state).toHaveProperty('dialogOpen')
       expect(state).toHaveProperty('viewerOpen')
-      expect(state).toHaveProperty('editingSnippet')
       expect(state).toHaveProperty('viewingSnippet')
       expect(state).toHaveProperty('searchQuery')
-    })
-  })
-
-  describe('reducers - openDialog', () => {
-    it('should open dialog with null snippet for new snippet', () => {
-      store.dispatch(openDialog(null))
-      const state = store.getState().ui
-      expect(state.dialogOpen).toBe(true)
-      expect(state.editingSnippet).toBe(null)
-    })
-
-    it('should open dialog with snippet for editing', () => {
-      store.dispatch(openDialog(mockSnippet))
-      const state = store.getState().ui
-      expect(state.dialogOpen).toBe(true)
-      expect(state.editingSnippet).toEqual(mockSnippet)
-    })
-
-    it('should set dialog open to true', () => {
-      expect(store.getState().ui.dialogOpen).toBe(false)
-      store.dispatch(openDialog(mockSnippet))
-      expect(store.getState().ui.dialogOpen).toBe(true)
-    })
-
-    it('should replace previous editing snippet', () => {
-      store.dispatch(openDialog(mockSnippet))
-      expect(store.getState().ui.editingSnippet?.id).toBe('1')
-
-      store.dispatch(openDialog(mockSnippet2))
-      expect(store.getState().ui.editingSnippet?.id).toBe('2')
-    })
-
-    it('should not affect viewer state', () => {
-      store.dispatch(openViewer(mockSnippet))
-      expect(store.getState().ui.viewerOpen).toBe(true)
-
-      store.dispatch(openDialog(mockSnippet2))
-      expect(store.getState().ui.viewerOpen).toBe(true)
-    })
-
-    it('should handle opening dialog multiple times', () => {
-      store.dispatch(openDialog(mockSnippet))
-      store.dispatch(openDialog(mockSnippet2))
-      store.dispatch(openDialog(mockSnippet))
-
-      expect(store.getState().ui.editingSnippet?.id).toBe('1')
-      expect(store.getState().ui.dialogOpen).toBe(true)
-    })
-  })
-
-  describe('reducers - closeDialog', () => {
-    it('should close dialog', () => {
-      store.dispatch(openDialog(mockSnippet))
-      expect(store.getState().ui.dialogOpen).toBe(true)
-
-      store.dispatch(closeDialog())
-      expect(store.getState().ui.dialogOpen).toBe(false)
-    })
-
-    it('should clear editing snippet', () => {
-      store.dispatch(openDialog(mockSnippet))
-      expect(store.getState().ui.editingSnippet).toEqual(mockSnippet)
-
-      store.dispatch(closeDialog())
-      expect(store.getState().ui.editingSnippet).toBe(null)
-    })
-
-    it('should handle closing already closed dialog', () => {
-      store.dispatch(closeDialog())
-      const state = store.getState().ui
-      expect(state.dialogOpen).toBe(false)
-      expect(state.editingSnippet).toBe(null)
-    })
-
-    it('should not affect viewer state', () => {
-      store.dispatch(openViewer(mockSnippet))
-      store.dispatch(closeDialog())
-
-      expect(store.getState().ui.viewerOpen).toBe(true)
-      expect(store.getState().ui.viewingSnippet).toEqual(mockSnippet)
-    })
-
-    it('should handle closing dialog multiple times', () => {
-      store.dispatch(openDialog(mockSnippet))
-      store.dispatch(closeDialog())
-      store.dispatch(closeDialog())
-      store.dispatch(closeDialog())
-
-      const state = store.getState().ui
-      expect(state.dialogOpen).toBe(false)
-      expect(state.editingSnippet).toBe(null)
     })
   })
 
@@ -179,14 +82,6 @@ describe('uiSlice', () => {
 
       store.dispatch(openViewer(mockSnippet2))
       expect(store.getState().ui.viewingSnippet?.id).toBe('2')
-    })
-
-    it('should not affect dialog state', () => {
-      store.dispatch(openDialog(mockSnippet))
-      expect(store.getState().ui.dialogOpen).toBe(true)
-
-      store.dispatch(openViewer(mockSnippet2))
-      expect(store.getState().ui.dialogOpen).toBe(true)
     })
 
     it('should handle opening viewer multiple times', () => {
@@ -233,14 +128,6 @@ describe('uiSlice', () => {
       const state = store.getState().ui
       expect(state.viewerOpen).toBe(false)
       expect(state.viewingSnippet).toBe(null)
-    })
-
-    it('should not affect dialog state', () => {
-      store.dispatch(openDialog(mockSnippet))
-      store.dispatch(closeViewer())
-
-      expect(store.getState().ui.dialogOpen).toBe(true)
-      expect(store.getState().ui.editingSnippet).toEqual(mockSnippet)
     })
 
     it('should handle closing viewer multiple times', () => {
@@ -305,16 +192,13 @@ describe('uiSlice', () => {
       expect(store.getState().ui.searchQuery).toBe(unicodeQuery)
     })
 
-    it('should not affect other UI state', () => {
-      store.dispatch(openDialog(mockSnippet))
+    it('should not affect viewer state', () => {
       store.dispatch(openViewer(mockSnippet2))
 
       store.dispatch(setSearchQuery('test'))
 
       const state = store.getState().ui
-      expect(state.dialogOpen).toBe(true)
       expect(state.viewerOpen).toBe(true)
-      expect(state.editingSnippet).toEqual(mockSnippet)
       expect(state.viewingSnippet).toEqual(mockSnippet2)
     })
 
@@ -326,150 +210,104 @@ describe('uiSlice', () => {
     })
   })
 
-  describe('dialog and viewer interactions', () => {
-    it('should handle opening both dialog and viewer', () => {
-      store.dispatch(openDialog(mockSnippet))
+  describe('viewer interactions', () => {
+    it('should handle opening viewer then searching', () => {
       store.dispatch(openViewer(mockSnippet2))
 
       const state = store.getState().ui
-      expect(state.dialogOpen).toBe(true)
       expect(state.viewerOpen).toBe(true)
-      expect(state.editingSnippet?.id).toBe('1')
       expect(state.viewingSnippet?.id).toBe('2')
     })
 
-    it('should handle opening dialog then viewer then closing both', () => {
-      store.dispatch(openDialog(mockSnippet))
-      store.dispatch(openViewer(mockSnippet2))
-      store.dispatch(closeDialog())
+    it('should allow switching between viewer snippets', () => {
+      store.dispatch(openViewer(mockSnippet))
+      expect(store.getState().ui.viewerOpen).toBe(true)
+
       store.dispatch(closeViewer())
-
-      const state = store.getState().ui
-      expect(state.dialogOpen).toBe(false)
-      expect(state.viewerOpen).toBe(false)
-      expect(state.editingSnippet).toBe(null)
-      expect(state.viewingSnippet).toBe(null)
-    })
-
-    it('should allow switching between dialog and viewer', () => {
-      store.dispatch(openDialog(mockSnippet))
-      expect(store.getState().ui.dialogOpen).toBe(true)
-
-      store.dispatch(closeDialog())
       store.dispatch(openViewer(mockSnippet2))
       expect(store.getState().ui.viewerOpen).toBe(true)
-      expect(store.getState().ui.dialogOpen).toBe(false)
+      expect(store.getState().ui.viewingSnippet?.id).toBe('2')
     })
 
-    it('should handle opening same snippet in dialog and viewer', () => {
-      store.dispatch(openDialog(mockSnippet))
+    it('should handle opening same snippet in viewer twice', () => {
+      store.dispatch(openViewer(mockSnippet))
       store.dispatch(openViewer(mockSnippet))
 
       const state = store.getState().ui
-      expect(state.editingSnippet?.id).toBe(state.viewingSnippet?.id)
-      expect(state.dialogOpen).toBe(true)
+      expect(state.viewingSnippet?.id).toBe(mockSnippet.id)
       expect(state.viewerOpen).toBe(true)
     })
   })
 
   describe('combined operations', () => {
-    it('should handle complete workflow: open, edit, close, view, close', () => {
-      store.dispatch(openDialog(mockSnippet))
-      expect(store.getState().ui.dialogOpen).toBe(true)
-
-      store.dispatch(closeDialog())
-      expect(store.getState().ui.dialogOpen).toBe(false)
-
+    it('should handle complete workflow: view, close, search', () => {
       store.dispatch(openViewer(mockSnippet))
       expect(store.getState().ui.viewerOpen).toBe(true)
 
       store.dispatch(closeViewer())
       expect(store.getState().ui.viewerOpen).toBe(false)
+
+      store.dispatch(setSearchQuery('test'))
+      expect(store.getState().ui.searchQuery).toBe('test')
     })
 
-    it('should handle search with dialog and viewer open', () => {
-      store.dispatch(openDialog(mockSnippet))
+    it('should handle search with viewer open', () => {
       store.dispatch(openViewer(mockSnippet2))
 
       store.dispatch(setSearchQuery('test query'))
 
       const state = store.getState().ui
       expect(state.searchQuery).toBe('test query')
-      expect(state.dialogOpen).toBe(true)
       expect(state.viewerOpen).toBe(true)
     })
 
-    it('should handle opening different snippets in rapid succession', () => {
-      for (let i = 0; i < 10; i++) {
-        if (i % 2 === 0) {
-          store.dispatch(openDialog(mockSnippet))
-        } else {
-          store.dispatch(openDialog(mockSnippet2))
-        }
-      }
-
-      expect(store.getState().ui.editingSnippet?.id).toBe('2')
-      expect(store.getState().ui.dialogOpen).toBe(true)
-    })
-
-    it('should handle clearing search while dialog is open', () => {
+    it('should handle clearing search while viewer is open', () => {
       store.dispatch(setSearchQuery('initial search'))
-      store.dispatch(openDialog(mockSnippet))
+      store.dispatch(openViewer(mockSnippet))
       store.dispatch(setSearchQuery(''))
 
       const state = store.getState().ui
       expect(state.searchQuery).toBe('')
-      expect(state.dialogOpen).toBe(true)
+      expect(state.viewerOpen).toBe(true)
     })
   })
 
   describe('state consistency', () => {
     it('should maintain state consistency after many operations', () => {
       const operations = [
-        () => store.dispatch(openDialog(mockSnippet)),
         () => store.dispatch(setSearchQuery('search')),
         () => store.dispatch(openViewer(mockSnippet2)),
         () => store.dispatch(setSearchQuery('')),
-        () => store.dispatch(closeDialog()),
         () => store.dispatch(closeViewer()),
       ]
 
       operations.forEach(op => op())
 
       const state = store.getState().ui
-      expect(state.dialogOpen).toBe(false)
       expect(state.viewerOpen).toBe(false)
-      expect(state.editingSnippet).toBe(null)
       expect(state.viewingSnippet).toBe(null)
       expect(state.searchQuery).toBe('')
     })
 
     it('should preserve all state properties through operations', () => {
-      store.dispatch(openDialog(mockSnippet))
       store.dispatch(openViewer(mockSnippet2))
       store.dispatch(setSearchQuery('test'))
 
       const state = store.getState().ui
-      expect(Object.keys(state)).toContain('dialogOpen')
       expect(Object.keys(state)).toContain('viewerOpen')
-      expect(Object.keys(state)).toContain('editingSnippet')
       expect(Object.keys(state)).toContain('viewingSnippet')
       expect(Object.keys(state)).toContain('searchQuery')
     })
 
     it('should return to initial state when operations are reversed', () => {
-      store.dispatch(openDialog(mockSnippet))
       store.dispatch(openViewer(mockSnippet2))
       store.dispatch(setSearchQuery('test'))
 
-      store.dispatch(closeDialog())
       store.dispatch(closeViewer())
       store.dispatch(setSearchQuery(''))
 
       const state = store.getState().ui
-      expect(state.dialogOpen).toBe(false)
       expect(state.viewerOpen).toBe(false)
-      expect(state.editingSnippet).toBe(null)
       expect(state.viewingSnippet).toBe(null)
       expect(state.searchQuery).toBe('')
     })
@@ -488,11 +326,9 @@ describe('uiSlice', () => {
         updatedAt: 0,
       }
 
-      store.dispatch(openDialog(minimalSnippet))
       store.dispatch(openViewer(minimalSnippet))
 
       const state = store.getState().ui
-      expect(state.editingSnippet).toEqual(minimalSnippet)
       expect(state.viewingSnippet).toEqual(minimalSnippet)
     })
 
@@ -502,22 +338,15 @@ describe('uiSlice', () => {
       expect(store.getState().ui.searchQuery.length).toBe(10000)
     })
 
-    it('should handle rapid open-close cycles', () => {
+    it('should handle rapid open-close viewer cycles', () => {
       for (let i = 0; i < 100; i++) {
-        store.dispatch(openDialog(mockSnippet))
-        store.dispatch(closeDialog())
+        store.dispatch(openViewer(mockSnippet))
+        store.dispatch(closeViewer())
       }
 
       const state = store.getState().ui
-      expect(state.dialogOpen).toBe(false)
-      expect(state.editingSnippet).toBe(null)
-    })
-
-    it('should handle null snippet in openDialog', () => {
-      store.dispatch(openDialog(null))
-      const state = store.getState().ui
-      expect(state.dialogOpen).toBe(true)
-      expect(state.editingSnippet).toBe(null)
+      expect(state.viewerOpen).toBe(false)
+      expect(state.viewingSnippet).toBe(null)
     })
 
     it('should handle search query with regex-like strings', () => {

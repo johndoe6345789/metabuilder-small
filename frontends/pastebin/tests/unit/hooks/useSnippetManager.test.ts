@@ -11,8 +11,15 @@ import * as db from '@/lib/db';
 
 jest.mock('sonner');
 jest.mock('@/lib/db');
+
+// Mock next/navigation router
+const mockPush = jest.fn();
+jest.mock('next/navigation', () => ({
+  useRouter: () => ({ push: mockPush }),
+}));
+
 jest.mock('@/store/hooks', () => ({
-  useAppDispatch: () => jest.fn(),
+  useAppDispatch: jest.fn(),
   useAppSelector: jest.fn(),
 }));
 
@@ -88,90 +95,14 @@ describe('useSnippetManager Hook', () => {
       mockDispatch = jest.fn();
       mockDispatch.mockReturnValue({ unwrap: jest.fn().mockResolvedValue({}) });
       (reduxHooks.useAppDispatch as unknown as jest.Mock).mockReturnValue(mockDispatch);
-      (reduxHooks.useAppSelector as unknown as jest.Mock).mockImplementation((selector) => {
-        // Return appropriate mock data based on selector
-        return [];
-      });
+      (reduxHooks.useAppSelector as unknown as jest.Mock).mockImplementation(() => []);
     });
 
-    it('should handle save snippet for new snippet', async () => {
-      mockDispatch.mockReturnValue({ unwrap: jest.fn().mockResolvedValue({}) });
-
-      const { result } = renderHook(() => useSnippetManager(mockTemplates));
-
-      const snippetData = {
-        title: 'New Snippet',
-        description: 'Description',
-        language: 'javascript',
-        code: 'console.log("new")',
-        category: 'general' as const,
-        hasPreview: false,
-      };
-
-      await act(async () => {
-        await result.current.handleSaveSnippet(snippetData);
-      });
-
-      expect(toast.success).toHaveBeenCalled();
-    });
-
-    it('should handle save snippet for editing', async () => {
-      mockDispatch.mockReturnValue({ unwrap: jest.fn().mockResolvedValue({}) });
-
-      // Mock selector to return an editing snippet
-      (reduxHooks.useAppSelector as unknown as jest.Mock).mockImplementation((selector) => {
-        if (selector.toString().includes('editingSnippet')) {
-          return { id: '1', title: 'Existing' };
-        }
-        return [];
-      });
-
-      const { result } = renderHook(() => useSnippetManager(mockTemplates));
-
-      const snippetData = {
-        title: 'Updated Snippet',
-        description: 'Updated Description',
-        language: 'javascript',
-        code: 'console.log("updated")',
-        category: 'general' as const,
-        hasPreview: false,
-      };
-
-      await act(async () => {
-        await result.current.handleSaveSnippet(snippetData);
-      });
-
-      expect(toast.success).toHaveBeenCalled();
-    });
-
-    it('should handle save snippet error', async () => {
-      mockDispatch.mockReturnValue({
-        unwrap: jest.fn().mockRejectedValue(new Error('Save failed')),
-      });
-
-      const { result } = renderHook(() => useSnippetManager(mockTemplates));
-
-      const snippetData = {
-        title: 'New Snippet',
-        description: 'Description',
-        language: 'javascript',
-        code: 'console.log("new")',
-        category: 'general' as const,
-        hasPreview: false,
-      };
-
-      await act(async () => {
-        await result.current.handleSaveSnippet(snippetData);
-      });
-
-      expect(toast.error).toHaveBeenCalledWith('Failed to save snippet');
-    });
-
-    it('should handle edit snippet', () => {
+    it('should handle edit snippet navigation', () => {
       const { result } = renderHook(() => useSnippetManager(mockTemplates));
 
       const snippet = {
-        id: '1',
+        id: 'snippet-1',
         title: 'Test',
         description: '',
         language: 'javascript' as const,
@@ -188,7 +119,7 @@ describe('useSnippetManager Hook', () => {
         result.current.handleEditSnippet(snippet);
       });
 
-      expect(mockDispatch).toHaveBeenCalled();
+      expect(mockPush).toHaveBeenCalledWith('/snippet/snippet-1/edit');
     });
 
     it('should handle delete snippet', async () => {
@@ -218,6 +149,11 @@ describe('useSnippetManager Hook', () => {
     });
 
     it('should handle copy code', () => {
+      Object.defineProperty(navigator, 'clipboard', {
+        value: { writeText: jest.fn().mockResolvedValue(undefined) },
+        writable: true,
+      });
+
       const { result } = renderHook(() => useSnippetManager(mockTemplates));
 
       act(() => {
@@ -393,7 +329,7 @@ describe('useSnippetManager Hook', () => {
     });
   });
 
-  describe('template operations', () => {
+  describe('navigation operations', () => {
     let mockDispatch: jest.Mock;
 
     beforeEach(() => {
@@ -402,55 +338,24 @@ describe('useSnippetManager Hook', () => {
       (reduxHooks.useAppSelector as unknown as jest.Mock).mockReturnValue([]);
     });
 
-    it('should create new snippet from template', () => {
-      const { result } = renderHook(() => useSnippetManager(mockTemplates));
-
-      act(() => {
-        result.current.handleCreateFromTemplate('template-1');
-      });
-
-      expect(mockDispatch).toHaveBeenCalled();
-    });
-
-    it('should handle invalid template id', () => {
-      const { result } = renderHook(() => useSnippetManager(mockTemplates));
-
-      act(() => {
-        result.current.handleCreateFromTemplate('invalid-id');
-      });
-
-      // Should not dispatch for invalid template
-      expect(mockDispatch).not.toHaveBeenCalledWith(expect.any(Function));
-    });
-  });
-
-  describe('dialog operations', () => {
-    let mockDispatch: jest.Mock;
-
-    beforeEach(() => {
-      mockDispatch = jest.fn();
-      (reduxHooks.useAppDispatch as unknown as jest.Mock).mockReturnValue(mockDispatch);
-      (reduxHooks.useAppSelector as unknown as jest.Mock).mockReturnValue([]);
-    });
-
-    it('should create new snippet', () => {
+    it('should navigate to new snippet page', () => {
       const { result } = renderHook(() => useSnippetManager(mockTemplates));
 
       act(() => {
         result.current.handleCreateNew();
       });
 
-      expect(mockDispatch).toHaveBeenCalled();
+      expect(mockPush).toHaveBeenCalledWith('/snippet/new');
     });
 
-    it('should close dialog', () => {
+    it('should navigate to template snippet page', () => {
       const { result } = renderHook(() => useSnippetManager(mockTemplates));
 
       act(() => {
-        result.current.handleDialogClose(false);
+        result.current.handleCreateFromTemplate('template-1');
       });
 
-      expect(mockDispatch).toHaveBeenCalled();
+      expect(mockPush).toHaveBeenCalledWith('/snippet/new?template=template-1');
     });
 
     it('should close viewer', () => {
@@ -496,6 +401,9 @@ describe('useSnippetManager Hook', () => {
     it('should handle null namespace', () => {
       const { result } = renderHook(() => useSnippetManager(mockTemplates));
 
+      // Clear calls from initialization effects before testing the handler
+      mockDispatch.mockClear();
+
       act(() => {
         result.current.handleNamespaceChange(null);
       });
@@ -519,9 +427,7 @@ describe('useSnippetManager Hook', () => {
       expect(result.current.selectedIds).toBeDefined();
       expect(result.current.namespaces).toBeDefined();
       expect(result.current.selectedNamespaceId).toBeDefined();
-      expect(result.current.dialogOpen).toBeDefined();
       expect(result.current.viewerOpen).toBeDefined();
-      expect(result.current.editingSnippet).toBeDefined();
       expect(result.current.viewingSnippet).toBeDefined();
       expect(result.current.searchQuery).toBeDefined();
     });
@@ -533,7 +439,6 @@ describe('useSnippetManager Hook', () => {
 
       const { result } = renderHook(() => useSnippetManager(mockTemplates));
 
-      expect(typeof result.current.handleSaveSnippet).toBe('function');
       expect(typeof result.current.handleEditSnippet).toBe('function');
       expect(typeof result.current.handleDeleteSnippet).toBe('function');
       expect(typeof result.current.handleCopyCode).toBe('function');
