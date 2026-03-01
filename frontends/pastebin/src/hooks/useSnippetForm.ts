@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
 import { Snippet, InputParameter } from '@/lib/types'
-import { appConfig, strings } from '@/lib/config'
+import { appConfig } from '@/lib/config'
+import { useTranslation } from '@/hooks/useTranslation'
 
 export function useSnippetForm(editingSnippet?: Snippet | null, open?: boolean) {
+  const t = useTranslation()
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [language, setLanguage] = useState(appConfig.defaultLanguage)
@@ -58,10 +60,10 @@ export function useSnippetForm(editingSnippet?: Snippet | null, open?: boolean) 
     const newErrors: { title?: string; code?: string } = {}
 
     if (!title.trim()) {
-      newErrors.title = strings.snippetDialog.fields.title.errorMessage
+      newErrors.title = t.snippetDialog.fields.title.errorMessage
     }
     if (!code.trim()) {
-      newErrors.code = strings.snippetDialog.fields.code.errorMessage
+      newErrors.code = t.snippetDialog.fields.code.errorMessage
     }
 
     setErrors(newErrors)

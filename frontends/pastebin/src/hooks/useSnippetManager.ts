@@ -2,7 +2,7 @@ import { useEffect, useCallback } from 'react'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { Snippet, SnippetTemplate } from '@/lib/types'
 import { toast } from 'sonner'
-import { strings } from '@/lib/config'
+import { useTranslation } from '@/hooks/useTranslation'
 import { seedDatabase, syncTemplatesFromJSON } from '@/lib/db'
 import {
   fetchSnippetsByNamespace,
@@ -42,6 +42,7 @@ import {
 } from '@/store/selectors'
 
 export function useSnippetManager(templates: SnippetTemplate[]) {
+  const t = useTranslation()
   const dispatch = useAppDispatch()
   
   const snippets = useAppSelector(selectSnippets)
@@ -82,13 +83,13 @@ export function useSnippetManager(templates: SnippetTemplate[]) {
     try {
       if (editingSnippet?.id) {
         await dispatch(updateSnippet({ ...editingSnippet, ...snippetData })).unwrap()
-        toast.success(strings.toast.snippetUpdated)
+        toast.success(t.toast.snippetUpdated)
       } else {
         await dispatch(createSnippet({
           ...snippetData,
           namespaceId: selectedNamespaceId || undefined,
         })).unwrap()
-        toast.success(strings.toast.snippetCreated)
+        toast.success(t.toast.snippetCreated)
       }
       dispatch(closeDialog())
     } catch (error) {
@@ -104,7 +105,7 @@ export function useSnippetManager(templates: SnippetTemplate[]) {
   const handleDeleteSnippet = useCallback(async (id: string) => {
     try {
       await dispatch(deleteSnippet(id)).unwrap()
-      toast.success(strings.toast.snippetDeleted)
+      toast.success(t.toast.snippetDeleted)
     } catch (error) {
       console.error('Failed to delete snippet:', error)
       toast.error('Failed to delete snippet')
@@ -113,7 +114,7 @@ export function useSnippetManager(templates: SnippetTemplate[]) {
 
   const handleCopyCode = useCallback((code: string) => {
     navigator.clipboard.writeText(code)
-    toast.success(strings.toast.codeCopied)
+    toast.success(t.toast.codeCopied)
   }, [])
 
   const handleViewSnippet = useCallback((snippet: Snippet) => {

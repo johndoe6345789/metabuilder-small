@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react'
 import { Dialog, DialogTitle, DialogContent, DialogActions, DialogClose, Button } from '@metabuilder/components/fakemui'
 import { X } from '@phosphor-icons/react'
 import { Snippet } from '@/lib/types'
-import { strings, appConfig } from '@/lib/config'
+import { appConfig } from '@/lib/config'
+import { useTranslation } from '@/hooks/useTranslation'
 import { useSnippetForm } from '@/hooks/useSnippetForm'
 import { SnippetDialogTabs } from './SnippetDialogTabs'
 import styles from './snippet-dialog.module.scss'
@@ -17,6 +18,7 @@ interface SnippetDialogProps {
 }
 
 export function SnippetDialog({ open, onOpenChange, onSave, editingSnippet }: SnippetDialogProps) {
+  const t = useTranslation()
   const [activeTab, setActiveTab] = useState(0)
 
   useEffect(() => {
@@ -52,7 +54,7 @@ export function SnippetDialog({ open, onOpenChange, onSave, editingSnippet }: Sn
       </DialogClose>
 
       <DialogTitle>
-        {editingSnippet?.id ? strings.snippetDialog.edit.title : strings.snippetDialog.create.title}
+        {editingSnippet?.id ? t.snippetDialog.edit.title : t.snippetDialog.create.title}
       </DialogTitle>
 
       <DialogContent dividers data-testid="snippet-dialog" className={styles.dialogContent}>
@@ -96,7 +98,7 @@ export function SnippetDialog({ open, onOpenChange, onSave, editingSnippet }: Sn
           data-testid="snippet-dialog-cancel-btn"
           aria-label="Cancel editing snippet"
         >
-          {strings.snippetDialog.buttons.cancel}
+          {t.snippetDialog.buttons.cancel}
         </Button>
         {activeTab < tabCount - 1 ? (
           <Button variant="filled" onClick={() => setActiveTab(t => t + 1)} aria-label="Go to next tab">
@@ -109,7 +111,7 @@ export function SnippetDialog({ open, onOpenChange, onSave, editingSnippet }: Sn
             data-testid="snippet-dialog-save-btn"
             aria-label={editingSnippet ? "Update snippet" : "Create new snippet"}
           >
-            {editingSnippet ? strings.snippetDialog.buttons.update : strings.snippetDialog.buttons.create} Snippet
+            {editingSnippet ? t.snippetDialog.buttons.update : t.snippetDialog.buttons.create} Snippet
           </Button>
         )}
       </DialogActions>

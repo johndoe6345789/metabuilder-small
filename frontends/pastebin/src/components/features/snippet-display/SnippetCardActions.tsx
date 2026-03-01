@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Button, Menu, MenuItem, Divider } from '@metabuilder/components/fakemui'
 import { Copy, Pencil, Trash, Eye, DotsThree, FolderOpen } from '@phosphor-icons/react'
 import { Namespace } from '@/lib/types'
-import { strings } from '@/lib/config'
+import { useTranslation } from '@/hooks/useTranslation'
 import styles from './snippet-card-actions.module.scss'
 
 interface SnippetCardActionsProps {
@@ -26,6 +26,7 @@ export function SnippetCardActions({
   onDelete,
   onMoveToNamespace,
 }: SnippetCardActionsProps) {
+  const t = useTranslation()
   const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null)
 
   return (
@@ -40,7 +41,7 @@ export function SnippetCardActions({
           aria-label="View snippet"
         >
           <Eye className="h-4 w-4" aria-hidden="true" />
-          <span className="hidden sm:inline">{strings.snippetCard.viewButton}</span>
+          <span className="hidden sm:inline">{t.snippetCard.viewButton}</span>
         </Button>
       </div>
       <div className="flex items-center gap-2">
@@ -50,10 +51,10 @@ export function SnippetCardActions({
           onClick={onCopy}
           className="gap-2"
           data-testid="snippet-card-copy-btn"
-          aria-label={strings.snippetCard.ariaLabels.copy}
+          aria-label={t.snippetCard.ariaLabels.copy}
         >
           <Copy className="h-4 w-4" aria-hidden="true" />
-          <span className="hidden sm:inline">{isCopied ? strings.snippetCard.copiedButton : strings.snippetCard.copyButton}</span>
+          <span className="hidden sm:inline">{isCopied ? t.snippetCard.copiedButton : t.snippetCard.copyButton}</span>
         </Button>
         <Button
           variant="ghost"
@@ -61,7 +62,7 @@ export function SnippetCardActions({
           onClick={onEdit}
           className="min-h-[44px] min-w-[44px]"
           data-testid="snippet-card-edit-btn"
-          aria-label={strings.snippetCard.ariaLabels.edit}
+          aria-label={t.snippetCard.ariaLabels.edit}
         >
           <Pencil className="h-4 w-4" aria-hidden="true" />
         </Button>

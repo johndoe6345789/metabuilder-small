@@ -1,7 +1,8 @@
 import { useState, useMemo, useEffect } from 'react'
 import { Card, Button, Dialog, DialogHeader, DialogTitle, DialogContent, DialogActions } from '@metabuilder/components/fakemui'
 import { Snippet, Namespace } from '@/lib/types'
-import { strings, appConfig } from '@/lib/config'
+import { appConfig } from '@/lib/config'
+import { useTranslation } from '@/hooks/useTranslation'
 import { getAllNamespaces, moveSnippetToNamespace } from '@/lib/db'
 import { toast } from 'sonner'
 import { SnippetCardHeader } from './SnippetCardHeader'
@@ -32,6 +33,7 @@ export function SnippetCard({
   isSelected = false,
   onToggleSelect
 }: SnippetCardProps) {
+  const t = useTranslation()
   const [isCopied, setIsCopied] = useState(false)
   const [namespaces, setNamespaces] = useState<Namespace[]>([])
   const [isMoving, setIsMoving] = useState(false)
@@ -128,7 +130,7 @@ export function SnippetCard({
   if (!snippet) {
     return (
       <Card className="p-4 sm:p-6">
-        <p className="text-muted-foreground">{strings.snippetCard.errorMessage}</p>
+        <p className="text-muted-foreground">{t.snippetCard.errorMessage}</p>
       </Card>
     )
   }

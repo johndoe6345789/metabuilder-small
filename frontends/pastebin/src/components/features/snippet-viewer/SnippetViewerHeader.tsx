@@ -3,7 +3,8 @@
 import { Button, Chip } from '@metabuilder/components/fakemui'
 import { Copy, Pencil, Check, SplitVertical } from '@phosphor-icons/react'
 import { Snippet } from '@/lib/types'
-import { strings, LANGUAGE_COLORS } from '@/lib/config'
+import { LANGUAGE_COLORS } from '@/lib/config'
+import { useTranslation } from '@/hooks/useTranslation'
 
 interface SnippetViewerHeaderProps {
   snippet: Snippet
@@ -24,6 +25,7 @@ export function SnippetViewerHeader({
   onEdit,
   onTogglePreview,
 }: SnippetViewerHeaderProps) {
+  const t = useTranslation()
   return (
     <div className="flex items-start justify-between gap-4">
       <div className="flex-1 min-w-0 space-y-2">
@@ -44,7 +46,7 @@ export function SnippetViewerHeader({
           </p>
         )}
         <p className="text-xs text-muted-foreground">
-          {strings.snippetViewer.lastUpdated}: {new Date(snippet.updatedAt).toLocaleString()}
+          {t.snippetViewer.lastUpdated}: {new Date(snippet.updatedAt).toLocaleString()}
         </p>
       </div>
       <div className="flex gap-2 shrink-0" data-testid="viewer-header-actions" role="toolbar" aria-label="Snippet viewer actions">
@@ -59,7 +61,7 @@ export function SnippetViewerHeader({
             aria-label={showPreview ? "Hide preview" : "Show preview"}
           >
             <SplitVertical className="h-4 w-4" aria-hidden="true" />
-            {showPreview ? strings.snippetViewer.buttons.hidePreview : strings.snippetViewer.buttons.showPreview}
+            {showPreview ? t.snippetViewer.buttons.hidePreview : t.snippetViewer.buttons.showPreview}
           </Button>
         )}
         <Button
@@ -74,12 +76,12 @@ export function SnippetViewerHeader({
           {isCopied ? (
             <>
               <Check className="h-4 w-4" weight="bold" aria-hidden="true" />
-              {strings.snippetViewer.buttons.copied}
+              {t.snippetViewer.buttons.copied}
             </>
           ) : (
             <>
               <Copy className="h-4 w-4" aria-hidden="true" />
-              {strings.snippetViewer.buttons.copy}
+              {t.snippetViewer.buttons.copy}
             </>
           )}
         </Button>
@@ -92,7 +94,7 @@ export function SnippetViewerHeader({
           aria-label="Edit snippet"
         >
           <Pencil className="h-4 w-4" aria-hidden="true" />
-          {strings.snippetViewer.buttons.edit}
+          {t.snippetViewer.buttons.edit}
         </Button>
       </div>
     </div>

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Code, CaretDown } from '@phosphor-icons/react'
 import { Button } from '@metabuilder/components/fakemui'
-import { strings } from '@/lib/config'
+import { useTranslation } from '@/hooks/useTranslation'
 import { SnippetTemplate } from '@/lib/types'
 import templatesData from '@/data/templates.json'
 import { TemplatePicker } from '@/components/features/snippet-editor/TemplatePicker'
@@ -15,6 +15,7 @@ interface EmptyStateProps {
 }
 
 export function EmptyState({ onCreateClick, onCreateFromTemplate }: EmptyStateProps) {
+  const t = useTranslation()
   const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null)
 
   return (
@@ -32,15 +33,15 @@ export function EmptyState({ onCreateClick, onCreateFromTemplate }: EmptyStatePr
         aria-atomic="true"
         data-testid="empty-state-message"
       >
-        {strings.emptyState.title}. {strings.emptyState.description}
+        {t.emptyState.title}. {t.emptyState.description}
       </div>
 
       <div className={styles.iconContainer} aria-hidden="true">
         <Code className={styles.icon} weight="duotone" />
       </div>
-      <h2 className={styles.title}>{strings.emptyState.title}</h2>
+      <h2 className={styles.title}>{t.emptyState.title}</h2>
       <p className="text-muted-foreground mb-8 max-w-sm">
-        {strings.emptyState.description}
+        {t.emptyState.description}
       </p>
       <Button
         size="lg"
@@ -52,7 +53,7 @@ export function EmptyState({ onCreateClick, onCreateFromTemplate }: EmptyStatePr
         onClick={(e) => setMenuAnchor(menuAnchor ? null : e.currentTarget)}
       >
         <Code className="h-5 w-5" weight="bold" aria-hidden="true" />
-        {strings.emptyState.buttonText}
+        {t.emptyState.buttonText}
         <CaretDown weight="bold" aria-hidden="true" className={menuAnchor ? `${styles.caret} ${styles.caretOpen}` : styles.caret} />
       </Button>
       <TemplatePicker

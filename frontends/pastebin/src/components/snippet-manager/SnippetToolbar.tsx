@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Button, Input } from '@metabuilder/components/fakemui'
 import { Plus, MagnifyingGlass, CaretDown, CheckSquare, X } from '@phosphor-icons/react'
-import { strings } from '@/lib/config'
+import { useTranslation } from '@/hooks/useTranslation'
 import { SnippetTemplate } from '@/lib/types'
 import { TemplatePicker } from '@/components/features/snippet-editor/TemplatePicker'
 import styles from './snippet-toolbar.module.scss'
@@ -25,6 +25,7 @@ export function SnippetToolbar({
   onCreateFromTemplate,
   templates,
 }: SnippetToolbarProps) {
+  const t = useTranslation()
   const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null)
   const [inputValue, setInputValue] = useState(searchQuery)
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -48,7 +49,7 @@ export function SnippetToolbar({
           aria-hidden="true"
         />
         <Input
-          placeholder={strings.app.search.placeholder}
+          placeholder={t.app.search.placeholder}
           value={inputValue}
           onChange={(e) => handleSearchInput(e.target.value)}
           className={styles.searchInput}
@@ -85,7 +86,7 @@ export function SnippetToolbar({
           aria-haspopup="menu"
         >
           <Plus weight="bold" aria-hidden="true" />
-          {strings.app.header.newSnippetButton}
+          {t.app.header.newSnippetButton}
           <CaretDown weight="bold" aria-hidden="true" />
         </Button>
         <TemplatePicker
