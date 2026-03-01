@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { ArrowLeft, Copy, Check, Pencil, SplitVertical, X } from '@phosphor-icons/react'
+import { ArrowLeft, Copy, Check, Pencil, SplitVertical, TextAlignLeft, File, Folder } from '@phosphor-icons/react'
 import dynamic from 'next/dynamic'
 import { PageLayout } from '@/app/PageLayout'
 import { useAppSelector } from '@/store/hooks'
@@ -53,6 +53,7 @@ export default function SnippetViewPage() {
 
   const [isCopied, setIsCopied] = useState(false)
   const [showPreview, setShowPreview] = useState(true)
+  const [wordWrap, setWordWrap] = useState<'on' | 'off'>('on')
 
   useEffect(() => {
     if (snippets.length > 0 && !snippet) {
@@ -75,6 +76,11 @@ export default function SnippetViewPage() {
   const namespace = namespaces.find(n => n.id === snippet.namespaceId)
   const langBgClass = (LANGUAGE_COLORS[snippet.language] || LANGUAGE_COLORS['Other']).split(' ')[0]
 
+  // Multi-file support: use snippet.files if present, otherwise synthesise one
+  const files = snippet.files && snippet.files.length > 0
+    ? snippet.files
+    : [{ name: filename, content: snippet.code }]
+
   const handleCopy = () => {
     navigator.clipboard.writeText(snippet.code)
     toast.success(t.toast.codeCopied)
@@ -86,10 +92,10 @@ export default function SnippetViewPage() {
     <PageLayout>
       <div className={styles.page} data-testid="snippet-view-page">
 
-        {/* App top bar — navigation only */}
+        {/* Minimal top bar — back + title */}
         <div className={styles.topBar}>
           <button className={styles.backBtn} onClick={() => router.push('/')} aria-label="Back to snippets">
-            <ArrowLeft size={16} weight="bold" />
+            <ArrowLeft size={14} weight="bold" />
             <span>Back</span>
           </button>
           <div className={styles.titleGroup}>
@@ -102,92 +108,117 @@ export default function SnippetViewPage() {
           </div>
         </div>
 
-        {/* VSCode-like editor chrome */}
-        <div className={styles.editorChrome}>
-
-          {/* Tab bar */}
-          <div className={styles.tabBar} role="tablist">
-            <div className={styles.tab} role="tab" aria-selected="true">
-              <span className={`${styles.langDot} ${langBgClass}`} aria-hidden="true" />
-              <span className={styles.tabName}>{filename}</span>
-              <button className={styles.tabClose} onClick={() => router.push('/')} aria-label="Close, back to snippets">
-                <X size={11} weight="bold" />
-              </button>
-            </div>
-            <div className={styles.tabRail} aria-hidden="true" />
+        {/* MS Word-style toolbar */}
+        <div className={styles.wordToolbar} role="toolbar" aria-label="Document toolbar">
+          {/* File group */}
+          <div className={styles.toolGroup}>
+            <button
+              className={styles.toolBtn}
+              onClick={() => router.push(`/snippet/${id}/edit`)}
+              title="Edit this snippet"
+              aria-label="Edit snippet"
+            >
+              <Pencil size={14} />
+              <span>Edit</span>
+            </button>
           </div>
 
-          {/* Editor toolbar — breadcrumb left, actions right */}
-          <div className={styles.editorToolbar}>
-            <div className={styles.breadcrumb} aria-label="File path">
-              <span className={styles.breadcrumbItem}>Snippets</span>
-              {namespace && (
-                <>
-                  <span className={styles.breadcrumbSep} aria-hidden="true">›</span>
-                  <span className={styles.breadcrumbItem}>{namespace.name}</span>
-                </>
-              )}
-              <span className={styles.breadcrumbSep} aria-hidden="true">›</span>
-              <span className={`${styles.breadcrumbItem} ${styles.breadcrumbActive}`}>{filename}</span>
-            </div>
+          <div className={styles.toolSep} aria-hidden="true" />
 
-            <div className={styles.toolbarActions} role="toolbar" aria-label="Editor actions">
-              {canPreview && (
-                <button
-                  className={`${styles.toolbarBtn} ${showPreview ? styles.toolbarBtnOn : ''}`}
-                  onClick={() => setShowPreview(p => !p)}
-                  title={showPreview ? 'Hide preview' : 'Show preview'}
-                  aria-pressed={showPreview}
-                >
-                  <SplitVertical size={13} />
-                  <span>Preview</span>
-                </button>
-              )}
-              <div className={styles.toolbarDivider} aria-hidden="true" />
+          {/* Clipboard group */}
+          <div className={styles.toolGroup}>
+            <button
+              className={`${styles.toolBtn} ${isCopied ? styles.toolBtnPressed : ''}`}
+              onClick={handleCopy}
+              title="Copy code to clipboard"
+              aria-live="polite"
+            >
+              {isCopied
+                ? <><Check size={14} weight="bold" /><span>Copied!</span></>
+                : <><Copy size={14} /><span>Copy</span></>}
+            </button>
+          </div>
+
+          <div className={styles.toolSep} aria-hidden="true" />
+
+          {/* View group */}
+          <div className={styles.toolGroup}>
+            <button
+              className={`${styles.toolBtn} ${wordWrap === 'on' ? styles.toolBtnActive : ''}`}
+              onClick={() => setWordWrap(w => w === 'on' ? 'off' : 'on')}
+              title={wordWrap === 'on' ? 'Word wrap: ON' : 'Word wrap: OFF'}
+              aria-pressed={wordWrap === 'on'}
+            >
+              <TextAlignLeft size={14} />
+              <span>Wrap</span>
+            </button>
+            {canPreview && (
               <button
-                className={`${styles.toolbarBtn} ${isCopied ? styles.toolbarBtnOn : ''}`}
-                onClick={handleCopy}
-                title="Copy code to clipboard"
-                aria-live="polite"
+                className={`${styles.toolBtn} ${showPreview ? styles.toolBtnActive : ''}`}
+                onClick={() => setShowPreview(p => !p)}
+                title={showPreview ? 'Hide preview' : 'Show preview'}
+                aria-pressed={showPreview}
               >
-                {isCopied
-                  ? <><Check size={13} weight="bold" /><span>Copied!</span></>
-                  : <><Copy size={13} /><span>Copy</span></>}
+                <SplitVertical size={14} />
+                <span>Preview</span>
               </button>
-              <button
-                className={`${styles.toolbarBtn} ${styles.toolbarBtnEdit}`}
-                onClick={() => router.push(`/snippet/${id}/edit`)}
-                title="Edit this snippet"
-              >
-                <Pencil size={13} />
-                <span>Edit</span>
-              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Work area: file tree left + editor right */}
+        <div className={styles.workArea}>
+
+          {/* File tree / Explorer panel */}
+          <div className={styles.fileTree} aria-label="File explorer">
+            <div className={styles.explorerHeader}>EXPLORER</div>
+            <div className={styles.treeRoot}>
+              <div className={styles.treeFolder}>
+                <Folder size={13} weight="fill" className={styles.folderIcon} aria-hidden="true" />
+                <span className={styles.folderName}>{snippet.title}</span>
+              </div>
+              <div className={styles.treeFiles}>
+                {files.map(f => (
+                  <div key={f.name} className={`${styles.treeFile} ${styles.treeFileActive}`}>
+                    <span className={`${styles.langDot} ${langBgClass}`} aria-hidden="true" />
+                    <File size={12} aria-hidden="true" className={styles.fileIcon} />
+                    <span className={styles.fileName}>{f.name}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 
-          {/* Monaco code area */}
-          <div className={styles.codeArea}>
+          {/* Monaco editor area */}
+          <div className={styles.editorArea}>
             <SnippetViewerContent
               snippet={snippet}
               canPreview={canPreview}
               showPreview={showPreview}
               isPython={isPython}
+              wordWrap={wordWrap}
             />
           </div>
-
-          {/* Status bar */}
-          <div className={styles.statusBar} role="status" aria-label="File information">
-            <div className={styles.statusLeft}>
-              <span className={styles.statusItem}>{snippet.language}</span>
-              <span className={styles.statusSep} aria-hidden="true" />
-              <span className={styles.statusItem}>{lineCount} {lineCount === 1 ? 'line' : 'lines'}</span>
-            </div>
-            <div className={styles.statusRight}>
-              <span className={styles.statusItem}>Updated {relativeTime(snippet.updatedAt)}</span>
-            </div>
-          </div>
-
         </div>
+
+        {/* Status bar */}
+        <div className={styles.statusBar} role="status" aria-label="File information">
+          <div className={styles.statusLeft}>
+            <span className={styles.statusItem}>{snippet.language}</span>
+            <span className={styles.statusSep} aria-hidden="true" />
+            <span className={styles.statusItem}>{lineCount} {lineCount === 1 ? 'line' : 'lines'}</span>
+            {namespace && (
+              <>
+                <span className={styles.statusSep} aria-hidden="true" />
+                <span className={styles.statusItem}>{namespace.name}</span>
+              </>
+            )}
+          </div>
+          <div className={styles.statusRight}>
+            <span className={styles.statusItem}>Updated {relativeTime(snippet.updatedAt)}</span>
+          </div>
+        </div>
+
       </div>
     </PageLayout>
   )

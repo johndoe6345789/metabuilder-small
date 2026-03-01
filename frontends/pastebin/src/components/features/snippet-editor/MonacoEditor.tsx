@@ -11,6 +11,7 @@ interface MonacoEditorProps {
   language: string
   height?: string
   readOnly?: boolean
+  wordWrap?: 'on' | 'off'
 }
 
 function EditorLoadingSkeleton({ height = '400px' }: { height?: string }) {
@@ -30,7 +31,8 @@ export function MonacoEditor({
   onChange,
   language,
   height = '400px',
-  readOnly = false
+  readOnly = false,
+  wordWrap = 'on',
 }: MonacoEditorProps) {
   const monacoLanguage = getMonacoLanguage(language)
 
@@ -61,7 +63,7 @@ export function MonacoEditor({
             scrollBeyondLastLine: false,
             automaticLayout: true,
             tabSize: 2,
-            wordWrap: 'on',
+            wordWrap,
             readOnly,
             scrollbar: {
               vertical: 'auto',

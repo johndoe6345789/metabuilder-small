@@ -9,6 +9,7 @@ interface SnippetViewerContentProps {
   canPreview: boolean
   showPreview: boolean
   isPython: boolean
+  wordWrap?: 'on' | 'off'
 }
 
 export function SnippetViewerContent({
@@ -16,6 +17,7 @@ export function SnippetViewerContent({
   canPreview,
   showPreview,
   isPython,
+  wordWrap = 'on',
 }: SnippetViewerContentProps) {
   if (canPreview && showPreview) {
     return (
@@ -32,6 +34,7 @@ export function SnippetViewerContent({
             language={snippet.language}
             height="100%"
             readOnly={true}
+            wordWrap={wordWrap}
           />
         </div>
         <div
@@ -63,6 +66,7 @@ export function SnippetViewerContent({
         language={snippet.language}
         height="100%"
         readOnly={true}
+        wordWrap={wordWrap}
       />
     </div>
   )
