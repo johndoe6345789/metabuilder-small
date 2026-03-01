@@ -19,7 +19,12 @@ export function SnippetViewerContent({
   if (canPreview && showPreview) {
     return (
       <>
-        <div className="flex-1 overflow-hidden border-b md:border-b-0 md:border-r border-border" data-testid="viewer-code-pane" role="region" aria-label="Code viewer">
+        <div
+          style={{ flex: 1, overflow: 'hidden', borderRight: '1px solid var(--mat-sys-outline-variant, #cac7d0)' }}
+          data-testid="viewer-code-pane"
+          role="region"
+          aria-label="Code viewer"
+        >
           <MonacoEditor
             value={snippet.code}
             onChange={() => {}}
@@ -28,7 +33,12 @@ export function SnippetViewerContent({
             readOnly={true}
           />
         </div>
-        <div className="flex-1 overflow-hidden" data-testid="viewer-preview-pane" role="region" aria-label={`Preview pane - ${isPython ? 'Python output' : 'React preview'}`}>
+        <div
+          style={{ flex: 1, overflow: 'hidden' }}
+          data-testid="viewer-preview-pane"
+          role="region"
+          aria-label={`Preview pane - ${isPython ? 'Python output' : 'React preview'}`}
+        >
           {isPython ? (
             <PythonOutput code={snippet.code} />
           ) : (
@@ -45,7 +55,7 @@ export function SnippetViewerContent({
   }
 
   return (
-    <div className="flex-1 overflow-hidden" data-testid="viewer-code-full" role="region" aria-label="Full code viewer">
+    <div style={{ flex: 1, overflow: 'hidden' }} data-testid="viewer-code-full" role="region" aria-label="Full code viewer">
       <MonacoEditor
         value={snippet.code}
         onChange={() => {}}

@@ -36,7 +36,7 @@ export function MonacoEditor({
 
   return (
     <Suspense fallback={<EditorLoadingSkeleton height={height} />}>
-      <div data-testid="monaco-editor-container" role="region" aria-label={`Code editor (${readOnly ? 'read-only' : 'editable'}, ${monacoLanguage} language)`}>
+      <div data-testid="monaco-editor-container" style={{ height }} role="region" aria-label={`Code editor (${readOnly ? 'read-only' : 'editable'}, ${monacoLanguage} language)`}>
         {/* Aria-live region for editor status updates */}
         <div
           className="sr-only"
