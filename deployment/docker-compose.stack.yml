@@ -573,8 +573,11 @@ services:
     environment:
       DATABASE_PATH: /app/data/snippets.db
       CORS_ALLOWED_ORIGINS: "*"
+      PYTHON_RUNNER_IMAGE: "${PYTHON_RUNNER_IMAGE:-python:3.11-slim}"
+      PYTHON_RUN_TIMEOUT: "${PYTHON_RUN_TIMEOUT:-10}"
     volumes:
       - pastebin-backend-data:/app/data
+      - /var/run/docker.sock:/var/run/docker.sock
     healthcheck:
       test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000/health')"]
       interval: 15s
