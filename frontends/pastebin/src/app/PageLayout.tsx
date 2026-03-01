@@ -1,21 +1,19 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Code, Globe } from '@phosphor-icons/react';
+import { Code } from '@phosphor-icons/react';
 import pkg from '../../package.json';
 import { Navigation } from '@/components/layout/navigation/Navigation';
 import { NavigationSidebar } from '@/components/layout/navigation/NavigationSidebar';
 import { useNavigation } from '@/components/layout/navigation/useNavigation';
 import { BackendIndicator } from '@/components/layout/BackendIndicator';
 import { AlertsBell } from '@/components/layout/AlertsBell';
-import { useAppDispatch, useAppSelector, setLocale } from '@/store/exports';
+import { LangSelector } from '@/components/layout/LangSelector';
 import { ReactNode } from 'react';
 import styles from './page-layout.module.scss';
 
 export function PageLayout({ children }: { children: ReactNode }) {
   const { menuOpen } = useNavigation();
-  const dispatch = useAppDispatch();
-  const locale = useAppSelector(state => state.ui.locale);
 
   const safePad = '0.5rem';
   const safeAreaPadding = {
@@ -70,15 +68,7 @@ export function PageLayout({ children }: { children: ReactNode }) {
                 className={styles.headerActions}
               >
                 <AlertsBell />
-                <button
-                  className={styles.langBtn}
-                  onClick={() => dispatch(setLocale(locale === 'en' ? 'es' : 'en'))}
-                  aria-label="Toggle language"
-                  data-testid="lang-toggle"
-                >
-                  <Globe size={16} aria-hidden="true" />
-                  <span>{(locale ?? 'en').toUpperCase()}</span>
-                </button>
+                <LangSelector />
                 <BackendIndicator />
               </motion.div>
             </div>
