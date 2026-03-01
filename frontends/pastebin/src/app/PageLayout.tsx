@@ -77,7 +77,7 @@ export function PageLayout({ children }: { children: ReactNode }) {
                   data-testid="lang-toggle"
                 >
                   <Globe size={16} aria-hidden="true" />
-                  <span>{locale.toUpperCase()}</span>
+                  <span>{(locale ?? 'en').toUpperCase()}</span>
                 </button>
                 <BackendIndicator />
               </motion.div>
