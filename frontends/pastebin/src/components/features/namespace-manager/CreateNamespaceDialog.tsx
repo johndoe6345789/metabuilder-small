@@ -41,7 +41,7 @@ export function CreateNamespaceDialog({
           <DialogTitle>Create Namespace</DialogTitle>
         </DialogHeader>
         <DialogContent data-testid="create-namespace-dialog">
-          <p style={{ color: 'var(--mat-sys-on-surface-variant)', marginBottom: '16px' }}>
+          <p style={{ color: 'var(--mat-sys-on-surface-variant)', marginBottom: '24px' }}>
             Create a new namespace to organize your snippets
           </p>
           <div className="space-y-4">

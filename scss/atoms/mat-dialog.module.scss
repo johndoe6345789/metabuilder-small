@@ -177,7 +177,7 @@ $dialog-transition-duration: 150ms;
   flex-shrink: 0;
   box-sizing: border-box;
   margin: 0 0 1px;
-  padding: 24px 24px 16px;
+  padding: 24px 24px 20px;
   color: $dialog-subhead-color;
   font-family: var(--mat-sys-headline-small-font, inherit);
   line-height: var(--mat-sys-headline-small-line-height, 1.5rem);
@@ -194,7 +194,7 @@ $dialog-transition-duration: 150ms;
   box-sizing: border-box;
   margin: 0;
   overflow-y: auto;
-  padding: 16px 24px 20px;
+  padding: 20px 24px 28px;
   color: $dialog-supporting-text-color;
   font-family: var(--mat-sys-body-medium-font, inherit);
   line-height: var(--mat-sys-body-medium-line-height, 1.5rem);
@@ -213,7 +213,7 @@ $dialog-transition-duration: 150ms;
 // When following title, remove top padding
 .dialogTitle + .dialogContent,
 .dialogHeader + .dialogContent {
-  padding-top: 0;
+  padding-top: 12px;
 }
 
 // =============================================================================
@@ -229,7 +229,7 @@ $dialog-transition-duration: 150ms;
   box-sizing: border-box;
   min-height: 52px;
   margin: 0;
-  padding: 16px 24px;
+  padding: 20px 24px 24px;
   gap: 8px;
 }
 

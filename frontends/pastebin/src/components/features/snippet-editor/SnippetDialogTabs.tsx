@@ -9,7 +9,7 @@ import { InputParameterList } from './InputParameterList'
 const TAB_BAR: React.CSSProperties = {
   display: 'flex',
   borderBottom: '1px solid var(--mat-sys-outline-variant)',
-  marginBottom: '20px',
+  marginBottom: '28px',
 }
 
 const TAB_BTN_BASE: React.CSSProperties = {

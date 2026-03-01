@@ -22,8 +22,8 @@ export function SnippetFormFields({
   onLanguageChange,
 }: SnippetFormFieldsProps) {
   return (
-    <>
-      <div className="flex flex-col sm:flex-row gap-4 items-start">
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row gap-6 items-start">
         <div className="flex-1 space-y-2">
           <FormLabel htmlFor="title">Title *</FormLabel>
           <Input
@@ -66,7 +66,7 @@ export function SnippetFormFields({
         </div>
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-3">
         <FormLabel htmlFor="description">Description</FormLabel>
         <Textarea
           id="description"
@@ -79,6 +79,6 @@ export function SnippetFormFields({
           aria-label="Snippet description"
         />
       </div>
-    </>
+    </div>
   )
 }
