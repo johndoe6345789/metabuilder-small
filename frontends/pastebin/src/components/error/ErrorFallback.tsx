@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Alert, AlertTitle, Button } from "@metabuilder/components/fakemui";
 import { AIErrorHelper } from "@/components/error/AIErrorHelper";
 import { Warning, ArrowClockwise, CaretDown, CaretUp, Copy, Check } from "@phosphor-icons/react";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface ErrorFallbackProps {
   error: unknown;
@@ -9,6 +10,7 @@ interface ErrorFallbackProps {
 }
 
 export function ErrorFallback({ error, resetErrorBoundary }: ErrorFallbackProps) {
+  const t = useTranslation();
   const err = error instanceof Error ? error : new Error(String(error));
 
   const [isStackOpen, setIsStackOpen] = useState(false);
@@ -27,7 +29,7 @@ export function ErrorFallback({ error, resetErrorBoundary }: ErrorFallbackProps)
       <div className="w-full max-w-3xl">
         <Alert severity="error" className="mb-6" data-testid="error-alert" role="alert">
           <Warning aria-hidden="true" />
-          <AlertTitle>This spark has encountered a runtime error</AlertTitle>
+          <AlertTitle>{t.errorFallback.title}</AlertTitle>
           <div className="mt-3 space-y-4">
             <div className="flex items-center justify-between gap-2">
               <code
@@ -48,12 +50,12 @@ export function ErrorFallback({ error, resetErrorBoundary }: ErrorFallbackProps)
                 {copied ? (
                   <>
                     <Check className="h-3.5 w-3.5" />
-                    Copied
+                    {t.errorFallback.copied}
                   </>
                 ) : (
                   <>
                     <Copy className="h-3.5 w-3.5" />
-                    Copy
+                    {t.errorFallback.copy}
                   </>
                 )}
               </Button>
@@ -70,18 +72,18 @@ export function ErrorFallback({ error, resetErrorBoundary }: ErrorFallbackProps)
               >
                 {isStackOpen ? (
                   <>
-                    Hide Stack Trace <CaretUp className="h-4 w-4 ml-2" aria-hidden="true" />
+                    {t.errorFallback.hideStack} <CaretUp className="h-4 w-4 ml-2" aria-hidden="true" />
                   </>
                 ) : (
                   <>
-                    Show Stack Trace <CaretDown className="h-4 w-4 ml-2" aria-hidden="true" />
+                    {t.errorFallback.showStack} <CaretDown className="h-4 w-4 ml-2" aria-hidden="true" />
                   </>
                 )}
               </Button>
               {isStackOpen && (
                 <div className="mt-4" data-testid="stack-trace-content">
                   <pre className="text-xs bg-destructive/10 p-3 rounded overflow-auto max-h-60" data-testid="error-stack-trace">
-                    {err.stack || 'No stack trace available'}
+                    {err.stack || t.errorFallback.noStack}
                   </pre>
                 </div>
               )}
@@ -99,7 +101,7 @@ export function ErrorFallback({ error, resetErrorBoundary }: ErrorFallbackProps)
           aria-label="Try reloading the page"
         >
           <ArrowClockwise className="h-4 w-4 mr-2" aria-hidden="true" />
-          Try Reloading
+          {t.errorFallback.reload}
         </Button>
       </div>
     </div>

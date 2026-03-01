@@ -9,6 +9,7 @@ import {
   getSnippetsByNamespace,
   bulkMoveSnippets,
 } from '@/lib/db'
+import { useTranslation } from '@/hooks/useTranslation'
 import { CreateNamespaceDialog } from './CreateNamespaceDialog'
 import { DeleteNamespaceDialog } from './DeleteNamespaceDialog'
 import styles from './namespace-selector.module.scss'
@@ -19,6 +20,7 @@ interface NamespaceSelectorProps {
 }
 
 export function NamespaceSelector({ selectedNamespaceId, onNamespaceChange }: NamespaceSelectorProps) {
+  const t = useTranslation()
   const [namespaces, setNamespaces] = useState<Namespace[]>([])
   const [newNamespaceName, setNewNamespaceName] = useState('')
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
@@ -36,7 +38,7 @@ export function NamespaceSelector({ selectedNamespaceId, onNamespaceChange }: Na
       }
     } catch (error) {
       console.error('Failed to load namespaces:', error)
-      toast.error('Failed to load namespaces')
+      toast.error(t.namespace.selector.failedToLoad)
     }
   }, [onNamespaceChange, selectedNamespaceId])
 
@@ -44,7 +46,7 @@ export function NamespaceSelector({ selectedNamespaceId, onNamespaceChange }: Na
 
   const handleCreateNamespace = async () => {
     if (!newNamespaceName.trim()) {
-      toast.error('Please enter a namespace name')
+      toast.error(t.namespace.selector.enterName)
       return
     }
     setLoading(true)
@@ -59,10 +61,10 @@ export function NamespaceSelector({ selectedNamespaceId, onNamespaceChange }: Na
       setNamespaces(prev => [...prev, newNamespace])
       setNewNamespaceName('')
       setCreateDialogOpen(false)
-      toast.success('Namespace created')
+      toast.success(t.namespace.selector.created)
     } catch (error) {
       console.error('Failed to create namespace:', error)
-      toast.error('Failed to create namespace')
+      toast.error(t.namespace.selector.failedToCreate)
     } finally {
       setLoading(false)
     }
@@ -72,7 +74,7 @@ export function NamespaceSelector({ selectedNamespaceId, onNamespaceChange }: Na
     if (!namespaceToDelete) return
     const defaultNamespace = namespaces.find(n => n.isDefault)
     if (!defaultNamespace) {
-      toast.error('Cannot delete: no default namespace found')
+      toast.error(t.namespace.selector.noDefault)
       return
     }
     setLoading(true)
@@ -89,12 +91,12 @@ export function NamespaceSelector({ selectedNamespaceId, onNamespaceChange }: Na
       const movedCount = snippetsToMove.length
       toast.success(
         movedCount > 0
-          ? `Namespace deleted — ${movedCount} snippet${movedCount !== 1 ? 's' : ''} moved to default`
-          : 'Namespace deleted'
+          ? t.namespace.selector.deletedWithMoved.replace('{count}', String(movedCount))
+          : t.namespace.selector.deleted
       )
     } catch (error) {
       console.error('Failed to delete namespace:', error)
-      toast.error('Failed to delete namespace')
+      toast.error(t.namespace.selector.failedToDelete)
     } finally {
       setLoading(false)
     }

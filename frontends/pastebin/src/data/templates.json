@@ -253,6 +253,386 @@
     "code": "# Interactive Text Adventure Game\nimport random\n\nprint(\"=\" * 60)\nprint(\"         THE ENCHANTED FOREST - A Text Adventure\")\nprint(\"=\" * 60)\nprint()\n\n# Introduction\nprint(\"You wake up in a mysterious forest...\")\nprint(\"The trees tower above you, their branches creating\")\nprint(\"a canopy that blocks most of the sunlight.\")\nprint()\n\nname = input(\"What is your name, traveler? \")\nprint(f\"\\nGreetings, {name}! Your adventure begins now...\\n\")\n\n# Starting point\nprint(\"-\" * 60)\nprint(\"You find yourself at a fork in the path.\")\nprint(\"To the LEFT, you hear the sound of running water.\")\nprint(\"To the RIGHT, you see smoke rising in the distance.\")\nprint(\"STRAIGHT ahead, the path continues deeper into the forest.\")\nprint(\"-\" * 60)\n\nchoice1 = input(\"\\nWhich way do you go? (left/right/straight): \").lower()\n\nif choice1 == \"left\":\n    print(\"\\n🌊 You follow the sound of water and discover a river!\")\n    print(\"A friendly otter surfaces and offers you a shiny stone.\")\n    print(\"\\\"This stone grants one wish,\\\" the otter squeaks.\")\n    print()\n    \n    wish = input(\"What do you wish for? (treasure/wisdom/power): \").lower()\n    \n    if wish == \"treasure\":\n        gold = random.randint(100, 1000)\n        print(f\"\\n✨ A chest appears with {gold} gold coins!\")\n        print(f\"Congratulations {name}, you're rich!\")\n        ending = \"WEALTHY\"\n    elif wish == \"wisdom\":\n        print(\"\\n📚 Ancient knowledge floods your mind!\")\n        print(\"You now understand the secrets of the forest.\")\n        print(\"You become the forest's guardian.\")\n        ending = \"WISE\"\n    else:\n        print(\"\\n⚡ Lightning surges through you!\")\n        print(\"You gain the power to control nature.\")\n        print(\"But with great power comes great responsibility...\")\n        ending = \"POWERFUL\"\n\nelif choice1 == \"right\":\n    print(\"\\n🔥 You approach the smoke and find a small village!\")\n    print(\"The villagers are celebrating a harvest festival.\")\n    print()\n    \n    participate = input(\"Do you join the celebration? (yes/no): \").lower()\n    \n    if participate == \"yes\":\n        print(\"\\n🎉 The villagers welcome you warmly!\")\n        print(\"You feast, dance, and make many friends.\")\n        \n        activity = input(\"\\nWhat do you do? (dance/eat/compete): \").lower()\n        \n        if activity == \"dance\":\n            print(\"\\n💃 Your dancing impresses everyone!\")\n            print(\"The village chief offers you a home here.\")\n            print(f\"{name} finds a new family in the village.\")\n            ending = \"JOYFUL\"\n        elif activity == \"eat\":\n            print(\"\\n🍖 You try every delicious dish!\")\n            print(\"The food gives you incredible strength.\")\n            print(\"You become the village's strongest protector.\")\n            ending = \"STRONG\"\n        else:\n            print(\"\\n🏆 You enter the competition and WIN!\")\n            print(\"You're crowned the festival champion!\")\n            print(\"Your name becomes legend in the village.\")\n            ending = \"LEGENDARY\"\n    else:\n        print(\"\\n😔 You decide to continue your journey alone.\")\n        print(\"As you leave, you wonder what could have been...\")\n        ending = \"WANDERER\"\n\nelse:\n    print(\"\\n🌲 You venture deeper into the mysterious forest.\")\n    print(\"The trees grow thicker and the path darker.\")\n    print(\"Suddenly, you encounter a talking owl!\")\n    print()\n    print(\"The owl says: \\\"I can guide you out, but first...\\\"\")\n    print(\"\\\"Answer my riddle correctly!\\\"\")\n    print()\n    \n    print(\"RIDDLE: I speak without a mouth and hear without ears.\")\n    print(\"        I have no body, but come alive with wind.\")\n    print(\"        What am I?\")\n    print()\n    \n    riddle = input(\"Your answer: \").lower()\n    \n    if \"echo\" in riddle:\n        print(\"\\n🦉 \\\"CORRECT!\\\" hoots the owl excitedly.\")\n        print(\"The owl transforms into a magical spirit!\")\n        print(\"It grants you the ability to speak with all animals.\")\n        print(f\"{name} becomes a legendary beast master!\")\n        ending = \"ENLIGHTENED\"\n    else:\n        print(\"\\n🦉 \\\"Incorrect,\\\" says the owl. \\\"The answer was ECHO.\\\"\")\n        print(\"\\\"But I admire your courage to try!\\\"\")\n        print(\"The owl guides you out anyway and gives you a magic feather.\")\n        print(\"The feather will always point you home.\")\n        ending = \"FORTUNATE\"\n\n# Conclusion\nprint(\"\\n\" + \"=\" * 60)\nprint(f\"         {name}'S ADVENTURE ENDS - {ending} ENDING\")\nprint(\"=\" * 60)\nprint(f\"\\nThank you for playing, {name}!\")\nprint(\"Every choice creates a different story...\")\nprint(\"Try again to discover all the endings!\")\nprint(\"\\n\" + \"=\" * 60)"
   },
   {
+    "id": "go-hello",
+    "title": "Go: Hello World",
+    "description": "Hello World in Go with basic types and a function",
+    "language": "Go",
+    "category": "example",
+    "hasPreview": false,
+    "code": "",
+    "files": [
+      {
+        "name": "main.go",
+        "content": "package main\n\nimport \"fmt\"\n\nfunc greet(name string) string {\n\treturn fmt.Sprintf(\"Hello, %s!\", name)\n}\n\nfunc main() {\n\tfmt.Println(greet(\"World\"))\n\n\tlangs := []string{\"Go\", \"Rust\", \"Python\"}\n\tfor i, lang := range langs {\n\t\tfmt.Printf(\"%d: %s\\n\", i+1, lang)\n\t}\n\n\tscores := map[string]int{\"Alice\": 95, \"Bob\": 87, \"Carol\": 92}\n\tfor name, score := range scores {\n\t\tfmt.Printf(\"%s scored %d\\n\", name, score)\n\t}\n}\n"
+      }
+    ],
+    "entryPoint": "main.go"
+  },
+  {
+    "id": "go-fibonacci",
+    "title": "Go: Fibonacci + Goroutines",
+    "description": "Fibonacci sequence with goroutines and channels",
+    "language": "Go",
+    "category": "example",
+    "hasPreview": false,
+    "code": "",
+    "files": [
+      {
+        "name": "main.go",
+        "content": "package main\n\nimport (\n\t\"fmt\"\n\t\"sync\"\n)\n\nfunc fibonacci(n int, ch chan<- int) {\n\ta, b := 0, 1\n\tfor i := 0; i < n; i++ {\n\t\tch <- a\n\t\ta, b = b, a+b\n\t}\n\tclose(ch)\n}\n\nfunc fanOut(nums []int) []int {\n\tresults := make([]int, len(nums))\n\tvar wg sync.WaitGroup\n\tfor i, n := range nums {\n\t\twg.Add(1)\n\t\tgo func(idx, val int) {\n\t\t\tdefer wg.Done()\n\t\t\tresults[idx] = val * val\n\t\t}(i, n)\n\t}\n\twg.Wait()\n\treturn results\n}\n\nfunc main() {\n\tch := make(chan int, 10)\n\tgo fibonacci(10, ch)\n\n\tfmt.Print(\"Fibonacci: \")\n\tvar fibs []int\n\tfor v := range ch {\n\t\tfmt.Printf(\"%d \", v)\n\t\tfibs = append(fibs, v)\n\t}\n\tfmt.Println()\n\n\tsquares := fanOut(fibs)\n\tfmt.Print(\"Squares:   \")\n\tfor _, s := range squares {\n\t\tfmt.Printf(\"%d \", s)\n\t}\n\tfmt.Println()\n}\n"
+      }
+    ],
+    "entryPoint": "main.go"
+  },
+  {
+    "id": "rust-hello",
+    "title": "Rust: Hello World",
+    "description": "Hello World in Rust with ownership, structs, and iterators",
+    "language": "Rust",
+    "category": "example",
+    "hasPreview": false,
+    "code": "",
+    "files": [
+      {
+        "name": "main.rs",
+        "content": "struct Point {\n    x: f64,\n    y: f64,\n}\n\nimpl Point {\n    fn new(x: f64, y: f64) -> Self {\n        Point { x, y }\n    }\n\n    fn distance(&self, other: &Point) -> f64 {\n        ((self.x - other.x).powi(2) + (self.y - other.y).powi(2)).sqrt()\n    }\n}\n\nimpl std::fmt::Display for Point {\n    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {\n        write!(f, \"({}, {})\", self.x, self.y)\n    }\n}\n\nfn main() {\n    println!(\"Hello, World!\");\n\n    let s1 = String::from(\"hello\");\n    let s2 = s1.clone();\n    println!(\"s1={}, s2={}\", s1, s2);\n\n    let p1 = Point::new(0.0, 0.0);\n    let p2 = Point::new(3.0, 4.0);\n    println!(\"Distance from {} to {}: {:.2}\", p1, p2, p1.distance(&p2));\n\n    let nums: Vec<i32> = (1..=10).collect();\n    let sum: i32 = nums.iter().filter(|&&x| x % 2 == 0).sum();\n    println!(\"Sum of even numbers 1-10: {}\", sum);\n\n    let values = vec![Some(1), None, Some(3), Some(5), None];\n    let present: Vec<i32> = values.into_iter().flatten().collect();\n    println!(\"Present values: {:?}\", present);\n}\n"
+      }
+    ],
+    "entryPoint": "main.rs"
+  },
+  {
+    "id": "rust-calculator",
+    "title": "Rust: Calculator with Enums",
+    "description": "Expression calculator using Rust enums and pattern matching",
+    "language": "Rust",
+    "category": "example",
+    "hasPreview": false,
+    "code": "",
+    "files": [
+      {
+        "name": "main.rs",
+        "content": "#[derive(Debug)]\nenum Expr {\n    Num(f64),\n    Add(Box<Expr>, Box<Expr>),\n    Sub(Box<Expr>, Box<Expr>),\n    Mul(Box<Expr>, Box<Expr>),\n    Div(Box<Expr>, Box<Expr>),\n}\n\nimpl Expr {\n    fn compute(&self) -> Result<f64, String> {\n        match self {\n            Expr::Num(n) => Ok(*n),\n            Expr::Add(a, b) => Ok(a.compute()? + b.compute()?),\n            Expr::Sub(a, b) => Ok(a.compute()? - b.compute()?),\n            Expr::Mul(a, b) => Ok(a.compute()? * b.compute()?),\n            Expr::Div(a, b) => {\n                let divisor = b.compute()?;\n                if divisor == 0.0 {\n                    Err(\"Division by zero\".to_string())\n                } else {\n                    Ok(a.compute()? / divisor)\n                }\n            }\n        }\n    }\n}\n\nfn num(n: f64) -> Box<Expr> { Box::new(Expr::Num(n)) }\nfn add(a: Box<Expr>, b: Box<Expr>) -> Box<Expr> { Box::new(Expr::Add(a, b)) }\nfn mul(a: Box<Expr>, b: Box<Expr>) -> Box<Expr> { Box::new(Expr::Mul(a, b)) }\nfn div(a: Box<Expr>, b: Box<Expr>) -> Box<Expr> { Box::new(Expr::Div(a, b)) }\n\nfn main() {\n    let expr = mul(add(num(3.0), num(4.0)), num(2.0));\n    println!(\"(3 + 4) * 2 = {:?}\", expr.compute());\n\n    let bad = div(num(10.0), Box::new(Expr::Sub(num(5.0), num(5.0))));\n    match bad.compute() {\n        Ok(v) => println!(\"Result: {}\", v),\n        Err(e) => println!(\"Error: {}\", e),\n    }\n\n    let fibs: Vec<u64> = std::iter::successors(Some((0u64, 1u64)), |&(a, b)| Some((b, a + b)))\n        .map(|(a, _)| a)\n        .take(10)\n        .collect();\n    println!(\"Fibonacci: {:?}\", fibs);\n}\n"
+      }
+    ],
+    "entryPoint": "main.rs"
+  },
+  {
+    "id": "javascript-hello",
+    "title": "JavaScript: Hello World",
+    "description": "Hello World in Node.js with async/await and modern JS features",
+    "language": "JavaScript",
+    "category": "example",
+    "hasPreview": false,
+    "code": "",
+    "files": [
+      {
+        "name": "index.js",
+        "content": "const greet = (name) => `Hello, ${name}!`;\nconsole.log(greet('World'));\n\nconst [first, ...rest] = [1, 2, 3, 4, 5];\nconsole.log('First:', first, 'Rest:', rest);\n\nconst user = { profile: { name: 'Alice' } };\nconsole.log(user?.profile?.name ?? 'Anonymous');\nconsole.log(user?.settings?.theme ?? 'light');\n\nconst nums = Array.from({ length: 10 }, (_, i) => i + 1);\nconst total = nums.filter(n => n % 2 === 0).map(n => n ** 2).reduce((sum, n) => sum + n, 0);\nconsole.log('Sum of squares of evens 1-10:', total);\n\nasync function fetchData() {\n  return new Promise(resolve => setTimeout(() => resolve({ status: 'ok', count: 42 }), 10));\n}\n\n(async () => {\n  const data = await fetchData();\n  console.log('Async result:', data);\n})();\n"
+      }
+    ],
+    "entryPoint": "index.js"
+  },
+  {
+    "id": "javascript-npm",
+    "title": "JavaScript: npm Package (lodash)",
+    "description": "Node.js project using lodash from package.json",
+    "language": "JavaScript",
+    "category": "example",
+    "hasPreview": false,
+    "code": "",
+    "files": [
+      {
+        "name": "package.json",
+        "content": "{\n  \"name\": \"demo\",\n  \"version\": \"1.0.0\",\n  \"dependencies\": {\n    \"lodash\": \"^4.17.21\"\n  }\n}\n"
+      },
+      {
+        "name": "index.js",
+        "content": "const _ = require('lodash');\n\nconst users = [\n  { name: 'Alice', age: 30, dept: 'Engineering' },\n  { name: 'Bob',   age: 25, dept: 'Marketing' },\n  { name: 'Carol', age: 35, dept: 'Engineering' },\n];\n\nconst byDept = _.groupBy(users, 'dept');\nconsole.log('By department:', JSON.stringify(byDept, null, 2));\n\nconst sorted = _.sortBy(users, 'age').map(u => _.pick(u, ['name', 'age']));\nconsole.log('Sorted by age:', sorted);\n\nconst nums = _.range(1, 11);\nconsole.log('Chunks of 3:', _.chunk(nums, 3));\n\nconst config = { timeout: 30, retries: 3 };\nconst override = { timeout: 60, debug: true };\nconsole.log('Merged config:', _.merge({}, config, override));\n"
+      }
+    ],
+    "entryPoint": "index.js"
+  },
+  {
+    "id": "typescript-hello",
+    "title": "TypeScript: Hello World",
+    "description": "Hello World in TypeScript with interfaces, generics, and enums",
+    "language": "TypeScript",
+    "category": "example",
+    "hasPreview": false,
+    "code": "",
+    "files": [
+      {
+        "name": "main.ts",
+        "content": "interface Animal {\n  name: string;\n  sound(): string;\n}\n\nclass Dog implements Animal {\n  constructor(public name: string) {}\n  sound() { return 'woof'; }\n}\n\nclass Cat implements Animal {\n  constructor(public name: string) {}\n  sound() { return 'meow'; }\n}\n\nfunction describe<T extends Animal>(animal: T): string {\n  return `${animal.name} says ${animal.sound()}`;\n}\n\ntype Result<T> = { ok: true; value: T } | { ok: false; error: string };\n\nfunction safeDivide(a: number, b: number): Result<number> {\n  if (b === 0) return { ok: false, error: 'Division by zero' };\n  return { ok: true, value: a / b };\n}\n\nconst animals: Animal[] = [new Dog('Rex'), new Cat('Whiskers')];\nanimals.forEach(a => console.log(describe(a)));\n\nconst r1 = safeDivide(10, 2);\nconst r2 = safeDivide(10, 0);\nconsole.log(r1.ok ? `10 / 2 = ${r1.value}` : `Error: ${r1.error}`);\nconsole.log(r2.ok ? `result: ${r2.value}` : `Error: ${r2.error}`);\n"
+      }
+    ],
+    "entryPoint": "main.ts"
+  },
+  {
+    "id": "java-hello",
+    "title": "Java: Hello World (Maven)",
+    "description": "Hello World in Java with a Maven project layout",
+    "language": "Java",
+    "category": "example",
+    "hasPreview": false,
+    "code": "",
+    "files": [
+      {
+        "name": "pom.xml",
+        "content": "<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\n         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n         xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n  <modelVersion>4.0.0</modelVersion>\n  <groupId>com.example</groupId>\n  <artifactId>hello</artifactId>\n  <version>1.0</version>\n  <properties>\n    <maven.compiler.source>21</maven.compiler.source>\n    <maven.compiler.target>21</maven.compiler.target>\n  </properties>\n</project>\n"
+      },
+      {
+        "name": "src/main/java/Main.java",
+        "content": "import java.util.*;\nimport java.util.stream.*;\n\npublic class Main {\n    record Person(String name, int age, String dept) {}\n\n    public static void main(String[] args) {\n        System.out.println(\"Hello, World!\");\n\n        List<Person> people = List.of(\n            new Person(\"Alice\", 30, \"Engineering\"),\n            new Person(\"Bob\",   25, \"Marketing\"),\n            new Person(\"Carol\", 35, \"Engineering\")\n        );\n\n        Map<String, List<Person>> byDept = people.stream()\n            .collect(Collectors.groupingBy(Person::dept));\n        byDept.forEach((dept, members) -> {\n            System.out.printf(\"%s: %s%n\", dept,\n                members.stream().map(Person::name).collect(Collectors.joining(\", \")));\n        });\n\n        double avgAge = people.stream().mapToInt(Person::age).average().orElse(0);\n        System.out.printf(\"Average age: %.1f%n\", avgAge);\n\n        people.stream().max(Comparator.comparingInt(Person::age))\n            .ifPresent(p -> System.out.println(\"Oldest: \" + p.name()));\n    }\n}\n"
+      }
+    ],
+    "entryPoint": "Main"
+  },
+  {
+    "id": "cpp-hello",
+    "title": "C++: Hello World (CMake)",
+    "description": "Hello World in C++ with a CMake build and modern C++17 features",
+    "language": "C++",
+    "category": "example",
+    "hasPreview": false,
+    "code": "",
+    "files": [
+      {
+        "name": "CMakeLists.txt",
+        "content": "cmake_minimum_required(VERSION 3.16)\nproject(hello)\nset(CMAKE_CXX_STANDARD 17)\nadd_executable(hello main.cpp)\n"
+      },
+      {
+        "name": "main.cpp",
+        "content": "#include <iostream>\n#include <vector>\n#include <algorithm>\n#include <numeric>\n#include <string>\n#include <map>\n\nstruct Point {\n    double x, y;\n    double distance(const Point& o) const {\n        return std::sqrt(std::pow(x - o.x, 2) + std::pow(y - o.y, 2));\n    }\n};\n\nint main() {\n    std::cout << \"Hello, World!\" << std::endl;\n\n    std::vector<int> nums(10);\n    std::iota(nums.begin(), nums.end(), 1);\n\n    std::vector<int> even_vec;\n    std::copy_if(nums.begin(), nums.end(), std::back_inserter(even_vec),\n                 [](int n){ return n % 2 == 0; });\n    int sum = std::accumulate(even_vec.begin(), even_vec.end(), 0);\n    std::cout << \"Sum of evens 1-10: \" << sum << std::endl;\n\n    std::map<std::string, int> scores = {{\"Alice\", 95}, {\"Bob\", 87}, {\"Carol\", 92}};\n    for (const auto& [name, score] : scores) {\n        std::cout << name << \": \" << score << std::endl;\n    }\n\n    Point p1{0, 0}, p2{3, 4};\n    std::cout << \"Distance: \" << p1.distance(p2) << std::endl;\n\n    return 0;\n}\n"
+      }
+    ],
+    "entryPoint": "main.cpp"
+  },
+  {
+    "id": "ruby-hello",
+    "title": "Ruby: Hello World",
+    "description": "Hello World in Ruby with classes, blocks, and Enumerable",
+    "language": "Ruby",
+    "category": "example",
+    "hasPreview": false,
+    "code": "",
+    "files": [
+      {
+        "name": "main.rb",
+        "content": "module Greetable\n  def greet\n    \"Hello, I'm #{name}!\"\n  end\nend\n\nclass Animal\n  include Greetable\n  attr_reader :name, :sound\n\n  def initialize(name, sound)\n    @name = name\n    @sound = sound\n  end\n\n  def speak\n    \"#{name} says #{sound}\"\n  end\nend\n\ndog = Animal.new('Rex', 'woof')\ncat = Animal.new('Whiskers', 'meow')\n\nputs dog.greet\nputs dog.speak\nputs cat.speak\n\nnums = (1..10).to_a\nsquares_of_evens = nums.select(&:even?).map { |n| n**2 }\nputs \"Sum of squares of evens: #{squares_of_evens.sum}\"\n\npeople = [\n  { name: 'Alice', age: 30 },\n  { name: 'Bob',   age: 25 },\n  { name: 'Carol', age: 35 }\n]\n\npeople.sort_by { |p| p[:age] }.each { |p| puts \"#{p[:name]}: #{p[:age]}\" }\nputs \"Average age: #{'%.1f' % (people.sum { |p| p[:age] }.to_f / people.size)}\"\n"
+      }
+    ],
+    "entryPoint": "main.rb"
+  },
+  {
+    "id": "php-hello",
+    "title": "PHP: Hello World",
+    "description": "Hello World in PHP with classes, array functions, and modern features",
+    "language": "PHP",
+    "category": "example",
+    "hasPreview": false,
+    "code": "",
+    "files": [
+      {
+        "name": "main.php",
+        "content": "<?php\ndeclare(strict_types=1);\n\ninterface Describable {\n    public function describe(): string;\n}\n\nclass Person implements Describable {\n    public function __construct(\n        public readonly string $name,\n        public readonly int $age,\n        public readonly string $dept\n    ) {}\n\n    public function describe(): string {\n        return \"{$this->name} ({$this->age}) — {$this->dept}\";\n    }\n}\n\n$people = [\n    new Person('Alice', 30, 'Engineering'),\n    new Person('Bob',   25, 'Marketing'),\n    new Person('Carol', 35, 'Engineering'),\n];\n\n$engineers = array_filter($people, fn($p) => $p->dept === 'Engineering');\nforeach ($engineers as $p) { echo $p->describe() . PHP_EOL; }\n\nusort($people, fn($a, $b) => $a->age <=> $b->age);\necho 'Youngest: ' . $people[0]->name . PHP_EOL;\n\n$totalAge = array_reduce($people, fn($carry, $p) => $carry + $p->age, 0);\necho sprintf('Average age: %.1f' . PHP_EOL, $totalAge / count($people));\n"
+      }
+    ],
+    "entryPoint": "main.php"
+  },
+  {
+    "id": "csharp-hello",
+    "title": "C#: Hello World",
+    "description": "Hello World in C# with records, LINQ, and pattern matching",
+    "language": "C#",
+    "category": "example",
+    "hasPreview": false,
+    "code": "",
+    "files": [
+      {
+        "name": "main.csx",
+        "content": "using System;\nusing System.Collections.Generic;\nusing System.Linq;\n\nrecord Person(string Name, int Age, string Dept);\n\nvar people = new List<Person>\n{\n    new(\"Alice\", 30, \"Engineering\"),\n    new(\"Bob\",   25, \"Marketing\"),\n    new(\"Carol\", 35, \"Engineering\"),\n};\n\nConsole.WriteLine(\"Hello, World!\");\n\nvar byDept = people.GroupBy(p => p.Dept);\nforeach (var group in byDept)\n{\n    var names = string.Join(\", \", group.Select(p => p.Name));\n    Console.WriteLine($\"{group.Key}: {names}\");\n}\n\nConsole.WriteLine($\"Average age: {people.Average(p => p.Age):F1}\");\nConsole.WriteLine($\"Oldest: {people.MaxBy(p => p.Age)?.Name}\");\n\nforeach (var p in people)\n{\n    var category = p.Age switch\n    {\n        < 28 => \"junior\",\n        < 33 => \"mid\",\n        _    => \"senior\"\n    };\n    Console.WriteLine($\"{p.Name} is {category}\");\n}\n"
+      }
+    ],
+    "entryPoint": "main.csx"
+  },
+  {
+    "id": "kotlin-hello",
+    "title": "Kotlin: Hello World",
+    "description": "Hello World in Kotlin with data classes, extension functions, and lambdas",
+    "language": "Kotlin",
+    "category": "example",
+    "hasPreview": false,
+    "code": "",
+    "files": [
+      {
+        "name": "main.kt",
+        "content": "data class Person(val name: String, val age: Int, val dept: String)\n\nfun String.titleCase() = split(\" \").joinToString(\" \") {\n    it.lowercase().replaceFirstChar { c -> c.uppercase() }\n}\n\nfun main() {\n    println(\"Hello, World!\")\n    println(\"hello world\".titleCase())\n\n    val people = listOf(\n        Person(\"Alice\", 30, \"Engineering\"),\n        Person(\"Bob\",   25, \"Marketing\"),\n        Person(\"Carol\", 35, \"Engineering\")\n    )\n\n    people.groupBy { it.dept }.forEach { (dept, members) ->\n        println(\"$dept: ${members.map { it.name }.joinToString(\", \")}\")\n    }\n\n    val avg = people.map { it.age }.average()\n    println(\"Average age: ${\"%,.1f\".format(avg)}\")\n\n    val sorted = people.sortedBy { it.age }\n    println(\"Youngest: ${sorted.first().name}\")\n\n    val (name, age, dept) = people[1]\n    println(\"Second person: $name, $age, $dept\")\n}\n"
+      }
+    ],
+    "entryPoint": "main.kt"
+  },
+  {
+    "id": "scala-hello",
+    "title": "Scala: Hello World",
+    "description": "Hello World in Scala with case classes, pattern matching, and for-comprehensions",
+    "language": "Scala",
+    "category": "example",
+    "hasPreview": false,
+    "code": "",
+    "files": [
+      {
+        "name": "main.scala",
+        "content": "case class Person(name: String, age: Int, dept: String)\n\nsealed trait Shape\ncase class Circle(radius: Double) extends Shape\ncase class Rectangle(w: Double, h: Double) extends Shape\n\nobject Main extends App {\n  println(\"Hello, World!\")\n\n  val people = List(\n    Person(\"Alice\", 30, \"Engineering\"),\n    Person(\"Bob\",   25, \"Marketing\"),\n    Person(\"Carol\", 35, \"Engineering\")\n  )\n\n  people.groupBy(_.dept).foreach { case (dept, members) =>\n    println(s\"$dept: ${members.map(_.name).mkString(\", \")}\")\n  }\n\n  val shapes: List[Shape] = List(Circle(5), Rectangle(4, 6), Circle(3))\n  shapes.foreach {\n    case Circle(r)       => println(f\"Circle r=$r: area=${Math.PI * r * r}%.2f\")\n    case Rectangle(w, h) => println(f\"Rect ${w}x$h: area=${w * h}%.2f\")\n  }\n\n  val pairs = for {\n    x <- 1 to 3\n    y <- 1 to 3\n    if x != y\n  } yield (x, y)\n  println(s\"Pairs: ${pairs.take(4).mkString(\", \")}...\")\n}\n"
+      }
+    ],
+    "entryPoint": "main.scala"
+  },
+  {
+    "id": "haskell-hello",
+    "title": "Haskell: Hello World",
+    "description": "Hello World in Haskell with type classes, higher-order functions, and list comprehensions",
+    "language": "Haskell",
+    "category": "example",
+    "hasPreview": false,
+    "code": "",
+    "files": [
+      {
+        "name": "main.hs",
+        "content": "module Main where\n\nimport Data.List (sortBy, intercalate)\nimport Data.Ord (comparing)\n\ndata Shape = Circle Double | Rectangle Double Double deriving (Show)\n\narea :: Shape -> Double\narea (Circle r)       = pi * r * r\narea (Rectangle w h)  = w * h\n\nfibs :: [Integer]\nfibs = 0 : 1 : zipWith (+) fibs (tail fibs)\n\ncaesar :: Int -> String -> String\ncaesar n = map shift\n  where shift c\n          | c >= 'a' && c <= 'z' = toEnum $ (fromEnum c - fromEnum 'a' + n) `mod` 26 + fromEnum 'a'\n          | c >= 'A' && c <= 'Z' = toEnum $ (fromEnum c - fromEnum 'A' + n) `mod` 26 + fromEnum 'A'\n          | otherwise = c\n\nmain :: IO ()\nmain = do\n  putStrLn \"Hello, World!\"\n\n  let shapes = [Circle 5, Rectangle 4 6, Circle 3]\n  mapM_ (\\s -> putStrLn $ show s ++ \" area=\" ++ show (area s)) shapes\n\n  putStr \"Fibonacci: \"\n  print (take 10 fibs)\n\n  let triples = [(a,b,c) | c <- [1..20], b <- [1..c], a <- [1..b], a^2+b^2==c^2]\n  putStrLn $ \"Pythagorean triples: \" ++ show (take 4 triples)\n\n  let encoded = caesar 13 \"hello haskell\"\n  let decoded = caesar (-13) encoded\n  putStrLn $ \"ROT13: \" ++ encoded ++ \" -> \" ++ decoded\n"
+      }
+    ],
+    "entryPoint": "main.hs"
+  },
+  {
+    "id": "r-hello",
+    "title": "R: Hello World",
+    "description": "Hello World in R with data frames and statistical analysis",
+    "language": "R",
+    "category": "example",
+    "hasPreview": false,
+    "code": "",
+    "files": [
+      {
+        "name": "main.R",
+        "content": "cat(\"Hello, World!\\n\")\n\nx <- 1:10\ncat(\"Mean:\", mean(x), \"\\n\")\ncat(\"Std dev:\", round(sd(x), 3), \"\\n\")\n\ndf <- data.frame(\n  name = c(\"Alice\", \"Bob\", \"Carol\", \"Dave\"),\n  age  = c(30, 25, 35, 28),\n  dept = c(\"Engineering\", \"Marketing\", \"Engineering\", \"Marketing\")\n)\nprint(df)\n\nagg <- aggregate(age ~ dept, data = df, FUN = mean)\ncat(\"\\nAverage age by dept:\\n\")\nprint(agg)\n\nfibonacci <- function(n) {\n  if (n <= 1) return(n)\n  a <- 0; b <- 1\n  for (i in seq_len(n - 1)) { tmp <- a + b; a <- b; b <- tmp }\n  b\n}\n\ncat(\"\\nFibonacci:\", sapply(0:9, fibonacci), \"\\n\")\n\nmat <- matrix(1:12, nrow = 3)\ncat(\"Row sums:\", apply(mat, 1, sum), \"\\n\")\ncat(\"Col sums:\", apply(mat, 2, sum), \"\\n\")\n"
+      }
+    ],
+    "entryPoint": "main.R"
+  },
+  {
+    "id": "julia-hello",
+    "title": "Julia: Hello World",
+    "description": "Hello World in Julia with multiple dispatch, macros, and comprehensions",
+    "language": "Julia",
+    "category": "example",
+    "hasPreview": false,
+    "code": "",
+    "files": [
+      {
+        "name": "main.jl",
+        "content": "using Printf\n\nprintln(\"Hello, World!\")\n\nstruct Circle\n    radius::Float64\nend\n\nstruct Rectangle\n    width::Float64\n    height::Float64\nend\n\narea(c::Circle)    = pi * c.radius^2\narea(r::Rectangle) = r.width * r.height\n\nfor s in [Circle(5.0), Rectangle(4.0, 6.0), Circle(3.0)]\n    @printf \"%-25s  area=%.2f\\n\" string(s) area(s)\nend\n\nsquares = [x^2 for x in 1:10 if iseven(x)]\nprintln(\"\\nSquares of even 1-10: \", squares)\n\nresult = sum(sqrt(i) for i in 1:100_000)\n@printf \"Sum of sqrts 1..100k: %.2f\\n\" result\n\nA = [1 2 3; 4 5 6; 7 8 9]\nprintln(\"\\nRow sums: \", sum(A, dims=2))\n"
+      }
+    ],
+    "entryPoint": "main.jl"
+  },
+  {
+    "id": "elixir-hello",
+    "title": "Elixir: Hello World",
+    "description": "Hello World in Elixir with pattern matching, pipe operator, and modules",
+    "language": "Elixir",
+    "category": "example",
+    "hasPreview": false,
+    "code": "",
+    "files": [
+      {
+        "name": "main.exs",
+        "content": "IO.puts(\"Hello, World!\")\n\ndefmodule MathUtils do\n  def factorial(0), do: 1\n  def factorial(n) when n > 0, do: n * factorial(n - 1)\n\n  def fibonacci(n), do: fib(n, 0, 1)\n  defp fib(0, a, _), do: a\n  defp fib(n, a, b), do: fib(n - 1, b, a + b)\nend\n\n1..10\n|> Enum.filter(&Integer.is_even/1)\n|> Enum.map(&(&1 * &1))\n|> Enum.sum()\n|> IO.inspect(label: \"Sum of squares of evens\")\n\npeople = [\n  %{name: \"Alice\", age: 30, dept: \"Engineering\"},\n  %{name: \"Bob\",   age: 25, dept: \"Marketing\"},\n  %{name: \"Carol\", age: 35, dept: \"Engineering\"}\n]\n\npeople\n|> Enum.group_by(& &1.dept)\n|> Enum.each(fn {dept, members} ->\n  names = Enum.map_join(members, \", \", & &1.name)\n  IO.puts(\"#{dept}: #{names}\")\nend)\n\nIO.inspect(Enum.map(0..9, &MathUtils.fibonacci/1), label: \"Fibonacci\")\nIO.inspect(Enum.map(1..8, &MathUtils.factorial/1), label: \"Factorials\")\n\n\"hello elixir\"\n|> String.split()\n|> Enum.map(&String.capitalize/1)\n|> Enum.join(\" \")\n|> IO.puts()\n"
+      }
+    ],
+    "entryPoint": "main.exs"
+  },
+  {
+    "id": "dart-hello",
+    "title": "Dart: Hello World",
+    "description": "Hello World in Dart with classes, async/await, and collections",
+    "language": "Dart",
+    "category": "example",
+    "hasPreview": false,
+    "code": "",
+    "files": [
+      {
+        "name": "main.dart",
+        "content": "import 'dart:async';\n\nclass Person {\n  final String name;\n  final int age;\n  final String dept;\n  const Person(this.name, this.age, this.dept);\n  String toString() => '$name ($age) — $dept';\n}\n\nFuture<String> fetchGreeting(String name) async {\n  await Future.delayed(Duration(milliseconds: 10));\n  return 'Hello, $name!';\n}\n\nvoid main() async {\n  print(await fetchGreeting('World'));\n\n  final people = [\n    Person('Alice', 30, 'Engineering'),\n    Person('Bob',   25, 'Marketing'),\n    Person('Carol', 35, 'Engineering'),\n  ];\n\n  final byDept = <String, List<Person>>{};\n  for (final p in people) {\n    byDept.putIfAbsent(p.dept, () => []).add(p);\n  }\n  byDept.forEach((dept, members) {\n    print('$dept: ${members.map((p) => p.name).join(\", \")}');\n  });\n\n  final nums = List.generate(10, (i) => i + 1);\n  final sum = nums.where((n) => n.isEven).map((n) => n * n).fold(0, (a, b) => a + b);\n  print('Sum of squares of evens: $sum');\n}\n"
+      }
+    ],
+    "entryPoint": "main.dart"
+  },
+  {
+    "id": "lua-hello",
+    "title": "Lua: Hello World",
+    "description": "Hello World in Lua with tables, metatables, and coroutines",
+    "language": "Lua",
+    "category": "example",
+    "hasPreview": false,
+    "code": "",
+    "files": [
+      {
+        "name": "main.lua",
+        "content": "print(\"Hello, World!\")\n\nlocal Animal = {}\nAnimal.__index = Animal\n\nfunction Animal.new(name, sound)\n  return setmetatable({name=name, sound=sound}, Animal)\nend\n\nfunction Animal:speak()\n  return self.name .. \" says \" .. self.sound\nend\n\nprint(Animal.new(\"Rex\", \"woof\"):speak())\nprint(Animal.new(\"Whiskers\", \"meow\"):speak())\n\nlocal function filter(t, pred)\n  local out = {}\n  for _, v in ipairs(t) do if pred(v) then out[#out+1] = v end end\n  return out\nend\n\nlocal function map(t, f)\n  local out = {}\n  for i, v in ipairs(t) do out[i] = f(v) end\n  return out\nend\n\nlocal nums = {}\nfor i = 1, 10 do nums[i] = i end\nlocal evens   = filter(nums, function(n) return n % 2 == 0 end)\nlocal squares = map(evens, function(n) return n * n end)\nlocal sum = 0\nfor _, v in ipairs(squares) do sum = sum + v end\nprint(\"Sum of squares of evens:\", sum)\n\nlocal function fibonacci()\n  local a, b = 0, 1\n  while true do\n    coroutine.yield(a)\n    a, b = b, a + b\n  end\nend\n\nlocal co = coroutine.create(fibonacci)\nio.write(\"Fibonacci: \")\nfor _ = 1, 10 do\n  local _, val = coroutine.resume(co)\n  io.write(val .. \" \")\nend\nprint()\n"
+      }
+    ],
+    "entryPoint": "main.lua"
+  },
+  {
+    "id": "perl-hello",
+    "title": "Perl: Hello World",
+    "description": "Hello World in Perl with regex, hashes, and references",
+    "language": "Perl",
+    "category": "example",
+    "hasPreview": false,
+    "code": "",
+    "files": [
+      {
+        "name": "main.pl",
+        "content": "#!/usr/bin/perl\nuse strict;\nuse warnings;\n\nprint \"Hello, World!\\n\";\n\nmy @people = (\n  { name => 'Alice', age => 30, dept => 'Engineering' },\n  { name => 'Bob',   age => 25, dept => 'Marketing' },\n  { name => 'Carol', age => 35, dept => 'Engineering' },\n);\n\nmy %by_dept;\nfor my $p (@people) {\n  push @{$by_dept{$p->{dept}}}, $p->{name};\n}\nfor my $dept (sort keys %by_dept) {\n  print \"$dept: \" . join(', ', @{$by_dept{$dept}}) . \"\\n\";\n}\n\nmy $text = \"the quick brown fox jumps over the lazy dog\";\nmy @words = split /\\s+/, $text;\nmy @long  = grep { length($_) > 4 } @words;\nprint \"Long words: @long\\n\";\n\nmy @nums = 1..10;\nmy $sum = 0;\n$sum += $_ * $_ for grep { $_ % 2 == 0 } @nums;\nprint \"Sum of squares of evens: $sum\\n\";\n\nsub make_counter {\n  my $count = 0;\n  return sub { return ++$count };\n}\n\nmy $counter = make_counter();\nprintf \"Counter: %d %d %d\\n\", $counter->(), $counter->(), $counter->();\n"
+      }
+    ],
+    "entryPoint": "main.pl"
+  },
+  {
+    "id": "bash-hello",
+    "title": "Bash: Hello World",
+    "description": "Hello World in Bash with arrays, functions, and string manipulation",
+    "language": "Bash",
+    "category": "example",
+    "hasPreview": false,
+    "code": "",
+    "files": [
+      {
+        "name": "main.sh",
+        "content": "#!/usr/bin/env bash\nset -euo pipefail\n\necho \"Hello, World!\"\n\ngreet() {\n  local name=\"${1:-World}\"\n  echo \"Hello, ${name}!\"\n}\n\ngreet \"Bash\"\ngreet\n\nlangs=(Python JavaScript Rust Go \"C++\")\necho \"Languages:\"\nfor lang in \"${langs[@]}\"; do\n  echo \"  - $lang\"\ndone\n\ntext=\"the quick brown fox\"\necho \"Upper: ${text^^}\"\necho \"Length: ${#text}\"\necho \"Replace: ${text//fox/cat}\"\n\nsum=0\nfor i in $(seq 1 10); do\n  if (( i % 2 == 0 )); then\n    (( sum += i * i ))\n  fi\ndone\necho \"Sum of squares of evens 1-10: $sum\"\n\ndeclare -A scores=([Alice]=95 [Bob]=87 [Carol]=92)\nfor name in \"${!scores[@]}\"; do\n  echo \"  $name: ${scores[$name]}\"\ndone\n"
+      }
+    ],
+    "entryPoint": "main.sh"
+  },
+  {
+    "id": "swift-hello",
+    "title": "Swift: Hello World",
+    "description": "Hello World in Swift with structs, protocols, and functional collections",
+    "language": "Swift",
+    "category": "example",
+    "hasPreview": false,
+    "code": "",
+    "files": [
+      {
+        "name": "main.swift",
+        "content": "import Foundation\n\nprotocol Describable {\n    var description: String { get }\n}\n\nstruct Person: Describable {\n    let name: String\n    let age: Int\n    let dept: String\n    var description: String { \"\\(name) (\\(age)) — \\(dept)\" }\n}\n\nenum Shape {\n    case circle(radius: Double)\n    case rectangle(width: Double, height: Double)\n\n    var area: Double {\n        switch self {\n        case .circle(let r):           return Double.pi * r * r\n        case .rectangle(let w, let h): return w * h\n        }\n    }\n}\n\nprint(\"Hello, World!\")\n\nlet people = [\n    Person(name: \"Alice\", age: 30, dept: \"Engineering\"),\n    Person(name: \"Bob\",   age: 25, dept: \"Marketing\"),\n    Person(name: \"Carol\", age: 35, dept: \"Engineering\")\n]\n\nDictionary(grouping: people, by: \\.dept).forEach { dept, members in\n    print(\"\\(dept): \\(members.map(\\.name).joined(separator: \", \"))\")\n}\n\nlet sumOfSquaresOfEvens = (1...10)\n    .filter { $0 % 2 == 0 }\n    .map { $0 * $0 }\n    .reduce(0, +)\nprint(\"Sum of squares of evens: \\(sumOfSquaresOfEvens)\")\n\nlet shapes: [Shape] = [.circle(radius: 5), .rectangle(width: 4, height: 6)]\nshapes.forEach { shape in\n    switch shape {\n    case .circle(let r):           print(String(format: \"Circle r=%.0f area=%.2f\", r, shape.area))\n    case .rectangle(let w, let h): print(\"Rect \\(Int(w))x\\(Int(h)) area=\\(shape.area)\")\n    }\n}\n"
+      }
+    ],
+    "entryPoint": "main.swift"
+  },
+  {
     "id": "python-study-timer",
     "title": "Interactive: Study Session Planner",
     "description": "Plan study sessions with breaks using the Pomodoro technique",

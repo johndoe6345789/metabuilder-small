@@ -1,7 +1,8 @@
 'use client'
 
-import { InputParameter } from '@/lib/types'
+import { InputParameter, SnippetFile } from '@/lib/types'
 import { appConfig } from '@/lib/config'
+import { useTranslation } from '@/hooks/useTranslation'
 import { SnippetFormFields } from './SnippetFormFields'
 import { CodeEditorSection } from './CodeEditorSection'
 import { InputParameterList } from './InputParameterList'
@@ -65,6 +66,13 @@ export interface SnippetDialogTabsProps {
   onAddParameter: () => void
   onRemoveParameter: (i: number) => void
   onUpdateParameter: (i: number, field: keyof InputParameter, value: string) => void
+  files: SnippetFile[]
+  activeFile: string
+  onActiveFileSelect: (name: string) => void
+  onFileAdd: (name: string, content?: string) => void
+  onFileDelete: (name: string) => void
+  onFileRename: (oldName: string, newName: string) => void
+  onFileUpload: (file: File) => void
 }
 
 export function SnippetDialogTabs({
@@ -87,11 +95,19 @@ export function SnippetDialogTabs({
   onAddParameter,
   onRemoveParameter,
   onUpdateParameter,
+  files,
+  activeFile,
+  onActiveFileSelect,
+  onFileAdd,
+  onFileDelete,
+  onFileRename,
+  onFileUpload,
 }: SnippetDialogTabsProps) {
+  const t = useTranslation()
   const isPreviewSupported = appConfig.previewEnabledLanguages.includes(language)
   const showPreviewTab = isPreviewSupported && hasPreview
 
-  const tabs = ['Details', 'Code', ...(showPreviewTab ? ['Preview Config'] : [])]
+  const tabs = [t.snippetDialog.tabs.details, t.snippetDialog.tabs.code, ...(showPreviewTab ? [t.snippetDialog.tabs.previewConfig] : [])]
 
   return (
     <>
@@ -120,6 +136,13 @@ export function SnippetDialogTabs({
           onCodeChange={onCodeChange}
           onPreviewChange={onPreviewChange}
           height="360px"
+          files={files}
+          activeFile={activeFile}
+          onActiveFileSelect={onActiveFileSelect}
+          onFileAdd={onFileAdd}
+          onFileDelete={onFileDelete}
+          onFileRename={onFileRename}
+          onFileUpload={onFileUpload}
         />
       </TabPanel>
 

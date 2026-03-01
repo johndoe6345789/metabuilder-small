@@ -10,11 +10,13 @@ import { StorageInfoCard } from '@/components/settings/StorageInfoCard';
 import { DatabaseActionsCard } from '@/components/settings/DatabaseActionsCard';
 import { OpenAISettingsCard } from '@/components/settings/OpenAISettingsCard';
 import { useSettingsState } from '@/hooks/useSettingsState';
+import { useTranslation } from '@/hooks/useTranslation';
 import { PageLayout } from '../PageLayout';
 
 export const dynamic = 'force-dynamic'
 
 export default function SettingsPage() {
+  const t = useTranslation();
   const {
     stats,
     loading,
@@ -48,8 +50,8 @@ export default function SettingsPage() {
         transition={{ duration: 0.4 }}
       >
         <div className="mb-8">
-          <h2 className="text-3xl font-bold tracking-tight mb-2">Settings</h2>
-          <p className="text-muted-foreground">Manage your database and application settings</p>
+          <h2 className="text-3xl font-bold tracking-tight mb-2">{t.settingsPage.heading}</h2>
+          <p className="text-muted-foreground">{t.settingsPage.subtitle}</p>
         </div>
 
         <div className="grid gap-6 max-w-3xl">

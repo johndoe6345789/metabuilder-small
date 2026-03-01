@@ -3,12 +3,14 @@
 import { CheckCircle, WarningCircle } from '@phosphor-icons/react'
 import { Alert, AlertTitle } from '@metabuilder/components/fakemui'
 import { getStorageConfig } from '@/lib/storage'
+import { useTranslation } from '@/hooks/useTranslation'
 
 /**
  * Small stack of status alerts to keep tests and users informed about
  * the current storage mode and backend connectivity.
  */
 export function AppStatusAlerts() {
+  const t = useTranslation()
   const { backend } = getStorageConfig()
   const usingLocal = backend === 'indexeddb'
 
@@ -22,10 +24,8 @@ export function AppStatusAlerts() {
         severity="success"
         icon={<CheckCircle className="col-start-1 mt-0.5 text-emerald-500" weight="fill" aria-hidden="true" />}
       >
-        <AlertTitle>Workspace ready</AlertTitle>
-        {usingLocal
-          ? 'Running in local-first mode so you can work offline without a backend.'
-          : 'Connected to your configured backend. Live sync is enabled.'}
+        <AlertTitle>{t.statusAlerts.workspaceReady}</AlertTitle>
+        {usingLocal ? t.statusAlerts.localModeDesc : t.statusAlerts.connectedDesc}
       </Alert>
 
       {usingLocal && (
@@ -37,9 +37,8 @@ export function AppStatusAlerts() {
           severity="error"
           icon={<WarningCircle className="col-start-1 mt-0.5" weight="fill" aria-hidden="true" />}
         >
-          <AlertTitle>Cloud backend unavailable</AlertTitle>
-          No Flask backend detected. Saving and loading will stay on this device until a server
-          URL is configured.
+          <AlertTitle>{t.statusAlerts.cloudUnavailable}</AlertTitle>
+          {t.statusAlerts.cloudUnavailableDesc}
         </Alert>
       )}
     </div>

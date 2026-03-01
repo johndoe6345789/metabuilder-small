@@ -7,6 +7,11 @@ export interface InputParameter {
   description?: string
 }
 
+export interface SnippetFile {
+  name: string
+  content: string
+}
+
 export interface Snippet {
   id: string
   title: string
@@ -19,6 +24,8 @@ export interface Snippet {
   isTemplate?: boolean
   functionName?: string
   inputParameters?: InputParameter[]
+  files?: SnippetFile[]
+  entryPoint?: string
   createdAt: number
   updatedAt: number
 }
@@ -40,6 +47,8 @@ export interface SnippetTemplate {
   hasPreview?: boolean
   functionName?: string
   inputParameters?: InputParameter[]
+  files?: SnippetFile[]
+  entryPoint?: string
 }
 
 

@@ -178,7 +178,7 @@ describe('PythonTerminal', () => {
     })
 
     it('should call handleInputSubmit when form is submitted', async () => {
-      const handleInputSubmit = jest.fn((e: React.FormEvent) => e.preventDefault())
+      const handleInputSubmit = jest.fn(async (e: React.FormEvent) => e.preventDefault())
       mockUsePythonTerminal.mockReturnValue({
         ...defaultMockReturn,
         waitingForInput: true,

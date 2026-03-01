@@ -3,9 +3,12 @@
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, Input, Button, FormLabel } from '@metabuilder/components/fakemui';
 import { Eye, EyeClosed, Key } from '@phosphor-icons/react';
+import { useTranslation } from '@/hooks/useTranslation';
 import styles from './settings-card.module.scss';
 
 export function OpenAISettingsCard() {
+  const t = useTranslation();
+  const s = t.settingsCards.openAI;
   const [apiKey, setApiKey] = useState(() => (typeof window !== 'undefined' ? localStorage.getItem('openai_api_key') || '' : ''));
   const [showKey, setShowKey] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -34,15 +37,15 @@ export function OpenAISettingsCard() {
       <CardHeader>
         <div className="flex items-center gap-2">
           <Key className="h-5 w-5 text-primary" weight="duotone" aria-hidden="true" />
-          <h3 className={styles.cardTitle}>OpenAI API Settings</h3>
+          <h3 className={styles.cardTitle}>{s.title}</h3>
         </div>
         <p className={styles.cardDescription}>
-          Configure your OpenAI API key for AI-powered error analysis. Your key is stored locally in your browser.
+          {s.description}
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2">
-          <FormLabel htmlFor="openai-key">OpenAI API Key</FormLabel>
+          <FormLabel htmlFor="openai-key">{s.keyLabel}</FormLabel>
           <div className="flex gap-2">
             <div className="relative flex-1">
               <Input
@@ -50,7 +53,7 @@ export function OpenAISettingsCard() {
                 type={showKey ? 'text' : 'password'}
                 value={apiKey}
                 onChange={(e) => setApiKey(e.target.value)}
-                placeholder="sk-..."
+                placeholder={s.keyPlaceholder}
                 className="pr-10"
                 data-testid="openai-api-key-input"
                 aria-label="OpenAI API key"
@@ -60,7 +63,7 @@ export function OpenAISettingsCard() {
                 onClick={() => setShowKey(!showKey)}
                 className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                 data-testid="toggle-api-key-visibility"
-                aria-label={showKey ? 'Hide API key' : 'Show API key'}
+                aria-label={showKey ? s.hideKey : s.showKey}
                 aria-pressed={showKey}
               >
                 {showKey ? <EyeClosed size={18} aria-hidden="true" /> : <Eye size={18} aria-hidden="true" />}
@@ -68,7 +71,7 @@ export function OpenAISettingsCard() {
             </div>
           </div>
           <p className="text-xs text-muted-foreground">
-            Get your API key from{' '}
+            {s.keyHint}{' '}
             <a
               href="https://platform.openai.com/api-keys"
               target="_blank"
@@ -87,7 +90,7 @@ export function OpenAISettingsCard() {
             data-testid="save-api-key-btn"
             aria-label="Save OpenAI API key"
           >
-            {saved ? 'Saved!' : 'Save API Key'}
+            {saved ? s.saved : s.saveButton}
           </Button>
           {apiKey && (
             <Button
@@ -96,14 +99,14 @@ export function OpenAISettingsCard() {
               data-testid="clear-api-key-btn"
               aria-label="Clear OpenAI API key"
             >
-              Clear
+              {s.clearButton}
             </Button>
           )}
         </div>
 
         {apiKey && (
           <div className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-md" data-testid="api-key-configured-status" role="status">
-            ✓ API key is configured. Error analysis will use OpenAI GPT-4o-mini.
+            {s.configuredStatus}
           </div>
         )}
       </CardContent>

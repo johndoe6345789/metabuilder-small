@@ -1,13 +1,15 @@
 import { useState, useCallback } from 'react'
 import { toast } from 'sonner'
-import { 
-  saveStorageConfig, 
-  loadStorageConfig, 
+import {
+  saveStorageConfig,
+  loadStorageConfig,
   FlaskStorageAdapter,
-  type StorageBackend 
+  type StorageBackend
 } from '@/lib/storage'
+import { useTranslation } from '@/hooks/useTranslation'
 
 export function useStorageConfig() {
+  const t = useTranslation()
   const [storageBackend, setStorageBackend] = useState<StorageBackend>('indexeddb')
   const [flaskUrl, setFlaskUrl] = useState('')
   const [flaskConnectionStatus, setFlaskConnectionStatus] = useState<'unknown' | 'connected' | 'failed'>('unknown')
@@ -47,13 +49,13 @@ export function useStorageConfig() {
   const handleSaveStorageConfig = useCallback(async (onSuccess?: () => Promise<void>) => {
     if (storageBackend === 'flask') {
       if (!flaskUrl) {
-        toast.error('Please enter a Flask backend URL')
+        toast.error(t.settings.enterFlaskUrl)
         return
       }
-      
+
       const connected = await testFlaskConnection(flaskUrl)
       if (!connected) {
-        toast.error('Cannot connect to Flask backend. Please check the URL and ensure the server is running.')
+        toast.error(t.settings.storage.cannotConnect)
         return
       }
     }
@@ -62,8 +64,8 @@ export function useStorageConfig() {
       backend: storageBackend,
       flaskUrl: storageBackend === 'flask' ? flaskUrl : undefined
     })
-    
-    toast.success('Storage backend updated successfully')
+
+    toast.success(t.settings.storage.backendUpdated)
     
     if (onSuccess) {
       await onSuccess()

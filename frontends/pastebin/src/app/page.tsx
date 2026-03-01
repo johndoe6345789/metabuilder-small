@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import dynamic from 'next/dynamic';
 import { PageLayout } from './PageLayout';
+import { useTranslation } from '@/hooks/useTranslation';
 
 // Dynamically import SnippetManagerRedux to avoid SSR issues with Pyodide
 const SnippetManagerRedux = dynamic(
@@ -11,6 +12,7 @@ const SnippetManagerRedux = dynamic(
 );
 
 export default function HomePage() {
+  const t = useTranslation()
   return (
     <PageLayout>
       <motion.div
@@ -19,8 +21,8 @@ export default function HomePage() {
         transition={{ duration: 0.4 }}
       >
         <div className="mb-8">
-          <h1 style={{ fontFamily: 'var(--mat-sys-headline-large-font)', fontSize: '2rem', fontWeight: 700, letterSpacing: '-0.02em', marginBottom: 6, color: 'var(--mat-sys-on-surface)' }}>My Snippets</h1>
-          <p style={{ color: 'var(--mat-sys-on-surface-variant)', fontSize: '1rem' }}>Save, organize, and share your code snippets</p>
+          <h1 style={{ fontFamily: 'var(--mat-sys-headline-large-font)', fontSize: '2rem', fontWeight: 700, letterSpacing: '-0.02em', marginBottom: 6, color: 'var(--mat-sys-on-surface)' }}>{t.page.heading}</h1>
+          <p style={{ color: 'var(--mat-sys-on-surface-variant)', fontSize: '1rem' }}>{t.page.subtitle}</p>
         </div>
         <SnippetManagerRedux />
       </motion.div>

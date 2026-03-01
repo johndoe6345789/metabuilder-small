@@ -27,6 +27,10 @@ jest.mock('@/components/features/snippet-editor/SplitScreenEditor', () => ({
   ),
 }))
 
+jest.mock('@/components/features/file-tree/FileTree', () => ({
+  FileTree: () => <div data-testid="file-tree" />,
+}))
+
 describe('CodeEditorSection', () => {
   const mockInputParameters: InputParameter[] = [
     { name: 'param1', type: 'string', defaultValue: 'test', description: 'A test param' },
@@ -41,6 +45,13 @@ describe('CodeEditorSection', () => {
     errors: {},
     onCodeChange: jest.fn(),
     onPreviewChange: jest.fn(),
+    files: [{ name: 'index.js', content: 'const x = 1;' }],
+    activeFile: 'index.js',
+    onActiveFileSelect: jest.fn(),
+    onFileAdd: jest.fn(),
+    onFileDelete: jest.fn(),
+    onFileRename: jest.fn(),
+    onFileUpload: jest.fn(),
   }
 
   beforeEach(() => {

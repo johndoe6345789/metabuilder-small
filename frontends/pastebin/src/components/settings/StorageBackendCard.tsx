@@ -3,6 +3,7 @@
 import { Card, CardHeader, CardContent, Button, Input, FormLabel, Alert, AlertDescription, RadioGroup, Radio, FormControlLabel } from '@metabuilder/components/fakemui'
 import { Database, CloudArrowUp, CloudCheck, CloudSlash, Upload, Download } from '@phosphor-icons/react'
 import { type StorageBackend } from '@/lib/storage'
+import { useTranslation } from '@/hooks/useTranslation'
 import styles from './settings-card.module.scss'
 
 interface StorageBackendCardProps {
@@ -32,15 +33,17 @@ export function StorageBackendCard({
   onMigrateToFlask,
   onMigrateToIndexedDB,
 }: StorageBackendCardProps) {
+  const t = useTranslation()
+  const s = t.settingsCards.storage
   return (
     <Card data-testid="storage-backend-card">
       <CardHeader>
-        <h3 className={styles.cardTitle} className="flex items-center gap-2">
+        <h3 className={`${styles.cardTitle} flex items-center gap-2`}>
           <CloudArrowUp weight="duotone" size={24} aria-hidden="true" />
-          Storage Backend
+          {s.title}
         </h3>
         <p className={styles.cardDescription}>
-          Choose where your snippets are stored
+          {s.description}
         </p>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -49,12 +52,12 @@ export function StorageBackendCard({
             <AlertDescription className="flex items-center gap-2">
               <CloudCheck weight="fill" size={16} className="text-accent" aria-hidden="true" />
               <span>
-                Storage backend is configured via <code className="px-1.5 py-0.5 rounded bg-muted text-xs font-mono">NEXT_PUBLIC_FLASK_BACKEND_URL</code> environment variable and cannot be changed here.
+                {s.envVarAlertBefore} <code className="px-1.5 py-0.5 rounded bg-muted text-xs font-mono">NEXT_PUBLIC_FLASK_BACKEND_URL</code> {s.envVarAlertAfter}
               </span>
             </AlertDescription>
           </Alert>
         )}
-        
+
         <RadioGroup
           value={storageBackend}
           onChange={(e) => onStorageBackendChange(e.target.value as StorageBackend)}
@@ -66,16 +69,16 @@ export function StorageBackendCard({
               label={
                 <div className="flex-1">
                   <FormLabel htmlFor="storage-indexeddb" className={`font-semibold ${envVarSet ? 'opacity-50' : 'cursor-pointer'}`}>
-                    IndexedDB (Local Browser Storage)
+                    {s.indexedDBLabel}
                   </FormLabel>
                   <p className="text-sm text-muted-foreground mt-1">
-                    Store snippets locally in your browser. Data persists on this device only.
+                    {s.indexedDBDesc}
                   </p>
                 </div>
               }
             />
           </div>
-          
+
           <div className="flex items-start space-x-3 space-y-0 mt-4" data-testid="storage-option-flask">
             <FormControlLabel
               value="flask"
@@ -83,10 +86,10 @@ export function StorageBackendCard({
               label={
                 <div className="flex-1">
                   <FormLabel htmlFor="storage-flask" className={`font-semibold ${envVarSet ? 'opacity-50' : 'cursor-pointer'}`}>
-                    Flask Backend (Remote Server)
+                    {s.flaskLabel}
                   </FormLabel>
                   <p className="text-sm text-muted-foreground mt-1">
-                    Store snippets on a Flask backend server. Data is accessible from any device.
+                    {s.flaskDesc}
                   </p>
                 </div>
               }
@@ -97,12 +100,12 @@ export function StorageBackendCard({
         {storageBackend === 'flask' && (
           <div className="space-y-4 p-4 border border-border rounded-lg bg-muted/50" data-testid="flask-config-section">
             <div>
-              <FormLabel htmlFor="flask-url">Flask Backend URL</FormLabel>
+              <FormLabel htmlFor="flask-url">{s.urlLabel}</FormLabel>
               <div className="flex gap-2 mt-2">
                 <Input
                   id="flask-url"
                   type="url"
-                  placeholder="http://localhost:5000"
+                  placeholder={s.urlPlaceholder}
                   value={flaskUrl}
                   onChange={(e) => onFlaskUrlChange(e.target.value)}
                   disabled={envVarSet}
@@ -117,19 +120,19 @@ export function StorageBackendCard({
                   aria-label="Test flask connection"
                   aria-busy={testingConnection}
                 >
-                  {testingConnection ? 'Testing...' : 'Test'}
+                  {testingConnection ? s.testing : s.test}
                 </Button>
               </div>
               {flaskConnectionStatus === 'connected' && (
                 <div className="flex items-center gap-2 mt-2 text-sm text-green-600" data-testid="flask-connected-status">
                   <CloudCheck weight="fill" size={16} aria-hidden="true" />
-                  Connected successfully
+                  {s.connectedStatus}
                 </div>
               )}
               {flaskConnectionStatus === 'failed' && (
                 <div className="flex items-center gap-2 mt-2 text-sm text-destructive" data-testid="flask-failed-status">
                   <CloudSlash weight="fill" size={16} aria-hidden="true" />
-                  Connection failed
+                  {s.failedStatus}
                 </div>
               )}
             </div>
@@ -144,7 +147,7 @@ export function StorageBackendCard({
                 aria-label="Migrate IndexedDB data to Flask backend"
               >
                 <Upload weight="bold" size={16} aria-hidden="true" />
-                Migrate IndexedDB Data to Flask
+                {s.migrateToFlask}
               </Button>
               <Button
                 onClick={onMigrateToIndexedDB}
@@ -155,7 +158,7 @@ export function StorageBackendCard({
                 aria-label="Migrate Flask data to IndexedDB"
               >
                 <Download weight="bold" size={16} aria-hidden="true" />
-                Migrate Flask Data to IndexedDB
+                {s.migrateToIndexedDB}
               </Button>
             </div>
           </div>
@@ -164,7 +167,7 @@ export function StorageBackendCard({
         <div className="pt-2">
           <Button onClick={onSaveConfig} className="gap-2" disabled={envVarSet} data-testid="save-storage-settings-btn" aria-label="Save storage configuration">
             <Database weight="bold" size={16} aria-hidden="true" />
-            Save Storage Settings
+            {s.save}
           </Button>
         </div>
       </CardContent>

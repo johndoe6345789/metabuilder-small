@@ -107,7 +107,7 @@ export function SnippetCard({
 
   const handleMoveToNamespace = async (targetNamespaceId: string) => {
     if (snippet.namespaceId === targetNamespaceId) {
-      toast.info('Snippet is already in this namespace')
+      toast.info(t.snippetCard.alreadyInNamespace)
       return
     }
 
@@ -115,13 +115,13 @@ export function SnippetCard({
     try {
       await moveSnippetToNamespace(snippet.id, targetNamespaceId)
       const targetNamespace = namespaces.find(n => n.id === targetNamespaceId)
-      toast.success(`Moved to ${targetNamespace?.name || 'namespace'}`)
+      toast.success(t.snippetCard.movedTo.replace('{name}', targetNamespace?.name || 'namespace'))
       if (onMove) {
         onMove()
       }
     } catch (error) {
       console.error('Failed to move snippet:', error)
-      toast.error('Failed to move snippet')
+      toast.error(t.snippetCard.failedToMove)
     } finally {
       setIsMoving(false)
     }

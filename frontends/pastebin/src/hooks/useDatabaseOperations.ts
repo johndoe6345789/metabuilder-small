@@ -1,15 +1,17 @@
 import { useState, useCallback } from 'react'
 import { toast } from 'sonner'
-import { 
-  getDatabaseStats, 
-  exportDatabase, 
-  importDatabase, 
-  clearDatabase, 
+import {
+  getDatabaseStats,
+  exportDatabase,
+  importDatabase,
+  clearDatabase,
   seedDatabase,
   validateDatabaseSchema
 } from '@/lib/db'
+import { useTranslation } from '@/hooks/useTranslation'
 
 export function useDatabaseOperations() {
+  const t = useTranslation()
   const [stats, setStats] = useState<{
     snippetCount: number
     templateCount: number
@@ -27,7 +29,7 @@ export function useDatabaseOperations() {
       setStats(data)
     } catch (error) {
       console.error('Failed to load stats:', error)
-      toast.error('Failed to load database statistics')
+      toast.error(t.settings.database.failedToLoadStats)
     } finally {
       setLoading(false)
     }
@@ -58,10 +60,10 @@ export function useDatabaseOperations() {
       a.click()
       document.body.removeChild(a)
       URL.revokeObjectURL(url)
-      toast.success('Database exported successfully')
+      toast.success(t.settings.database.exported)
     } catch (error) {
       console.error('Failed to export:', error)
-      toast.error('Failed to export database')
+      toast.error(t.settings.database.failedToExport)
     }
   }, [])
 
@@ -72,40 +74,40 @@ export function useDatabaseOperations() {
     try {
       const text = await file.text()
       await importDatabase(text)
-      toast.success('Database imported successfully')
+      toast.success(t.settings.database.imported)
       await loadStats()
     } catch (error) {
       console.error('Failed to import:', error)
-      toast.error('Failed to import database')
+      toast.error(t.settings.database.failedToImport)
     }
 
     event.target.value = ''
   }, [loadStats])
 
   const handleClear = useCallback(async () => {
-    if (!confirm('Are you sure you want to clear all data? This cannot be undone.')) {
+    if (!confirm(t.settings.database.clearConfirm)) {
       return
     }
 
     try {
       await clearDatabase()
-      toast.success('Database cleared and schema recreated successfully')
+      toast.success(t.settings.database.cleared)
       await loadStats()
       await checkSchemaHealth()
     } catch (error) {
       console.error('Failed to clear:', error)
-      toast.error('Failed to clear database')
+      toast.error(t.settings.database.failedToClear)
     }
   }, [loadStats, checkSchemaHealth])
 
   const handleSeed = useCallback(async () => {
     try {
       await seedDatabase()
-      toast.success('Sample data added successfully')
+      toast.success(t.settings.database.seeded)
       await loadStats()
     } catch (error) {
       console.error('Failed to seed:', error)
-      toast.error('Failed to add sample data')
+      toast.error(t.settings.database.failedToSeed)
     }
   }, [loadStats])
 

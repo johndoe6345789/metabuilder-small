@@ -9,11 +9,13 @@ import { useNavigation } from '@/components/layout/navigation/useNavigation';
 import { BackendIndicator } from '@/components/layout/BackendIndicator';
 import { AlertsBell } from '@/components/layout/AlertsBell';
 import { LangSelector } from '@/components/layout/LangSelector';
+import { useTranslation } from '@/hooks/useTranslation';
 import { ReactNode } from 'react';
 import styles from './page-layout.module.scss';
 
 export function PageLayout({ children }: { children: ReactNode }) {
   const { menuOpen } = useNavigation();
+  const t = useTranslation();
 
   const safePad = '0.5rem';
   const safeAreaPadding = {
@@ -92,8 +94,8 @@ export function PageLayout({ children }: { children: ReactNode }) {
             }}
           >
             <div className="text-center text-xs sm:text-sm text-muted-foreground">
-              <p>Save, organize, and share your code snippets with beautiful syntax highlighting and live execution</p>
-              <p className="mt-2 text-xs">Supports React preview and Python execution via Pyodide</p>
+              <p>{t.page.footer.tagline}</p>
+              <p className="mt-2 text-xs">{t.page.footer.techNote}</p>
             </div>
           </div>
         </footer>

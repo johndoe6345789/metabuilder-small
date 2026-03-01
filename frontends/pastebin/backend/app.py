@@ -8,6 +8,7 @@ import threading
 import uuid
 import time
 import select
+import base64
 import docker as _docker_lib
 
 app = Flask(__name__)
@@ -31,20 +32,196 @@ DATABASE_PATH = os.environ.get('DATABASE_PATH', '/app/data/snippets.db')
 os.makedirs(os.path.dirname(DATABASE_PATH), exist_ok=True)
 
 # ---------------------------------------------------------------------------
-# Docker-based Python runner
+# Docker-based multi-language runner
 # ---------------------------------------------------------------------------
 
 # Mount the Docker socket into the Flask container to enable spawning runners:
 #   -v /var/run/docker.sock:/var/run/docker.sock
-_DOCKER_IMAGE  = os.environ.get('PYTHON_RUNNER_IMAGE', 'python:3.11-slim')
-_RUN_TIMEOUT_S = int(os.environ.get('PYTHON_RUN_TIMEOUT', '10'))
+_RUN_TIMEOUT_S   = int(os.environ.get('PYTHON_RUN_TIMEOUT', '10'))
+_BUILD_TIMEOUT_S = int(os.environ.get('BUILD_TIMEOUT', '120'))
 
 # Shared kwargs for every runner container
 _CONTAINER_KWARGS: dict = dict(
     network_disabled=True,
-    mem_limit='128m',
+    mem_limit='256m',
     nano_cpus=int(0.5e9),   # 0.5 CPUs
     pids_limit=64,
+)
+
+# Language runner dispatch table
+_RUNNERS: dict = {
+    'python': {
+        'image':         lambda: os.environ.get('PYTHON_RUNNER_IMAGE', 'python:3.11-slim'),
+        'interactive':   True,
+        'setup_tpl':     'cd /workspace && pip install -r requirements.txt -q 2>/dev/null || true',
+        'run_tpl':       'python -u /workspace/{entry}',
+        'default_entry': 'main.py',
+    },
+    'java-maven': {
+        'image':         lambda: os.environ.get('JAVA_MAVEN_RUNNER_IMAGE', 'maven:3.9-eclipse-temurin-21'),
+        'interactive':   False,
+        'setup_tpl':     None,
+        'run_tpl':       'cd /workspace && mvn -q compile exec:java -Dexec.mainClass={entry}',
+        'default_entry': 'Main',
+    },
+    'java-gradle': {
+        'image':         lambda: os.environ.get('JAVA_GRADLE_RUNNER_IMAGE', 'gradle:8.6-jdk21'),
+        'interactive':   False,
+        'setup_tpl':     None,
+        'run_tpl':       'cd /workspace && gradle -q run',
+        'default_entry': 'main',
+    },
+    'javascript': {
+        'image':         lambda: os.environ.get('NODE_RUNNER_IMAGE', 'node:20-slim'),
+        'interactive':   False,
+        'setup_tpl':     'cd /workspace && ([ -f package.json ] && npm install --silent 2>/dev/null || true)',
+        'run_tpl':       'node /workspace/{entry}',
+        'default_entry': 'index.js',
+    },
+    'cpp-cmake': {
+        'image':         lambda: os.environ.get('CPP_RUNNER_IMAGE', 'cpp-runner:latest'),
+        'interactive':   False,
+        'setup_tpl':     None,
+        'run_tpl':       (
+            'cd /workspace && '
+            '([ -f conanfile.txt ] && conan install . --output-folder=build --build=missing '
+            '-s build_type=Release -q 2>/dev/null || true) && '
+            'cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release '
+            '$([ -f build/conan_toolchain.cmake ] && echo -DCMAKE_TOOLCHAIN_FILE=build/conan_toolchain.cmake) && '
+            'ninja -C build && ./build/{entry}'
+        ),
+        'default_entry': 'app',
+    },
+    # ---------------------------------------------------------------------------
+    # Additional language runners
+    # ---------------------------------------------------------------------------
+    'go': {
+        'image':         lambda: os.environ.get('GO_RUNNER_IMAGE', 'golang:1.22-alpine'),
+        'interactive':   False,
+        'setup_tpl':     None,
+        'run_tpl':       'cd /workspace && go run {entry}',
+        'default_entry': 'main.go',
+    },
+    'rust': {
+        'image':         lambda: os.environ.get('RUST_RUNNER_IMAGE', 'rust:1.77-slim'),
+        'interactive':   False,
+        'setup_tpl':     None,
+        'run_tpl':       'cd /workspace && rustc {entry} -o /tmp/rustout 2>&1 && /tmp/rustout',
+        'default_entry': 'main.rs',
+    },
+    'ruby': {
+        'image':         lambda: os.environ.get('RUBY_RUNNER_IMAGE', 'ruby:3.3-slim'),
+        'interactive':   False,
+        'setup_tpl':     'cd /workspace && ([ -f Gemfile ] && bundle install -q 2>/dev/null || true)',
+        'run_tpl':       'ruby /workspace/{entry}',
+        'default_entry': 'main.rb',
+    },
+    'php': {
+        'image':         lambda: os.environ.get('PHP_RUNNER_IMAGE', 'php:8.3-cli-alpine'),
+        'interactive':   False,
+        'setup_tpl':     None,
+        'run_tpl':       'php /workspace/{entry}',
+        'default_entry': 'main.php',
+    },
+    'csharp': {
+        'image':         lambda: os.environ.get('CSHARP_RUNNER_IMAGE', 'mcr.microsoft.com/dotnet/sdk:8.0'),
+        'interactive':   False,
+        'setup_tpl':     None,
+        'run_tpl':       'cd /workspace && dotnet run --project . 2>&1',
+        'default_entry': 'Program.cs',
+    },
+    'kotlin': {
+        'image':         lambda: os.environ.get('KOTLIN_RUNNER_IMAGE', 'zenika/kotlin:2.0.0-jdk21'),
+        'interactive':   False,
+        'setup_tpl':     None,
+        'run_tpl':       'cd /workspace && kotlinc {entry} -include-runtime -d /tmp/out.jar 2>/dev/null && java -jar /tmp/out.jar',
+        'default_entry': 'main.kt',
+    },
+    'scala': {
+        'image':         lambda: os.environ.get('SCALA_RUNNER_IMAGE', 'sbtscala/scala-sbt:eclipse-temurin-21.0.2_13_1.10.0_3.4.1'),
+        'interactive':   False,
+        'setup_tpl':     None,
+        'run_tpl':       'cd /workspace && scala {entry}',
+        'default_entry': 'main.scala',
+    },
+    'haskell': {
+        'image':         lambda: os.environ.get('HASKELL_RUNNER_IMAGE', 'haskell:9.8'),
+        'interactive':   False,
+        'setup_tpl':     None,
+        'run_tpl':       'runghc /workspace/{entry}',
+        'default_entry': 'main.hs',
+    },
+    'r': {
+        'image':         lambda: os.environ.get('R_RUNNER_IMAGE', 'r-base:4.4.1'),
+        'interactive':   False,
+        'setup_tpl':     None,
+        'run_tpl':       'Rscript /workspace/{entry}',
+        'default_entry': 'main.R',
+    },
+    'julia': {
+        'image':         lambda: os.environ.get('JULIA_RUNNER_IMAGE', 'julia:1.10-alpine3.19'),
+        'interactive':   False,
+        'setup_tpl':     None,
+        'run_tpl':       'julia /workspace/{entry}',
+        'default_entry': 'main.jl',
+    },
+    'elixir': {
+        'image':         lambda: os.environ.get('ELIXIR_RUNNER_IMAGE', 'elixir:1.16-slim'),
+        'interactive':   False,
+        'setup_tpl':     None,
+        'run_tpl':       'elixir /workspace/{entry}',
+        'default_entry': 'main.exs',
+    },
+    'dart': {
+        'image':         lambda: os.environ.get('DART_RUNNER_IMAGE', 'dart:3.4-sdk'),
+        'interactive':   False,
+        'setup_tpl':     None,
+        'run_tpl':       'dart run /workspace/{entry}',
+        'default_entry': 'main.dart',
+    },
+    'lua': {
+        'image':         lambda: os.environ.get('LUA_RUNNER_IMAGE', 'alpine:3.20'),
+        'interactive':   False,
+        'setup_tpl':     'apk add --no-cache lua5.4 -q 2>/dev/null',
+        'run_tpl':       'lua5.4 /workspace/{entry}',
+        'default_entry': 'main.lua',
+    },
+    'perl': {
+        'image':         lambda: os.environ.get('PERL_RUNNER_IMAGE', 'perl:5.40-slim'),
+        'interactive':   False,
+        'setup_tpl':     None,
+        'run_tpl':       'perl /workspace/{entry}',
+        'default_entry': 'main.pl',
+    },
+    'bash': {
+        'image':         lambda: os.environ.get('BASH_RUNNER_IMAGE', 'bash:5.2-alpine3.20'),
+        'interactive':   False,
+        'setup_tpl':     None,
+        'run_tpl':       'bash /workspace/{entry}',
+        'default_entry': 'script.sh',
+    },
+    'typescript': {
+        'image':         lambda: os.environ.get('TS_RUNNER_IMAGE', 'node:20-slim'),
+        'interactive':   False,
+        'setup_tpl':     'cd /workspace && npm install -g tsx --silent 2>/dev/null || true',
+        'run_tpl':       'tsx /workspace/{entry}',
+        'default_entry': 'index.ts',
+    },
+    'swift': {
+        'image':         lambda: os.environ.get('SWIFT_RUNNER_IMAGE', 'swift:5.10-slim'),
+        'interactive':   False,
+        'setup_tpl':     None,
+        'run_tpl':       'swift /workspace/{entry}',
+        'default_entry': 'main.swift',
+    },
+}
+
+# Python snippet to decode FILES_PAYLOAD env var and write files to /workspace
+_SETUP_FILES_PY = (
+    'import os,json,base64;'
+    'files=json.loads(base64.b64decode(os.environ["FILES_PAYLOAD"].encode()).decode());'
+    'os.makedirs("/workspace",exist_ok=True);'
+    '[open("/workspace/"+f["name"],"w").write(f["content"]) for f in files]'
 )
 
 _docker_client = None
@@ -55,13 +232,54 @@ def _docker() -> _docker_lib.DockerClient:
         _docker_client = _docker_lib.from_env()
     return _docker_client
 
-def _run_cmd(code: str, interactive: bool = False) -> list:
-    """Command passed to the container.
-    Non-interactive: timeout enforces a hard CPU wall-time limit.
-    Interactive: no timeout — session is bounded by _SESSION_TTL via _reap_sessions()."""
-    if interactive:
-        return ['python', '-u', '-c', code]
-    return ['timeout', '--kill-after=2s', f'{_RUN_TIMEOUT_S}s', 'python', '-u', '-c', code]
+
+def _make_container_env(files: list) -> dict:
+    """Encode files as base64 JSON for FILES_PAYLOAD env var."""
+    payload = base64.b64encode(json.dumps(files).encode()).decode()
+    return {'FILES_PAYLOAD': payload}
+
+
+def _build_cmd(language: str, entry: str, interactive: bool = False) -> list:
+    """Build the container command for the given language."""
+    runner = _RUNNERS[language]
+    write_files = f"python3 -c '{_SETUP_FILES_PY}'"
+    run = runner['run_tpl'].format(entry=entry)
+    setup = runner.get('setup_tpl')
+
+    parts = [write_files]
+    if setup:
+        parts.append(setup)
+    parts.append(run)
+
+    full_cmd = ' && '.join(parts)
+    if not interactive:
+        timeout = _RUN_TIMEOUT_S if runner.get('interactive') else _BUILD_TIMEOUT_S
+        return ['timeout', '--kill-after=2s', f'{timeout}s', 'bash', '-c', full_cmd]
+    return ['bash', '-c', full_cmd]
+
+
+def _parse_run_request(data: dict):
+    """Return (language, files, entry_point) from request data.
+    Supports new multi-file format {language, files, entryPoint} and legacy {code}."""
+    language = (data.get('language') or 'python').lower()
+    files = data.get('files') or []
+    entry_point = data.get('entryPoint') or ''
+
+    # Legacy backward compat: {code: "..."}
+    if not files:
+        code = (data.get('code') or '').strip()
+        if code:
+            runner = _RUNNERS.get(language, _RUNNERS['python'])
+            default_entry = runner.get('default_entry', 'main.py')
+            files = [{'name': default_entry, 'content': code}]
+            if not entry_point:
+                entry_point = default_entry
+
+    if not entry_point and files:
+        runner = _RUNNERS.get(language, _RUNNERS['python'])
+        entry_point = runner.get('default_entry', files[0]['name'])
+
+    return language, files, entry_point or 'main.py'
 
 # ---------------------------------------------------------------------------
 # Interactive Python session store
@@ -103,13 +321,25 @@ class InteractiveSession:
         self._container = None
         self._sock = None        # raw Docker attach socket
 
-    def start(self, code: str) -> None:
-        src = _INTERACTIVE_INPUT_PREAMBLE + '\n' + code
+    def start(self, language: str, files: list, entry_point: str) -> None:
+        runner = _RUNNERS[language]
+        modified_files = list(files)
+        # Inject input() override into the entry point file for interactive Python
+        if runner.get('interactive'):
+            for i, f in enumerate(modified_files):
+                if f['name'] == entry_point:
+                    modified_files[i] = {
+                        'name': f['name'],
+                        'content': _INTERACTIVE_INPUT_PREAMBLE + '\n' + f['content'],
+                    }
+                    break
         self._container = _docker().containers.create(
-            image=_DOCKER_IMAGE,
-            command=_run_cmd(src, interactive=True),
+            image=runner['image'](),
+            command=_build_cmd(language, entry_point, interactive=True),
             stdin_open=True,
             tty=False,
+            working_dir='/workspace',
+            environment=_make_container_env(modified_files),
             **_CONTAINER_KWARGS,
         )
         self._container.start()
@@ -525,27 +755,33 @@ def delete_namespace(namespace_id):
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/run', methods=['POST'])
-def run_python():
+def run_code():
     data = request.json or {}
-    code = data.get('code', '').strip()
-    if not code:
-        return jsonify({'error': 'No code provided'}), 400
+    language, files, entry_point = _parse_run_request(data)
+    if not files:
+        return jsonify({'error': 'No code or files provided'}), 400
+    if language not in _RUNNERS:
+        return jsonify({'error': f'Unsupported language: {language}'}), 400
 
+    runner = _RUNNERS[language]
+    wait_timeout = (_RUN_TIMEOUT_S + 5) if runner.get('interactive') else (_BUILD_TIMEOUT_S + 5)
     container = None
     try:
         container = _docker().containers.create(
-            image=_DOCKER_IMAGE,
-            command=_run_cmd(code),
+            image=runner['image'](),
+            command=_build_cmd(language, entry_point),
+            working_dir='/workspace',
+            environment=_make_container_env(files),
             **_CONTAINER_KWARGS,
         )
         container.start()
-        result = container.wait(timeout=_RUN_TIMEOUT_S + 5)
+        result = container.wait(timeout=wait_timeout)
         exit_code = result['StatusCode']
         stdout = container.logs(stdout=True, stderr=False).decode('utf-8', errors='replace')
         stderr = container.logs(stdout=False, stderr=True).decode('utf-8', errors='replace')
 
         if exit_code == 124:
-            return jsonify({'output': stdout, 'error': f'Timed out after {_RUN_TIMEOUT_S}s'}), 408
+            return jsonify({'output': stdout, 'error': f'Timed out after {wait_timeout}s'}), 408
         return jsonify({'output': stdout, 'error': stderr if exit_code != 0 else None})
 
     except _docker_lib.errors.DockerException as e:
@@ -561,17 +797,19 @@ def run_python():
 
 @app.route('/api/run/interactive', methods=['POST'])
 def run_interactive():
-    """Start an interactive Python session. Returns {session_id}."""
+    """Start an interactive session. Returns {session_id}."""
     _reap_sessions()
     data = request.json or {}
-    code = data.get('code', '').strip()
-    if not code:
-        return jsonify({'error': 'No code provided'}), 400
+    language, files, entry_point = _parse_run_request(data)
+    if not files:
+        return jsonify({'error': 'No code or files provided'}), 400
+    if language not in _RUNNERS:
+        return jsonify({'error': f'Unsupported language: {language}'}), 400
 
     session_id = str(uuid.uuid4())
     session = InteractiveSession(session_id)
     _sessions[session_id] = session
-    session.start(code)
+    session.start(language, files, entry_point)
     return jsonify({'session_id': session_id}), 201
 
 

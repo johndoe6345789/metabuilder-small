@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import { Globe, Check } from '@phosphor-icons/react'
 import { useAppDispatch, useAppSelector, setLocale } from '@/store/exports'
 import type { AppLocale } from '@/store/slices/uiSlice'
+import { useTranslation } from '@/hooks/useTranslation'
 import styles from './lang-selector.module.scss'
 
 const LANGS: { code: AppLocale; label: string; native: string }[] = [
@@ -12,6 +13,7 @@ const LANGS: { code: AppLocale; label: string; native: string }[] = [
 ]
 
 export function LangSelector() {
+  const t = useTranslation()
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
   const dispatch = useAppDispatch()
@@ -31,7 +33,7 @@ export function LangSelector() {
       <button
         className={styles.trigger}
         onClick={() => setOpen(v => !v)}
-        aria-label="Select language"
+        aria-label={t.langSelector.ariaLabel}
         aria-expanded={open}
         aria-haspopup="listbox"
         data-testid="lang-trigger"

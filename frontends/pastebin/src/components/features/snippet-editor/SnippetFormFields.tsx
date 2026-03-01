@@ -1,6 +1,7 @@
 import { FormLabel, Input, Select, MenuItem, Textarea } from '@metabuilder/components/fakemui'
 import type { SelectChangeEvent } from '@metabuilder/components/fakemui'
 import { LANGUAGES } from '@/lib/config'
+import { useTranslation } from '@/hooks/useTranslation'
 import styles from './snippet-form-fields.module.scss'
 
 interface SnippetFormFieldsProps {
@@ -22,14 +23,15 @@ export function SnippetFormFields({
   onDescriptionChange,
   onLanguageChange,
 }: SnippetFormFieldsProps) {
+  const t = useTranslation()
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row gap-6 items-start">
         <div className="flex-1 space-y-2">
-          <FormLabel htmlFor="title">Title *</FormLabel>
+          <FormLabel htmlFor="title">{t.snippetDialog.fields.title.label} *</FormLabel>
           <Input
             id="title"
-            placeholder="e.g., React Counter Component"
+            placeholder={t.snippetDialog.fields.title.placeholder}
             value={title}
             onChange={(e) => onTitleChange(e.target.value)}
             className={errors.title ? 'border-destructive ring-destructive' : ''}
@@ -47,7 +49,7 @@ export function SnippetFormFields({
         </div>
 
         <div className="space-y-2 w-full sm:w-auto sm:min-w-[180px]">
-          <FormLabel htmlFor="language">Language</FormLabel>
+          <FormLabel htmlFor="language">{t.snippetDialog.fields.language.label}</FormLabel>
           <Select
             value={language}
             onChange={(e: SelectChangeEvent) => onLanguageChange(e.target.value as string)}
@@ -68,10 +70,10 @@ export function SnippetFormFields({
       </div>
 
       <div className="space-y-3">
-        <FormLabel htmlFor="description">Description</FormLabel>
+        <FormLabel htmlFor="description">{t.snippetDialog.fields.description.label}</FormLabel>
         <Textarea
           id="description"
-          placeholder="A brief description of your snippet"
+          placeholder={t.snippetDialog.fields.description.placeholder}
           value={description}
           onChange={(e) => onDescriptionChange(e.target.value)}
           rows={3}

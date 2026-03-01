@@ -1,6 +1,7 @@
 'use client'
 
 import { Card, CardHeader, CardContent, Alert, AlertDescription } from '@metabuilder/components/fakemui'
+import { useTranslation } from '@/hooks/useTranslation'
 import styles from './settings-card.module.scss'
 
 interface StorageInfoCardProps {
@@ -8,12 +9,14 @@ interface StorageInfoCardProps {
 }
 
 export function StorageInfoCard({ storageType }: StorageInfoCardProps) {
+  const t = useTranslation()
+  const s = t.settingsCards.storageInfo
   return (
     <Card data-testid="storage-info-card">
       <CardHeader>
-        <h3 className={styles.cardTitle}>Storage Information</h3>
+        <h3 className={styles.cardTitle}>{s.title}</h3>
         <p className={styles.cardDescription}>
-          How your data is stored
+          {s.description}
         </p>
       </CardHeader>
       <CardContent>
@@ -21,18 +24,14 @@ export function StorageInfoCard({ storageType }: StorageInfoCardProps) {
           <AlertDescription data-testid="storage-type-description">
             {storageType === 'indexeddb' ? (
               <>
-                <strong>IndexedDB</strong> is being used for storage. This provides better performance and
-                larger storage capacity compared to localStorage. Your data persists locally in your browser.
+                <strong>IndexedDB</strong> {s.indexedDBDesc}
               </>
             ) : storageType === 'localstorage' ? (
               <>
-                <strong>localStorage</strong> is being used for storage. IndexedDB is not available in your
-                browser. Note that localStorage has a smaller storage limit (typically 5-10MB).
+                <strong>localStorage</strong> {s.localStorageDesc}
               </>
             ) : (
-              <>
-                No persistent storage detected. Your data will be lost when you close the browser.
-              </>
+              <>{s.noneDesc}</>
             )}
           </AlertDescription>
         </Alert>

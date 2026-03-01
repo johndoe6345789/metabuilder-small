@@ -1,7 +1,12 @@
-export interface PythonRunResult {
+import { type SnippetFile } from '@/lib/types'
+
+export interface RunResult {
   output: string
   error: string | null
 }
+
+/** @deprecated Use RunResult */
+export type PythonRunResult = RunResult
 
 export interface SessionOutputLine {
   type: 'out' | 'err' | 'prompt' | 'input-echo'
@@ -12,6 +17,12 @@ export interface PollResult {
   output: SessionOutputLine[]
   waiting_for_input: boolean
   done: boolean
+}
+
+export interface RunOptions {
+  language: string
+  files: SnippetFile[]
+  entryPoint?: string
 }
 
 function getFlaskBaseUrl(): string | null {
@@ -28,13 +39,17 @@ function requireUrl(): string {
 // Non-interactive run
 // ---------------------------------------------------------------------------
 
-export async function runPythonViaFlask(code: string): Promise<PythonRunResult> {
+export async function runCodeViaFlask(opts: RunOptions): Promise<RunResult> {
   const base = requireUrl()
   const response = await fetch(`${base}/api/run`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ code }),
-    signal: AbortSignal.timeout(15000),
+    body: JSON.stringify({
+      language: opts.language,
+      files: opts.files,
+      entryPoint: opts.entryPoint,
+    }),
+    signal: AbortSignal.timeout(130000),
   })
 
   if (!response.ok && response.status !== 408) {
@@ -48,16 +63,25 @@ export async function runPythonViaFlask(code: string): Promise<PythonRunResult> 
   }
 }
 
+/** @deprecated Use runCodeViaFlask */
+export async function runPythonViaFlask(code: string): Promise<RunResult> {
+  return runCodeViaFlask({ language: 'python', files: [{ name: 'main.py', content: code }] })
+}
+
 // ---------------------------------------------------------------------------
 // Interactive session
 // ---------------------------------------------------------------------------
 
-export async function startInteractiveSession(code: string): Promise<string> {
+export async function startInteractiveSession(opts: RunOptions): Promise<string> {
   const base = requireUrl()
   const response = await fetch(`${base}/api/run/interactive`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ code }),
+    body: JSON.stringify({
+      language: opts.language,
+      files: opts.files,
+      entryPoint: opts.entryPoint,
+    }),
     signal: AbortSignal.timeout(10000),
   })
   if (!response.ok) throw new Error(`Failed to start session: ${response.statusText}`)

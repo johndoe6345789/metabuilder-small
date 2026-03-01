@@ -1,7 +1,9 @@
 import { motion } from 'framer-motion'
 import { Sparkle } from '@phosphor-icons/react'
+import { useTranslation } from '@/hooks/useTranslation'
 
 export function LoadingAnalysis() {
+  const t = useTranslation()
   return (
     <div className="space-y-3" data-testid="loading-analysis" role="status" aria-busy="true" aria-label="Analyzing error">
       <div className="flex items-center gap-2 text-muted-foreground">
@@ -12,7 +14,7 @@ export function LoadingAnalysis() {
         >
           <Sparkle className="h-4 w-4" weight="fill" />
         </motion.div>
-        <span className="text-sm">Analyzing error...</span>
+        <span className="text-sm">{t.loadingAnalysis.text}</span>
       </div>
       <div className="space-y-2">
         {[1, 2, 3].map((i) => (

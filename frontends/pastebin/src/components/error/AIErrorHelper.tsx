@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { analyzeErrorWithAI } from './analyzeError'
 import { MarkdownRenderer } from './MarkdownRenderer'
 import { LoadingAnalysis } from './LoadingAnalysis'
+import { useTranslation } from '@/hooks/useTranslation'
 
 interface AIErrorHelperProps {
   error: Error | string
@@ -13,6 +14,7 @@ interface AIErrorHelperProps {
 }
 
 export function AIErrorHelper({ error, context, className }: AIErrorHelperProps) {
+  const t = useTranslation()
   const [open, setOpen] = useState(false)
   const [analysis, setAnalysis] = useState<string>('')
   const [isAnalyzing, setIsAnalyzing] = useState(false)
@@ -32,7 +34,7 @@ export function AIErrorHelper({ error, context, className }: AIErrorHelperProps)
       setAnalysis(result)
     } catch (err) {
       console.error('AI analysis failed', err)
-      setAnalysisError('Unable to analyze error. The AI service may be temporarily unavailable.')
+      setAnalysisError(t.aiErrorHelper.analysisError)
     } finally {
       setIsAnalyzing(false)
     }
@@ -64,7 +66,7 @@ export function AIErrorHelper({ error, context, className }: AIErrorHelperProps)
           >
             <Sparkle className="h-4 w-4" weight="fill" />
           </motion.div>
-          Ask AI for Help
+          {t.aiErrorHelper.button}
         </Button>
       </motion.div>
 
@@ -73,14 +75,14 @@ export function AIErrorHelper({ error, context, className }: AIErrorHelperProps)
           <DialogTitle>
             <span className="flex items-center gap-2" data-testid="ai-analysis-title">
               <Sparkle className="h-5 w-5 text-accent" weight="fill" aria-hidden="true" />
-              AI Error Analysis
+              {t.aiErrorHelper.dialogTitle}
             </span>
           </DialogTitle>
         </DialogHeader>
 
         <DialogContent data-testid="ai-analysis-dialog" className="max-h-[80vh] overflow-hidden flex flex-col">
           <p style={{ color: 'var(--mat-sys-on-surface-variant)', marginBottom: '16px' }}>
-            Let me help you understand and fix this error
+            {t.aiErrorHelper.dialogSubtitle}
           </p>
 
           <div className="flex-1 overflow-y-auto space-y-4" role="region" aria-label="Error analysis results">

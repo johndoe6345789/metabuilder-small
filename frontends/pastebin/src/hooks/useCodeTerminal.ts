@@ -1,13 +1,29 @@
 import { useState, useRef } from 'react'
-import { startInteractiveSession, pollSession, sendSessionInput } from '@/lib/flask-runner'
+import {
+  runCodeViaFlask,
+  startInteractiveSession,
+  pollSession,
+  sendSessionInput,
+} from '@/lib/flask-runner'
+import { type SnippetFile } from '@/lib/types'
+import { appConfig } from '@/lib/config'
 
-interface TerminalLine {
+// Map from display language name to backend runner key
+const languageRunnerMap: Record<string, string> = (appConfig as unknown as { languageRunnerMap: Record<string, string> }).languageRunnerMap ?? {}
+
+function getRunnerKey(language: string): string {
+  return languageRunnerMap[language] ?? language.toLowerCase().replace(/[^a-z0-9]+/g, '-')
+}
+
+// Languages that support interactive stdin (input() polling) — by runner key
+const INTERACTIVE_RUNNER_KEYS = new Set(['python'])
+
+export interface TerminalLine {
   type: 'output' | 'error' | 'input-prompt' | 'input-value'
   content: string
   id: string
 }
 
-// Maps backend line types to the terminal line types the UI expects
 function mapType(backendType: string): TerminalLine['type'] {
   switch (backendType) {
     case 'err':         return 'error'
@@ -19,7 +35,7 @@ function mapType(backendType: string): TerminalLine['type'] {
 
 const POLL_INTERVAL_MS = 150
 
-export function usePythonTerminal() {
+export function useCodeTerminal() {
   const [lines, setLines] = useState<TerminalLine[]>([])
   const [isRunning, setIsRunning] = useState(false)
   const [inputValue, setInputValue] = useState('')
@@ -66,7 +82,7 @@ export function usePythonTerminal() {
     pollTimerRef.current = setTimeout(poll, POLL_INTERVAL_MS)
   }
 
-  const handleRun = async (code: string) => {
+  const handleRun = async (language: string, files: SnippetFile[], entryPoint?: string) => {
     stopPolling()
     setLines([])
     setWaitingForInput(false)
@@ -75,10 +91,20 @@ export function usePythonTerminal() {
     sessionIdRef.current = null
     setIsRunning(true)
 
+    const runnerKey = getRunnerKey(language)
+    const opts = { language: runnerKey, files, entryPoint }
+
     try {
-      const sid = await startInteractiveSession({ language: 'python', files: [{ name: 'main.py', content: code }] })
-      sessionIdRef.current = sid
-      pollTimerRef.current = setTimeout(poll, POLL_INTERVAL_MS)
+      if (INTERACTIVE_RUNNER_KEYS.has(runnerKey)) {
+        const sid = await startInteractiveSession(opts)
+        sessionIdRef.current = sid
+        pollTimerRef.current = setTimeout(poll, POLL_INTERVAL_MS)
+      } else {
+        const result = await runCodeViaFlask(opts)
+        if (result.output) addLine('output', result.output)
+        if (result.error) addLine('error', result.error)
+        setIsRunning(false)
+      }
     } catch (err) {
       addLine('error', err instanceof Error ? err.message : String(err))
       setIsRunning(false)
@@ -104,7 +130,7 @@ export function usePythonTerminal() {
   return {
     lines,
     isRunning,
-    isInitializing: false,   // no Pyodide init — Flask is always ready
+    isInitializing: false,
     inputValue,
     waitingForInput,
     setInputValue,

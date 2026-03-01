@@ -27,6 +27,10 @@ jest.mock('@/components/features/snippet-editor/SplitScreenEditor', () => ({
   ),
 }))
 
+jest.mock('@/components/features/file-tree/FileTree', () => ({
+  FileTree: () => <div data-testid="file-tree" />,
+}))
+
 describe('CodeEditorSection Component', () => {
   const mockOnCodeChange = jest.fn()
   const mockOnPreviewChange = jest.fn()
@@ -40,6 +44,13 @@ describe('CodeEditorSection Component', () => {
     errors: {},
     onCodeChange: mockOnCodeChange,
     onPreviewChange: mockOnPreviewChange,
+    files: [{ name: 'main.tsx', content: 'const test = () => {}' }],
+    activeFile: 'main.tsx',
+    onActiveFileSelect: jest.fn(),
+    onFileAdd: jest.fn(),
+    onFileDelete: jest.fn(),
+    onFileRename: jest.fn(),
+    onFileUpload: jest.fn(),
   }
 
   beforeEach(() => {

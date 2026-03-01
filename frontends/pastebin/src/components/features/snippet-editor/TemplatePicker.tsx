@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 import { Plus } from '@phosphor-icons/react'
 import { Menu, MenuItem, Divider } from '@metabuilder/components/fakemui'
 import { SnippetTemplate } from '@/lib/types'
+import { useTranslation } from '@/hooks/useTranslation'
 import styles from './template-picker.module.scss'
 
 export interface TemplateSection {
@@ -28,6 +29,7 @@ export function TemplatePicker({
   sections,
   'data-testid': testId,
 }: TemplatePickerProps) {
+  const t = useTranslation()
   // Menu position is calculated once at open-time; close on resize so it re-anchors correctly
   useEffect(() => {
     if (!anchor) return
@@ -46,7 +48,7 @@ export function TemplatePicker({
     >
       <MenuItem onClick={() => { onCreateNew(); onClose() }}>
         <Plus className="mr-2 h-4 w-4" weight="bold" aria-hidden="true" />
-        Blank Snippet
+        {t.templatePicker.blank}
       </MenuItem>
       {sections.map((section) => (
         <div key={section.label}>

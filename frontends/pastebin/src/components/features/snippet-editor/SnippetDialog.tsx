@@ -28,14 +28,21 @@ export function SnippetDialog({ open, onOpenChange, onSave, editingSnippet }: Sn
   const {
     title, description, language, code, hasPreview,
     functionName, inputParameters, errors,
-    setTitle, setDescription, setLanguage, setCode, setHasPreview,
-    setFunctionName, handleAddParameter, handleRemoveParameter,
+    files, activeFile,
+    setTitle, setDescription, setLanguage, setHasPreview,
+    setFunctionName, setActiveFile,
+    addFile, deleteFile, updateFileContent, renameFile, uploadFile,
+    handleAddParameter, handleRemoveParameter,
     handleUpdateParameter, validate, getFormData, resetForm,
   } = useSnippetForm(editingSnippet, open)
 
   const isPreviewSupported = appConfig.previewEnabledLanguages.includes(language)
   const showPreviewTab = isPreviewSupported && hasPreview
   const tabCount = showPreviewTab ? 3 : 2
+
+  const handleCodeChange = (value: string) => {
+    updateFileContent(activeFile, value)
+  }
 
   const handleSave = () => {
     if (!validate()) {
@@ -72,12 +79,19 @@ export function SnippetDialog({ open, onOpenChange, onSave, editingSnippet }: Sn
           onTitleChange={setTitle}
           onDescriptionChange={setDescription}
           onLanguageChange={setLanguage}
-          onCodeChange={setCode}
+          onCodeChange={handleCodeChange}
           onPreviewChange={setHasPreview}
           onFunctionNameChange={setFunctionName}
           onAddParameter={handleAddParameter}
           onRemoveParameter={handleRemoveParameter}
           onUpdateParameter={handleUpdateParameter}
+          files={files}
+          activeFile={activeFile}
+          onActiveFileSelect={setActiveFile}
+          onFileAdd={addFile}
+          onFileDelete={deleteFile}
+          onFileRename={renameFile}
+          onFileUpload={uploadFile}
         />
       </DialogContent>
 

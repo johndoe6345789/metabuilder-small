@@ -60,7 +60,10 @@
       "copy": "Copy code",
       "edit": "Edit snippet",
       "delete": "Delete snippet"
-    }
+    },
+    "alreadyInNamespace": "Snippet is already in this namespace",
+    "movedTo": "Moved to {name}",
+    "failedToMove": "Failed to move snippet"
   },
   "snippetDialog": {
     "create": {
@@ -96,6 +99,11 @@
         "label": "Enable split-screen preview for this snippet"
       }
     },
+    "tabs": {
+      "details": "Details",
+      "code": "Code",
+      "previewConfig": "Preview Config"
+    },
     "buttons": {
       "cancel": "Cancel",
       "create": "Create Snippet",
@@ -125,6 +133,16 @@
       "title": "Delete Namespace",
       "body": "Are you sure you want to delete \"{name}\"? All snippets will be moved to the default namespace.",
       "ariaLabel": "Delete namespace"
+    },
+    "selector": {
+      "failedToLoad": "Failed to load namespaces",
+      "enterName": "Please enter a namespace name",
+      "created": "Namespace created",
+      "failedToCreate": "Failed to create namespace",
+      "noDefault": "Cannot delete: no default namespace found",
+      "deleted": "Namespace deleted",
+      "deletedWithMoved": "Namespace deleted — {count} snippet(s) moved to default",
+      "failedToDelete": "Failed to delete namespace"
     }
   },
   "pythonTerminal": {
@@ -163,5 +181,177 @@
     "toggle": "Toggle language",
     "en": "EN",
     "es": "ES"
+  },
+  "settings": {
+    "enterFlaskUrl": "Please enter a Flask backend URL",
+    "storage": {
+      "cannotConnect": "Cannot connect to Flask backend. Please check the URL and ensure the server is running.",
+      "backendUpdated": "Storage backend updated successfully"
+    },
+    "migration": {
+      "cannotConnect": "Cannot connect to Flask backend",
+      "noSnippets": "No snippets to migrate",
+      "migratedToFlask": "Successfully migrated {count} snippets to Flask backend",
+      "failedToFlask": "Failed to migrate data to Flask backend",
+      "migratedToIndexedDB": "Successfully migrated {count} snippets to IndexedDB",
+      "failedFromFlask": "Failed to migrate data from Flask backend"
+    },
+    "database": {
+      "failedToLoadStats": "Failed to load database statistics",
+      "exported": "Database exported successfully",
+      "failedToExport": "Failed to export database",
+      "imported": "Database imported successfully",
+      "failedToImport": "Failed to import database",
+      "cleared": "Database cleared and schema recreated successfully",
+      "failedToClear": "Failed to clear database",
+      "seeded": "Sample data added successfully",
+      "failedToSeed": "Failed to add sample data",
+      "clearConfirm": "Are you sure you want to clear all data? This cannot be undone."
+    }
+  },
+  "page": {
+    "heading": "My Snippets",
+    "subtitle": "Save, organize, and share your code snippets",
+    "footer": {
+      "tagline": "Save, organize, and share your code snippets with beautiful syntax highlighting and live execution",
+      "techNote": "Supports React preview and multi-language Docker execution (Python, Java, Node.js, C++)"
+    }
+  },
+  "settingsPage": {
+    "heading": "Settings",
+    "subtitle": "Manage your database and application settings"
+  },
+  "backendIndicator": {
+    "disconnected": "Disconnected from backend - Using local storage",
+    "connectedAuto": "Connected to Flask Backend (Auto-configured)",
+    "connected": "Connected to Flask Backend"
+  },
+  "langSelector": {
+    "ariaLabel": "Select language"
+  },
+  "errorFallback": {
+    "title": "This spark has encountered a runtime error",
+    "copied": "Copied",
+    "copy": "Copy",
+    "hideStack": "Hide Stack Trace",
+    "showStack": "Show Stack Trace",
+    "noStack": "No stack trace available",
+    "reload": "Try Reloading"
+  },
+  "aiErrorHelper": {
+    "button": "Ask AI for Help",
+    "dialogTitle": "AI Error Analysis",
+    "dialogSubtitle": "Let me help you understand and fix this error",
+    "analysisError": "Unable to analyze error. The AI service may be temporarily unavailable."
+  },
+  "loadingAnalysis": {
+    "text": "Analyzing error..."
+  },
+  "templatePicker": {
+    "blank": "Blank Snippet"
+  },
+  "settingsCards": {
+    "storage": {
+      "title": "Storage Backend",
+      "description": "Choose where your snippets are stored",
+      "envVarAlertBefore": "Storage backend is configured via",
+      "envVarAlertAfter": "environment variable and cannot be changed here.",
+      "indexedDBLabel": "IndexedDB (Local Browser Storage)",
+      "indexedDBDesc": "Store snippets locally in your browser. Data persists on this device only.",
+      "flaskLabel": "Flask Backend (Remote Server)",
+      "flaskDesc": "Store snippets on a Flask backend server. Data is accessible from any device.",
+      "urlLabel": "Flask Backend URL",
+      "urlPlaceholder": "http://localhost:5000",
+      "testing": "Testing...",
+      "test": "Test",
+      "connectedStatus": "Connected successfully",
+      "failedStatus": "Connection failed",
+      "migrateToFlask": "Migrate IndexedDB Data to Flask",
+      "migrateToIndexedDB": "Migrate Flask Data to IndexedDB",
+      "save": "Save Storage Settings"
+    },
+    "stats": {
+      "title": "Database Statistics",
+      "description": "Information about your local database storage",
+      "loading": "Loading...",
+      "snippets": "Snippets",
+      "templates": "Templates",
+      "storageType": "Storage Type",
+      "databaseSize": "Database Size",
+      "error": "Failed to load statistics"
+    },
+    "actions": {
+      "title": "Database Actions",
+      "description": "Backup, restore, or reset your database",
+      "exportTitle": "Export Database",
+      "exportDesc": "Download your database as a file for backup or transfer to another device",
+      "exportButton": "Export Database",
+      "importTitle": "Import Database",
+      "importDesc": "Restore a previously exported database file",
+      "importButton": "Import Database",
+      "seedTitle": "Sample Data",
+      "seedDesc": "Add sample code snippets to get started (only if database is empty)",
+      "seedButton": "Add Sample Data",
+      "clearTitle": "Clear All Data",
+      "clearDesc": "Permanently delete all snippets and templates. This cannot be undone.",
+      "clearButton": "Clear Database"
+    },
+    "schema": {
+      "corruptedTitle": "Schema Corruption Detected",
+      "corruptedDesc": "Your database schema is outdated or corrupted and needs to be repaired",
+      "corruptedAlert": "The database schema is missing required tables or columns (likely due to namespace feature addition). This can cause errors when loading or saving snippets. Click the button below to wipe and recreate the database with the correct schema.",
+      "repairButton": "Repair Database (Wipe & Recreate)",
+      "checking": "Checking...",
+      "recheckButton": "Re-check Schema",
+      "healthyTitle": "Schema Healthy",
+      "healthyDesc": "Your database schema is up to date and functioning correctly"
+    },
+    "backendAuto": {
+      "title": "Backend Auto-Configured",
+      "description": "Flask backend is configured via environment variable",
+      "backendUrl": "Backend URL",
+      "configSource": "Configuration Source",
+      "status": "Status",
+      "connected": "Connected",
+      "failed": "Connection Failed",
+      "testing": "Testing...",
+      "testButton": "Test Connection"
+    },
+    "storageInfo": {
+      "title": "Storage Information",
+      "description": "How your data is stored",
+      "indexedDBDesc": "is being used for storage. This provides better performance and larger storage capacity compared to localStorage. Your data persists locally in your browser.",
+      "localStorageDesc": "is being used for storage. IndexedDB is not available in your browser. Note that localStorage has a smaller storage limit (typically 5-10MB).",
+      "noneDesc": "No persistent storage detected. Your data will be lost when you close the browser."
+    },
+    "openAI": {
+      "title": "OpenAI API Settings",
+      "description": "Configure your OpenAI API key for AI-powered error analysis. Your key is stored locally in your browser.",
+      "keyLabel": "OpenAI API Key",
+      "keyPlaceholder": "sk-...",
+      "keyHint": "Get your API key from",
+      "showKey": "Show API key",
+      "hideKey": "Hide API key",
+      "saved": "Saved!",
+      "saveButton": "Save API Key",
+      "clearButton": "Clear",
+      "configuredStatus": "✓ API key is configured. Error analysis will use OpenAI GPT-4o-mini."
+    }
+  },
+  "fileTree": {
+    "title": "Files",
+    "addFile": "Add file",
+    "deleteFile": "Delete file",
+    "uploadFile": "Upload file",
+    "newFileName": "filename.ext",
+    "noFiles": "No files yet",
+    "rename": "Rename file"
+  },
+  "codeTerminal": {
+    "run": "Run",
+    "running": "Running...",
+    "building": "Building...",
+    "title": "{language} Terminal",
+    "unsupportedLanguage": "Unsupported language"
   }
 }

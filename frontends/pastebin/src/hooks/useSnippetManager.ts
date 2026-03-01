@@ -145,6 +145,8 @@ export function useSnippetManager(templates: SnippetTemplate[]) {
       hasPreview: template.hasPreview,
       functionName: template.functionName,
       inputParameters: template.inputParameters,
+      files: template.files,
+      entryPoint: template.entryPoint,
       createdAt: 0,
       updatedAt: 0,
     } as Snippet
