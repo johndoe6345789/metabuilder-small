@@ -1,0 +1,50 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.emptyState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #888;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.line {
+  line-height: 1.625;
+}
+
+.output {
+  white-space: pre-wrap;
+  color: #d4d4d4;
+}
+
+.error {
+  white-space: pre-wrap;
+  color: #f48a8a;
+}
+
+.inputPrompt {
+  white-space: pre-wrap;
+  color: #4fc3f7;
+  font-weight: 500;
+}
+
+.inputValue {
+  white-space: pre-wrap;
+  color: #6ec87a;
+}

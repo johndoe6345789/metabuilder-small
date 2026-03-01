@@ -10,11 +10,11 @@ interface TerminalInputProps {
   onSubmit: (e: React.FormEvent) => void
 }
 
-export function TerminalInput({ 
-  waitingForInput, 
-  inputValue, 
-  onInputChange, 
-  onSubmit 
+export function TerminalInput({
+  waitingForInput,
+  inputValue,
+  onInputChange,
+  onSubmit
 }: TerminalInputProps) {
   const t = useTranslation()
   const inputRef = useRef<HTMLInputElement>(null)
@@ -34,16 +34,16 @@ export function TerminalInput({
       onSubmit={onSubmit}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="flex items-center gap-2 mt-2"
+      style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}
       data-testid="terminal-input-form"
     >
-      <span className="text-primary font-bold" aria-hidden="true">{'>'}</span>
+      <span style={{ color: '#4fc3f7', fontWeight: 'bold' }} aria-hidden="true">{'>'}</span>
       <Input
         ref={inputRef}
         type="text"
         value={inputValue}
         onChange={(e) => onInputChange(e.target.value)}
-        className="flex-1 font-mono bg-background border-accent/50 focus:border-accent"
+        style={{ flex: 1, fontFamily: 'monospace', background: '#1a1a1a', borderColor: '#4fc3f7', color: '#d4d4d4' }}
         placeholder={t.pythonTerminal.inputPlaceholder}
         disabled={!waitingForInput}
         data-testid="terminal-input"

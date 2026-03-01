@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import { useTranslation } from '@/hooks/useTranslation'
+import styles from './TerminalOutput.module.scss'
 
 interface TerminalLine {
   type: 'output' | 'error' | 'input-prompt' | 'input-value'
@@ -17,7 +18,7 @@ export function TerminalOutput({ lines, isRunning }: TerminalOutputProps) {
   if (lines.length === 0 && !isRunning) {
     return (
       <div
-        className="flex items-center justify-center h-full text-muted-foreground"
+        className={styles.emptyState}
         data-testid="terminal-empty-state"
         role="status"
         aria-live="polite"
@@ -34,7 +35,7 @@ export function TerminalOutput({ lines, isRunning }: TerminalOutputProps) {
 
   return (
     <div
-      className="space-y-1"
+      className={styles.container}
       data-testid="terminal-output-content"
       aria-label="Terminal output area"
       role="log"
@@ -42,7 +43,7 @@ export function TerminalOutput({ lines, isRunning }: TerminalOutputProps) {
       {/* Aria-live region for error announcements */}
       {hasErrors && (
         <div
-          className="sr-only"
+          className={styles.srOnly}
           role="alert"
           aria-live="assertive"
           aria-atomic="true"
@@ -58,23 +59,23 @@ export function TerminalOutput({ lines, isRunning }: TerminalOutputProps) {
           initial={{ opacity: 0, y: 5 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.15 }}
-          className="leading-relaxed"
+          className={styles.line}
           role={line.type === 'error' ? 'alert' : 'status'}
           aria-live={line.type === 'error' ? 'assertive' : 'off'}
         >
           {line.type === 'output' && (
-            <div className="text-foreground whitespace-pre-wrap">{line.content}</div>
+            <div className={styles.output}>{line.content}</div>
           )}
           {line.type === 'error' && (
-            <div className="text-destructive whitespace-pre-wrap" aria-label={`Error: ${line.content}`}>
+            <div className={styles.error} aria-label={`Error: ${line.content}`}>
               {line.content}
             </div>
           )}
           {line.type === 'input-prompt' && (
-            <div className="text-accent font-medium whitespace-pre-wrap">{line.content}</div>
+            <div className={styles.inputPrompt}>{line.content}</div>
           )}
           {line.type === 'input-value' && (
-            <div className="text-primary whitespace-pre-wrap">{'> ' + line.content}</div>
+            <div className={styles.inputValue}>{'> ' + line.content}</div>
           )}
         </motion.div>
       ))}
