@@ -1,4 +1,5 @@
 import { useEffect, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { Snippet, SnippetTemplate } from '@/lib/types'
 import { toast } from 'sonner'
@@ -6,8 +7,6 @@ import { useTranslation } from '@/hooks/useTranslation'
 import { seedDatabase, syncTemplatesFromJSON } from '@/lib/db'
 import {
   fetchSnippetsByNamespace,
-  createSnippet,
-  updateSnippet,
   deleteSnippet,
   toggleSelectionMode,
   toggleSnippetSelection,
@@ -20,8 +19,6 @@ import {
   setSelectedNamespace,
 } from '@/store/slices/namespacesSlice'
 import {
-  openDialog,
-  closeDialog,
   openViewer,
   closeViewer,
   setSearchQuery,
@@ -33,9 +30,7 @@ import {
   selectSelectedIds,
   selectNamespaces,
   selectSelectedNamespaceId,
-  selectDialogOpen,
   selectViewerOpen,
-  selectEditingSnippet,
   selectViewingSnippet,
   selectSearchQuery,
   selectSnippets,
@@ -44,7 +39,8 @@ import {
 export function useSnippetManager(templates: SnippetTemplate[]) {
   const t = useTranslation()
   const dispatch = useAppDispatch()
-  
+  const router = useRouter()
+
   const snippets = useAppSelector(selectSnippets)
   const filteredSnippets = useAppSelector(selectFilteredSnippets)
   const loading = useAppSelector(selectSnippetsLoading)
@@ -52,9 +48,7 @@ export function useSnippetManager(templates: SnippetTemplate[]) {
   const selectedIds = useAppSelector(selectSelectedIds)
   const namespaces = useAppSelector(selectNamespaces)
   const selectedNamespaceId = useAppSelector(selectSelectedNamespaceId)
-  const dialogOpen = useAppSelector(selectDialogOpen)
   const viewerOpen = useAppSelector(selectViewerOpen)
-  const editingSnippet = useAppSelector(selectEditingSnippet)
   const viewingSnippet = useAppSelector(selectViewingSnippet)
   const searchQuery = useAppSelector(selectSearchQuery)
 
@@ -79,28 +73,9 @@ export function useSnippetManager(templates: SnippetTemplate[]) {
     }
   }, [dispatch, selectedNamespaceId])
 
-  const handleSaveSnippet = useCallback(async (snippetData: Omit<Snippet, 'id' | 'createdAt' | 'updatedAt'>) => {
-    try {
-      if (editingSnippet?.id) {
-        await dispatch(updateSnippet({ ...editingSnippet, ...snippetData })).unwrap()
-        toast.success(t.toast.snippetUpdated)
-      } else {
-        await dispatch(createSnippet({
-          ...snippetData,
-          namespaceId: selectedNamespaceId || undefined,
-        })).unwrap()
-        toast.success(t.toast.snippetCreated)
-      }
-      dispatch(closeDialog())
-    } catch (error) {
-      console.error('Failed to save snippet:', error)
-      toast.error(t.toast.failedToSaveSnippet)
-    }
-  }, [dispatch, editingSnippet, selectedNamespaceId])
-
   const handleEditSnippet = useCallback((snippet: Snippet) => {
-    dispatch(openDialog(snippet))
-  }, [dispatch])
+    router.push(`/snippet/${snippet.id}/edit`)
+  }, [router])
 
   const handleDeleteSnippet = useCallback(async (id: string) => {
     try {
@@ -118,8 +93,8 @@ export function useSnippetManager(templates: SnippetTemplate[]) {
   }, [])
 
   const handleViewSnippet = useCallback((snippet: Snippet) => {
-    dispatch(openViewer(snippet))
-  }, [dispatch])
+    router.push(`/snippet/${snippet.id}`)
+  }, [router])
 
   const handleMoveSnippet = useCallback(async () => {
     if (selectedNamespaceId) {
@@ -128,31 +103,12 @@ export function useSnippetManager(templates: SnippetTemplate[]) {
   }, [dispatch, selectedNamespaceId])
 
   const handleCreateNew = useCallback(() => {
-    dispatch(openDialog(null))
-  }, [dispatch])
+    router.push('/snippet/new')
+  }, [router])
 
   const handleCreateFromTemplate = useCallback((templateId: string) => {
-    const template = templates.find((t) => t.id === templateId)
-    if (!template) return
-
-    const templateSnippet = {
-      id: '',
-      title: template.title,
-      description: template.description,
-      language: template.language,
-      code: template.code,
-      category: template.category,
-      hasPreview: template.hasPreview,
-      functionName: template.functionName,
-      inputParameters: template.inputParameters,
-      files: template.files,
-      entryPoint: template.entryPoint,
-      createdAt: 0,
-      updatedAt: 0,
-    } as Snippet
-    
-    dispatch(openDialog(templateSnippet))
-  }, [dispatch, templates])
+    router.push(`/snippet/new?template=${encodeURIComponent(templateId)}`)
+  }, [router])
 
   const handleToggleSelectionMode = useCallback(() => {
     dispatch(toggleSelectionMode())
@@ -204,12 +160,6 @@ export function useSnippetManager(templates: SnippetTemplate[]) {
     dispatch(setSearchQuery(query))
   }, [dispatch])
 
-  const handleDialogClose = useCallback((open: boolean) => {
-    if (!open) {
-      dispatch(closeDialog())
-    }
-  }, [dispatch])
-
   const handleViewerClose = useCallback((open: boolean) => {
     if (!open) {
       dispatch(closeViewer())
@@ -224,12 +174,9 @@ export function useSnippetManager(templates: SnippetTemplate[]) {
     selectedIds,
     namespaces,
     selectedNamespaceId,
-    dialogOpen,
     viewerOpen,
-    editingSnippet,
     viewingSnippet,
     searchQuery,
-    handleSaveSnippet,
     handleEditSnippet,
     handleDeleteSnippet,
     handleCopyCode,
@@ -243,7 +190,6 @@ export function useSnippetManager(templates: SnippetTemplate[]) {
     handleBulkMove,
     handleNamespaceChange,
     handleSearchChange,
-    handleDialogClose,
     handleViewerClose,
   }
 }

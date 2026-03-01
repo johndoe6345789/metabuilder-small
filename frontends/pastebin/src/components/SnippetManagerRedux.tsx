@@ -1,5 +1,3 @@
-import { SnippetDialog } from '@/components/features/snippet-editor/SnippetDialog'
-import { SnippetViewer } from '@/components/features/snippet-viewer/SnippetViewer'
 import { EmptyState } from '@/components/features/snippet-display/EmptyState'
 import { NamespaceSelector } from '@/components/features/namespace-manager/NamespaceSelector'
 import { SnippetTemplate } from '@/lib/types'
@@ -21,12 +19,7 @@ export function SnippetManagerRedux() {
     selectedIds,
     namespaces,
     selectedNamespaceId,
-    dialogOpen,
-    viewerOpen,
-    editingSnippet,
-    viewingSnippet,
     searchQuery,
-    handleSaveSnippet,
     handleEditSnippet,
     handleDeleteSnippet,
     handleCopyCode,
@@ -40,8 +33,6 @@ export function SnippetManagerRedux() {
     handleBulkMove,
     handleNamespaceChange,
     handleSearchChange,
-    handleDialogClose,
-    handleViewerClose,
   } = useSnippetManager(templates)
 
   if (loading) {
@@ -64,12 +55,6 @@ export function SnippetManagerRedux() {
         <EmptyState
           onCreateClick={handleCreateNew}
           onCreateFromTemplate={handleCreateFromTemplate}
-        />
-        <SnippetDialog
-          open={dialogOpen}
-          onOpenChange={handleDialogClose}
-          onSave={handleSaveSnippet}
-          editingSnippet={editingSnippet}
         />
       </>
     )
@@ -122,20 +107,6 @@ export function SnippetManagerRedux() {
         onToggleSelect={handleToggleSnippetSelection}
       />
 
-      <SnippetDialog
-        open={dialogOpen}
-        onOpenChange={handleDialogClose}
-        onSave={handleSaveSnippet}
-        editingSnippet={editingSnippet}
-      />
-
-      <SnippetViewer
-        open={viewerOpen}
-        onOpenChange={handleViewerClose}
-        snippet={viewingSnippet}
-        onEdit={handleEditSnippet}
-        onCopy={handleCopyCode}
-      />
     </div>
   )
 }
