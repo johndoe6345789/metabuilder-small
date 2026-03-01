@@ -54,12 +54,22 @@ export default function SnippetViewPage() {
   const [isCopied, setIsCopied] = useState(false)
   const [showPreview, setShowPreview] = useState(true)
   const [wordWrap, setWordWrap] = useState<'on' | 'off'>('on')
+  const [activeFile, setActiveFile] = useState('')
 
   useEffect(() => {
     if (snippets.length > 0 && !snippet) {
       router.replace('/')
     }
   }, [snippet, snippets.length, router])
+
+  // Initialise activeFile when snippet loads (or changes)
+  useEffect(() => {
+    if (!snippet) return
+    const defaultName = getFilename(snippet.title, snippet.language)
+    const initial = snippet.entryPoint
+      || (snippet.files?.length ? snippet.files[0].name : defaultName)
+    setActiveFile(initial)
+  }, [snippet?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!snippet) {
     return (
@@ -69,20 +79,30 @@ export default function SnippetViewPage() {
     )
   }
 
-  const canPreview = !!(snippet.hasPreview && appConfig.previewEnabledLanguages.includes(snippet.language))
-  const isPython = snippet.language === 'Python'
   const filename = getFilename(snippet.title, snippet.language)
-  const lineCount = snippet.code.split('\n').length
   const namespace = namespaces.find(n => n.id === snippet.namespaceId)
   const langBgClass = (LANGUAGE_COLORS[snippet.language] || LANGUAGE_COLORS['Other']).split(' ')[0]
 
-  // Multi-file support: use snippet.files if present, otherwise synthesise one
+  // Multi-file: use snippet.files if present, otherwise synthesise one entry
   const files = snippet.files && snippet.files.length > 0
     ? snippet.files
     : [{ name: filename, content: snippet.code }]
 
+  // Active file content — drives Monaco
+  const activeFileObj = files.find(f => f.name === activeFile) ?? files[0]
+  const activeCode = activeFileObj?.content ?? snippet.code
+  const lineCount = activeCode.split('\n').length
+
+  // Synthetic snippet passed to SnippetViewerContent with the selected file's code
+  const viewSnippet = { ...snippet, code: activeCode }
+
+  // canPreview only makes sense on the entry-point file
+  const isEntryFile = !activeFile || activeFile === (snippet.entryPoint ?? files[0]?.name)
+  const canPreview = !!(isEntryFile && snippet.hasPreview && appConfig.previewEnabledLanguages.includes(snippet.language))
+  const isPython = snippet.language === 'Python'
+
   const handleCopy = () => {
-    navigator.clipboard.writeText(snippet.code)
+    navigator.clipboard.writeText(activeCode)
     toast.success(t.toast.codeCopied)
     setIsCopied(true)
     setTimeout(() => setIsCopied(false), appConfig.copiedTimeout)
@@ -108,9 +128,8 @@ export default function SnippetViewPage() {
           </div>
         </div>
 
-        {/* MS Word-style toolbar */}
+        {/* Toolbar */}
         <div className={styles.wordToolbar} role="toolbar" aria-label="Document toolbar">
-          {/* File group */}
           <div className={styles.toolGroup}>
             <button
               className={styles.toolBtn}
@@ -125,12 +144,11 @@ export default function SnippetViewPage() {
 
           <div className={styles.toolSep} aria-hidden="true" />
 
-          {/* Clipboard group */}
           <div className={styles.toolGroup}>
             <button
               className={`${styles.toolBtn} ${isCopied ? styles.toolBtnPressed : ''}`}
               onClick={handleCopy}
-              title="Copy code to clipboard"
+              title="Copy active file to clipboard"
               aria-live="polite"
             >
               {isCopied
@@ -141,7 +159,6 @@ export default function SnippetViewPage() {
 
           <div className={styles.toolSep} aria-hidden="true" />
 
-          {/* View group */}
           <div className={styles.toolGroup}>
             <button
               className={`${styles.toolBtn} ${wordWrap === 'on' ? styles.toolBtnActive : ''}`}
@@ -179,11 +196,17 @@ export default function SnippetViewPage() {
               </div>
               <div className={styles.treeFiles}>
                 {files.map(f => (
-                  <div key={f.name} className={`${styles.treeFile} ${styles.treeFileActive}`}>
+                  <button
+                    key={f.name}
+                    className={`${styles.treeFile} ${f.name === activeFile ? styles.treeFileActive : ''}`}
+                    onClick={() => setActiveFile(f.name)}
+                    title={f.name}
+                    aria-pressed={f.name === activeFile}
+                  >
                     <span className={`${styles.langDot} ${langBgClass}`} aria-hidden="true" />
                     <File size={12} aria-hidden="true" className={styles.fileIcon} />
                     <span className={styles.fileName}>{f.name}</span>
-                  </div>
+                  </button>
                 ))}
               </div>
             </div>
@@ -192,7 +215,7 @@ export default function SnippetViewPage() {
           {/* Monaco editor area */}
           <div className={styles.editorArea}>
             <SnippetViewerContent
-              snippet={snippet}
+              snippet={viewSnippet}
               canPreview={canPreview}
               showPreview={showPreview}
               isPython={isPython}
@@ -205,6 +228,8 @@ export default function SnippetViewPage() {
         <div className={styles.statusBar} role="status" aria-label="File information">
           <div className={styles.statusLeft}>
             <span className={styles.statusItem}>{snippet.language}</span>
+            <span className={styles.statusSep} aria-hidden="true" />
+            <span className={styles.statusItem}>{activeFile || filename}</span>
             <span className={styles.statusSep} aria-hidden="true" />
             <span className={styles.statusItem}>{lineCount} {lineCount === 1 ? 'line' : 'lines'}</span>
             {namespace && (

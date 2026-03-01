@@ -210,13 +210,21 @@
   align-items: center;
   gap: 5px;
   padding: 2px 8px 2px 4px;
-  cursor: default;
+  cursor: pointer;
   border-radius: 2px;
-  user-select: none;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  transition: background 0.1s;
+
+  &:hover {
+    background: rgba(255,255,255,0.06);
+  }
 }
 
 .treeFileActive {
-  background: rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.12) !important;
 }
 
 .fileIcon {
