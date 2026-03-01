@@ -3,6 +3,7 @@
 import { Card, CardHeader, CardContent, Button, Input, FormLabel, Alert, AlertDescription, RadioGroup, Radio, FormControlLabel } from '@metabuilder/components/fakemui'
 import { Database, CloudArrowUp, CloudCheck, CloudSlash, Upload, Download } from '@phosphor-icons/react'
 import { type StorageBackend } from '@/lib/storage'
+import styles from './settings-card.module.scss'
 
 interface StorageBackendCardProps {
   storageBackend: StorageBackend
@@ -34,11 +35,11 @@ export function StorageBackendCard({
   return (
     <Card data-testid="storage-backend-card">
       <CardHeader>
-        <h3 style={{fontWeight:600, marginBottom:'4px'}} className="flex items-center gap-2">
+        <h3 className={styles.cardTitle} className="flex items-center gap-2">
           <CloudArrowUp weight="duotone" size={24} aria-hidden="true" />
           Storage Backend
         </h3>
-        <p style={{color:'var(--mat-sys-on-surface-variant)',fontSize:'0.875rem',marginBottom:'8px'}}>
+        <p className={styles.cardDescription}>
           Choose where your snippets are stored
         </p>
       </CardHeader>

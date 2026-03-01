@@ -5,6 +5,7 @@ import { strings } from '@/lib/config'
 import { SnippetTemplate } from '@/lib/types'
 import templatesData from '@/data/templates.json'
 import { TemplatePicker } from '@/components/features/snippet-editor/TemplatePicker'
+import styles from './empty-state.module.scss'
 
 const templates = templatesData as SnippetTemplate[]
 
@@ -34,10 +35,10 @@ export function EmptyState({ onCreateClick, onCreateFromTemplate }: EmptyStatePr
         {strings.emptyState.title}. {strings.emptyState.description}
       </div>
 
-      <div style={{ width: 96, height: 96, borderRadius: '50%', backgroundColor: 'var(--mat-sys-primary-container)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 24 }} aria-hidden="true">
-        <Code style={{ width: 48, height: 48, color: 'var(--mat-sys-on-primary-container)' }} weight="duotone" />
+      <div className={styles.iconContainer} aria-hidden="true">
+        <Code className={styles.icon} weight="duotone" />
       </div>
-      <h2 style={{ fontFamily: 'var(--mat-sys-headline-small-font)', fontSize: '1.5rem', fontWeight: 600, marginBottom: 8, color: 'var(--mat-sys-on-surface)' }}>{strings.emptyState.title}</h2>
+      <h2 className={styles.title}>{strings.emptyState.title}</h2>
       <p className="text-muted-foreground mb-8 max-w-sm">
         {strings.emptyState.description}
       </p>
@@ -52,7 +53,7 @@ export function EmptyState({ onCreateClick, onCreateFromTemplate }: EmptyStatePr
       >
         <Code className="h-5 w-5" weight="bold" aria-hidden="true" />
         {strings.emptyState.buttonText}
-        <CaretDown weight="bold" aria-hidden="true" style={{ transition: 'transform 150ms', transform: menuAnchor ? 'rotate(180deg)' : 'none' }} />
+        <CaretDown weight="bold" aria-hidden="true" className={menuAnchor ? `${styles.caret} ${styles.caretOpen}` : styles.caret} />
       </Button>
       <TemplatePicker
         anchor={menuAnchor}

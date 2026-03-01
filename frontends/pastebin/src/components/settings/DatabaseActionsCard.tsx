@@ -3,6 +3,7 @@
 import { useRef } from 'react'
 import { Card, CardHeader, CardContent, Button } from '@metabuilder/components/fakemui'
 import { Database, Download, Upload, Trash } from '@phosphor-icons/react'
+import styles from './settings-card.module.scss'
 
 interface DatabaseActionsCardProps {
   onExport: () => Promise<void>
@@ -22,8 +23,8 @@ export function DatabaseActionsCard({
   return (
     <Card data-testid="database-actions-card">
       <CardHeader>
-        <h3 style={{fontWeight:600, marginBottom:'4px'}}>Database Actions</h3>
-        <p style={{color:'var(--mat-sys-on-surface-variant)',fontSize:'0.875rem',marginBottom:'8px'}}>
+        <h3 className={styles.cardTitle}>Database Actions</h3>
+        <p className={styles.cardDescription}>
           Backup, restore, or reset your database
         </p>
       </CardHeader>

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, Input, Button, FormLabel } from '@metabuilder/components/fakemui';
 import { Eye, EyeClosed, Key } from '@phosphor-icons/react';
+import styles from './settings-card.module.scss';
 
 export function OpenAISettingsCard() {
   const [apiKey, setApiKey] = useState(() => (typeof window !== 'undefined' ? localStorage.getItem('openai_api_key') || '' : ''));
@@ -33,9 +34,9 @@ export function OpenAISettingsCard() {
       <CardHeader>
         <div className="flex items-center gap-2">
           <Key className="h-5 w-5 text-primary" weight="duotone" aria-hidden="true" />
-          <h3 style={{fontWeight:600, marginBottom:'4px'}}>OpenAI API Settings</h3>
+          <h3 className={styles.cardTitle}>OpenAI API Settings</h3>
         </div>
-        <p style={{color:'var(--mat-sys-on-surface-variant)',fontSize:'0.875rem',marginBottom:'8px'}}>
+        <p className={styles.cardDescription}>
           Configure your OpenAI API key for AI-powered error analysis. Your key is stored locally in your browser.
         </p>
       </CardHeader>

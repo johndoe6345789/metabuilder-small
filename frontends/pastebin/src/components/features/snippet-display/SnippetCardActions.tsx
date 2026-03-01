@@ -3,6 +3,7 @@ import { Button, Menu, MenuItem, Divider } from '@metabuilder/components/fakemui
 import { Copy, Pencil, Trash, Eye, DotsThree, FolderOpen } from '@phosphor-icons/react'
 import { Namespace } from '@/lib/types'
 import { strings } from '@/lib/config'
+import styles from './snippet-card-actions.module.scss'
 
 interface SnippetCardActionsProps {
   isCopied: boolean
@@ -87,7 +88,7 @@ export function SnippetCardActions({
           {availableNamespaces.length > 0 && (
             <MenuItem
               disabled
-              style={{ opacity: 0.6, fontSize: '0.75rem' }}
+              className={styles.menuLabel}
               aria-hidden="true"
             >
               <FolderOpen className="h-4 w-4 mr-2" aria-hidden="true" />
@@ -114,14 +115,14 @@ export function SnippetCardActions({
             >
               {namespace.name}
               {namespace.isDefault && (
-                <span className="ml-2 text-xs" style={{ color: 'var(--mat-sys-on-surface-variant)' }}>(Default)</span>
+                <span className={`ml-2 text-xs ${styles.defaultBadge}`}>(Default)</span>
               )}
             </MenuItem>
           ))}
           {availableNamespaces.length > 0 && <Divider />}
           <MenuItem
             onClick={(e) => { e.stopPropagation(); onDelete(e); setMenuAnchor(null) }}
-            style={{ color: 'var(--mat-sys-error)' }}
+            className={styles.deleteItem}
             data-testid="snippet-card-delete-btn"
             aria-label="Delete snippet"
           >

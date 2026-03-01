@@ -1,6 +1,7 @@
 'use client'
 
 import { Card, CardHeader, CardContent, Alert, AlertDescription } from '@metabuilder/components/fakemui'
+import styles from './settings-card.module.scss'
 
 interface StorageInfoCardProps {
   storageType?: 'indexeddb' | 'localstorage' | 'none'
@@ -10,8 +11,8 @@ export function StorageInfoCard({ storageType }: StorageInfoCardProps) {
   return (
     <Card data-testid="storage-info-card">
       <CardHeader>
-        <h3 style={{fontWeight:600, marginBottom:'4px'}}>Storage Information</h3>
-        <p style={{color:'var(--mat-sys-on-surface-variant)',fontSize:'0.875rem',marginBottom:'8px'}}>
+        <h3 className={styles.cardTitle}>Storage Information</h3>
+        <p className={styles.cardDescription}>
           How your data is stored
         </p>
       </CardHeader>

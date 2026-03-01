@@ -2,6 +2,7 @@
 
 import { Button, Dialog, DialogHeader, DialogTitle, DialogContent, DialogActions, DialogClose, Input } from '@metabuilder/components/fakemui'
 import { Plus, X } from '@phosphor-icons/react'
+import styles from './namespace-dialog.module.scss'
 
 interface CreateNamespaceDialogProps {
   open: boolean
@@ -41,7 +42,7 @@ export function CreateNamespaceDialog({
           <DialogTitle>Create Namespace</DialogTitle>
         </DialogHeader>
         <DialogContent data-testid="create-namespace-dialog">
-          <p style={{ color: 'var(--mat-sys-on-surface-variant)', marginBottom: '24px' }}>
+          <p className={styles.description}>
             Create a new namespace to organize your snippets
           </p>
           <div className="space-y-4">

@@ -2,6 +2,7 @@ import { Snippet } from '@/lib/types'
 import { MonacoEditor } from '@/components/features/snippet-editor/MonacoEditor'
 import { ReactPreview } from '@/components/features/snippet-editor/ReactPreview'
 import { PythonOutput } from '@/components/features/python-runner/PythonOutput'
+import styles from './snippet-viewer.module.scss'
 
 interface SnippetViewerContentProps {
   snippet: Snippet
@@ -20,7 +21,7 @@ export function SnippetViewerContent({
     return (
       <>
         <div
-          style={{ flex: 1, overflow: 'hidden', borderRight: '1px solid var(--mat-sys-outline-variant, #cac7d0)' }}
+          className={styles.codePane}
           data-testid="viewer-code-pane"
           role="region"
           aria-label="Code viewer"
@@ -34,7 +35,7 @@ export function SnippetViewerContent({
           />
         </div>
         <div
-          style={{ flex: 1, overflow: 'hidden' }}
+          className={styles.previewPane}
           data-testid="viewer-preview-pane"
           role="region"
           aria-label={`Preview pane - ${isPython ? 'Python output' : 'React preview'}`}
@@ -55,7 +56,7 @@ export function SnippetViewerContent({
   }
 
   return (
-    <div style={{ flex: 1, overflow: 'hidden' }} data-testid="viewer-code-full" role="region" aria-label="Full code viewer">
+    <div className={styles.fullPane} data-testid="viewer-code-full" role="region" aria-label="Full code viewer">
       <MonacoEditor
         value={snippet.code}
         onChange={() => {}}

@@ -2,6 +2,7 @@ import { Plus } from '@phosphor-icons/react'
 import { Button, Card, CardContent, CardHeader, Input, FormLabel } from '@metabuilder/components/fakemui'
 import { InputParameter } from '@/lib/types'
 import { InputParameterItem } from './InputParameterItem'
+import styles from './input-parameter-list.module.scss'
 
 interface InputParameterListProps {
   inputParameters: InputParameter[]
@@ -24,8 +25,7 @@ export function InputParameterList({
     <Card className="bg-muted/30" data-testid="input-parameters-card">
       <CardHeader className="pb-3">
         <h3
-          style={{ fontWeight: 600 }}
-          className="text-base flex items-center justify-between"
+          className={`text-base flex items-center justify-between ${styles.configTitle}`}
           data-testid="preview-config-title"
         >
           <span>Preview Configuration</span>

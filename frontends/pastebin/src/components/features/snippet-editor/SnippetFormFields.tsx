@@ -1,6 +1,7 @@
 import { FormLabel, Input, Select, MenuItem, Textarea } from '@metabuilder/components/fakemui'
 import type { SelectChangeEvent } from '@metabuilder/components/fakemui'
 import { LANGUAGES } from '@/lib/config'
+import styles from './snippet-form-fields.module.scss'
 
 interface SnippetFormFieldsProps {
   title: string
@@ -74,7 +75,7 @@ export function SnippetFormFields({
           value={description}
           onChange={(e) => onDescriptionChange(e.target.value)}
           rows={3}
-          style={{ resize: 'vertical' }}
+          className={styles.textarea}
           data-testid="snippet-description-textarea"
           aria-label="Snippet description"
         />

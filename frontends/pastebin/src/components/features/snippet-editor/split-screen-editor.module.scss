@@ -1,0 +1,18 @@
+.viewModeBar {
+  background-color: var(--mat-sys-surface-variant);
+}
+
+.editorContainer {
+  border-color: var(--mat-sys-outline-variant);
+  background-color: var(--mat-sys-surface);
+}
+
+.splitGrid {
+  gap: 1px;
+  background-color: var(--mat-sys-outline-variant);
+}
+
+.splitPane {
+  height: var(--split-pane-height);
+  background-color: var(--mat-sys-surface);
+}

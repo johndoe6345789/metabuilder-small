@@ -1,0 +1,32 @@
+.iconContainer {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background-color: var(--mat-sys-primary-container);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.icon {
+  width: 48px;
+  height: 48px;
+  color: var(--mat-sys-on-primary-container);
+}
+
+.title {
+  font-family: var(--mat-sys-headline-small-font);
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--mat-sys-on-surface);
+}
+
+.caret {
+  transition: transform 150ms;
+}
+
+.caretOpen {
+  transform: rotate(180deg);
+}

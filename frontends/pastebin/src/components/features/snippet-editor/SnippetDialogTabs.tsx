@@ -5,32 +5,7 @@ import { appConfig } from '@/lib/config'
 import { SnippetFormFields } from './SnippetFormFields'
 import { CodeEditorSection } from './CodeEditorSection'
 import { InputParameterList } from './InputParameterList'
-
-const TAB_BAR: React.CSSProperties = {
-  display: 'flex',
-  borderBottom: '1px solid var(--mat-sys-outline-variant)',
-  marginBottom: '28px',
-}
-
-const TAB_BTN_BASE: React.CSSProperties = {
-  flex: 1,
-  padding: '10px 16px',
-  border: 'none',
-  background: 'none',
-  cursor: 'pointer',
-  fontSize: '0.875rem',
-  fontWeight: 500,
-  color: 'var(--mat-sys-on-surface-variant)',
-  borderBottom: '2px solid transparent',
-  marginBottom: '-1px',
-  transition: 'color 150ms, border-color 150ms',
-  letterSpacing: '0.01em',
-}
-
-const TAB_BTN_ACTIVE: React.CSSProperties = {
-  color: 'var(--mat-sys-primary)',
-  borderBottomColor: 'var(--mat-sys-primary)',
-}
+import styles from './snippet-dialog-tabs.module.scss'
 
 function DialogTabBar({ tabs, activeTab, onTabChange }: {
   tabs: string[]
@@ -38,7 +13,7 @@ function DialogTabBar({ tabs, activeTab, onTabChange }: {
   onTabChange: (i: number) => void
 }) {
   return (
-    <nav role="tablist" aria-label="Snippet editor sections" style={TAB_BAR}>
+    <nav role="tablist" aria-label="Snippet editor sections" className={styles.tabBar}>
       {tabs.map((label, i) => (
         <button
           key={label}
@@ -47,7 +22,7 @@ function DialogTabBar({ tabs, activeTab, onTabChange }: {
           aria-selected={activeTab === i}
           aria-controls={`snippet-tab-${i}-panel`}
           onClick={() => onTabChange(i)}
-          style={activeTab === i ? { ...TAB_BTN_BASE, ...TAB_BTN_ACTIVE } : TAB_BTN_BASE}
+          className={activeTab === i ? `${styles.tabBtn} ${styles.tabBtnActive}` : styles.tabBtn}
         >
           {label}
         </button>

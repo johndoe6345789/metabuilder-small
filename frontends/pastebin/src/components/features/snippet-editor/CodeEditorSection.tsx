@@ -4,6 +4,7 @@ import dynamic from 'next/dynamic'
 import { FormLabel, Checkbox } from '@metabuilder/components/fakemui'
 import { InputParameter } from '@/lib/types'
 import { appConfig } from '@/lib/config'
+import styles from './code-editor-section.module.scss'
 
 const MonacoEditor = dynamic(
   () => import('@/components/features/snippet-editor/MonacoEditor').then(m => ({ default: m.MonacoEditor })),
@@ -42,13 +43,12 @@ export function CodeEditorSection({
 
   return (
     <div className="space-y-2">
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div className={styles.codeHeader}>
         <FormLabel htmlFor="code">Code *</FormLabel>
         {isPreviewSupported && (
           <label
             htmlFor="hasPreview"
-            className="flex items-center gap-2 cursor-pointer"
-            style={{ fontSize: '0.875rem', color: 'var(--mat-sys-on-surface-variant)' }}
+            className={`flex items-center gap-2 cursor-pointer ${styles.previewLabel}`}
             data-testid="enable-preview-label"
           >
             <Checkbox

@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic'
 import { Button } from '@metabuilder/components/fakemui'
 import { Code, Eye, SplitHorizontal } from '@phosphor-icons/react'
 import { InputParameter } from '@/lib/types'
+import styles from './split-screen-editor.module.scss'
 
 const MonacoEditor = dynamic(
   () => import('@/components/features/snippet-editor/MonacoEditor').then(m => ({ default: m.MonacoEditor })),
@@ -59,7 +60,7 @@ export function SplitScreenEditor({
   return (
     <div className="flex flex-col gap-3" data-testid="split-screen-editor">
       <div className="flex items-center justify-end">
-        <div className="flex items-center gap-1 p-1 rounded-md" style={{ backgroundColor: 'var(--mat-sys-surface-variant)' }} role="group" aria-label="View mode selector">
+        <div className={`flex items-center gap-1 p-1 rounded-md ${styles.viewModeBar}`} role="group" aria-label="View mode selector">
           <Button
             variant={viewMode === 'code' ? 'filled' : 'text'}
             size="sm"
@@ -100,12 +101,8 @@ export function SplitScreenEditor({
       </div>
 
       <div
-        className="rounded-md overflow-hidden border"
-        style={{
-          height: viewMode === 'split' ? 'auto' : height,
-          borderColor: 'var(--mat-sys-outline-variant)',
-          backgroundColor: 'var(--mat-sys-surface)'
-        }}
+        style={{ height: viewMode === 'split' ? 'auto' : height }}
+        className={`rounded-md overflow-hidden border ${styles.editorContainer}`}
         data-testid={`split-screen-editor-${viewMode}`}
         role="region"
         aria-label={`${viewMode === 'code' ? 'Code editor' : viewMode === 'preview' ? (isPython ? 'Python output' : 'Preview') : 'Code editor and preview'}`}
@@ -133,8 +130,8 @@ export function SplitScreenEditor({
         )}
 
         {viewMode === 'split' && (
-          <div className="flex flex-col md:flex-row" style={{ gap: '1px', backgroundColor: 'var(--mat-sys-outline-variant)' }} data-testid="split-screen-grid">
-            <div className="md:flex-1 overflow-auto" style={{ height, backgroundColor: 'var(--mat-sys-surface)' }} data-testid="split-screen-code-pane">
+          <div className={`flex flex-col md:flex-row ${styles.splitGrid}`} data-testid="split-screen-grid">
+            <div className={`md:flex-1 overflow-auto ${styles.splitPane}`} style={{ height }} data-testid="split-screen-code-pane">
               <MonacoEditor
                 value={value}
                 onChange={onChange}
@@ -142,7 +139,7 @@ export function SplitScreenEditor({
                 height={height}
               />
             </div>
-            <div className="md:flex-1 overflow-auto" style={{ height, backgroundColor: 'var(--mat-sys-surface)' }} data-testid="split-screen-preview-pane">
+            <div className={`md:flex-1 overflow-auto ${styles.splitPane}`} style={{ height }} data-testid="split-screen-preview-pane">
               {isPython ? (
                 <PythonOutput code={value} />
               ) : (

@@ -7,6 +7,7 @@ import { toast } from 'sonner'
 import { SnippetCardHeader } from './SnippetCardHeader'
 import { SnippetCodePreview } from './SnippetCodePreview'
 import { SnippetCardActions } from './SnippetCardActions'
+import styles from './snippet-card.module.scss'
 
 interface SnippetCardProps {
   snippet: Snippet
@@ -192,7 +193,7 @@ export function SnippetCard({
           <Button
             onClick={handleConfirmDelete}
             data-testid="confirm-delete-snippet-btn"
-            style={{ color: 'var(--mat-sys-error)', borderColor: 'var(--mat-sys-error)' }}
+            className={styles.deleteButton}
             variant="outlined"
           >
             Delete

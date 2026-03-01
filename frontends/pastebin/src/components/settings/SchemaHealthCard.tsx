@@ -2,6 +2,7 @@
 
 import { Card, CardHeader, CardContent, Button, Alert, AlertDescription } from '@metabuilder/components/fakemui'
 import { Warning, FirstAid, CheckCircle } from '@phosphor-icons/react'
+import styles from './settings-card.module.scss'
 
 interface SchemaHealthCardProps {
   schemaHealth: 'unknown' | 'healthy' | 'corrupted'
@@ -22,11 +23,11 @@ export function SchemaHealthCard({
     return (
       <Card className="border-destructive bg-destructive/10" data-testid="schema-corrupted-card" role="alert" aria-label="Database schema corruption alert">
         <CardHeader>
-          <h3 style={{fontWeight:600, marginBottom:'4px'}} className="flex items-center gap-2 text-destructive">
+          <h3 className={styles.cardTitle} className="flex items-center gap-2 text-destructive">
             <Warning weight="fill" size={24} aria-hidden="true" />
             Schema Corruption Detected
           </h3>
-          <p style={{color:'var(--mat-sys-on-surface-variant)',fontSize:'0.875rem',marginBottom:'8px'}}>
+          <p className={styles.cardDescription}>
             Your database schema is outdated or corrupted and needs to be repaired
           </p>
         </CardHeader>
@@ -54,11 +55,11 @@ export function SchemaHealthCard({
   return (
     <Card className="border-green-600 bg-green-600/10" data-testid="schema-healthy-card" role="status" aria-label="Database schema health check passed">
       <CardHeader>
-        <h3 style={{fontWeight:600, marginBottom:'4px'}} className="flex items-center gap-2 text-green-600">
+        <h3 className={styles.cardTitle} className="flex items-center gap-2 text-green-600">
           <CheckCircle weight="fill" size={24} aria-hidden="true" />
           Schema Healthy
         </h3>
-        <p style={{color:'var(--mat-sys-on-surface-variant)',fontSize:'0.875rem',marginBottom:'8px'}}>
+        <p className={styles.cardDescription}>
           Your database schema is up to date and functioning correctly
         </p>
       </CardHeader>

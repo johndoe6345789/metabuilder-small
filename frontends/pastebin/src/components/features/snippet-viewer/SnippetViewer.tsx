@@ -7,6 +7,7 @@ import { useState } from 'react'
 import dynamic from 'next/dynamic'
 import { appConfig } from '@/lib/config'
 import { SnippetViewerHeader } from './SnippetViewerHeader'
+import styles from './snippet-viewer.module.scss'
 
 // Dynamically import SnippetViewerContent to avoid SSR issues with Pyodide
 const SnippetViewerContent = dynamic(
@@ -47,7 +48,7 @@ export function SnippetViewer({ snippet, open, onOpenChange, onEdit, onCopy }: S
       <DialogClose onClick={() => onOpenChange(false)} aria-label="Close dialog">
         <X size={20} />
       </DialogClose>
-      <DialogHeader className="border-b border-border" style={{ padding: '20px 60px 16px 24px' }}>
+      <DialogHeader className={`border-b border-border ${styles.header}`}>
         <SnippetViewerHeader
           snippet={snippet}
           isCopied={isCopied}
@@ -61,9 +62,9 @@ export function SnippetViewer({ snippet, open, onOpenChange, onEdit, onCopy }: S
 
       <DialogContent
         data-testid="snippet-viewer-dialog"
-        style={{ display: 'flex', flexDirection: 'column', height: '80vh', overflow: 'hidden', padding: 0 }}
+        className={styles.content}
       >
-        <div style={{ flex: 1, overflow: 'hidden', display: 'flex' }}>
+        <div className={styles.contentInner}>
           <SnippetViewerContent
             snippet={snippet}
             canPreview={canPreview}

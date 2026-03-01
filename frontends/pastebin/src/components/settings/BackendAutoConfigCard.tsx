@@ -2,6 +2,7 @@
 
 import { Card, CardContent, CardHeader, Button } from '@metabuilder/components/fakemui'
 import { CloudCheck, CloudSlash } from '@phosphor-icons/react'
+import styles from './settings-card.module.scss'
 
 interface BackendAutoConfigCardProps {
   envVarSet: boolean
@@ -23,11 +24,11 @@ export function BackendAutoConfigCard({
   return (
     <Card className="border-accent" data-testid="backend-auto-config-card">
       <CardHeader>
-        <h3 style={{fontWeight:600, marginBottom:'4px'}} className="flex items-center gap-2 text-accent">
+        <h3 className={styles.cardTitle} className="flex items-center gap-2 text-accent">
           <CloudCheck weight="fill" size={24} aria-hidden="true" />
           Backend Auto-Configured
         </h3>
-        <p style={{color:'var(--mat-sys-on-surface-variant)',fontSize:'0.875rem',marginBottom:'8px'}}>
+        <p className={styles.cardDescription}>
           Flask backend is configured via environment variable
         </p>
       </CardHeader>

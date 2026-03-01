@@ -7,6 +7,7 @@ import { Snippet } from '@/lib/types'
 import { strings, appConfig } from '@/lib/config'
 import { useSnippetForm } from '@/hooks/useSnippetForm'
 import { SnippetDialogTabs } from './SnippetDialogTabs'
+import styles from './snippet-dialog.module.scss'
 
 interface SnippetDialogProps {
   open: boolean
@@ -54,7 +55,7 @@ export function SnippetDialog({ open, onOpenChange, onSave, editingSnippet }: Sn
         {editingSnippet?.id ? strings.snippetDialog.edit.title : strings.snippetDialog.create.title}
       </DialogTitle>
 
-      <DialogContent dividers data-testid="snippet-dialog" style={{ minHeight: '400px' }}>
+      <DialogContent dividers data-testid="snippet-dialog" className={styles.dialogContent}>
         <SnippetDialogTabs
           activeTab={activeTab}
           onTabChange={setActiveTab}
@@ -84,7 +85,7 @@ export function SnippetDialog({ open, onOpenChange, onSave, editingSnippet }: Sn
             variant="outlined"
             onClick={() => setActiveTab(t => t - 1)}
             aria-label="Go to previous tab"
-            style={{ marginRight: 'auto' }}
+            className={styles.backButton}
           >
             Back
           </Button>
