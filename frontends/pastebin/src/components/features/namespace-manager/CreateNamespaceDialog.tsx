@@ -64,6 +64,7 @@ export function CreateNamespaceDialog({
             Cancel
           </Button>
           <Button
+            variant="filled"
             onClick={onCreateNamespace}
             disabled={loading}
             data-testid="create-namespace-save-btn"

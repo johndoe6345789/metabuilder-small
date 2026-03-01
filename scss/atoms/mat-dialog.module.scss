@@ -211,7 +211,8 @@ $dialog-transition-duration: 150ms;
 }
 
 // When following title, remove top padding
-.dialogTitle + .dialogContent {
+.dialogTitle + .dialogContent,
+.dialogHeader + .dialogContent {
   padding-top: 0;
 }
 

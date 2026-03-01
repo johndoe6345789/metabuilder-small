@@ -47,7 +47,7 @@ export function SnippetViewer({ snippet, open, onOpenChange, onEdit, onCopy }: S
       <DialogClose onClick={() => onOpenChange(false)} aria-label="Close dialog">
         <X size={20} />
       </DialogClose>
-      <DialogHeader className="px-6 pt-6 pb-4 pr-14 border-b border-border">
+      <DialogHeader className="border-b border-border" style={{ padding: '20px 60px 16px 24px' }}>
         <SnippetViewerHeader
           snippet={snippet}
           isCopied={isCopied}

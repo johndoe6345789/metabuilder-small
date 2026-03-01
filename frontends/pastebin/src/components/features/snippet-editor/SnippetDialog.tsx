@@ -98,11 +98,12 @@ export function SnippetDialog({ open, onOpenChange, onSave, editingSnippet }: Sn
           {strings.snippetDialog.buttons.cancel}
         </Button>
         {activeTab < tabCount - 1 ? (
-          <Button onClick={() => setActiveTab(t => t + 1)} aria-label="Go to next tab">
+          <Button variant="filled" onClick={() => setActiveTab(t => t + 1)} aria-label="Go to next tab">
             Next
           </Button>
         ) : (
           <Button
+            variant="filled"
             onClick={handleSave}
             data-testid="snippet-dialog-save-btn"
             aria-label={editingSnippet ? "Update snippet" : "Create new snippet"}

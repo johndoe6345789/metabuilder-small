@@ -54,6 +54,7 @@ export function DeleteNamespaceDialog({
             Cancel
           </Button>
           <Button
+            variant="filled"
             onClick={onDeleteNamespace}
             disabled={loading}
             data-testid="delete-namespace-confirm-btn"
