@@ -88,6 +88,7 @@ _RUNNERS: dict = {
             '([ -f conanfile.txt ] && conan install . --output-folder=build --build=missing '
             '-s build_type=Release -q 2>/dev/null || true) && '
             'cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release '
+            '-DCMAKE_CXX_FLAGS="-include cmath -include cstdlib" '
             '$([ -f build/conan_toolchain.cmake ] && echo -DCMAKE_TOOLCHAIN_FILE=build/conan_toolchain.cmake) && '
             'ninja -C build && ./build/{entry}'
         ),
