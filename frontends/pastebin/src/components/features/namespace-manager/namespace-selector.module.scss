@@ -1,36 +1,35 @@
 .row {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
 }
 
-.label {
+.folderIcon {
+  color: var(--mat-sys-on-surface-variant);
+  flex-shrink: 0;
   display: flex;
   align-items: center;
-  gap: 6px;
-  color: var(--mat-sys-on-surface-variant);
-  font-size: 0.875rem;
-  font-weight: 500;
-  flex-shrink: 0;
 }
 
 .controls {
   display: flex;
   align-items: center;
-  gap: 4px;
   background: var(--mat-sys-surface-container, rgba(0, 0, 0, 0.05));
-  border-radius: 10px;
-  padding: 4px 4px 4px 8px;
+  border-radius: 24px;
+  padding: 2px 2px 2px 12px;
+  gap: 0;
 }
 
 .select {
-  width: 200px;
+  min-width: 80px;
 
-  // Borderless trigger — arrow at right:12px needs 28px right padding to avoid overlap
+  // Borderless, auto-sized trigger — arrow is absolute at right:12px so needs padding-right
   :global(div[role="combobox"]) {
-    padding: 6px 28px 6px 8px !important;
-    border-radius: 6px;
-    font-size: 0.9rem;
+    padding: 6px 28px 6px 0 !important;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--mat-sys-on-surface);
     transition: background-color 150ms ease;
 
     &:hover {
@@ -41,7 +40,16 @@
   &:focus-within :global(div[role="combobox"]) {
     outline: 2px solid var(--mat-sys-primary, #6750a4);
     outline-offset: 0;
+    border-radius: 4px;
   }
+}
+
+.divider {
+  width: 1px;
+  height: 20px;
+  background: var(--mat-sys-outline-variant);
+  margin: 0 4px;
+  flex-shrink: 0;
 }
 
 .namespaceItem {

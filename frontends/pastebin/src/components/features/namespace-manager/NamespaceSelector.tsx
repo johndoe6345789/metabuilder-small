@@ -120,12 +120,11 @@ export function NamespaceSelector({ selectedNamespaceId, onNamespaceChange }: Na
 
   return (
     <div className={styles.row} data-testid="namespace-selector" role="group" aria-label="Namespace selector">
-      <div className={styles.label}>
-        <Folder weight="fill" size={16} aria-hidden="true" />
-        <span>Namespace:</span>
-      </div>
-
       <div className={styles.controls}>
+        <span className={styles.folderIcon}>
+          <Folder weight="fill" size={15} aria-hidden="true" />
+        </span>
+
         <Select
           value={selectedNamespaceId || ''}
           onChange={(e: SelectChangeEvent) => onNamespaceChange(e.target.value as string)}
@@ -133,6 +132,7 @@ export function NamespaceSelector({ selectedNamespaceId, onNamespaceChange }: Na
           aria-label="Select namespace"
           variant="standard"
           size="small"
+          autoWidth
           className={styles.select}
         >
           {namespaces.map(namespace => (
@@ -150,6 +150,8 @@ export function NamespaceSelector({ selectedNamespaceId, onNamespaceChange }: Na
             </MenuItem>
           ))}
         </Select>
+
+        <span className={styles.divider} aria-hidden="true" />
 
         <CreateNamespaceDialog
           open={createDialogOpen}
