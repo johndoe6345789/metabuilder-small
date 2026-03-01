@@ -10,6 +10,13 @@ import threading
 import queue
 import uuid
 import time
+import tempfile
+
+try:
+    import resource as _resource_mod
+    _HAS_RESOURCE = True
+except ImportError:
+    _HAS_RESOURCE = False   # Windows
 
 app = Flask(__name__)
 
@@ -32,6 +39,76 @@ DATABASE_PATH = os.environ.get('DATABASE_PATH', '/app/data/snippets.db')
 os.makedirs(os.path.dirname(DATABASE_PATH), exist_ok=True)
 
 # ---------------------------------------------------------------------------
+# Sandbox infrastructure
+# ---------------------------------------------------------------------------
+
+# Allowlist of modules user code may import.  Anything outside this list
+# raises ImportError at runtime, preventing file/network/process access.
+_ALLOWED_IMPORTS: frozenset = frozenset({
+    'math', 'cmath', 'decimal', 'fractions', 'random', 'statistics',
+    'collections', 'heapq', 'bisect', 'array', 'queue',
+    'itertools', 'functools', 'operator',
+    'string', 're', 'textwrap', 'unicodedata', 'difflib',
+    'datetime', 'calendar', 'time',
+    'json', 'csv',
+    'typing', 'types', 'abc', 'enum', 'dataclasses', 'copy', 'pprint',
+    'io', 'struct', 'codecs',
+    'base64', 'hashlib',
+})
+
+_MAX_OUTPUT_CHARS = 100_000  # cap stdout+stderr to prevent memory flooding
+
+
+def _validate_code(code: str) -> str | None:
+    """Run RestrictedPython's AST check; return an error string or None."""
+    try:
+        from RestrictedPython import compile_restricted
+        compile_restricted(code, '<snippet>', 'exec')
+        return None
+    except SyntaxError as exc:
+        return f'SyntaxError: {exc}'
+    except Exception as exc:
+        return f'Code rejected by sandbox: {exc}'
+
+
+def _apply_resource_limits() -> None:
+    """preexec_fn: called in the child process before exec (Linux/macOS only)."""
+    if not _HAS_RESOURCE:
+        return
+    # CPU seconds — hard limit; kernel sends SIGKILL when exceeded
+    _resource_mod.setrlimit(_resource_mod.RLIMIT_CPU, (10, 10))
+    # Virtual address space: 256 MB
+    _resource_mod.setrlimit(_resource_mod.RLIMIT_AS, (256 << 20, 256 << 20))
+    # Open file descriptors
+    _resource_mod.setrlimit(_resource_mod.RLIMIT_NOFILE, (32, 32))
+    # Child processes / threads (blocks fork bombs)
+    try:
+        _resource_mod.setrlimit(_resource_mod.RLIMIT_NPROC, (64, 64))
+    except (ValueError, AttributeError):
+        pass
+
+
+# Common sandbox preamble: overrides __import__ with allowlist and removes
+# dangerous builtins.  Uses a closure so nothing leaks into module scope.
+_SANDBOX_PREAMBLE = (
+    "def __sb():\n"
+    "    import builtins as _b\n"
+    "    _al = " + repr(_ALLOWED_IMPORTS) + "\n"
+    "    _orig = _b.__import__\n"
+    "    def _safe_imp(name, *a, **k):\n"
+    "        if name.split('.')[0] not in _al:\n"
+    "            raise ImportError(\"Sandbox: import '{}' is blocked\".format(name))\n"
+    "        return _orig(name, *a, **k)\n"
+    "    _b.__import__ = _safe_imp\n"
+    "    for _n in ('open', 'eval', 'exec', 'compile', 'breakpoint'):\n"
+    "        try: delattr(_b, _n)\n"
+    "        except AttributeError: pass\n"
+    "    del _b, _al, _orig, _safe_imp, _n\n"
+    "__sb()\n"
+    "del __sb\n"
+)
+
+# ---------------------------------------------------------------------------
 # Interactive Python session store
 # ---------------------------------------------------------------------------
 
@@ -40,18 +117,21 @@ os.makedirs(os.path.dirname(DATABASE_PATH), exist_ok=True)
 _PROMPT_START = '\x00PROMPT:'
 _PROMPT_END   = '\x00'
 
-# Preamble injected before user code.  It overrides builtins.input so the
-# running process signals the Flask parent whenever it needs user input.
-_WRAPPER_PREAMBLE = (
-    "import builtins as _b, sys as _sys\n"
-    "def _inp(prompt=''):\n"
-    "    _sys.stdout.write('" + _PROMPT_START + "' + str(prompt) + '" + _PROMPT_END + "\\n')\n"
-    "    _sys.stdout.flush()\n"
-    "    line = _sys.stdin.readline()\n"
-    "    return line.rstrip('\\n')\n"
-    "_b.input = _inp\n"
-    "del _b, _inp\n"
-    "###USER_CODE###\n"
+# Appended after _SANDBOX_PREAMBLE for interactive sessions.
+# Also uses a closure so _sys / _b don't remain in module scope.
+_INTERACTIVE_INPUT_PREAMBLE = (
+    "def __isinp():\n"
+    "    import sys as _s, builtins as _b\n"
+    "    _ps = " + repr(_PROMPT_START) + "\n"
+    "    _pe = " + repr(_PROMPT_END) + "\n"
+    "    def _inp(prompt=''):\n"
+    "        _s.stdout.write(_ps + str(prompt) + _pe + '\\n')\n"
+    "        _s.stdout.flush()\n"
+    "        return _s.stdin.readline().rstrip('\\n')\n"
+    "    _b.input = _inp\n"
+    "    del _b, _s, _ps, _pe, _inp\n"
+    "__isinp()\n"
+    "del __isinp\n"
 )
 
 _SESSION_TTL = 120   # seconds
@@ -67,10 +147,10 @@ class InteractiveSession:
         self.created_at: float = time.time()
         self._process: subprocess.Popen | None = None
         self._tmp_path: str | None = None
+        self._output_chars: int = 0  # running total for the output cap
 
     def start(self, code: str) -> None:
-        import tempfile
-        src = _WRAPPER_PREAMBLE.replace('###USER_CODE###', code)
+        src = _SANDBOX_PREAMBLE + '\n' + _INTERACTIVE_INPUT_PREAMBLE + '\n' + code
         tmp = tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False, encoding='utf-8')
         tmp.write(src)
         tmp.flush()
@@ -85,9 +165,20 @@ class InteractiveSession:
             stderr=subprocess.PIPE,
             text=True,
             env=env,
+            preexec_fn=_apply_resource_limits,
         )
         threading.Thread(target=self._read_stdout, daemon=True).start()
         threading.Thread(target=self._read_stderr, daemon=True).start()
+
+    def _append_output(self, entry: dict) -> bool:
+        """Add an output entry; return False and kill the process if cap exceeded."""
+        self._output_chars += len(entry.get('text', ''))
+        if self._output_chars > _MAX_OUTPUT_CHARS:
+            self.output.append({'type': 'err', 'text': '[Output truncated: 100 KB limit]\n'})
+            self.kill()
+            return False
+        self.output.append(entry)
+        return True
 
     def _read_stdout(self) -> None:
         assert self._process and self._process.stdout
@@ -96,18 +187,20 @@ class InteractiveSession:
             if line.startswith(_PROMPT_START) and line.endswith(_PROMPT_END):
                 prompt_text = line[len(_PROMPT_START):-len(_PROMPT_END)]
                 if prompt_text:
-                    self.output.append({'type': 'prompt', 'text': prompt_text})
+                    self._append_output({'type': 'prompt', 'text': prompt_text})
                 self.waiting_for_input = True
                 # Loop blocks here on next readline until send_input() writes to stdin
             else:
-                self.output.append({'type': 'out', 'text': raw})
+                if not self._append_output({'type': 'out', 'text': raw}):
+                    break
         self.done = True
         self._cleanup()
 
     def _read_stderr(self) -> None:
         assert self._process and self._process.stderr
         for line in self._process.stderr:
-            self.output.append({'type': 'err', 'text': line})
+            if not self._append_output({'type': 'err', 'text': line}):
+                break
 
     def send_input(self, value: str) -> bool:
         if not self.waiting_for_input or not self._process:
@@ -480,20 +573,38 @@ def run_python():
     code = data.get('code', '').strip()
     if not code:
         return jsonify({'error': 'No code provided'}), 400
+
+    policy_err = _validate_code(code)
+    if policy_err:
+        return jsonify({'output': '', 'error': policy_err}), 400
+
+    tmp_path = None
     try:
+        src = _SANDBOX_PREAMBLE + '\n' + code
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False, encoding='utf-8') as f:
+            f.write(src)
+            tmp_path = f.name
+
         result = subprocess.run(
-            [sys.executable, '-c', code],
+            [sys.executable, '-u', tmp_path],
             capture_output=True, text=True, timeout=10,
-            env={**os.environ, 'PYTHONUNBUFFERED': '1'}
+            env={**os.environ, 'PYTHONUNBUFFERED': '1'},
+            preexec_fn=_apply_resource_limits,
         )
         return jsonify({
-            'output': result.stdout,
-            'error': result.stderr if result.returncode != 0 else None
+            'output': result.stdout[:_MAX_OUTPUT_CHARS],
+            'error': result.stderr[:_MAX_OUTPUT_CHARS] if result.returncode != 0 else None,
         })
     except subprocess.TimeoutExpired:
         return jsonify({'output': '', 'error': 'Execution timed out (10s limit)'}), 408
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+    finally:
+        if tmp_path:
+            try:
+                os.unlink(tmp_path)
+            except OSError:
+                pass
 
 @app.route('/api/run/interactive', methods=['POST'])
 def run_interactive():
@@ -503,6 +614,10 @@ def run_interactive():
     code = data.get('code', '').strip()
     if not code:
         return jsonify({'error': 'No code provided'}), 400
+
+    policy_err = _validate_code(code)
+    if policy_err:
+        return jsonify({'error': policy_err}), 400
 
     session_id = str(uuid.uuid4())
     session = InteractiveSession(session_id)
