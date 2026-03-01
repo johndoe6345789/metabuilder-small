@@ -6,6 +6,10 @@ import json
 import os
 import subprocess
 import sys
+import threading
+import queue
+import uuid
+import time
 
 app = Flask(__name__)
 
@@ -26,6 +30,114 @@ else:
 
 DATABASE_PATH = os.environ.get('DATABASE_PATH', '/app/data/snippets.db')
 os.makedirs(os.path.dirname(DATABASE_PATH), exist_ok=True)
+
+# ---------------------------------------------------------------------------
+# Interactive Python session store
+# ---------------------------------------------------------------------------
+
+# Sentinel written to stdout by the wrapper to signal an input() call.
+# Uses null bytes to avoid collisions with normal print output.
+_PROMPT_START = '\x00PROMPT:'
+_PROMPT_END   = '\x00'
+
+# Preamble injected before user code.  It overrides builtins.input so the
+# running process signals the Flask parent whenever it needs user input.
+_WRAPPER_PREAMBLE = (
+    "import builtins as _b, sys as _sys\n"
+    "def _inp(prompt=''):\n"
+    "    _sys.stdout.write('" + _PROMPT_START + "' + str(prompt) + '" + _PROMPT_END + "\\n')\n"
+    "    _sys.stdout.flush()\n"
+    "    line = _sys.stdin.readline()\n"
+    "    return line.rstrip('\\n')\n"
+    "_b.input = _inp\n"
+    "del _b, _inp\n"
+    "###USER_CODE###\n"
+)
+
+_SESSION_TTL = 120   # seconds
+_sessions: dict = {}
+
+
+class InteractiveSession:
+    def __init__(self, session_id: str):
+        self.session_id = session_id
+        self.output: list = []       # {type: 'out'|'err'|'prompt'|'input-echo', text: str}
+        self.done: bool = False
+        self.waiting_for_input: bool = False
+        self.created_at: float = time.time()
+        self._process: subprocess.Popen | None = None
+        self._tmp_path: str | None = None
+
+    def start(self, code: str) -> None:
+        import tempfile
+        src = _WRAPPER_PREAMBLE.replace('###USER_CODE###', code)
+        tmp = tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False, encoding='utf-8')
+        tmp.write(src)
+        tmp.flush()
+        tmp.close()
+        self._tmp_path = tmp.name
+
+        env = {**os.environ, 'PYTHONUNBUFFERED': '1'}
+        self._process = subprocess.Popen(
+            [sys.executable, '-u', tmp.name],
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            env=env,
+        )
+        threading.Thread(target=self._read_stdout, daemon=True).start()
+        threading.Thread(target=self._read_stderr, daemon=True).start()
+
+    def _read_stdout(self) -> None:
+        assert self._process and self._process.stdout
+        for raw in self._process.stdout:
+            line = raw.rstrip('\n')
+            if line.startswith(_PROMPT_START) and line.endswith(_PROMPT_END):
+                prompt_text = line[len(_PROMPT_START):-len(_PROMPT_END)]
+                if prompt_text:
+                    self.output.append({'type': 'prompt', 'text': prompt_text})
+                self.waiting_for_input = True
+                # Loop blocks here on next readline until send_input() writes to stdin
+            else:
+                self.output.append({'type': 'out', 'text': raw})
+        self.done = True
+        self._cleanup()
+
+    def _read_stderr(self) -> None:
+        assert self._process and self._process.stderr
+        for line in self._process.stderr:
+            self.output.append({'type': 'err', 'text': line})
+
+    def send_input(self, value: str) -> bool:
+        if not self.waiting_for_input or not self._process:
+            return False
+        self.output.append({'type': 'input-echo', 'text': value + '\n'})
+        self.waiting_for_input = False
+        assert self._process.stdin
+        self._process.stdin.write(value + '\n')
+        self._process.stdin.flush()
+        return True
+
+    def kill(self) -> None:
+        if self._process and self._process.poll() is None:
+            self._process.kill()
+
+    def _cleanup(self) -> None:
+        if self._tmp_path:
+            try:
+                os.unlink(self._tmp_path)
+            except OSError:
+                pass
+            self._tmp_path = None
+
+
+def _reap_sessions() -> None:
+    now = time.time()
+    for sid, s in list(_sessions.items()):
+        if now - s.created_at > _SESSION_TTL:
+            s.kill()
+            _sessions.pop(sid, None)
 
 def get_db():
     conn = sqlite3.connect(DATABASE_PATH)
@@ -382,6 +494,51 @@ def run_python():
         return jsonify({'output': '', 'error': 'Execution timed out (10s limit)'}), 408
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@app.route('/api/run/interactive', methods=['POST'])
+def run_interactive():
+    """Start an interactive Python session. Returns {session_id}."""
+    _reap_sessions()
+    data = request.json or {}
+    code = data.get('code', '').strip()
+    if not code:
+        return jsonify({'error': 'No code provided'}), 400
+
+    session_id = str(uuid.uuid4())
+    session = InteractiveSession(session_id)
+    _sessions[session_id] = session
+    session.start(code)
+    return jsonify({'session_id': session_id}), 201
+
+
+@app.route('/api/run/interactive/<session_id>/poll', methods=['GET'])
+def poll_interactive(session_id):
+    """Return new output lines since `offset` and current session state."""
+    session = _sessions.get(session_id)
+    if not session:
+        return jsonify({'error': 'Session not found'}), 404
+
+    offset = int(request.args.get('offset', 0))
+    return jsonify({
+        'output': session.output[offset:],
+        'waiting_for_input': session.waiting_for_input,
+        'done': session.done,
+    })
+
+
+@app.route('/api/run/interactive/<session_id>/input', methods=['POST'])
+def send_interactive_input(session_id):
+    """Send one line of user input to the running session."""
+    session = _sessions.get(session_id)
+    if not session:
+        return jsonify({'error': 'Session not found'}), 404
+
+    data = request.json or {}
+    value = data.get('value', '')
+    if not session.send_input(value):
+        return jsonify({'error': 'Session is not waiting for input'}), 409
+    return jsonify({'ok': True})
+
 
 @app.route('/api/wipe', methods=['POST'])
 def wipe_database():
