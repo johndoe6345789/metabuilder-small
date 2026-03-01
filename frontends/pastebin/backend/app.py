@@ -4,6 +4,8 @@ from datetime import datetime
 import sqlite3
 import json
 import os
+import subprocess
+import sys
 
 app = Flask(__name__)
 
@@ -357,6 +359,27 @@ def delete_namespace(namespace_id):
         conn.close()
         
         return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/run', methods=['POST'])
+def run_python():
+    data = request.json or {}
+    code = data.get('code', '').strip()
+    if not code:
+        return jsonify({'error': 'No code provided'}), 400
+    try:
+        result = subprocess.run(
+            [sys.executable, '-c', code],
+            capture_output=True, text=True, timeout=10,
+            env={**os.environ, 'PYTHONUNBUFFERED': '1'}
+        )
+        return jsonify({
+            'output': result.stdout,
+            'error': result.stderr if result.returncode != 0 else None
+        })
+    except subprocess.TimeoutExpired:
+        return jsonify({'output': '', 'error': 'Execution timed out (10s limit)'}), 408
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
