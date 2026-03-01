@@ -13,6 +13,7 @@ import {
 } from '@/lib/db'
 import { CreateNamespaceDialog } from './CreateNamespaceDialog'
 import { DeleteNamespaceDialog } from './DeleteNamespaceDialog'
+import styles from './namespace-selector.module.scss'
 
 interface NamespaceSelectorProps {
   selectedNamespaceId: string | null
@@ -118,58 +119,61 @@ export function NamespaceSelector({ selectedNamespaceId, onNamespaceChange }: Na
   const selectedNamespace = namespaces.find(n => n.id === selectedNamespaceId)
 
   return (
-    <div className="flex items-center gap-2" data-testid="namespace-selector" role="group" aria-label="Namespace selector">
-      <div className="flex items-center gap-2 text-muted-foreground">
-        <Folder weight="fill" className="h-4 w-4" aria-hidden="true" />
-        <span className="text-sm font-medium">Namespace:</span>
+    <div className={styles.row} data-testid="namespace-selector" role="group" aria-label="Namespace selector">
+      <div className={styles.label}>
+        <Folder weight="fill" size={16} aria-hidden="true" />
+        <span>Namespace:</span>
       </div>
 
-      <Select
-        value={selectedNamespaceId || ''}
-        onChange={(e: SelectChangeEvent) => onNamespaceChange(e.target.value as string)}
-        data-testid="namespace-selector-trigger"
-        aria-label="Select namespace"
-        style={{ width: '200px' }}
-      >
-        {namespaces.map(namespace => (
-          <MenuItem
-            key={namespace.id}
-            value={namespace.id}
-            data-testid={`namespace-option-${namespace.id}`}
-          >
-            <div className="flex items-center gap-2">
-              <span>{namespace.name}</span>
-              {namespace.isDefault && (
-                <span className="text-xs" style={{ color: 'var(--mat-sys-on-surface-variant)' }}>(Default)</span>
-              )}
-            </div>
-          </MenuItem>
-        ))}
-      </Select>
+      <div className={styles.controls}>
+        <Select
+          value={selectedNamespaceId || ''}
+          onChange={(e: SelectChangeEvent) => onNamespaceChange(e.target.value as string)}
+          data-testid="namespace-selector-trigger"
+          aria-label="Select namespace"
+          size="small"
+          className={styles.select}
+        >
+          {namespaces.map(namespace => (
+            <MenuItem
+              key={namespace.id}
+              value={namespace.id}
+              data-testid={`namespace-option-${namespace.id}`}
+            >
+              <div className={styles.namespaceItem}>
+                <span>{namespace.name}</span>
+                {namespace.isDefault && (
+                  <span className={styles.defaultBadge}>(Default)</span>
+                )}
+              </div>
+            </MenuItem>
+          ))}
+        </Select>
 
-      <CreateNamespaceDialog
-        open={createDialogOpen}
-        onOpenChange={setCreateDialogOpen}
-        namespaceName={newNamespaceName}
-        onNamespaceNameChange={setNewNamespaceName}
-        onCreateNamespace={handleCreateNamespace}
-        loading={loading}
-      />
-
-      {selectedNamespace && !selectedNamespace.isDefault && (
-        <DeleteNamespaceDialog
-          open={deleteDialogOpen}
-          onOpenChange={setDeleteDialogOpen}
-          namespace={namespaceToDelete}
-          onDeleteNamespace={handleDeleteNamespace}
+        <CreateNamespaceDialog
+          open={createDialogOpen}
+          onOpenChange={setCreateDialogOpen}
+          namespaceName={newNamespaceName}
+          onNamespaceNameChange={setNewNamespaceName}
+          onCreateNamespace={handleCreateNamespace}
           loading={loading}
-          showTrigger
-          onOpenDialog={() => {
-            setNamespaceToDelete(selectedNamespace)
-            setDeleteDialogOpen(true)
-          }}
         />
-      )}
+
+        {selectedNamespace && !selectedNamespace.isDefault && (
+          <DeleteNamespaceDialog
+            open={deleteDialogOpen}
+            onOpenChange={setDeleteDialogOpen}
+            namespace={namespaceToDelete}
+            onDeleteNamespace={handleDeleteNamespace}
+            loading={loading}
+            showTrigger
+            onOpenDialog={() => {
+              setNamespaceToDelete(selectedNamespace)
+              setDeleteDialogOpen(true)
+            }}
+          />
+        )}
+      </div>
     </div>
   )
 }
