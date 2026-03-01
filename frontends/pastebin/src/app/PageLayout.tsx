@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { Code } from '@phosphor-icons/react';
+import pkg from '../../package.json';
 import { Navigation } from '@/components/layout/navigation/Navigation';
 import { NavigationSidebar } from '@/components/layout/navigation/NavigationSidebar';
 import { useNavigation } from '@/components/layout/navigation/useNavigation';
@@ -65,9 +66,9 @@ export function PageLayout({ children }: { children: ReactNode }) {
                     marginTop: '2px',
                     opacity: 0.85,
                   }}
-                  aria-label="Version 0.2.3"
+                  aria-label={`Version ${pkg.version}`}
                 >
-                  v0.2.3
+                  v{pkg.version}
                 </span>
               </motion.div>
               <motion.div
