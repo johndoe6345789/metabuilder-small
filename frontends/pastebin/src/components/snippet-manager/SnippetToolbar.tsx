@@ -69,12 +69,12 @@ export function SnippetToolbar({
           {selectionMode ? (
             <>
               <X weight="bold" aria-hidden="true" />
-              Cancel
+              {t.snippetToolbar.cancelSelection}
             </>
           ) : (
             <>
               <CheckSquare weight="bold" aria-hidden="true" />
-              Select
+              {t.snippetToolbar.select}
             </>
           )}
         </Button>

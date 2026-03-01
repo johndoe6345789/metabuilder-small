@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { Input } from '@metabuilder/components/fakemui'
+import { useTranslation } from '@/hooks/useTranslation'
 
 interface TerminalInputProps {
   waitingForInput: boolean
@@ -15,6 +16,7 @@ export function TerminalInput({
   onInputChange, 
   onSubmit 
 }: TerminalInputProps) {
+  const t = useTranslation()
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -42,10 +44,10 @@ export function TerminalInput({
         value={inputValue}
         onChange={(e) => onInputChange(e.target.value)}
         className="flex-1 font-mono bg-background border-accent/50 focus:border-accent"
-        placeholder="Enter input..."
+        placeholder={t.pythonTerminal.inputPlaceholder}
         disabled={!waitingForInput}
         data-testid="terminal-input"
-        aria-label="Terminal input"
+        aria-label={t.pythonTerminal.inputAria}
       />
     </motion.form>
   )

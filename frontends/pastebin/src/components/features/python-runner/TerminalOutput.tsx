@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion'
+import { useTranslation } from '@/hooks/useTranslation'
 
 interface TerminalLine {
   type: 'output' | 'error' | 'input-prompt' | 'input-value'
@@ -12,6 +13,7 @@ interface TerminalOutputProps {
 }
 
 export function TerminalOutput({ lines, isRunning }: TerminalOutputProps) {
+  const t = useTranslation()
   if (lines.length === 0 && !isRunning) {
     return (
       <div
@@ -21,7 +23,7 @@ export function TerminalOutput({ lines, isRunning }: TerminalOutputProps) {
         aria-live="polite"
         aria-label="Terminal output area"
       >
-        Click "Run" to execute the Python code
+        {t.pythonTerminal.emptyState}
       </div>
     )
   }

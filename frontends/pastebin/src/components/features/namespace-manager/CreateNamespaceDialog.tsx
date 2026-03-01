@@ -2,6 +2,7 @@
 
 import { Button, IconButton, Dialog, DialogHeader, DialogTitle, DialogContent, DialogActions, DialogClose, Input } from '@metabuilder/components/fakemui'
 import { Plus, X } from '@phosphor-icons/react'
+import { useTranslation } from '@/hooks/useTranslation'
 import styles from './namespace-dialog.module.scss'
 
 interface CreateNamespaceDialogProps {
@@ -21,35 +22,34 @@ export function CreateNamespaceDialog({
   onCreateNamespace,
   loading,
 }: CreateNamespaceDialogProps) {
+  const t = useTranslation()
   return (
     <>
       <IconButton
         onClick={() => onOpenChange(true)}
         data-testid="create-namespace-trigger"
-        aria-label="Create new namespace"
+        aria-label={t.namespace.create.ariaLabel}
       >
         <Plus weight="bold" aria-hidden="true" />
       </IconButton>
 
       <Dialog open={open} onClose={() => onOpenChange(false)} maxWidth="sm" fullWidth>
-        <DialogClose onClick={() => onOpenChange(false)} aria-label="Close dialog">
+        <DialogClose onClick={() => onOpenChange(false)} aria-label={t.common.close}>
           <X size={20} />
         </DialogClose>
         <DialogHeader>
-          <DialogTitle>Create Namespace</DialogTitle>
+          <DialogTitle>{t.namespace.create.title}</DialogTitle>
         </DialogHeader>
         <DialogContent data-testid="create-namespace-dialog">
-          <p className={styles.description}>
-            Create a new namespace to organize your snippets
-          </p>
+          <p className={styles.description}>{t.namespace.create.description}</p>
           <div className="space-y-4">
             <Input
-              placeholder="Namespace name"
+              placeholder={t.namespace.create.namePlaceholder}
               value={namespaceName}
               onChange={(e) => onNamespaceNameChange(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && onCreateNamespace()}
               data-testid="namespace-name-input"
-              aria-label="Namespace name"
+              aria-label={t.namespace.create.namePlaceholder}
             />
           </div>
         </DialogContent>
@@ -59,7 +59,7 @@ export function CreateNamespaceDialog({
             onClick={() => onOpenChange(false)}
             data-testid="create-namespace-cancel-btn"
           >
-            Cancel
+            {t.common.cancel}
           </Button>
           <Button
             variant="filled"
@@ -67,7 +67,7 @@ export function CreateNamespaceDialog({
             disabled={loading}
             data-testid="create-namespace-save-btn"
           >
-            Create
+            {t.common.create}
           </Button>
         </DialogActions>
       </Dialog>

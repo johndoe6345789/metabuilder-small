@@ -66,7 +66,7 @@ export function useSnippetManager(templates: SnippetTemplate[]) {
         await dispatch(fetchNamespaces()).unwrap()
       } catch (error) {
         console.error('Failed to load data:', error)
-        toast.error('Failed to load data')
+        toast.error(t.toast.failedToLoadData)
       }
     }
 
@@ -94,7 +94,7 @@ export function useSnippetManager(templates: SnippetTemplate[]) {
       dispatch(closeDialog())
     } catch (error) {
       console.error('Failed to save snippet:', error)
-      toast.error('Failed to save snippet')
+      toast.error(t.toast.failedToSaveSnippet)
     }
   }, [dispatch, editingSnippet, selectedNamespaceId])
 
@@ -108,7 +108,7 @@ export function useSnippetManager(templates: SnippetTemplate[]) {
       toast.success(t.toast.snippetDeleted)
     } catch (error) {
       console.error('Failed to delete snippet:', error)
-      toast.error('Failed to delete snippet')
+      toast.error(t.toast.failedToDeleteSnippet)
     }
   }, [dispatch])
 
@@ -170,7 +170,7 @@ export function useSnippetManager(templates: SnippetTemplate[]) {
 
   const handleBulkMove = useCallback(async (targetNamespaceId: string) => {
     if (selectedIds.length === 0) {
-      toast.error('No snippets selected')
+      toast.error(t.toast.noSnippetsSelected)
       return
     }
 
@@ -181,14 +181,14 @@ export function useSnippetManager(templates: SnippetTemplate[]) {
       })).unwrap()
       
       const targetNamespace = namespaces.find(n => n.id === targetNamespaceId)
-      toast.success(`Moved ${selectedIds.length} snippet${selectedIds.length > 1 ? 's' : ''} to ${targetNamespace?.name || 'namespace'}`)
+      toast.success(t.toast.movedSnippets.replace('{count}', String(selectedIds.length)).replace('{namespace}', targetNamespace?.name || 'namespace'))
       
       if (selectedNamespaceId) {
         dispatch(fetchSnippetsByNamespace(selectedNamespaceId))
       }
     } catch (error) {
       console.error('Failed to bulk move snippets:', error)
-      toast.error('Failed to move snippets')
+      toast.error(t.toast.failedToMoveSnippets)
     }
   }, [dispatch, selectedIds, namespaces, selectedNamespaceId])
 

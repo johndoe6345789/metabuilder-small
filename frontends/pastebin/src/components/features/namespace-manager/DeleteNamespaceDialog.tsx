@@ -1,6 +1,7 @@
 import { Button, IconButton, Dialog, DialogHeader, DialogTitle, DialogContent, DialogActions, DialogClose } from '@metabuilder/components/fakemui'
 import { Trash, X } from '@phosphor-icons/react'
 import { Namespace } from '@/lib/types'
+import { useTranslation } from '@/hooks/useTranslation'
 
 interface DeleteNamespaceDialogProps {
   open: boolean
@@ -21,28 +22,29 @@ export function DeleteNamespaceDialog({
   showTrigger = false,
   onOpenDialog,
 }: DeleteNamespaceDialogProps) {
+  const t = useTranslation()
   return (
     <>
       {showTrigger && (
         <IconButton
           onClick={onOpenDialog}
           data-testid="delete-namespace-trigger"
-          aria-label="Delete namespace"
+          aria-label={t.namespace.delete.ariaLabel}
         >
           <Trash weight="bold" aria-hidden="true" />
         </IconButton>
       )}
 
       <Dialog open={open} onClose={() => onOpenChange(false)} maxWidth="sm" fullWidth>
-        <DialogClose onClick={() => onOpenChange(false)} aria-label="Close dialog">
+        <DialogClose onClick={() => onOpenChange(false)} aria-label={t.common.close}>
           <X size={20} />
         </DialogClose>
         <DialogHeader>
-          <DialogTitle>Delete Namespace</DialogTitle>
+          <DialogTitle>{t.namespace.delete.title}</DialogTitle>
         </DialogHeader>
         <DialogContent data-testid="delete-namespace-dialog">
           <p>
-            Are you sure you want to delete "{namespace?.name}"? All snippets in this namespace will be moved to the default namespace.
+            {t.namespace.delete.body.replace('{name}', namespace?.name ?? '')}
           </p>
         </DialogContent>
         <DialogActions>
@@ -51,7 +53,7 @@ export function DeleteNamespaceDialog({
             onClick={() => onOpenChange(false)}
             data-testid="delete-namespace-cancel-btn"
           >
-            Cancel
+            {t.common.cancel}
           </Button>
           <Button
             variant="filled"
@@ -59,7 +61,7 @@ export function DeleteNamespaceDialog({
             disabled={loading}
             data-testid="delete-namespace-confirm-btn"
           >
-            Delete
+            {t.common.delete}
           </Button>
         </DialogActions>
       </Dialog>

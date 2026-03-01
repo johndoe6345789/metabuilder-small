@@ -85,11 +85,11 @@ export function SnippetDialog({ open, onOpenChange, onSave, editingSnippet }: Sn
         {activeTab > 0 && (
           <Button
             variant="outlined"
-            onClick={() => setActiveTab(t => t - 1)}
+            onClick={() => setActiveTab(prev => prev - 1)}
             aria-label="Go to previous tab"
             className={styles.backButton}
           >
-            Back
+            {t.snippetDialog.buttons.back}
           </Button>
         )}
         <Button
@@ -101,8 +101,8 @@ export function SnippetDialog({ open, onOpenChange, onSave, editingSnippet }: Sn
           {t.snippetDialog.buttons.cancel}
         </Button>
         {activeTab < tabCount - 1 ? (
-          <Button variant="filled" onClick={() => setActiveTab(t => t + 1)} aria-label="Go to next tab">
-            Next
+          <Button variant="filled" onClick={() => setActiveTab(prev => prev + 1)} aria-label="Go to next tab">
+            {t.snippetDialog.buttons.next}
           </Button>
         ) : (
           <Button
@@ -111,7 +111,7 @@ export function SnippetDialog({ open, onOpenChange, onSave, editingSnippet }: Sn
             data-testid="snippet-dialog-save-btn"
             aria-label={editingSnippet ? "Update snippet" : "Create new snippet"}
           >
-            {editingSnippet ? t.snippetDialog.buttons.update : t.snippetDialog.buttons.create} Snippet
+            {editingSnippet ? t.snippetDialog.buttons.update : t.snippetDialog.buttons.create}
           </Button>
         )}
       </DialogActions>

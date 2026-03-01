@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Button, Menu, MenuItem } from '@metabuilder/components/fakemui'
 import { FolderOpen } from '@phosphor-icons/react'
 import { Namespace } from '@/lib/types'
+import { useTranslation } from '@/hooks/useTranslation'
 
 interface SelectionControlsProps {
   selectedIds: string[]
@@ -20,7 +21,9 @@ export function SelectionControls({
   onSelectAll,
   onBulkMove,
 }: SelectionControlsProps) {
+  const t = useTranslation()
   const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null)
+  const isAllSelected = selectedIds.length === totalFilteredCount
 
   return (
     <div className="flex items-center gap-2 p-4 bg-muted/50 rounded-lg" data-testid="selection-controls" role="region" aria-label="Selection controls">
@@ -29,14 +32,14 @@ export function SelectionControls({
         size="sm"
         onClick={onSelectAll}
         data-testid="select-all-btn"
-        aria-label={selectedIds.length === totalFilteredCount ? 'Deselect all snippets' : 'Select all snippets'}
+        aria-label={isAllSelected ? t.selectionControls.deselectAllAria : t.selectionControls.selectAllAria}
       >
-        {selectedIds.length === totalFilteredCount ? 'Deselect All' : 'Select All'}
+        {isAllSelected ? t.selectionControls.deselectAll : t.selectionControls.selectAll}
       </Button>
       {selectedIds.length > 0 && (
         <>
           <span className="text-sm text-muted-foreground" data-testid="selection-count" role="status" aria-live="polite">
-            {selectedIds.length} selected
+            {t.selectionControls.selected.replace('{count}', String(selectedIds.length))}
           </span>
           <Button
             variant="outlined"
@@ -44,18 +47,17 @@ export function SelectionControls({
             className="gap-2"
             onClick={(e) => setMenuAnchor(e.currentTarget)}
             data-testid="bulk-move-menu-trigger"
-            aria-label="Move selected snippets to another namespace"
+            aria-label={t.selectionControls.moveToAria}
             aria-haspopup="menu"
           >
             <FolderOpen weight="bold" className="h-4 w-4" aria-hidden="true" />
-            Move to...
+            {t.selectionControls.moveTo}
           </Button>
           <Menu
             open={Boolean(menuAnchor)}
             anchorEl={menuAnchor}
             onClose={() => setMenuAnchor(null)}
             data-testid="bulk-move-menu"
-            aria-label="Namespace options for moving snippets"
           >
             {namespaces.map((namespace) => (
               <MenuItem
@@ -63,9 +65,8 @@ export function SelectionControls({
                 onClick={() => { onBulkMove(namespace.id); setMenuAnchor(null) }}
                 disabled={namespace.id === currentNamespaceId}
                 data-testid={`bulk-move-to-namespace-${namespace.id}`}
-                aria-label={`Move to ${namespace.name}${namespace.isDefault ? ' (Default)' : ''}`}
               >
-                {namespace.name} {namespace.isDefault && '(Default)'}
+                {namespace.name} {namespace.isDefault && t.common.default}
               </MenuItem>
             ))}
           </Menu>

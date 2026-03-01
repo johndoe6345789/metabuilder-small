@@ -93,7 +93,7 @@ export function SnippetCardActions({
               aria-hidden="true"
             >
               <FolderOpen className="h-4 w-4 mr-2" aria-hidden="true" />
-              Move to:
+              {t.snippetCard.moveTo}
             </MenuItem>
           )}
           {availableNamespaces.length === 0 && (
@@ -103,7 +103,7 @@ export function SnippetCardActions({
               aria-label="Move snippet to another namespace"
             >
               <FolderOpen className="h-4 w-4 mr-2" aria-hidden="true" />
-              No other namespaces
+              {t.snippetCard.noOtherNamespaces}
             </MenuItem>
           )}
           {availableNamespaces.map((namespace) => (
@@ -111,12 +111,11 @@ export function SnippetCardActions({
               key={namespace.id}
               onClick={() => { onMoveToNamespace(namespace.id); setMenuAnchor(null) }}
               data-testid={`move-to-namespace-${namespace.id}`}
-              aria-label={`Move to ${namespace.name}${namespace.isDefault ? ' (Default)' : ''}`}
               disabled={isMoving}
             >
               {namespace.name}
               {namespace.isDefault && (
-                <span className={`ml-2 text-xs ${styles.defaultBadge}`}>(Default)</span>
+                <span className={`ml-2 text-xs ${styles.defaultBadge}`}>{t.common.default}</span>
               )}
             </MenuItem>
           ))}
@@ -125,10 +124,10 @@ export function SnippetCardActions({
             onClick={(e) => { e.stopPropagation(); onDelete(e); setMenuAnchor(null) }}
             className={styles.deleteItem}
             data-testid="snippet-card-delete-btn"
-            aria-label="Delete snippet"
+            aria-label={t.snippetCard.ariaLabels.delete}
           >
             <Trash className="h-4 w-4 mr-2" aria-hidden="true" />
-            Delete
+            {t.common.delete}
           </MenuItem>
         </Menu>
       </div>

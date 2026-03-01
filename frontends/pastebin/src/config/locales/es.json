@@ -1,4 +1,13 @@
 {
+  "common": {
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "create": "Crear",
+    "back": "Atrás",
+    "next": "Siguiente",
+    "default": "(Pred.)",
+    "close": "Cerrar diálogo"
+  },
   "app": {
     "title": "Fragmentos de Código",
     "header": {
@@ -22,12 +31,31 @@
     "title": "No se encontraron fragmentos",
     "description": "Intenta ajustar tu búsqueda"
   },
+  "snippetToolbar": {
+    "select": "Seleccionar",
+    "cancelSelection": "Cancelar"
+  },
+  "selectionControls": {
+    "selectAll": "Seleccionar todo",
+    "deselectAll": "Deseleccionar todo",
+    "selected": "{count} seleccionados",
+    "moveTo": "Mover a...",
+    "selectAllAria": "Seleccionar todos los fragmentos",
+    "deselectAllAria": "Deseleccionar todos los fragmentos",
+    "moveToAria": "Mover fragmentos seleccionados a otro espacio"
+  },
   "snippetCard": {
     "viewButton": "Ver",
     "copyButton": "Copiar",
     "copiedButton": "¡Copiado!",
     "viewFullCode": "Clic para ver el código completo...",
     "errorMessage": "Error al cargar el fragmento",
+    "moveTo": "Mover a:",
+    "noOtherNamespaces": "Sin otros espacios",
+    "deleteDialog": {
+      "title": "¿Eliminar fragmento?",
+      "body": "\"{title}\" se eliminará permanentemente."
+    },
     "ariaLabels": {
       "copy": "Copiar código",
       "edit": "Editar fragmento",
@@ -70,8 +98,10 @@
     },
     "buttons": {
       "cancel": "Cancelar",
-      "create": "Crear",
-      "update": "Actualizar"
+      "create": "Crear Fragmento",
+      "update": "Actualizar Fragmento",
+      "back": "Atrás",
+      "next": "Siguiente"
     }
   },
   "snippetViewer": {
@@ -84,11 +114,42 @@
       "edit": "Editar"
     }
   },
+  "namespace": {
+    "create": {
+      "title": "Crear Espacio",
+      "description": "Crea un nuevo espacio para organizar tus fragmentos",
+      "namePlaceholder": "Nombre del espacio",
+      "ariaLabel": "Crear nuevo espacio"
+    },
+    "delete": {
+      "title": "Eliminar Espacio",
+      "body": "¿Seguro que deseas eliminar \"{name}\"? Todos los fragmentos se moverán al espacio predeterminado.",
+      "ariaLabel": "Eliminar espacio"
+    }
+  },
+  "pythonTerminal": {
+    "title": "Terminal Python",
+    "run": "Ejecutar",
+    "running": "Ejecutando...",
+    "loading": "Cargando...",
+    "runAria": "Ejecutar código Python",
+    "runningAria": "Ejecutando código",
+    "loadingAria": "Cargando terminal",
+    "inputPlaceholder": "Ingresa el valor...",
+    "inputAria": "Entrada del terminal",
+    "emptyState": "Haz clic en \"Ejecutar\" para correr el código Python"
+  },
   "toast": {
     "snippetCreated": "Fragmento creado con éxito",
     "snippetUpdated": "Fragmento actualizado con éxito",
     "snippetDeleted": "Fragmento eliminado",
-    "codeCopied": "Código copiado al portapapeles"
+    "codeCopied": "Código copiado al portapapeles",
+    "failedToLoadData": "Error al cargar los datos",
+    "failedToSaveSnippet": "Error al guardar el fragmento",
+    "failedToDeleteSnippet": "Error al eliminar el fragmento",
+    "noSnippetsSelected": "No hay fragmentos seleccionados",
+    "failedToMoveSnippets": "Error al mover los fragmentos",
+    "movedSnippets": "Se movieron {count} fragmento(s) a {namespace}"
   },
   "statusAlerts": {
     "title": "Estado de la app",

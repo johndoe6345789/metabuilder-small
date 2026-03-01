@@ -183,14 +183,14 @@ export function SnippetCard({
 
       <Dialog open={deleteConfirmOpen} onClose={() => setDeleteConfirmOpen(false)} maxWidth="xs" fullWidth>
         <DialogHeader>
-          <DialogTitle>Delete snippet?</DialogTitle>
+          <DialogTitle>{t.snippetCard.deleteDialog.title}</DialogTitle>
         </DialogHeader>
         <DialogContent>
-          <p>"{snippet.title}" will be permanently deleted.</p>
+          <p>{t.snippetCard.deleteDialog.body.replace('{title}', snippet.title)}</p>
         </DialogContent>
         <DialogActions>
           <Button variant="outlined" onClick={() => setDeleteConfirmOpen(false)}>
-            Cancel
+            {t.common.cancel}
           </Button>
           <Button
             onClick={handleConfirmDelete}
@@ -198,7 +198,7 @@ export function SnippetCard({
             className={styles.deleteButton}
             variant="outlined"
           >
-            Delete
+            {t.common.delete}
           </Button>
         </DialogActions>
       </Dialog>

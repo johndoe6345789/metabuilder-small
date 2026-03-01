@@ -1,4 +1,13 @@
 {
+  "common": {
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "create": "Create",
+    "back": "Back",
+    "next": "Next",
+    "default": "(Default)",
+    "close": "Close dialog"
+  },
   "app": {
     "title": "Code Snippets",
     "header": {
@@ -22,12 +31,31 @@
     "title": "No snippets found",
     "description": "Try adjusting your search query"
   },
+  "snippetToolbar": {
+    "select": "Select",
+    "cancelSelection": "Cancel"
+  },
+  "selectionControls": {
+    "selectAll": "Select All",
+    "deselectAll": "Deselect All",
+    "selected": "{count} selected",
+    "moveTo": "Move to...",
+    "selectAllAria": "Select all snippets",
+    "deselectAllAria": "Deselect all snippets",
+    "moveToAria": "Move selected snippets to another namespace"
+  },
   "snippetCard": {
     "viewButton": "View",
     "copyButton": "Copy",
     "copiedButton": "Copied!",
     "viewFullCode": "Click to view full code...",
     "errorMessage": "Error loading snippet",
+    "moveTo": "Move to:",
+    "noOtherNamespaces": "No other namespaces",
+    "deleteDialog": {
+      "title": "Delete snippet?",
+      "body": "\"{title}\" will be permanently deleted."
+    },
     "ariaLabels": {
       "copy": "Copy code",
       "edit": "Edit snippet",
@@ -70,8 +98,10 @@
     },
     "buttons": {
       "cancel": "Cancel",
-      "create": "Create",
-      "update": "Update"
+      "create": "Create Snippet",
+      "update": "Update Snippet",
+      "back": "Back",
+      "next": "Next"
     }
   },
   "snippetViewer": {
@@ -84,11 +114,42 @@
       "edit": "Edit"
     }
   },
+  "namespace": {
+    "create": {
+      "title": "Create Namespace",
+      "description": "Create a new namespace to organize your snippets",
+      "namePlaceholder": "Namespace name",
+      "ariaLabel": "Create new namespace"
+    },
+    "delete": {
+      "title": "Delete Namespace",
+      "body": "Are you sure you want to delete \"{name}\"? All snippets will be moved to the default namespace.",
+      "ariaLabel": "Delete namespace"
+    }
+  },
+  "pythonTerminal": {
+    "title": "Python Terminal",
+    "run": "Run",
+    "running": "Running...",
+    "loading": "Loading...",
+    "runAria": "Run Python code",
+    "runningAria": "Running code",
+    "loadingAria": "Loading terminal",
+    "inputPlaceholder": "Enter input...",
+    "inputAria": "Terminal input",
+    "emptyState": "Click \"Run\" to execute the Python code"
+  },
   "toast": {
     "snippetCreated": "Snippet created successfully",
     "snippetUpdated": "Snippet updated successfully",
     "snippetDeleted": "Snippet deleted",
-    "codeCopied": "Code copied to clipboard"
+    "codeCopied": "Code copied to clipboard",
+    "failedToLoadData": "Failed to load data",
+    "failedToSaveSnippet": "Failed to save snippet",
+    "failedToDeleteSnippet": "Failed to delete snippet",
+    "noSnippetsSelected": "No snippets selected",
+    "failedToMoveSnippets": "Failed to move snippets",
+    "movedSnippets": "Moved {count} snippet(s) to {namespace}"
   },
   "statusAlerts": {
     "title": "App status",
