@@ -8,6 +8,7 @@ import { useSnippetManager } from '@/hooks/useSnippetManager'
 import { SnippetToolbar } from '@/components/snippet-manager/SnippetToolbar'
 import { SelectionControls } from '@/components/snippet-manager/SelectionControls'
 import { SnippetGrid } from '@/components/snippet-manager/SnippetGrid'
+import styles from '@/components/snippet-manager/snippet-manager.module.scss'
 
 const templates = templatesData as SnippetTemplate[]
 
@@ -76,20 +77,21 @@ export function SnippetManagerRedux() {
 
   return (
     <div className="space-y-6" data-testid="snippet-manager-redux" role="main" aria-label="Snippet manager">
-      <NamespaceSelector
-        selectedNamespaceId={selectedNamespaceId}
-        onNamespaceChange={handleNamespaceChange}
-      />
-      
-      <SnippetToolbar
-        searchQuery={searchQuery}
-        onSearchChange={handleSearchChange}
-        selectionMode={selectionMode}
-        onToggleSelectionMode={handleToggleSelectionMode}
-        onCreateNew={handleCreateNew}
-        onCreateFromTemplate={handleCreateFromTemplate}
-        templates={templates}
-      />
+      <div className={styles.controlBar}>
+        <NamespaceSelector
+          selectedNamespaceId={selectedNamespaceId}
+          onNamespaceChange={handleNamespaceChange}
+        />
+        <SnippetToolbar
+          searchQuery={searchQuery}
+          onSearchChange={handleSearchChange}
+          selectionMode={selectionMode}
+          onToggleSelectionMode={handleToggleSelectionMode}
+          onCreateNew={handleCreateNew}
+          onCreateFromTemplate={handleCreateFromTemplate}
+          templates={templates}
+        />
+      </div>
 
       {selectionMode && (
         <SelectionControls
