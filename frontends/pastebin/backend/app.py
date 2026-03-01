@@ -80,6 +80,7 @@ _RUNNERS: dict = {
     },
     'cpp-cmake': {
         'image':         lambda: os.environ.get('CPP_RUNNER_IMAGE', 'cpp-runner:latest'),
+        'dockerfile':    os.path.join(os.path.dirname(__file__), 'runners', 'Dockerfile.cpp'),
         'interactive':   False,
         'setup_tpl':     None,
         'run_tpl':       (
@@ -233,6 +234,29 @@ def _docker() -> _docker_lib.DockerClient:
     return _docker_client
 
 
+def _ensure_image(image_name: str, dockerfile: str | None = None) -> None:
+    """Pull or build image if not present locally."""
+    client = _docker()
+    try:
+        client.images.get(image_name)
+        return  # already present
+    except _docker_lib.errors.ImageNotFound:
+        pass
+
+    if dockerfile and os.path.exists(dockerfile):
+        print(f'[ensure_image] Building {image_name} from {dockerfile} …', flush=True)
+        client.images.build(
+            path=os.path.dirname(dockerfile),
+            dockerfile=os.path.basename(dockerfile),
+            tag=image_name,
+            rm=True,
+        )
+        print(f'[ensure_image] Built {image_name} successfully.', flush=True)
+    else:
+        print(f'[ensure_image] Pulling {image_name} …', flush=True)
+        client.images.pull(image_name)
+
+
 def _make_container_env(files: list) -> dict:
     """Encode files as base64 JSON for FILES_PAYLOAD env var."""
     payload = base64.b64encode(json.dumps(files).encode()).decode()
@@ -278,6 +302,21 @@ def _parse_run_request(data: dict):
     if not entry_point and files:
         runner = _RUNNERS.get(language, _RUNNERS['python'])
         entry_point = runner.get('default_entry', files[0]['name'])
+
+    # cpp-cmake: auto-inject a minimal CMakeLists.txt when one isn't provided
+    if language == 'cpp-cmake':
+        has_cmake = any(f['name'] == 'CMakeLists.txt' for f in files)
+        if not has_cmake and files:
+            cpp_entry = next((f['name'] for f in files if f['name'].endswith(('.cpp', '.cc', '.cxx'))), entry_point)
+            exe_name = cpp_entry.rsplit('.', 1)[0] if '.' in cpp_entry else 'app'
+            cmake_content = (
+                f'cmake_minimum_required(VERSION 3.16)\n'
+                f'project({exe_name})\n'
+                f'set(CMAKE_CXX_STANDARD 17)\n'
+                f'add_executable({exe_name} {cpp_entry})\n'
+            )
+            files = [{'name': 'CMakeLists.txt', 'content': cmake_content}] + list(files)
+            entry_point = exe_name  # cmake runner uses exe name, not filename
 
     return language, files, entry_point or 'main.py'
 
@@ -766,11 +805,13 @@ def run_code():
         return jsonify({'error': f'Unsupported language: {language}'}), 400
 
     runner = _RUNNERS[language]
+    image_name = runner['image']()
+    _ensure_image(image_name, runner.get('dockerfile'))
     wait_timeout = (_RUN_TIMEOUT_S + 5) if runner.get('interactive') else (_BUILD_TIMEOUT_S + 5)
     container = None
     try:
         container = _docker().containers.create(
-            image=runner['image'](),
+            image=image_name,
             command=_build_cmd(language, entry_point),
             working_dir='/workspace',
             environment=_make_container_env(files),
@@ -809,6 +850,8 @@ def run_interactive():
     if language not in _RUNNERS:
         return jsonify({'error': f'Unsupported language: {language}'}), 400
 
+    runner = _RUNNERS[language]
+    _ensure_image(runner['image'](), runner.get('dockerfile'))
     session_id = str(uuid.uuid4())
     session = InteractiveSession(session_id)
     _sessions[session_id] = session
