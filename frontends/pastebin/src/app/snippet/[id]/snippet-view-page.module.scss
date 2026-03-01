@@ -67,17 +67,16 @@
 }
 
 // ────────────────────────────────────────────────────────────────
-// MS Word 97 / Office 2003 style toolbar
-// Warm gray (#ece9d8), raised 3-D bevel buttons, group dividers
+// Toolbar — dark, grouped buttons with dividers
 // ────────────────────────────────────────────────────────────────
 .wordToolbar {
   display: flex;
   align-items: center;
   gap: 0;
-  padding: 3px 4px;
-  background: #ece9d8;
-  border: 1px solid #aca899;
-  border-bottom: 1px solid #aca899;
+  padding: 3px 6px;
+  background: #2d2d2d;
+  border: 1px solid #3c3c3c;
+  border-bottom: 1px solid #1e1e1e;
   border-radius: 3px 3px 0 0;
   flex-shrink: 0;
   flex-wrap: wrap;
@@ -94,9 +93,9 @@
 // Vertical divider between groups
 .toolSep {
   width: 1px;
-  height: 20px;
-  background: #aca899;
-  margin: 0 4px;
+  height: 18px;
+  background: #4a4a4a;
+  margin: 0 5px;
   flex-shrink: 0;
 }
 
@@ -104,46 +103,37 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: 3px 6px;
+  padding: 3px 8px;
   background: transparent;
   border: 1px solid transparent;
-  border-radius: 2px;
+  border-radius: 3px;
   cursor: pointer;
-  color: #1a1a1a;
+  color: #ccc;
   font-size: 11px;
   white-space: nowrap;
   line-height: 1;
-  font-family: 'Tahoma', 'Segoe UI', sans-serif;
-  transition: none;
+  transition: background 0.1s, color 0.1s, border-color 0.1s;
 
   span { line-height: 1; }
 
   &:hover {
-    background: #e8d9a4;
-    border-color: #b5a26e;
-    // raised bevel: light top/left, dark bottom/right
-    box-shadow:
-      inset 1px 1px 0 #fff8d6,
-      inset -1px -1px 0 #9e8d55;
+    background: #3e3e3e;
+    border-color: #555;
+    color: #fff;
   }
 
-  // Toggled / checked state — sunken bevel
+  // Toggled / active state
   &.toolBtnActive {
-    background: #dfd3a0;
-    border-color: #9e8d55;
-    box-shadow:
-      inset -1px -1px 0 #fff8d6,
-      inset 1px 1px 0 #9e8d55;
+    background: rgba(79, 195, 247, 0.15);
+    border-color: rgba(79, 195, 247, 0.4);
+    color: #4fc3f7;
   }
 
   // Momentary "pressed" state (e.g. Copied!)
   &.toolBtnPressed {
-    background: #d8c990;
-    border-color: #9e8d55;
-    box-shadow:
-      inset -1px -1px 0 #fff8d6,
-      inset 1px 1px 0 #9e8d55;
-    color: #4a7c4e;
+    background: rgba(100, 200, 110, 0.15);
+    border-color: rgba(100, 200, 110, 0.4);
+    color: #6ec87a;
   }
 }
 
@@ -283,7 +273,6 @@
   font-size: 11px;
   color: #fff;
   white-space: nowrap;
-  font-family: 'Tahoma', 'Segoe UI', sans-serif;
 }
 
 .statusSep {
