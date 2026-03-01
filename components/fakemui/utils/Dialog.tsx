@@ -33,6 +33,7 @@ export const DialogPanel: React.FC<DialogPanelProps> = ({
   fullScreen,
   fullWidth,
   open = true,
+  hasActions,
   className = '',
   ...props
 }) => {
