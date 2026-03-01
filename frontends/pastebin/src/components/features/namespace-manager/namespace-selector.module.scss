@@ -25,6 +25,23 @@
 
 .select {
   width: 200px;
+
+  // Borderless trigger — arrow at right:12px needs 28px right padding to avoid overlap
+  :global(div[role="combobox"]) {
+    padding: 6px 28px 6px 8px !important;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    transition: background-color 150ms ease;
+
+    &:hover {
+      background: color-mix(in srgb, var(--mat-sys-on-surface) 6%, transparent);
+    }
+  }
+
+  &:focus-within :global(div[role="combobox"]) {
+    outline: 2px solid var(--mat-sys-primary, #6750a4);
+    outline-offset: 0;
+  }
 }
 
 .namespaceItem {

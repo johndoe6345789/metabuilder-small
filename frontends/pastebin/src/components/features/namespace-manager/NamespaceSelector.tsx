@@ -131,6 +131,7 @@ export function NamespaceSelector({ selectedNamespaceId, onNamespaceChange }: Na
           onChange={(e: SelectChangeEvent) => onNamespaceChange(e.target.value as string)}
           data-testid="namespace-selector-trigger"
           aria-label="Select namespace"
+          variant="standard"
           size="small"
           className={styles.select}
         >

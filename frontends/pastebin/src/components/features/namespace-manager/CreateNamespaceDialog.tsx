@@ -1,6 +1,6 @@
 "use client"
 
-import { Button, Dialog, DialogHeader, DialogTitle, DialogContent, DialogActions, DialogClose, Input } from '@metabuilder/components/fakemui'
+import { Button, IconButton, Dialog, DialogHeader, DialogTitle, DialogContent, DialogActions, DialogClose, Input } from '@metabuilder/components/fakemui'
 import { Plus, X } from '@phosphor-icons/react'
 import styles from './namespace-dialog.module.scss'
 
@@ -23,16 +23,13 @@ export function CreateNamespaceDialog({
 }: CreateNamespaceDialogProps) {
   return (
     <>
-      <Button
-        variant="outlined"
-        size="sm"
+      <IconButton
         onClick={() => onOpenChange(true)}
-        className="px-2 py-1"
         data-testid="create-namespace-trigger"
         aria-label="Create new namespace"
       >
         <Plus weight="bold" aria-hidden="true" />
-      </Button>
+      </IconButton>
 
       <Dialog open={open} onClose={() => onOpenChange(false)} maxWidth="sm" fullWidth>
         <DialogClose onClick={() => onOpenChange(false)} aria-label="Close dialog">
