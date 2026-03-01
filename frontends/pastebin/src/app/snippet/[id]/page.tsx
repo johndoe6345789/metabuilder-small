@@ -2,18 +2,27 @@
 
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { ArrowLeft, Copy, Check, Pencil, SplitVertical, TextAlignLeft, File, Folder } from '@phosphor-icons/react'
+import {
+  ArrowLeft, Copy, Check, Pencil, SplitVertical, TextAlignLeft,
+  File, Folder, Play, Stop, Terminal as TerminalIcon,
+} from '@phosphor-icons/react'
 import dynamic from 'next/dynamic'
 import { PageLayout } from '@/app/PageLayout'
 import { useAppSelector } from '@/store/hooks'
 import { selectSnippets, selectNamespaces } from '@/store/selectors'
 import { LANGUAGE_COLORS, appConfig } from '@/lib/config'
 import { useTranslation } from '@/hooks/useTranslation'
+import { useCodeTerminal } from '@/hooks/useCodeTerminal'
 import { toast } from 'sonner'
 import styles from './snippet-view-page.module.scss'
 
 const SnippetViewerContent = dynamic(
   () => import('@/components/features/snippet-viewer/SnippetViewerContent').then(mod => ({ default: mod.SnippetViewerContent })),
+  { ssr: false }
+)
+
+const CodeTerminal = dynamic(
+  () => import('@/components/features/code-runner/CodeTerminal').then(mod => ({ default: mod.CodeTerminal })),
   { ssr: false }
 )
 
@@ -43,6 +52,8 @@ function relativeTime(ts: number): string {
   return `${Math.floor(hours / 24)}d ago`
 }
 
+type ActiveTab = 'code' | 'terminal'
+
 export default function SnippetViewPage() {
   const { id } = useParams<{ id: string }>()
   const router = useRouter()
@@ -55,6 +66,10 @@ export default function SnippetViewPage() {
   const [showPreview, setShowPreview] = useState(true)
   const [wordWrap, setWordWrap] = useState<'on' | 'off'>('on')
   const [activeFile, setActiveFile] = useState('')
+  const [activeTab, setActiveTab] = useState<ActiveTab>('code')
+
+  // Lifted terminal state — shared between toolbar Run/Stop and terminal panel
+  const terminal = useCodeTerminal()
 
   useEffect(() => {
     if (snippets.length > 0 && !snippet) {
@@ -62,7 +77,7 @@ export default function SnippetViewPage() {
     }
   }, [snippet, snippets.length, router])
 
-  // Initialise activeFile when snippet loads (or changes)
+  // Initialise activeFile when snippet loads
   useEffect(() => {
     if (!snippet) return
     const defaultName = getFilename(snippet.title, snippet.language)
@@ -83,20 +98,16 @@ export default function SnippetViewPage() {
   const namespace = namespaces.find(n => n.id === snippet.namespaceId)
   const langBgClass = (LANGUAGE_COLORS[snippet.language] || LANGUAGE_COLORS['Other']).split(' ')[0]
 
-  // Multi-file: use snippet.files if present, otherwise synthesise one entry
   const files = snippet.files && snippet.files.length > 0
     ? snippet.files
     : [{ name: filename, content: snippet.code }]
 
-  // Active file content — drives Monaco
   const activeFileObj = files.find(f => f.name === activeFile) ?? files[0]
   const activeCode = activeFileObj?.content ?? snippet.code
   const lineCount = activeCode.split('\n').length
 
-  // Synthetic snippet passed to SnippetViewerContent with the selected file's code
   const viewSnippet = { ...snippet, code: activeCode }
 
-  // canPreview only makes sense on the entry-point file
   const isEntryFile = !activeFile || activeFile === (snippet.entryPoint ?? files[0]?.name)
   const canPreview = !!(isEntryFile && snippet.hasPreview && appConfig.previewEnabledLanguages.includes(snippet.language))
   const isPython = snippet.language === 'Python'
@@ -108,11 +119,20 @@ export default function SnippetViewPage() {
     setTimeout(() => setIsCopied(false), appConfig.copiedTimeout)
   }
 
+  const handleRun = () => {
+    const languageRunnerMap: Record<string, string> =
+      (appConfig as unknown as { languageRunnerMap: Record<string, string> }).languageRunnerMap ?? {}
+    const runnerKey = languageRunnerMap[snippet.language]
+      ?? snippet.language.toLowerCase().replace(/[^a-z0-9]+/g, '-')
+    terminal.handleRun(runnerKey, files, snippet.entryPoint ?? activeFile)
+    setActiveTab('terminal')
+  }
+
   return (
     <PageLayout>
       <div className={styles.page} data-testid="snippet-view-page">
 
-        {/* Minimal top bar — back + title */}
+        {/* Minimal top bar */}
         <div className={styles.topBar}>
           <button className={styles.backBtn} onClick={() => router.push('/')} aria-label="Back to snippets">
             <ArrowLeft size={14} weight="bold" />
@@ -130,13 +150,9 @@ export default function SnippetViewPage() {
 
         {/* Toolbar */}
         <div className={styles.wordToolbar} role="toolbar" aria-label="Document toolbar">
+          {/* Edit */}
           <div className={styles.toolGroup}>
-            <button
-              className={styles.toolBtn}
-              onClick={() => router.push(`/snippet/${id}/edit`)}
-              title="Edit this snippet"
-              aria-label="Edit snippet"
-            >
+            <button className={styles.toolBtn} onClick={() => router.push(`/snippet/${id}/edit`)} title="Edit snippet">
               <Pencil size={14} />
               <span>Edit</span>
             </button>
@@ -144,11 +160,12 @@ export default function SnippetViewPage() {
 
           <div className={styles.toolSep} aria-hidden="true" />
 
+          {/* Clipboard */}
           <div className={styles.toolGroup}>
             <button
               className={`${styles.toolBtn} ${isCopied ? styles.toolBtnPressed : ''}`}
               onClick={handleCopy}
-              title="Copy active file to clipboard"
+              title="Copy active file"
               aria-live="polite"
             >
               {isCopied
@@ -159,11 +176,12 @@ export default function SnippetViewPage() {
 
           <div className={styles.toolSep} aria-hidden="true" />
 
+          {/* View */}
           <div className={styles.toolGroup}>
             <button
               className={`${styles.toolBtn} ${wordWrap === 'on' ? styles.toolBtnActive : ''}`}
               onClick={() => setWordWrap(w => w === 'on' ? 'off' : 'on')}
-              title={wordWrap === 'on' ? 'Word wrap: ON' : 'Word wrap: OFF'}
+              title="Toggle word wrap"
               aria-pressed={wordWrap === 'on'}
             >
               <TextAlignLeft size={14} />
@@ -181,12 +199,36 @@ export default function SnippetViewPage() {
               </button>
             )}
           </div>
+
+          <div className={styles.toolSep} aria-hidden="true" />
+
+          {/* Run / Stop */}
+          <div className={styles.toolGroup}>
+            <button
+              className={`${styles.toolBtn} ${styles.toolBtnRun}`}
+              onClick={handleRun}
+              disabled={terminal.isRunning}
+              title="Run code"
+            >
+              <Play size={14} weight="fill" />
+              <span>{terminal.isRunning ? 'Running…' : 'Run'}</span>
+            </button>
+            <button
+              className={`${styles.toolBtn} ${styles.toolBtnStop}`}
+              onClick={terminal.handleStop}
+              disabled={!terminal.isRunning}
+              title="Stop execution"
+            >
+              <Stop size={14} weight="fill" />
+              <span>Stop</span>
+            </button>
+          </div>
         </div>
 
-        {/* Work area: file tree left + editor right */}
+        {/* Work area */}
         <div className={styles.workArea}>
 
-          {/* File tree / Explorer panel */}
+          {/* File tree */}
           <div className={styles.fileTree} aria-label="File explorer">
             <div className={styles.explorerHeader}>EXPLORER</div>
             <div className={styles.treeRoot}>
@@ -199,7 +241,7 @@ export default function SnippetViewPage() {
                   <button
                     key={f.name}
                     className={`${styles.treeFile} ${f.name === activeFile ? styles.treeFileActive : ''}`}
-                    onClick={() => setActiveFile(f.name)}
+                    onClick={() => { setActiveFile(f.name); setActiveTab('code') }}
                     title={f.name}
                     aria-pressed={f.name === activeFile}
                   >
@@ -212,15 +254,54 @@ export default function SnippetViewPage() {
             </div>
           </div>
 
-          {/* Monaco editor area */}
-          <div className={styles.editorArea}>
-            <SnippetViewerContent
-              snippet={viewSnippet}
-              canPreview={canPreview}
-              showPreview={showPreview}
-              isPython={isPython}
-              wordWrap={wordWrap}
-            />
+          {/* Editor + Terminal with tab bar */}
+          <div className={styles.editorColumn}>
+
+            {/* Tab bar */}
+            <div className={styles.editorTabBar} role="tablist">
+              <button
+                className={`${styles.editorTab} ${activeTab === 'code' ? styles.editorTabActive : ''}`}
+                role="tab"
+                aria-selected={activeTab === 'code'}
+                onClick={() => setActiveTab('code')}
+              >
+                <File size={12} aria-hidden="true" />
+                <span>{activeFile || filename}</span>
+              </button>
+              <button
+                className={`${styles.editorTab} ${activeTab === 'terminal' ? styles.editorTabActive : ''}`}
+                role="tab"
+                aria-selected={activeTab === 'terminal'}
+                onClick={() => setActiveTab('terminal')}
+              >
+                <TerminalIcon size={12} aria-hidden="true" />
+                <span>Terminal</span>
+                {terminal.isRunning && <span className={styles.runningDot} aria-hidden="true" />}
+              </button>
+              <div className={styles.editorTabRail} aria-hidden="true" />
+            </div>
+
+            {/* Code panel */}
+            <div className={`${styles.editorPanel} ${activeTab === 'code' ? styles.editorPanelVisible : styles.editorPanelHidden}`} role="tabpanel">
+              <SnippetViewerContent
+                snippet={viewSnippet}
+                canPreview={canPreview}
+                showPreview={showPreview}
+                isPython={isPython}
+                wordWrap={wordWrap}
+              />
+            </div>
+
+            {/* Terminal panel */}
+            <div className={`${styles.editorPanel} ${activeTab === 'terminal' ? styles.editorPanelVisible : styles.editorPanelHidden}`} role="tabpanel">
+              <CodeTerminal
+                language={snippet.language}
+                files={files}
+                entryPoint={snippet.entryPoint ?? activeFile}
+                controller={terminal}
+              />
+            </div>
+
           </div>
         </div>
 
@@ -240,6 +321,7 @@ export default function SnippetViewPage() {
             )}
           </div>
           <div className={styles.statusRight}>
+            {terminal.isRunning && <span className={styles.statusItem} style={{ color: '#6ec87a' }}>● Running</span>}
             <span className={styles.statusItem}>Updated {relativeTime(snippet.updatedAt)}</span>
           </div>
         </div>

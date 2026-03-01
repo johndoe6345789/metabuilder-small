@@ -135,6 +135,38 @@
     border-color: rgba(100, 200, 110, 0.4);
     color: #6ec87a;
   }
+
+  // Run button — green accent
+  &.toolBtnRun {
+    color: #6ec87a;
+    border-color: rgba(110, 200, 122, 0.3);
+
+    &:hover:not(:disabled) {
+      background: rgba(110, 200, 122, 0.15);
+      border-color: rgba(110, 200, 122, 0.6);
+    }
+
+    &:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+  }
+
+  // Stop button — red accent
+  &.toolBtnStop {
+    color: #f48a8a;
+    border-color: rgba(244, 138, 138, 0.3);
+
+    &:hover:not(:disabled) {
+      background: rgba(244, 138, 138, 0.15);
+      border-color: rgba(244, 138, 138, 0.6);
+    }
+
+    &:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+  }
 }
 
 // ────────────────────────────────────────────────────────────────
@@ -249,12 +281,88 @@
   flex-shrink: 0;
 }
 
-// ── Monaco area ─────────────────────────────────────────────────
-.editorArea {
+// ── Editor column (tabs + panels) ────────────────────────────────
+.editorColumn {
   flex: 1;
   display: flex;
-  background: #1e1e1e;
+  flex-direction: column;
   min-width: 0;
+  background: #1e1e1e;
+}
+
+// Tab bar at the top of the editor column
+.editorTabBar {
+  display: flex;
+  align-items: stretch;
+  background: #2d2d2d;
+  height: 34px;
+  border-bottom: 1px solid #1e1e1e;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.editorTab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 14px;
+  background: #2d2d2d;
+  border: none;
+  border-top: 2px solid transparent;
+  border-right: 1px solid #3c3c3c;
+  color: #888;
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.1s, background 0.1s;
+  position: relative;
+
+  &:hover {
+    color: #ccc;
+    background: #323232;
+  }
+
+  &.editorTabActive {
+    background: #1e1e1e;
+    color: #ccc;
+    border-top-color: #007acc;
+  }
+}
+
+.runningDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #6ec87a;
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.editorTabRail {
+  flex: 1;
+  border-bottom: 1px solid #3c3c3c;
+  align-self: flex-end;
+  height: 1px;
+}
+
+// Code / Terminal panels — only the active one is visible
+.editorPanel {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.editorPanelVisible {
+  display: flex;
+}
+
+.editorPanelHidden {
+  display: none;
 }
 
 // ────────────────────────────────────────────────────────────────

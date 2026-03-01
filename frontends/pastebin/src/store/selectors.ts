@@ -11,9 +11,7 @@ export const selectSelectedNamespaceId = (state: RootState) => state.namespaces.
 export const selectNamespacesLoading = (state: RootState) => state.namespaces.loading
 
 export const selectSearchQuery = (state: RootState) => state.ui.searchQuery
-export const selectDialogOpen = (state: RootState) => state.ui.dialogOpen
 export const selectViewerOpen = (state: RootState) => state.ui.viewerOpen
-export const selectEditingSnippet = (state: RootState) => state.ui.editingSnippet
 export const selectViewingSnippet = (state: RootState) => state.ui.viewingSnippet
 
 export const selectSelectedNamespace = createSelector(

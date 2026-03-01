@@ -35,6 +35,8 @@ function mapType(backendType: string): TerminalLine['type'] {
 
 const POLL_INTERVAL_MS = 150
 
+export type UseCodeTerminalReturn = ReturnType<typeof useCodeTerminal>
+
 export function useCodeTerminal() {
   const [lines, setLines] = useState<TerminalLine[]>([])
   const [isRunning, setIsRunning] = useState(false)
@@ -127,6 +129,14 @@ export function useCodeTerminal() {
     }
   }
 
+  const handleStop = () => {
+    stopPolling()
+    sessionIdRef.current = null
+    setIsRunning(false)
+    setWaitingForInput(false)
+    addLine('error', '[stopped]')
+  }
+
   return {
     lines,
     isRunning,
@@ -136,5 +146,6 @@ export function useCodeTerminal() {
     setInputValue,
     handleInputSubmit,
     handleRun,
+    handleStop,
   }
 }

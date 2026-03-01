@@ -49,6 +49,7 @@ function TabPanel({ active, index, children }: { active: boolean; index: number;
 export interface SnippetDialogTabsProps {
   activeTab: number
   onTabChange: (tab: number) => void
+  editorHeight?: string
   title: string
   description: string
   language: string
@@ -78,6 +79,7 @@ export interface SnippetDialogTabsProps {
 export function SnippetDialogTabs({
   activeTab,
   onTabChange,
+  editorHeight = '360px',
   title,
   description,
   language,
@@ -135,7 +137,7 @@ export function SnippetDialogTabs({
           errors={errors}
           onCodeChange={onCodeChange}
           onPreviewChange={onPreviewChange}
-          height="360px"
+          height={editorHeight}
           files={files}
           activeFile={activeFile}
           onActiveFileSelect={onActiveFileSelect}
