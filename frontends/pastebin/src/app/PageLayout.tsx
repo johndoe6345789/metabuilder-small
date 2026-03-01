@@ -1,17 +1,22 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Code } from '@phosphor-icons/react';
+import { Code, Globe } from '@phosphor-icons/react';
 import pkg from '../../package.json';
 import { Navigation } from '@/components/layout/navigation/Navigation';
 import { NavigationSidebar } from '@/components/layout/navigation/NavigationSidebar';
 import { useNavigation } from '@/components/layout/navigation/useNavigation';
 import { BackendIndicator } from '@/components/layout/BackendIndicator';
-import { AppStatusAlerts } from '@/components/layout/AppStatusAlerts';
+import { AlertsBell } from '@/components/layout/AlertsBell';
+import { useAppDispatch, useAppSelector, setLocale } from '@/store/exports';
 import { ReactNode } from 'react';
+import styles from './page-layout.module.scss';
 
 export function PageLayout({ children }: { children: ReactNode }) {
   const { menuOpen } = useNavigation();
+  const dispatch = useAppDispatch();
+  const locale = useAppSelector(state => state.ui.locale);
+
   const safePad = '0.5rem';
   const safeAreaPadding = {
     paddingLeft: `max(${safePad}, env(safe-area-inset-left, 0px))`,
@@ -30,20 +35,21 @@ export function PageLayout({ children }: { children: ReactNode }) {
         transition={{ type: 'spring', damping: 30, stiffness: 300 }}
         className="relative z-10 flex flex-col min-h-screen"
       >
-        <header className="border-b border-border sticky top-0 z-20 overflow-hidden" style={{ backgroundColor: 'color-mix(in srgb, var(--mat-sys-surface-container) 97%, transparent)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }} data-testid="page-header">
+        <header className={styles.header} data-testid="page-header">
           <div
-            className="container mx-auto px-2 py-3 sm:px-6 sm:py-6 w-full min-w-0"
+            className="container mx-auto px-2 sm:px-6 w-full min-w-0"
             style={{
               ...safeAreaPadding,
-              paddingTop: `max(${safePad}, env(safe-area-inset-top, 0px))`,
+              paddingTop: `max(0.75rem, env(safe-area-inset-top, 0px))`,
+              paddingBottom: '0.75rem',
             }}
           >
-            <div className="flex flex-wrap items-center justify-between gap-2 sm:flex-nowrap min-w-0">
+            <div className={styles.headerRow}>
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.35 }}
-                className="logo-container"
+                className={styles.logoGroup}
               >
                 <Navigation />
                 <div className="logo-icon-box">
@@ -52,30 +58,27 @@ export function PageLayout({ children }: { children: ReactNode }) {
                 <span className="logo-text" aria-label="CodeSnippet" data-testid="logo-text">
                   CodeSnippet
                 </span>
-                <span
-                  style={{
-                    fontSize: '0.6rem',
-                    fontWeight: 600,
-                    letterSpacing: '0.05em',
-                    padding: '2px 5px',
-                    borderRadius: '4px',
-                    background: 'var(--mat-sys-primary)',
-                    color: 'var(--mat-sys-on-primary)',
-                    lineHeight: 1,
-                    alignSelf: 'flex-start',
-                    marginTop: '2px',
-                    opacity: 0.85,
-                  }}
-                  aria-label={`Version ${pkg.version}`}
-                >
+                <span className={styles.versionBadge} aria-label={`Version ${pkg.version}`}>
                   v{pkg.version}
                 </span>
               </motion.div>
+
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.35, delay: 0.05 }}
+                className={styles.headerActions}
               >
+                <AlertsBell />
+                <button
+                  className={styles.langBtn}
+                  onClick={() => dispatch(setLocale(locale === 'en' ? 'es' : 'en'))}
+                  aria-label="Toggle language"
+                  data-testid="lang-toggle"
+                >
+                  <Globe size={16} aria-hidden="true" />
+                  <span>{locale.toUpperCase()}</span>
+                </button>
                 <BackendIndicator />
               </motion.div>
             </div>
@@ -87,9 +90,6 @@ export function PageLayout({ children }: { children: ReactNode }) {
           style={safeAreaPadding}
           data-testid="main-content"
         >
-          <div className="mb-4">
-            <AppStatusAlerts />
-          </div>
           {children}
         </main>
 

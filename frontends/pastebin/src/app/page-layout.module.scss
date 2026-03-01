@@ -1,0 +1,68 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  overflow: hidden;
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+  background-color: color-mix(in srgb, var(--mat-sys-surface-container) 97%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.headerRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: nowrap;
+  min-width: 0;
+}
+
+.logoGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.versionBadge {
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  padding: 2px 5px;
+  border-radius: 4px;
+  background: var(--mat-sys-primary);
+  color: var(--mat-sys-on-primary);
+  line-height: 1;
+  align-self: flex-start;
+  margin-top: 2px;
+  opacity: 0.85;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.langBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  border-radius: 20px;
+  border: none;
+  background: none;
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.75rem;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  transition: background-color 150ms ease;
+
+  &:hover {
+    background: var(--mat-sys-surface-container-high);
+  }
+}

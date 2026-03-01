@@ -1,0 +1,106 @@
+{
+  "app": {
+    "title": "Fragmentos de Código",
+    "header": {
+      "title": "Fragmentos de Código",
+      "snippetCount": {
+        "singular": "fragmento",
+        "plural": "fragmentos"
+      },
+      "newSnippetButton": "Nuevo Fragmento"
+    },
+    "search": {
+      "placeholder": "Buscar por título, lenguaje o contenido..."
+    }
+  },
+  "emptyState": {
+    "title": "Sin fragmentos aún",
+    "description": "Empieza tu biblioteca de código. Guarda fragmentos reutilizables para acceso rápido.",
+    "buttonText": "Crear tu Primer Fragmento"
+  },
+  "noResults": {
+    "title": "No se encontraron fragmentos",
+    "description": "Intenta ajustar tu búsqueda"
+  },
+  "snippetCard": {
+    "viewButton": "Ver",
+    "copyButton": "Copiar",
+    "copiedButton": "¡Copiado!",
+    "viewFullCode": "Clic para ver el código completo...",
+    "errorMessage": "Error al cargar el fragmento",
+    "ariaLabels": {
+      "copy": "Copiar código",
+      "edit": "Editar fragmento",
+      "delete": "Eliminar fragmento"
+    }
+  },
+  "snippetDialog": {
+    "create": {
+      "title": "Crear Nuevo Fragmento",
+      "description": "Guarda un fragmento de código reutilizable para acceso rápido.",
+      "submitButton": "Crear Fragmento"
+    },
+    "edit": {
+      "title": "Editar Fragmento",
+      "description": "Actualiza los detalles de tu fragmento de código.",
+      "submitButton": "Actualizar Fragmento"
+    },
+    "fields": {
+      "title": {
+        "label": "Título",
+        "placeholder": "ej., Hook useState de React",
+        "required": true,
+        "errorMessage": "El título es obligatorio"
+      },
+      "language": {
+        "label": "Lenguaje"
+      },
+      "description": {
+        "label": "Descripción",
+        "placeholder": "Descripción u notas opcionales..."
+      },
+      "code": {
+        "label": "Código",
+        "required": true,
+        "errorMessage": "El código es obligatorio"
+      },
+      "preview": {
+        "label": "Activar vista previa dividida para este fragmento"
+      }
+    },
+    "buttons": {
+      "cancel": "Cancelar",
+      "create": "Crear",
+      "update": "Actualizar"
+    }
+  },
+  "snippetViewer": {
+    "lastUpdated": "Última actualización",
+    "buttons": {
+      "showPreview": "Mostrar Vista Previa",
+      "hidePreview": "Ocultar Vista Previa",
+      "copy": "Copiar",
+      "copied": "Copiado",
+      "edit": "Editar"
+    }
+  },
+  "toast": {
+    "snippetCreated": "Fragmento creado con éxito",
+    "snippetUpdated": "Fragmento actualizado con éxito",
+    "snippetDeleted": "Fragmento eliminado",
+    "codeCopied": "Código copiado al portapapeles"
+  },
+  "statusAlerts": {
+    "title": "Estado de la app",
+    "workspaceReady": "Espacio de trabajo listo",
+    "localModeDesc": "Modo local: puedes trabajar sin conexión a un servidor.",
+    "connectedDesc": "Conectado a tu servidor configurado. Sincronización activa.",
+    "cloudUnavailable": "Servidor en la nube no disponible",
+    "cloudUnavailableDesc": "No se detectó un servidor Flask. Los datos se guardan en este dispositivo hasta que se configure una URL."
+  },
+  "language": {
+    "toggle": "Cambiar idioma",
+    "en": "EN",
+    "es": "ES"
+  }
+}
