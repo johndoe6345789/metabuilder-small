@@ -756,11 +756,10 @@ def delete_namespace(namespace_id):
 
 @app.route('/api/run', methods=['POST'])
 def run_code():
-    data = request.json or {}
-    app.logger.info('run_code recv: language=%r files_count=%d entryPoint=%r',
-                    data.get('language'), len(data.get('files') or []), data.get('entryPoint'))
+    data = request.get_json(force=True, silent=True) or {}
+    print(f'[run_code] recv: language={data.get("language")!r} files_count={len(data.get("files") or [])} entryPoint={data.get("entryPoint")!r}', flush=True)
     language, files, entry_point = _parse_run_request(data)
-    app.logger.info('run_code parsed: language=%r entry=%r files=%r', language, entry_point, [f['name'] for f in files])
+    print(f'[run_code] parsed: language={language!r} entry={entry_point!r} files={[f["name"] for f in files]}', flush=True)
     if not files:
         return jsonify({'error': 'No code or files provided'}), 400
     if language not in _RUNNERS:
@@ -802,7 +801,8 @@ def run_code():
 def run_interactive():
     """Start an interactive session. Returns {session_id}."""
     _reap_sessions()
-    data = request.json or {}
+    data = request.get_json(force=True, silent=True) or {}
+    print(f'[run_interactive] recv: language={data.get("language")!r} files_count={len(data.get("files") or [])}', flush=True)
     language, files, entry_point = _parse_run_request(data)
     if not files:
         return jsonify({'error': 'No code or files provided'}), 400
