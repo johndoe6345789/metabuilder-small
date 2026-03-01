@@ -1,64 +1,86 @@
-.row {
+.bar {
   display: flex;
   align-items: center;
-  gap: 8px;
-}
-
-.folderIcon {
-  color: var(--mat-sys-primary);
+  gap: 4px;
   flex-shrink: 0;
-  display: flex;
-  align-items: center;
 }
 
-.controls {
-  display: flex;
+.chip {
+  display: inline-flex;
   align-items: center;
-  background: var(--mat-sys-surface-container, rgba(0, 0, 0, 0.05));
-  border-radius: 24px;
-  padding: 4px 4px 4px 12px;
   gap: 6px;
-}
-
-.select {
-  min-width: 80px;
-
-  // Borderless, auto-sized trigger — arrow is absolute at right:12px
-  :global(div[role="combobox"]) {
-    padding: 5px 28px 5px 0 !important;
-    border-radius: 4px;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: var(--mat-sys-on-surface);
-    transition: background-color 150ms ease;
-
-    &:hover {
-      background: color-mix(in srgb, var(--mat-sys-on-surface) 6%, transparent);
-    }
-  }
-
-  &:focus-within :global(div[role="combobox"]) {
-    outline: 2px solid var(--mat-sys-primary, #6750a4);
-    outline-offset: 0;
-    border-radius: 4px;
-  }
-}
-
-.divider {
-  width: 1px;
-  height: 18px;
-  background: var(--mat-sys-outline-variant);
-  margin: 0 2px;
-  flex-shrink: 0;
-}
-
-.namespaceItem {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.defaultBadge {
+  padding: 7px 14px;
+  border-radius: 20px;
+  border: none;
+  background: var(--mat-sys-surface-container, rgba(0, 0, 0, 0.05));
   color: var(--mat-sys-on-surface-variant);
-  font-size: 0.75rem;
+  font-size: 0.875rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background-color 150ms ease;
+  white-space: nowrap;
+
+  &:hover {
+    background: var(--mat-sys-surface-container-high, rgba(0, 0, 0, 0.08));
+  }
+}
+
+.chipActive {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 20px;
+  border: none;
+  background: var(--mat-sys-secondary-container, #e8def8);
+  color: var(--mat-sys-on-secondary-container, #1d192b);
+  font-size: 0.875rem;
+  font-family: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 150ms ease;
+  white-space: nowrap;
+
+  &:hover {
+    background: color-mix(in srgb, var(--mat-sys-secondary-container) 92%, var(--mat-sys-on-secondary-container) 8%);
+  }
+}
+
+.chipDeleteBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: inherit;
+  opacity: 0.6;
+  padding: 0;
+  margin-left: 2px;
+
+  &:hover {
+    opacity: 1;
+    background: color-mix(in srgb, var(--mat-sys-on-secondary-container) 15%, transparent);
+  }
+}
+
+.addBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--mat-sys-on-surface-variant);
+  transition: background-color 150ms ease;
+
+  &:hover {
+    background: var(--mat-sys-surface-container-high, rgba(0, 0, 0, 0.08));
+  }
 }

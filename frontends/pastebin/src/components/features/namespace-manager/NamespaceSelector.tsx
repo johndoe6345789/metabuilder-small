@@ -1,7 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { Select, MenuItem } from '@metabuilder/components/fakemui'
-import type { SelectChangeEvent } from '@metabuilder/components/fakemui'
-import { Folder } from '@phosphor-icons/react'
+import { Folder, Plus, X } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { Namespace } from '@/lib/types'
 import {
@@ -32,12 +30,9 @@ export function NamespaceSelector({ selectedNamespaceId, onNamespaceChange }: Na
     try {
       const loadedNamespaces = await getAllNamespaces()
       setNamespaces(loadedNamespaces)
-
       if (!selectedNamespaceId && loadedNamespaces.length > 0) {
         const defaultNamespace = loadedNamespaces.find(n => n.isDefault)
-        if (defaultNamespace) {
-          onNamespaceChange(defaultNamespace.id)
-        }
+        if (defaultNamespace) onNamespaceChange(defaultNamespace.id)
       }
     } catch (error) {
       console.error('Failed to load namespaces:', error)
@@ -45,16 +40,13 @@ export function NamespaceSelector({ selectedNamespaceId, onNamespaceChange }: Na
     }
   }, [onNamespaceChange, selectedNamespaceId])
 
-  useEffect(() => {
-    loadNamespaces()
-  }, [loadNamespaces])
+  useEffect(() => { loadNamespaces() }, [loadNamespaces])
 
   const handleCreateNamespace = async () => {
     if (!newNamespaceName.trim()) {
       toast.error('Please enter a namespace name')
       return
     }
-
     setLoading(true)
     try {
       const newNamespace: Namespace = {
@@ -78,28 +70,20 @@ export function NamespaceSelector({ selectedNamespaceId, onNamespaceChange }: Na
 
   const handleDeleteNamespace = async () => {
     if (!namespaceToDelete) return
-
     const defaultNamespace = namespaces.find(n => n.isDefault)
     if (!defaultNamespace) {
       toast.error('Cannot delete: no default namespace found')
       return
     }
-
     setLoading(true)
     try {
-      // Move snippets to default before deleting the namespace
       const snippetsToMove = await getSnippetsByNamespace(namespaceToDelete.id)
       if (snippetsToMove.length > 0) {
         await bulkMoveSnippets(snippetsToMove.map(s => s.id), defaultNamespace.id)
       }
-
       await deleteNamespace(namespaceToDelete.id)
       setNamespaces(prev => prev.filter(n => n.id !== namespaceToDelete.id))
-
-      if (selectedNamespaceId === namespaceToDelete.id) {
-        onNamespaceChange(defaultNamespace.id)
-      }
-
+      if (selectedNamespaceId === namespaceToDelete.id) onNamespaceChange(defaultNamespace.id)
       setDeleteDialogOpen(false)
       setNamespaceToDelete(null)
       const movedCount = snippetsToMove.length
@@ -116,67 +100,64 @@ export function NamespaceSelector({ selectedNamespaceId, onNamespaceChange }: Na
     }
   }
 
-  const selectedNamespace = namespaces.find(n => n.id === selectedNamespaceId)
-
   return (
-    <div className={styles.row} data-testid="namespace-selector" role="group" aria-label="Namespace selector">
-      <div className={styles.controls}>
-        <span className={styles.folderIcon}>
-          <Folder weight="fill" size={15} aria-hidden="true" />
-        </span>
+    <div className={styles.bar} data-testid="namespace-selector" role="group" aria-label="Namespace selector">
+      {namespaces.map(namespace => {
+        const isActive = namespace.id === selectedNamespaceId
+        return (
+          <button
+            key={namespace.id}
+            className={isActive ? styles.chipActive : styles.chip}
+            onClick={() => onNamespaceChange(namespace.id)}
+            data-testid={`namespace-chip-${namespace.id}`}
+            aria-pressed={isActive}
+            aria-label={`Switch to ${namespace.name} namespace`}
+          >
+            {isActive && <Folder weight="fill" size={14} aria-hidden="true" />}
+            <span>{namespace.name}</span>
+            {isActive && !namespace.isDefault && (
+              <button
+                className={styles.chipDeleteBtn}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setNamespaceToDelete(namespace)
+                  setDeleteDialogOpen(true)
+                }}
+                data-testid="delete-namespace-trigger"
+                aria-label={`Delete ${namespace.name} namespace`}
+              >
+                <X size={11} weight="bold" aria-hidden="true" />
+              </button>
+            )}
+          </button>
+        )
+      })}
 
-        <Select
-          value={selectedNamespaceId || ''}
-          onChange={(e: SelectChangeEvent) => onNamespaceChange(e.target.value as string)}
-          data-testid="namespace-selector-trigger"
-          aria-label="Select namespace"
-          variant="standard"
-          size="small"
-          autoWidth
-          className={styles.select}
-        >
-          {namespaces.map(namespace => (
-            <MenuItem
-              key={namespace.id}
-              value={namespace.id}
-              data-testid={`namespace-option-${namespace.id}`}
-            >
-              <div className={styles.namespaceItem}>
-                <span>{namespace.name}</span>
-                {namespace.isDefault && (
-                  <span className={styles.defaultBadge}>(Default)</span>
-                )}
-              </div>
-            </MenuItem>
-          ))}
-        </Select>
+      <button
+        className={styles.addBtn}
+        onClick={() => setCreateDialogOpen(true)}
+        data-testid="create-namespace-trigger"
+        aria-label="Create new namespace"
+      >
+        <Plus size={16} weight="bold" aria-hidden="true" />
+      </button>
 
-        <span className={styles.divider} aria-hidden="true" />
+      <CreateNamespaceDialog
+        open={createDialogOpen}
+        onOpenChange={setCreateDialogOpen}
+        namespaceName={newNamespaceName}
+        onNamespaceNameChange={setNewNamespaceName}
+        onCreateNamespace={handleCreateNamespace}
+        loading={loading}
+      />
 
-        <CreateNamespaceDialog
-          open={createDialogOpen}
-          onOpenChange={setCreateDialogOpen}
-          namespaceName={newNamespaceName}
-          onNamespaceNameChange={setNewNamespaceName}
-          onCreateNamespace={handleCreateNamespace}
-          loading={loading}
-        />
-
-        {selectedNamespace && !selectedNamespace.isDefault && (
-          <DeleteNamespaceDialog
-            open={deleteDialogOpen}
-            onOpenChange={setDeleteDialogOpen}
-            namespace={namespaceToDelete}
-            onDeleteNamespace={handleDeleteNamespace}
-            loading={loading}
-            showTrigger
-            onOpenDialog={() => {
-              setNamespaceToDelete(selectedNamespace)
-              setDeleteDialogOpen(true)
-            }}
-          />
-        )}
-      </div>
+      <DeleteNamespaceDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        namespace={namespaceToDelete}
+        onDeleteNamespace={handleDeleteNamespace}
+        loading={loading}
+      />
     </div>
   )
 }
