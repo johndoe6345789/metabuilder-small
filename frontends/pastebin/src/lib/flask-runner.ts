@@ -53,7 +53,8 @@ export async function runCodeViaFlask(opts: RunOptions): Promise<RunResult> {
   })
 
   if (!response.ok && response.status !== 408) {
-    throw new Error(`Server error: ${response.statusText}`)
+    const body = await response.json().catch(() => null)
+    throw new Error(body?.error ?? `Server error: ${response.statusText}`)
   }
 
   const data = await response.json()
@@ -84,7 +85,10 @@ export async function startInteractiveSession(opts: RunOptions): Promise<string>
     }),
     signal: AbortSignal.timeout(10000),
   })
-  if (!response.ok) throw new Error(`Failed to start session: ${response.statusText}`)
+  if (!response.ok) {
+    const body = await response.json().catch(() => null)
+    throw new Error(body?.error ?? `Failed to start session: ${response.statusText}`)
+  }
   const data = await response.json()
   return data.session_id as string
 }
