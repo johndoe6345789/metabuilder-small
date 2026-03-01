@@ -69,6 +69,11 @@ export function EmptyState({ onCreateClick, onCreateFromTemplate }: EmptyStatePr
           { label: 'Python — Project Euler', templates: templates.filter(t => t.category === 'euler') },
           { label: 'Python — Algorithms', templates: templates.filter(t => t.category === 'algorithms' && t.language === 'Python') },
           { label: 'Python — Interactive', templates: templates.filter(t => t.category === 'interactive') },
+          { label: 'Go / Rust / Java / C++', templates: templates.filter(t => t.category === 'example' && ['Go', 'Rust', 'Java', 'C++'].includes(t.language)) },
+          { label: 'JS / TS Examples', templates: templates.filter(t => t.category === 'example' && ['JavaScript', 'TypeScript'].includes(t.language)) },
+          { label: 'Ruby / PHP / Kotlin / Swift', templates: templates.filter(t => t.category === 'example' && ['Ruby', 'PHP', 'Kotlin', 'Swift'].includes(t.language)) },
+          { label: 'Scala / Haskell / Elixir / Dart', templates: templates.filter(t => t.category === 'example' && ['Scala', 'Haskell', 'Elixir', 'Dart'].includes(t.language)) },
+          { label: 'R / Julia / Lua / Perl / Bash / C#', templates: templates.filter(t => t.category === 'example' && ['R', 'Julia', 'Lua', 'Perl', 'Bash', 'C#'].includes(t.language)) },
         ]}
       />
     </div>
