@@ -4,11 +4,11 @@ from datetime import datetime
 import sqlite3
 import json
 import os
-import subprocess
-import sys
 import threading
 import uuid
 import time
+import select
+import docker as _docker_lib
 
 app = Flask(__name__)
 
@@ -34,21 +34,30 @@ os.makedirs(os.path.dirname(DATABASE_PATH), exist_ok=True)
 # Docker-based Python runner
 # ---------------------------------------------------------------------------
 
-# Each code execution runs in a disposable container with no network,
-# capped memory, and a pids limit.  Mount the Docker socket into the
-# Flask container to enable this:  -v /var/run/docker.sock:/var/run/docker.sock
-_DOCKER_IMAGE = os.environ.get('PYTHON_RUNNER_IMAGE', 'python:3.11-slim')
-_DOCKER_FLAGS = [
-    '--network', 'none',
-    '--memory', '128m',
-    '--cpus', '0.5',
-    '--pids-limit', '64',
-]
+# Mount the Docker socket into the Flask container to enable spawning runners:
+#   -v /var/run/docker.sock:/var/run/docker.sock
+_DOCKER_IMAGE  = os.environ.get('PYTHON_RUNNER_IMAGE', 'python:3.11-slim')
+_RUN_TIMEOUT_S = int(os.environ.get('PYTHON_RUN_TIMEOUT', '10'))
 
-def _docker_cmd(code: str, stdin: bool = False) -> list:
-    """Build the docker run command list for executing Python code."""
-    it_flag = ['-i'] if stdin else []
-    return ['docker', 'run', '--rm'] + it_flag + _DOCKER_FLAGS + [_DOCKER_IMAGE, 'python', '-u', '-c', code]
+# Shared kwargs for every runner container
+_CONTAINER_KWARGS: dict = dict(
+    network_disabled=True,
+    mem_limit='128m',
+    nano_cpus=int(0.5e9),   # 0.5 CPUs
+    pids_limit=64,
+)
+
+_docker_client = None
+
+def _docker() -> _docker_lib.DockerClient:
+    global _docker_client
+    if _docker_client is None:
+        _docker_client = _docker_lib.from_env()
+    return _docker_client
+
+def _run_cmd(code: str, stdin_open: bool = False) -> list:
+    """Command passed to the container: timeout wraps python so exit 124 = timed out."""
+    return ['timeout', '--kill-after=2s', f'{_RUN_TIMEOUT_S}s', 'python', '-u', '-c', code]
 
 # ---------------------------------------------------------------------------
 # Interactive Python session store
@@ -87,51 +96,86 @@ class InteractiveSession:
         self.done: bool = False
         self.waiting_for_input: bool = False
         self.created_at: float = time.time()
-        self._process: subprocess.Popen | None = None
+        self._container = None
+        self._sock = None        # raw Docker attach socket
 
     def start(self, code: str) -> None:
         src = _INTERACTIVE_INPUT_PREAMBLE + '\n' + code
-        self._process = subprocess.Popen(
-            _docker_cmd(src, stdin=True),
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
+        self._container = _docker().containers.create(
+            image=_DOCKER_IMAGE,
+            command=_run_cmd(src),
+            stdin_open=True,
+            tty=False,
+            **_CONTAINER_KWARGS,
         )
-        threading.Thread(target=self._read_stdout, daemon=True).start()
-        threading.Thread(target=self._read_stderr, daemon=True).start()
+        self._container.start()
+        attach = self._container.attach_socket(
+            params={'stdin': 1, 'stdout': 1, 'stderr': 1, 'stream': 1}
+        )
+        self._sock = attach._sock
+        threading.Thread(target=self._read_socket, daemon=True).start()
 
-    def _read_stdout(self) -> None:
-        assert self._process and self._process.stdout
-        for raw in self._process.stdout:
-            line = raw.rstrip('\n')
-            if line.startswith(_PROMPT_START) and line.endswith(_PROMPT_END):
-                prompt_text = line[len(_PROMPT_START):-len(_PROMPT_END)]
-                if prompt_text:
-                    self.output.append({'type': 'prompt', 'text': prompt_text})
-                self.waiting_for_input = True
-            else:
-                self.output.append({'type': 'out', 'text': raw})
+    def _read_socket(self) -> None:
+        """Read Docker's multiplexed framing: 8-byte header + payload per frame."""
+        buf = b''
+        line_bufs = {1: '', 2: ''}   # 1=stdout, 2=stderr
+        self._sock.setblocking(True)
+        while True:
+            try:
+                chunk = self._sock.recv(4096)
+            except OSError:
+                break
+            if not chunk:
+                break
+            buf += chunk
+            while len(buf) >= 8:
+                stream_type = buf[0]
+                size = int.from_bytes(buf[4:8], 'big')
+                if len(buf) < 8 + size:
+                    break
+                payload = buf[8:8 + size].decode('utf-8', errors='replace')
+                buf = buf[8 + size:]
+                if stream_type not in (1, 2):
+                    continue
+                line_bufs[stream_type] += payload
+                while '\n' in line_bufs[stream_type]:
+                    line, line_bufs[stream_type] = line_bufs[stream_type].split('\n', 1)
+                    self._dispatch(stream_type, line)
+        for stream_type, remaining in line_bufs.items():
+            if remaining:
+                self._dispatch(stream_type, remaining)
         self.done = True
+        try:
+            self._container.remove(force=True)
+        except Exception:
+            pass
 
-    def _read_stderr(self) -> None:
-        assert self._process and self._process.stderr
-        for line in self._process.stderr:
-            self.output.append({'type': 'err', 'text': line})
+    def _dispatch(self, stream_type: int, line: str) -> None:
+        if stream_type == 2:
+            self.output.append({'type': 'err', 'text': line + '\n'})
+            return
+        if line.startswith(_PROMPT_START) and line.endswith(_PROMPT_END):
+            prompt_text = line[len(_PROMPT_START):-len(_PROMPT_END)]
+            if prompt_text:
+                self.output.append({'type': 'prompt', 'text': prompt_text})
+            self.waiting_for_input = True
+        else:
+            self.output.append({'type': 'out', 'text': line + '\n'})
 
     def send_input(self, value: str) -> bool:
-        if not self.waiting_for_input or not self._process:
+        if not self.waiting_for_input or not self._sock:
             return False
         self.output.append({'type': 'input-echo', 'text': value + '\n'})
         self.waiting_for_input = False
-        assert self._process.stdin
-        self._process.stdin.write(value + '\n')
-        self._process.stdin.flush()
+        self._sock.sendall((value + '\n').encode('utf-8'))
         return True
 
     def kill(self) -> None:
-        if self._process and self._process.poll() is None:
-            self._process.kill()
+        try:
+            if self._container:
+                self._container.kill()
+        except Exception:
+            pass
 
 
 def _reap_sessions() -> None:
@@ -482,21 +526,34 @@ def run_python():
     code = data.get('code', '').strip()
     if not code:
         return jsonify({'error': 'No code provided'}), 400
+
+    container = None
     try:
-        result = subprocess.run(
-            _docker_cmd(code),
-            capture_output=True, text=True, timeout=15,
+        container = _docker().containers.create(
+            image=_DOCKER_IMAGE,
+            command=_run_cmd(code),
+            **_CONTAINER_KWARGS,
         )
-        return jsonify({
-            'output': result.stdout,
-            'error': result.stderr if result.returncode != 0 else None,
-        })
-    except subprocess.TimeoutExpired:
-        return jsonify({'output': '', 'error': 'Execution timed out (15s limit)'}), 408
-    except FileNotFoundError:
-        return jsonify({'error': 'Docker is not available on this server'}), 503
+        container.start()
+        result = container.wait(timeout=_RUN_TIMEOUT_S + 5)
+        exit_code = result['StatusCode']
+        stdout = container.logs(stdout=True, stderr=False).decode('utf-8', errors='replace')
+        stderr = container.logs(stdout=False, stderr=True).decode('utf-8', errors='replace')
+
+        if exit_code == 124:
+            return jsonify({'output': stdout, 'error': f'Timed out after {_RUN_TIMEOUT_S}s'}), 408
+        return jsonify({'output': stdout, 'error': stderr if exit_code != 0 else None})
+
+    except _docker_lib.errors.DockerException as e:
+        return jsonify({'error': str(e)}), 503
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+    finally:
+        if container:
+            try:
+                container.remove(force=True)
+            except Exception:
+                pass
 
 @app.route('/api/run/interactive', methods=['POST'])
 def run_interactive():
