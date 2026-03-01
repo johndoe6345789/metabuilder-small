@@ -7,16 +7,8 @@ import os
 import subprocess
 import sys
 import threading
-import queue
 import uuid
 import time
-import tempfile
-
-try:
-    import resource as _resource_mod
-    _HAS_RESOURCE = True
-except ImportError:
-    _HAS_RESOURCE = False   # Windows
 
 app = Flask(__name__)
 
@@ -39,86 +31,36 @@ DATABASE_PATH = os.environ.get('DATABASE_PATH', '/app/data/snippets.db')
 os.makedirs(os.path.dirname(DATABASE_PATH), exist_ok=True)
 
 # ---------------------------------------------------------------------------
-# Sandbox infrastructure
+# Docker-based Python runner
 # ---------------------------------------------------------------------------
 
-# Allowlist of modules user code may import.  Anything outside this list
-# raises ImportError at runtime, preventing file/network/process access.
-_ALLOWED_IMPORTS: frozenset = frozenset({
-    'math', 'cmath', 'decimal', 'fractions', 'random', 'statistics',
-    'collections', 'heapq', 'bisect', 'array', 'queue',
-    'itertools', 'functools', 'operator',
-    'string', 're', 'textwrap', 'unicodedata', 'difflib',
-    'datetime', 'calendar', 'time',
-    'json', 'csv',
-    'typing', 'types', 'abc', 'enum', 'dataclasses', 'copy', 'pprint',
-    'io', 'struct', 'codecs',
-    'base64', 'hashlib',
-})
+# Each code execution runs in a disposable container with no network,
+# capped memory, and a pids limit.  Mount the Docker socket into the
+# Flask container to enable this:  -v /var/run/docker.sock:/var/run/docker.sock
+_DOCKER_IMAGE = os.environ.get('PYTHON_RUNNER_IMAGE', 'python:3.11-slim')
+_DOCKER_FLAGS = [
+    '--network', 'none',
+    '--memory', '128m',
+    '--cpus', '0.5',
+    '--pids-limit', '64',
+]
 
-_MAX_OUTPUT_CHARS = 100_000  # cap stdout+stderr to prevent memory flooding
-
-
-def _validate_code(code: str) -> str | None:
-    """Run RestrictedPython's AST check; return an error string or None."""
-    try:
-        from RestrictedPython import compile_restricted
-        compile_restricted(code, '<snippet>', 'exec')
-        return None
-    except SyntaxError as exc:
-        return f'SyntaxError: {exc}'
-    except Exception as exc:
-        return f'Code rejected by sandbox: {exc}'
-
-
-def _apply_resource_limits() -> None:
-    """preexec_fn: called in the child process before exec (Linux/macOS only)."""
-    if not _HAS_RESOURCE:
-        return
-    # CPU seconds — hard limit; kernel sends SIGKILL when exceeded
-    _resource_mod.setrlimit(_resource_mod.RLIMIT_CPU, (10, 10))
-    # Virtual address space: 256 MB
-    _resource_mod.setrlimit(_resource_mod.RLIMIT_AS, (256 << 20, 256 << 20))
-    # Open file descriptors
-    _resource_mod.setrlimit(_resource_mod.RLIMIT_NOFILE, (32, 32))
-    # Child processes / threads (blocks fork bombs)
-    try:
-        _resource_mod.setrlimit(_resource_mod.RLIMIT_NPROC, (64, 64))
-    except (ValueError, AttributeError):
-        pass
-
-
-# Common sandbox preamble: overrides __import__ with allowlist and removes
-# dangerous builtins.  Uses a closure so nothing leaks into module scope.
-_SANDBOX_PREAMBLE = (
-    "def __sb():\n"
-    "    import builtins as _b\n"
-    "    _al = " + repr(_ALLOWED_IMPORTS) + "\n"
-    "    _orig = _b.__import__\n"
-    "    def _safe_imp(name, *a, **k):\n"
-    "        if name.split('.')[0] not in _al:\n"
-    "            raise ImportError(\"Sandbox: import '{}' is blocked\".format(name))\n"
-    "        return _orig(name, *a, **k)\n"
-    "    _b.__import__ = _safe_imp\n"
-    "    for _n in ('open', 'eval', 'exec', 'compile', 'breakpoint'):\n"
-    "        try: delattr(_b, _n)\n"
-    "        except AttributeError: pass\n"
-    "    del _b, _al, _orig, _safe_imp, _n\n"
-    "__sb()\n"
-    "del __sb\n"
-)
+def _docker_cmd(code: str, stdin: bool = False) -> list:
+    """Build the docker run command list for executing Python code."""
+    it_flag = ['-i'] if stdin else []
+    return ['docker', 'run', '--rm'] + it_flag + _DOCKER_FLAGS + [_DOCKER_IMAGE, 'python', '-u', '-c', code]
 
 # ---------------------------------------------------------------------------
 # Interactive Python session store
 # ---------------------------------------------------------------------------
 
 # Sentinel written to stdout by the wrapper to signal an input() call.
-# Uses null bytes to avoid collisions with normal print output.
+# Uses null bytes so it cannot collide with normal print output.
 _PROMPT_START = '\x00PROMPT:'
 _PROMPT_END   = '\x00'
 
-# Appended after _SANDBOX_PREAMBLE for interactive sessions.
-# Also uses a closure so _sys / _b don't remain in module scope.
+# Injected before interactive user code: overrides input() to emit the
+# PROMPT sentinel on stdout then reads the response from stdin.
 _INTERACTIVE_INPUT_PREAMBLE = (
     "def __isinp():\n"
     "    import sys as _s, builtins as _b\n"
@@ -141,44 +83,23 @@ _sessions: dict = {}
 class InteractiveSession:
     def __init__(self, session_id: str):
         self.session_id = session_id
-        self.output: list = []       # {type: 'out'|'err'|'prompt'|'input-echo', text: str}
+        self.output: list = []   # {type: 'out'|'err'|'prompt'|'input-echo', text: str}
         self.done: bool = False
         self.waiting_for_input: bool = False
         self.created_at: float = time.time()
         self._process: subprocess.Popen | None = None
-        self._tmp_path: str | None = None
-        self._output_chars: int = 0  # running total for the output cap
 
     def start(self, code: str) -> None:
-        src = _SANDBOX_PREAMBLE + '\n' + _INTERACTIVE_INPUT_PREAMBLE + '\n' + code
-        tmp = tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False, encoding='utf-8')
-        tmp.write(src)
-        tmp.flush()
-        tmp.close()
-        self._tmp_path = tmp.name
-
-        env = {**os.environ, 'PYTHONUNBUFFERED': '1'}
+        src = _INTERACTIVE_INPUT_PREAMBLE + '\n' + code
         self._process = subprocess.Popen(
-            [sys.executable, '-u', tmp.name],
+            _docker_cmd(src, stdin=True),
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True,
-            env=env,
-            preexec_fn=_apply_resource_limits,
         )
         threading.Thread(target=self._read_stdout, daemon=True).start()
         threading.Thread(target=self._read_stderr, daemon=True).start()
-
-    def _append_output(self, entry: dict) -> bool:
-        """Add an output entry; return False and kill the process if cap exceeded."""
-        self._output_chars += len(entry.get('text', ''))
-        if self._output_chars > _MAX_OUTPUT_CHARS:
-            self.output.append({'type': 'err', 'text': '[Output truncated: 100 KB limit]\n'})
-            self.kill()
-            return False
-        self.output.append(entry)
-        return True
 
     def _read_stdout(self) -> None:
         assert self._process and self._process.stdout
@@ -187,20 +108,16 @@ class InteractiveSession:
             if line.startswith(_PROMPT_START) and line.endswith(_PROMPT_END):
                 prompt_text = line[len(_PROMPT_START):-len(_PROMPT_END)]
                 if prompt_text:
-                    self._append_output({'type': 'prompt', 'text': prompt_text})
+                    self.output.append({'type': 'prompt', 'text': prompt_text})
                 self.waiting_for_input = True
-                # Loop blocks here on next readline until send_input() writes to stdin
             else:
-                if not self._append_output({'type': 'out', 'text': raw}):
-                    break
+                self.output.append({'type': 'out', 'text': raw})
         self.done = True
-        self._cleanup()
 
     def _read_stderr(self) -> None:
         assert self._process and self._process.stderr
         for line in self._process.stderr:
-            if not self._append_output({'type': 'err', 'text': line}):
-                break
+            self.output.append({'type': 'err', 'text': line})
 
     def send_input(self, value: str) -> bool:
         if not self.waiting_for_input or not self._process:
@@ -215,14 +132,6 @@ class InteractiveSession:
     def kill(self) -> None:
         if self._process and self._process.poll() is None:
             self._process.kill()
-
-    def _cleanup(self) -> None:
-        if self._tmp_path:
-            try:
-                os.unlink(self._tmp_path)
-            except OSError:
-                pass
-            self._tmp_path = None
 
 
 def _reap_sessions() -> None:
@@ -573,38 +482,21 @@ def run_python():
     code = data.get('code', '').strip()
     if not code:
         return jsonify({'error': 'No code provided'}), 400
-
-    policy_err = _validate_code(code)
-    if policy_err:
-        return jsonify({'output': '', 'error': policy_err}), 400
-
-    tmp_path = None
     try:
-        src = _SANDBOX_PREAMBLE + '\n' + code
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False, encoding='utf-8') as f:
-            f.write(src)
-            tmp_path = f.name
-
         result = subprocess.run(
-            [sys.executable, '-u', tmp_path],
-            capture_output=True, text=True, timeout=10,
-            env={**os.environ, 'PYTHONUNBUFFERED': '1'},
-            preexec_fn=_apply_resource_limits,
+            _docker_cmd(code),
+            capture_output=True, text=True, timeout=15,
         )
         return jsonify({
-            'output': result.stdout[:_MAX_OUTPUT_CHARS],
-            'error': result.stderr[:_MAX_OUTPUT_CHARS] if result.returncode != 0 else None,
+            'output': result.stdout,
+            'error': result.stderr if result.returncode != 0 else None,
         })
     except subprocess.TimeoutExpired:
-        return jsonify({'output': '', 'error': 'Execution timed out (10s limit)'}), 408
+        return jsonify({'output': '', 'error': 'Execution timed out (15s limit)'}), 408
+    except FileNotFoundError:
+        return jsonify({'error': 'Docker is not available on this server'}), 503
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-    finally:
-        if tmp_path:
-            try:
-                os.unlink(tmp_path)
-            except OSError:
-                pass
 
 @app.route('/api/run/interactive', methods=['POST'])
 def run_interactive():
@@ -614,10 +506,6 @@ def run_interactive():
     code = data.get('code', '').strip()
     if not code:
         return jsonify({'error': 'No code provided'}), 400
-
-    policy_err = _validate_code(code)
-    if policy_err:
-        return jsonify({'error': policy_err}), 400
 
     session_id = str(uuid.uuid4())
     session = InteractiveSession(session_id)
