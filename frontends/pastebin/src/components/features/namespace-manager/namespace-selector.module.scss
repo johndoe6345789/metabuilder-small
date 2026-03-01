@@ -16,16 +16,16 @@
   align-items: center;
   background: var(--mat-sys-surface-container, rgba(0, 0, 0, 0.05));
   border-radius: 24px;
-  padding: 2px 2px 2px 12px;
-  gap: 0;
+  padding: 4px 4px 4px 12px;
+  gap: 6px;
 }
 
 .select {
   min-width: 80px;
 
-  // Borderless, auto-sized trigger — arrow is absolute at right:12px so needs padding-right
+  // Borderless, auto-sized trigger — arrow is absolute at right:12px
   :global(div[role="combobox"]) {
-    padding: 6px 28px 6px 0 !important;
+    padding: 5px 28px 5px 0 !important;
     border-radius: 4px;
     font-size: 0.875rem;
     font-weight: 500;
@@ -46,9 +46,9 @@
 
 .divider {
   width: 1px;
-  height: 20px;
+  height: 18px;
   background: var(--mat-sys-outline-variant);
-  margin: 0 4px;
+  margin: 0 2px;
   flex-shrink: 0;
 }
 
