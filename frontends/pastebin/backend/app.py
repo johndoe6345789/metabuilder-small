@@ -55,8 +55,12 @@ def _docker() -> _docker_lib.DockerClient:
         _docker_client = _docker_lib.from_env()
     return _docker_client
 
-def _run_cmd(code: str, stdin_open: bool = False) -> list:
-    """Command passed to the container: timeout wraps python so exit 124 = timed out."""
+def _run_cmd(code: str, interactive: bool = False) -> list:
+    """Command passed to the container.
+    Non-interactive: timeout enforces a hard CPU wall-time limit.
+    Interactive: no timeout — session is bounded by _SESSION_TTL via _reap_sessions()."""
+    if interactive:
+        return ['python', '-u', '-c', code]
     return ['timeout', '--kill-after=2s', f'{_RUN_TIMEOUT_S}s', 'python', '-u', '-c', code]
 
 # ---------------------------------------------------------------------------
@@ -103,7 +107,7 @@ class InteractiveSession:
         src = _INTERACTIVE_INPUT_PREAMBLE + '\n' + code
         self._container = _docker().containers.create(
             image=_DOCKER_IMAGE,
-            command=_run_cmd(src),
+            command=_run_cmd(src, interactive=True),
             stdin_open=True,
             tty=False,
             **_CONTAINER_KWARGS,
