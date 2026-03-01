@@ -1,7 +1,7 @@
 "use client"
 
-import { Button, Dialog, DialogHeader, DialogTitle, DialogContent, DialogActions, Input } from '@metabuilder/components/fakemui'
-import { Plus } from '@phosphor-icons/react'
+import { Button, Dialog, DialogHeader, DialogTitle, DialogContent, DialogActions, DialogClose, Input } from '@metabuilder/components/fakemui'
+import { Plus, X } from '@phosphor-icons/react'
 
 interface CreateNamespaceDialogProps {
   open: boolean
@@ -34,6 +34,9 @@ export function CreateNamespaceDialog({
       </Button>
 
       <Dialog open={open} onClose={() => onOpenChange(false)} maxWidth="sm" fullWidth>
+        <DialogClose onClick={() => onOpenChange(false)} aria-label="Close dialog">
+          <X size={20} />
+        </DialogClose>
         <DialogHeader>
           <DialogTitle>Create Namespace</DialogTitle>
         </DialogHeader>

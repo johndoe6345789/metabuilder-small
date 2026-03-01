@@ -1,6 +1,7 @@
 "use client"
 
-import { Dialog, DialogHeader, DialogContent } from '@metabuilder/components/fakemui'
+import { Dialog, DialogHeader, DialogContent, DialogClose } from '@metabuilder/components/fakemui'
+import { X } from '@phosphor-icons/react'
 import { Snippet } from '@/lib/types'
 import { useState } from 'react'
 import dynamic from 'next/dynamic'
@@ -43,6 +44,9 @@ export function SnippetViewer({ snippet, open, onOpenChange, onEdit, onCopy }: S
 
   return (
     <Dialog open={open} onClose={() => onOpenChange(false)} maxWidth="xl" fullWidth>
+      <DialogClose onClick={() => onOpenChange(false)} aria-label="Close dialog">
+        <X size={20} />
+      </DialogClose>
       <DialogHeader className="px-6 pt-6 pb-4 pr-14 border-b border-border">
         <SnippetViewerHeader
           snippet={snippet}

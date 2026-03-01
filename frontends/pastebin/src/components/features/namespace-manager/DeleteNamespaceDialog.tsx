@@ -1,5 +1,5 @@
-import { Button, IconButton, Dialog, DialogHeader, DialogTitle, DialogContent, DialogActions } from '@metabuilder/components/fakemui'
-import { Trash } from '@phosphor-icons/react'
+import { Button, IconButton, Dialog, DialogHeader, DialogTitle, DialogContent, DialogActions, DialogClose } from '@metabuilder/components/fakemui'
+import { Trash, X } from '@phosphor-icons/react'
 import { Namespace } from '@/lib/types'
 
 interface DeleteNamespaceDialogProps {
@@ -34,6 +34,9 @@ export function DeleteNamespaceDialog({
       )}
 
       <Dialog open={open} onClose={() => onOpenChange(false)} maxWidth="sm" fullWidth>
+        <DialogClose onClick={() => onOpenChange(false)} aria-label="Close dialog">
+          <X size={20} />
+        </DialogClose>
         <DialogHeader>
           <DialogTitle>Delete Namespace</DialogTitle>
         </DialogHeader>
