@@ -65,9 +65,9 @@ export function PageLayout({ children }: { children: ReactNode }) {
                     marginTop: '2px',
                     opacity: 0.85,
                   }}
-                  aria-label="Version 0.2.1"
+                  aria-label="Version 0.2.3"
                 >
-                  v0.2.1
+                  v0.2.3
                 </span>
               </motion.div>
               <motion.div
