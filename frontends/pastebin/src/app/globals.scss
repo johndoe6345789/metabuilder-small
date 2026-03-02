@@ -14,6 +14,7 @@
   font-family: 'Material Symbols Outlined';
   font-weight: normal;
   font-style: normal;
+  font-size: 24px;
   line-height: 1;
   letter-spacing: normal;
   text-transform: none;
@@ -21,7 +22,12 @@
   white-space: nowrap;
   word-wrap: normal;
   direction: ltr;
+  // Ligatures are how Material Symbols maps text names to glyphs
+  font-feature-settings: 'liga' 1;
+  -webkit-font-feature-settings: 'liga' 1;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
   user-select: none;
 }
 
