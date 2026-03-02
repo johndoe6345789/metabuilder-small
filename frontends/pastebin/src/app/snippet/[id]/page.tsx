@@ -4,8 +4,8 @@ import { useEffect, useRef, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import {
   ArrowLeft, Copy, Check, Pencil, SplitVertical, TextAlignLeft, File, Folder,
-  Play, Stop, Terminal as TerminalIcon, FilePlus, TrashSimple, LinkSimple,
-  Keyboard,
+  Play, Stop, Terminal as TerminalIcon, FilePlus, DotsThreeVertical, Keyboard,
+  TrashSimple, LinkSimple,
 } from '@phosphor-icons/react'
 import dynamic from 'next/dynamic'
 import { PageLayout } from '@/app/PageLayout'
@@ -19,6 +19,7 @@ import { Snippet } from '@/lib/types'
 import { toast } from 'sonner'
 import type { Icon } from '@phosphor-icons/react'
 import { FileCommandPalette, CommandItem } from '@/components/features/file-ops/FileCommandPalette'
+import { FileMenu } from '@/components/features/file-ops/FileMenu'
 import styles from './snippet-view-page.module.scss'
 
 const SnippetViewerContent = dynamic(
@@ -82,6 +83,10 @@ export default function SnippetViewPage() {
 
   // Command palette
   const [paletteOpen, setPaletteOpen] = useState(false)
+
+  // Per-file ⋮ dropdown menu
+  const [menuFile, setMenuFile] = useState<string | null>(null)
+  const [menuRect, setMenuRect] = useState<DOMRect | null>(null)
 
   // Inline rename state
   const [renaming, setRenaming] = useState<string | null>(null)
@@ -481,26 +486,22 @@ export default function SnippetViewPage() {
                           <span className={styles.fileName}>{f.name}</span>
                         </button>
 
-                        {/* Hover-revealed action icons */}
-                        <div className={styles.fileActions} aria-hidden="true">
-                          <button
-                            className={styles.fileAction}
-                            onClick={e => { e.stopPropagation(); handleStartRename(f.name) }}
-                            title="Rename file (F2)"
-                            tabIndex={-1}
-                          >
-                            <Pencil size={11} />
-                          </button>
-                          <button
-                            className={`${styles.fileAction} ${styles.fileActionDanger}`}
-                            onClick={e => { e.stopPropagation(); handleDeleteFile(f.name) }}
-                            title="Delete file"
-                            tabIndex={-1}
-                            disabled={files.length <= 1}
-                          >
-                            <TrashSimple size={11} />
-                          </button>
-                        </div>
+                        {/* Always-visible ⋮ menu button */}
+                        <button
+                          className={styles.fileMenuBtn}
+                          onClick={e => {
+                            e.stopPropagation()
+                            if (menuFile === f.name) { setMenuFile(null); return }
+                            setMenuFile(f.name)
+                            setMenuRect((e.currentTarget as HTMLButtonElement).getBoundingClientRect())
+                          }}
+                          title="File actions"
+                          aria-label={`Actions for ${f.name}`}
+                          aria-haspopup="menu"
+                          aria-expanded={menuFile === f.name}
+                        >
+                          <DotsThreeVertical size={13} weight="bold" />
+                        </button>
                       </>
                     )}
                   </div>
@@ -615,6 +616,19 @@ export default function SnippetViewPage() {
           onSave={handleSave}
           metadataOnly
         />
+
+        {/* Per-file ⋮ dropdown */}
+        {menuFile && menuRect && (
+          <FileMenu
+            anchorRect={menuRect}
+            canDelete={files.length > 1}
+            onClose={() => setMenuFile(null)}
+            onRename={() => handleStartRename(menuFile)}
+            onDuplicate={() => handleDuplicateFile(menuFile)}
+            onDelete={() => handleDeleteFile(menuFile)}
+            onCopyPath={handleCopyPath}
+          />
+        )}
 
         {/* Command palette */}
         <FileCommandPalette

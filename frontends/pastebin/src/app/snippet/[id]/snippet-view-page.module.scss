@@ -205,17 +205,12 @@
   border-bottom: 1px solid var(--mat-sys-surface-container-lowest);
   flex-shrink: 0;
   text-transform: uppercase;
-
-  // Reveal action buttons on header hover
-  &:hover .explorerActions { opacity: 1; }
 }
 
 .explorerActions {
   display: flex;
   align-items: center;
   gap: 1px;
-  opacity: 0;
-  transition: opacity 0.1s;
 }
 
 .explorerAction {
@@ -271,9 +266,8 @@
   padding-left: 14px;
 }
 
-// Wrapper for each file row — handles hover reveal of action icons
+// Wrapper for each file row
 .treeFileRow {
-  position: relative;
   display: flex;
   align-items: center;
   border-radius: 2px;
@@ -281,9 +275,6 @@
 
   &:hover {
     background: color-mix(in srgb, var(--mat-sys-on-surface) 6%, transparent);
-
-    .fileActions { opacity: 1; }
-    .treeFileBtn .fileName { padding-right: 42px; } // make room for action icons
   }
 
   &.treeFileRowActive {
@@ -296,33 +287,23 @@
   display: flex;
   align-items: center;
   gap: 5px;
-  padding: 2px 8px 2px 4px;
+  padding: 2px 4px 2px 4px;
   cursor: pointer;
   border: none;
   background: none;
-  width: 100%;
+  flex: 1;
   text-align: left;
   min-width: 0;
 }
 
-// Hover-revealed action icons (rename, delete)
-.fileActions {
-  position: absolute;
-  right: 3px;
-  display: flex;
-  align-items: center;
-  gap: 1px;
-  opacity: 0;
-  transition: opacity 0.1s;
-  flex-shrink: 0;
-}
-
-.fileAction {
+// Always-visible ⋮ button per file
+.fileMenuBtn {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
   padding: 0;
   background: none;
   border: none;
@@ -330,15 +311,11 @@
   cursor: pointer;
   color: var(--mat-sys-on-surface-variant);
   transition: background 0.1s, color 0.1s;
+  margin-right: 2px;
 
   &:hover {
     background: var(--mat-sys-surface-container-high);
     color: var(--mat-sys-on-surface);
-  }
-
-  &.fileActionDanger:hover {
-    background: color-mix(in srgb, var(--mat-sys-error) 12%, transparent);
-    color: var(--mat-sys-error);
   }
 }
 
