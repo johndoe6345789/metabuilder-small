@@ -4,11 +4,6 @@
 
 FROM metabuilder/base-node-deps:latest
 
-# Copy self-hosted fonts into public/ — needed at dev runtime, not mounted
-RUN mkdir -p /app/frontends/pastebin/public/fonts && \
-    cp /app/icons/material-symbols/material-symbols-outlined.woff2 \
-       /app/frontends/pastebin/public/fonts/
-
 # Copy pyodide runtime into public/ — needed at dev runtime, not mounted
 RUN mkdir -p /app/frontends/pastebin/public/pyodide && \
     cp /app/node_modules/pyodide/pyodide.js \
@@ -32,6 +27,11 @@ COPY icons/       ./icons/
 COPY scss/        ./scss/
 COPY components/  ./components/
 COPY redux/       ./redux/
+
+# Copy self-hosted fonts into public/ — must be after COPY icons/
+RUN mkdir -p /app/frontends/pastebin/public/fonts && \
+    cp /app/icons/material-symbols/material-symbols-outlined.woff2 \
+       /app/frontends/pastebin/public/fonts/
 
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
