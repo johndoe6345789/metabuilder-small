@@ -4,67 +4,68 @@ import {
   Lock,
   ArrowRight,
 } from '@phosphor-icons/react'
+import styles from './FormsShowcase.module.scss'
 
 export function FormsShowcase() {
   return (
-    <section className="space-y-6" data-testid="forms-showcase" role="region" aria-label="Forms showcase">
+    <section style={{ display: 'flex', flexDirection: 'column', gap: '24px' }} data-testid="forms-showcase" role="region" aria-label="Forms showcase">
       <div>
-        <h2 className="text-3xl font-bold mb-2">Forms</h2>
-        <p className="text-muted-foreground">
+        <h2 style={{ fontSize: '1.875rem', lineHeight: '2.25rem', fontWeight: 700, marginBottom: '8px' }}>Forms</h2>
+        <p style={{ color: 'var(--mat-sys-on-surface-variant)' }}>
           Complete form layouts with validation and actions
         </p>
       </div>
 
-      <Card className="p-6">
-        <form className="space-y-6">
+      <Card style={{ padding: '24px' }}>
+        <form style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           <div>
-            <h3 className="text-xl font-semibold mb-4">Create Account</h3>
-            <p className="text-sm text-muted-foreground">
+            <h3 style={{ fontSize: '1.25rem', lineHeight: '1.75rem', fontWeight: 600, marginBottom: '16px' }}>Create Account</h3>
+            <p style={{ fontSize: '0.875rem', lineHeight: '1.25rem', color: 'var(--mat-sys-on-surface-variant)' }}>
               Fill in your details to get started
             </p>
           </div>
 
           <Divider />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
+          <div className={styles.twoColGrid}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <FormLabel htmlFor="firstName">First Name</FormLabel>
               <Input id="firstName" placeholder="John" />
             </div>
-            <div className="space-y-2">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <FormLabel htmlFor="lastName">Last Name</FormLabel>
               <Input id="lastName" placeholder="Doe" />
             </div>
           </div>
 
-          <div className="space-y-2">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             <FormLabel htmlFor="formEmail">Email</FormLabel>
-            <div className="relative">
-              <Envelope className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" aria-hidden="true" />
-              <Input id="formEmail" type="email" placeholder="john@example.com" className="pl-10" />
+            <div style={{ position: 'relative' }}>
+              <Envelope className={styles.inputIcon} aria-hidden="true" />
+              <Input id="formEmail" type="email" placeholder="john@example.com" className={styles.inputWithIcon} />
             </div>
           </div>
 
-          <div className="space-y-2">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             <FormLabel htmlFor="formPassword">Password</FormLabel>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" aria-hidden="true" />
-              <Input id="formPassword" type="password" placeholder="••••••••" className="pl-10" />
+            <div style={{ position: 'relative' }}>
+              <Lock className={styles.inputIcon} aria-hidden="true" />
+              <Input id="formPassword" type="password" placeholder="••••••••" className={styles.inputWithIcon} />
             </div>
-            <p className="text-sm text-muted-foreground">
+            <p style={{ fontSize: '0.875rem', lineHeight: '1.25rem', color: 'var(--mat-sys-on-surface-variant)' }}>
               Must be at least 8 characters
             </p>
           </div>
 
           <Divider />
 
-          <div className="flex items-center justify-between gap-4">
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
             <Button variant="outlined" type="button">
               Cancel
             </Button>
             <Button type="submit">
               Create Account
-              <ArrowRight className="ml-2" aria-hidden="true" />
+              <ArrowRight style={{ marginLeft: '8px' }} aria-hidden="true" />
             </Button>
           </div>
         </form>

@@ -12,7 +12,7 @@ interface OrganismsSectionProps {
 
 export function OrganismsSection({ onSaveSnippet }: OrganismsSectionProps) {
   return (
-    <div className="space-y-16" data-testid="organisms-section" role="region" aria-label="Organism design system components">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '64px' }} data-testid="organisms-section" role="region" aria-label="Organism design system components">
       <NavigationBarsShowcase onSaveSnippet={onSaveSnippet} />
       <DataTablesShowcase />
       <FormsShowcase />

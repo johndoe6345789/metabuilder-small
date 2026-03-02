@@ -1,4 +1,5 @@
 import { useTranslation } from '@/hooks/useTranslation'
+import styles from './snippet-code-preview.module.scss'
 
 interface SnippetCodePreviewProps {
   displayCode: string
@@ -8,12 +9,12 @@ interface SnippetCodePreviewProps {
 export function SnippetCodePreview({ displayCode, isTruncated }: SnippetCodePreviewProps) {
   const t = useTranslation()
   return (
-    <div className="rounded-md bg-secondary/30 p-3 border border-border" data-testid="snippet-code-preview">
-      <pre className="text-xs text-muted-foreground overflow-x-auto whitespace-pre-wrap break-words font-mono" data-testid="code-preview-content">
+    <div className={styles.previewContainer} data-testid="snippet-code-preview">
+      <pre className={styles.code} data-testid="code-preview-content">
         {displayCode}
       </pre>
       {isTruncated && (
-        <p className="text-xs text-accent mt-2" role="status" data-testid="code-truncated-notice">
+        <p className={styles.truncatedNotice} role="status" data-testid="code-truncated-notice">
           {t.snippetCard.viewFullCode}
         </p>
       )}

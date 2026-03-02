@@ -26,8 +26,8 @@ export function PageLayout({ children }: { children: ReactNode }) {
   };
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: 'var(--mat-sys-background)' }} data-testid="page-layout">
-      <div className="grid-pattern" aria-hidden="true" />
+    <div className={styles.root} style={{ backgroundColor: 'var(--mat-sys-background)' }} data-testid="page-layout">
+      <div className={styles.gridPattern} aria-hidden="true" />
 
       <ThemeApplier />
       <NavigationSidebar />
@@ -36,11 +36,11 @@ export function PageLayout({ children }: { children: ReactNode }) {
         initial={false}
         animate={{ marginLeft: menuOpen ? 320 : 0 }}
         transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-        className="relative z-10 flex flex-col min-h-screen"
+        className={styles.contentWrapper}
       >
         <header className={styles.header} data-testid="page-header">
           <div
-            className="container mx-auto px-2 sm:px-6 w-full min-w-0"
+            className={styles.headerInner}
             style={{
               ...safeAreaPadding,
               paddingTop: `max(0.75rem, env(safe-area-inset-top, 0px))`,
@@ -82,24 +82,24 @@ export function PageLayout({ children }: { children: ReactNode }) {
         </header>
 
         <main
-          className="container mx-auto px-3 py-4 sm:px-6 sm:py-8 flex-1"
+          className={styles.main}
           style={safeAreaPadding}
           data-testid="main-content"
         >
           {children}
         </main>
 
-        <footer className="border-t border-border" style={{ backgroundColor: 'var(--mat-sys-surface-container-low)' }}>
+        <footer className={styles.footer}>
           <div
-            className="container mx-auto px-3 py-4 sm:px-6 sm:py-8"
+            className={styles.footerInner}
             style={{
               ...safeAreaPadding,
               paddingBottom: `max(1rem, env(safe-area-inset-bottom, 0px))`,
             }}
           >
-            <div className="text-center text-xs sm:text-sm text-muted-foreground">
+            <div className={styles.footerText}>
               <p>{t.page.footer.tagline}</p>
-              <p className="mt-2 text-xs">{t.page.footer.techNote}</p>
+              <p className={styles.footerNote}>{t.page.footer.techNote}</p>
             </div>
           </div>
         </footer>

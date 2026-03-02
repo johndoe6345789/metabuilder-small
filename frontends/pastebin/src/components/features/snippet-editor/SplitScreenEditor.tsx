@@ -58,51 +58,51 @@ export function SplitScreenEditor({
   }
 
   return (
-    <div className="flex flex-col gap-3" data-testid="split-screen-editor">
-      <div className="flex items-center justify-end">
-        <div className={`flex items-center gap-1 p-1 rounded-md ${styles.viewModeBar}`} role="group" aria-label="View mode selector">
+    <div className={styles.root} data-testid="split-screen-editor">
+      <div className={styles.toolbar}>
+        <div className={styles.viewModeBar} role="group" aria-label="View mode selector">
           <Button
             variant={viewMode === 'code' ? 'filled' : 'text'}
             size="sm"
             onClick={() => setViewMode('code')}
-            className="flex items-center gap-2 h-8"
+            className={styles.viewModeBtn}
             data-testid="view-mode-code-btn"
             aria-label="Show code only"
             aria-pressed={viewMode === 'code'}
           >
-            <Code className="w-4 h-4" aria-hidden="true" />
-            <span className="hidden sm:inline">Code</span>
+            <Code className={styles.iconSm} aria-hidden="true" />
+            <span className={styles.btnLabel}>Code</span>
           </Button>
           <Button
             variant={viewMode === 'split' ? 'filled' : 'text'}
             size="sm"
             onClick={() => setViewMode('split')}
-            className="flex items-center gap-2 h-8"
+            className={styles.viewModeBtn}
             data-testid="view-mode-split-btn"
             aria-label="Show code and preview side by side"
             aria-pressed={viewMode === 'split'}
           >
-            <SplitHorizontal className="w-4 h-4" aria-hidden="true" />
-            <span className="hidden sm:inline">Split</span>
+            <SplitHorizontal className={styles.iconSm} aria-hidden="true" />
+            <span className={styles.btnLabel}>Split</span>
           </Button>
           <Button
             variant={viewMode === 'preview' ? 'filled' : 'text'}
             size="sm"
             onClick={() => setViewMode('preview')}
-            className="flex items-center gap-2 h-8"
+            className={styles.viewModeBtn}
             data-testid="view-mode-preview-btn"
             aria-label={`Show ${isPython ? 'output' : 'preview'} only`}
             aria-pressed={viewMode === 'preview'}
           >
-            <Eye className="w-4 h-4" aria-hidden="true" />
-            <span className="hidden sm:inline">{isPython ? 'Output' : 'Preview'}</span>
+            <Eye className={styles.iconSm} aria-hidden="true" />
+            <span className={styles.btnLabel}>{isPython ? 'Output' : 'Preview'}</span>
           </Button>
         </div>
       </div>
 
       <div
         style={{ height: viewMode === 'split' ? 'auto' : height }}
-        className={`rounded-md overflow-hidden border ${styles.editorContainer}`}
+        className={styles.editorContainer}
         data-testid={`split-screen-editor-${viewMode}`}
         role="region"
         aria-label={`${viewMode === 'code' ? 'Code editor' : viewMode === 'preview' ? (isPython ? 'Python output' : 'Preview') : 'Code editor and preview'}`}
@@ -130,8 +130,8 @@ export function SplitScreenEditor({
         )}
 
         {viewMode === 'split' && (
-          <div className={`flex flex-col md:flex-row ${styles.splitGrid}`} data-testid="split-screen-grid">
-            <div className={`md:flex-1 overflow-auto ${styles.splitPane}`} style={{ height }} data-testid="split-screen-code-pane">
+          <div className={styles.splitGrid} data-testid="split-screen-grid">
+            <div className={styles.splitPane} style={{ height }} data-testid="split-screen-code-pane">
               <MonacoEditor
                 value={value}
                 onChange={onChange}
@@ -139,7 +139,7 @@ export function SplitScreenEditor({
                 height={height}
               />
             </div>
-            <div className={`md:flex-1 overflow-auto ${styles.splitPane}`} style={{ height }} data-testid="split-screen-preview-pane">
+            <div className={styles.splitPane} style={{ height }} data-testid="split-screen-preview-pane">
               {isPython ? (
                 <PythonOutput code={value} />
               ) : (

@@ -32,9 +32,9 @@ export default function TemplatesPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
       >
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold tracking-tight mb-2">Templates</h2>
-          <p className="text-muted-foreground">Page-level layouts that combine organisms into complete interfaces</p>
+        <div style={{ marginBottom: '32px' }}>
+          <h2 style={{ fontSize: '1.875rem', lineHeight: '2.25rem', fontWeight: 700, letterSpacing: '-0.025em', marginBottom: '8px' }}>Templates</h2>
+          <p style={{ color: 'var(--mat-sys-on-surface-variant)' }}>Page-level layouts that combine organisms into complete interfaces</p>
         </div>
         <TemplatesSection onSaveSnippet={handleSaveSnippet} />
       </motion.div>

@@ -42,7 +42,7 @@ export function CreateNamespaceDialog({
         </DialogHeader>
         <DialogContent data-testid="create-namespace-dialog">
           <p className={styles.description}>{t.namespace.create.description}</p>
-          <div className="space-y-4">
+          <div className={styles.formContent}>
             <Input
               placeholder={t.namespace.create.namePlaceholder}
               value={namespaceName}

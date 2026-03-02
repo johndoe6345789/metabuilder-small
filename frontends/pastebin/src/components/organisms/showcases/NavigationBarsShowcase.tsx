@@ -11,6 +11,7 @@ import {
 import { ComponentShowcase } from '@/components/demo/ComponentShowcase'
 import { organismsCodeSnippets } from '@/lib/component-code-snippets'
 import { Snippet } from '@/lib/types'
+import styles from './NavigationBarsShowcase.module.scss'
 
 interface NavigationBarsShowcaseProps {
   onSaveSnippet: (snippet: Omit<Snippet, 'id' | 'createdAt' | 'updatedAt'>) => void
@@ -18,10 +19,10 @@ interface NavigationBarsShowcaseProps {
 
 export function NavigationBarsShowcase({ onSaveSnippet }: NavigationBarsShowcaseProps) {
   return (
-    <section className="space-y-6" data-testid="navigation-bars-showcase" role="region" aria-label="Navigation bars showcase">
+    <section style={{ display: 'flex', flexDirection: 'column', gap: '24px' }} data-testid="navigation-bars-showcase" role="region" aria-label="Navigation bars showcase">
       <div>
-        <h2 className="text-3xl font-bold mb-2">Navigation Bars</h2>
-        <p className="text-muted-foreground">
+        <h2 style={{ fontSize: '1.875rem', lineHeight: '2.25rem', fontWeight: 700, marginBottom: '8px' }}>Navigation Bars</h2>
+        <p style={{ color: 'var(--mat-sys-on-surface-variant)' }}>
           Complete navigation components with branding and actions
         </p>
       </div>
@@ -33,64 +34,64 @@ export function NavigationBarsShowcase({ onSaveSnippet }: NavigationBarsShowcase
         category="organisms"
         onSaveSnippet={onSaveSnippet}
       >
-        <Card className="overflow-hidden">
-          <div className="border-b border-border bg-card p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-6">
-                <h3 className="text-xl font-bold">BrandName</h3>
-                <nav className="hidden md:flex items-center gap-1">
+        <Card style={{ overflow: 'hidden' }}>
+          <div style={{ borderBottom: '1px solid var(--mat-sys-outline-variant)', backgroundColor: 'var(--mat-sys-surface-container)', padding: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+                <h3 style={{ fontSize: '1.25rem', lineHeight: '1.75rem', fontWeight: 700 }}>BrandName</h3>
+                <nav className={styles.desktopNav}>
                   <Button variant="ghost" size="sm">
-                    <House className="mr-2" aria-hidden="true" />
+                    <House style={{ marginRight: '8px' }} aria-hidden="true" />
                     Home
                   </Button>
                   <Button variant="ghost" size="sm">
-                    <ChartBar className="mr-2" aria-hidden="true" />
+                    <ChartBar style={{ marginRight: '8px' }} aria-hidden="true" />
                     Analytics
                   </Button>
                   <Button variant="ghost" size="sm">
-                    <Folder className="mr-2" aria-hidden="true" />
+                    <Folder style={{ marginRight: '8px' }} aria-hidden="true" />
                     Projects
                   </Button>
                 </nav>
               </div>
-              <div className="flex items-center gap-2">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Button variant="ghost">
                   <Bell aria-hidden="true" />
                 </Button>
                 <Button variant="ghost">
                   <Gear aria-hidden="true" />
                 </Button>
-                <Avatar className="h-8 w-8" src="https://i.pravatar.cc/150?img=3" alt="User">U</Avatar>
+                <Avatar style={{ width: '32px', height: '32px' }} src="https://i.pravatar.cc/150?img=3" alt="User">U</Avatar>
               </div>
             </div>
           </div>
 
-          <div className="p-6">
-            <p className="text-sm text-muted-foreground">
+          <div style={{ padding: '24px' }}>
+            <p style={{ fontSize: '0.875rem', lineHeight: '1.25rem', color: 'var(--mat-sys-on-surface-variant)' }}>
               Primary navigation with user menu and notifications
             </p>
           </div>
         </Card>
       </ComponentShowcase>
 
-      <Card className="overflow-hidden">
-        <div className="border-b border-border bg-card">
-          <div className="p-4 flex items-center justify-between">
-            <div className="flex items-center gap-6">
-              <div className="flex items-center gap-2">
-                <div className="h-8 w-8 rounded-lg bg-accent" />
-                <h3 className="text-xl font-bold">Product</h3>
+      <Card style={{ overflow: 'hidden' }}>
+        <div style={{ borderBottom: '1px solid var(--mat-sys-outline-variant)', backgroundColor: 'var(--mat-sys-surface-container)' }}>
+          <div style={{ padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{ height: '32px', width: '32px', borderRadius: '8px', backgroundColor: 'var(--mat-sys-secondary-container)' }} />
+                <h3 style={{ fontSize: '1.25rem', lineHeight: '1.75rem', fontWeight: 700 }}>Product</h3>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Button variant="outlined" size="sm">
                 Sign In
               </Button>
               <Button size="sm">Get Started</Button>
             </div>
           </div>
-          <nav className="px-4 pb-2 flex items-center gap-1 overflow-x-auto">
-            <Button variant="ghost" size="sm" className="text-accent">
+          <nav className={styles.scrollableNav}>
+            <Button variant="ghost" size="sm" style={{ color: 'var(--mat-sys-secondary-container)' }}>
               Features
             </Button>
             <Button variant="ghost" size="sm">
@@ -105,8 +106,8 @@ export function NavigationBarsShowcase({ onSaveSnippet }: NavigationBarsShowcase
           </nav>
         </div>
 
-        <div className="p-6">
-          <p className="text-sm text-muted-foreground">
+        <div style={{ padding: '24px' }}>
+          <p style={{ fontSize: '0.875rem', lineHeight: '1.25rem', color: 'var(--mat-sys-on-surface-variant)' }}>
             Marketing site navigation with CTAs
           </p>
         </div>

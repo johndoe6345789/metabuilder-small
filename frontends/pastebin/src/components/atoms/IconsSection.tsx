@@ -9,50 +9,51 @@ import {
   Minus,
   MagnifyingGlass,
 } from '@phosphor-icons/react'
+import styles from './IconsSection.module.scss'
 
 export function IconsSection() {
   return (
-    <section className="space-y-6" data-testid="icons-section" role="region" aria-label="Icon gallery">
+    <section style={{ display: 'flex', flexDirection: 'column', gap: '24px' }} data-testid="icons-section" role="region" aria-label="Icon gallery">
       <div>
-        <h2 className="text-3xl font-bold mb-2">Icons</h2>
-        <p className="text-muted-foreground">
+        <h2 style={{ fontSize: '1.875rem', lineHeight: '2.25rem', fontWeight: 700, marginBottom: '8px' }}>Icons</h2>
+        <p style={{ color: 'var(--mat-sys-on-surface-variant)' }}>
           Phosphor icon set with multiple weights
         </p>
       </div>
-      
+
       <Card className="p-6">
-        <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-6">
-          <div className="flex flex-col items-center gap-2">
-            <Heart className="h-8 w-8" aria-hidden="true" />
-            <span className="text-xs text-muted-foreground">Heart</span>
+        <div className={styles.iconsGrid}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+            <Heart style={{ width: '32px', height: '32px' }} aria-hidden="true" />
+            <span style={{ fontSize: '0.75rem', lineHeight: '1rem', color: 'var(--mat-sys-on-surface-variant)' }}>Heart</span>
           </div>
-          <div className="flex flex-col items-center gap-2">
-            <Star className="h-8 w-8" aria-hidden="true" />
-            <span className="text-xs text-muted-foreground">Star</span>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+            <Star style={{ width: '32px', height: '32px' }} aria-hidden="true" />
+            <span style={{ fontSize: '0.75rem', lineHeight: '1rem', color: 'var(--mat-sys-on-surface-variant)' }}>Star</span>
           </div>
-          <div className="flex flex-col items-center gap-2">
-            <Lightning className="h-8 w-8" aria-hidden="true" />
-            <span className="text-xs text-muted-foreground">Lightning</span>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+            <Lightning style={{ width: '32px', height: '32px' }} aria-hidden="true" />
+            <span style={{ fontSize: '0.75rem', lineHeight: '1rem', color: 'var(--mat-sys-on-surface-variant)' }}>Lightning</span>
           </div>
-          <div className="flex flex-col items-center gap-2">
-            <Check className="h-8 w-8" aria-hidden="true" />
-            <span className="text-xs text-muted-foreground">Check</span>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+            <Check style={{ width: '32px', height: '32px' }} aria-hidden="true" />
+            <span style={{ fontSize: '0.75rem', lineHeight: '1rem', color: 'var(--mat-sys-on-surface-variant)' }}>Check</span>
           </div>
-          <div className="flex flex-col items-center gap-2">
-            <X className="h-8 w-8" aria-hidden="true" />
-            <span className="text-xs text-muted-foreground">X</span>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+            <X style={{ width: '32px', height: '32px' }} aria-hidden="true" />
+            <span style={{ fontSize: '0.75rem', lineHeight: '1rem', color: 'var(--mat-sys-on-surface-variant)' }}>X</span>
           </div>
-          <div className="flex flex-col items-center gap-2">
-            <Plus className="h-8 w-8" aria-hidden="true" />
-            <span className="text-xs text-muted-foreground">Plus</span>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+            <Plus style={{ width: '32px', height: '32px' }} aria-hidden="true" />
+            <span style={{ fontSize: '0.75rem', lineHeight: '1rem', color: 'var(--mat-sys-on-surface-variant)' }}>Plus</span>
           </div>
-          <div className="flex flex-col items-center gap-2">
-            <Minus className="h-8 w-8" aria-hidden="true" />
-            <span className="text-xs text-muted-foreground">Minus</span>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+            <Minus style={{ width: '32px', height: '32px' }} aria-hidden="true" />
+            <span style={{ fontSize: '0.75rem', lineHeight: '1rem', color: 'var(--mat-sys-on-surface-variant)' }}>Minus</span>
           </div>
-          <div className="flex flex-col items-center gap-2">
-            <MagnifyingGlass className="h-8 w-8" aria-hidden="true" />
-            <span className="text-xs text-muted-foreground">Search</span>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+            <MagnifyingGlass style={{ width: '32px', height: '32px' }} aria-hidden="true" />
+            <span style={{ fontSize: '0.75rem', lineHeight: '1rem', color: 'var(--mat-sys-on-surface-variant)' }}>Search</span>
           </div>
         </div>
       </Card>

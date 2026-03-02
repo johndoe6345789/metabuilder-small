@@ -22,7 +22,7 @@ export function DatabaseStatsCard({ loading, stats, formatBytes }: DatabaseStats
   return (
     <Card data-testid="database-stats-card">
       <CardHeader>
-        <h3 className={`${styles.cardTitle} flex items-center gap-2`}>
+        <h3 className={styles.cardTitleWithIcon}>
           <Database weight="duotone" size={24} aria-hidden="true" />
           {s.title}
         </h3>
@@ -32,28 +32,28 @@ export function DatabaseStatsCard({ loading, stats, formatBytes }: DatabaseStats
       </CardHeader>
       <CardContent>
         {loading ? (
-          <p className="text-muted-foreground" data-testid="stats-loading" role="status" aria-busy="true">{s.loading}</p>
+          <p className={styles.textMuted} data-testid="stats-loading" role="status" aria-busy="true">{s.loading}</p>
         ) : stats ? (
-          <div className="space-y-3" role="region" aria-label="Database statistics">
-            <div className="flex justify-between items-center py-2 border-b border-border" data-testid="stat-snippets">
-              <span className="text-sm text-muted-foreground">{s.snippets}</span>
-              <span className="font-semibold">{stats.snippetCount}</span>
+          <div className={styles.statsContainer} role="region" aria-label="Database statistics">
+            <div className={styles.statRow} data-testid="stat-snippets">
+              <span className={styles.statLabel}>{s.snippets}</span>
+              <span className={styles.statValue}>{stats.snippetCount}</span>
             </div>
-            <div className="flex justify-between items-center py-2 border-b border-border" data-testid="stat-templates">
-              <span className="text-sm text-muted-foreground">{s.templates}</span>
-              <span className="font-semibold">{stats.templateCount}</span>
+            <div className={styles.statRow} data-testid="stat-templates">
+              <span className={styles.statLabel}>{s.templates}</span>
+              <span className={styles.statValue}>{stats.templateCount}</span>
             </div>
-            <div className="flex justify-between items-center py-2 border-b border-border" data-testid="stat-storage-type">
-              <span className="text-sm text-muted-foreground">{s.storageType}</span>
-              <span className="font-semibold capitalize">{stats.storageType}</span>
+            <div className={styles.statRow} data-testid="stat-storage-type">
+              <span className={styles.statLabel}>{s.storageType}</span>
+              <span className={styles.statValue}>{stats.storageType}</span>
             </div>
-            <div className="flex justify-between items-center py-2" data-testid="stat-database-size">
-              <span className="text-sm text-muted-foreground">{s.databaseSize}</span>
-              <span className="font-semibold">{formatBytes(stats.databaseSize)}</span>
+            <div className={styles.statRowLast} data-testid="stat-database-size">
+              <span className={styles.statLabel}>{s.databaseSize}</span>
+              <span className={styles.statValue}>{formatBytes(stats.databaseSize)}</span>
             </div>
           </div>
         ) : (
-          <p className="text-destructive" data-testid="stats-error" role="alert">{s.error}</p>
+          <p className={styles.textDestructive} data-testid="stats-error" role="alert">{s.error}</p>
         )}
       </CardContent>
     </Card>

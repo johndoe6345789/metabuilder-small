@@ -6,6 +6,7 @@ import { Play, CircleNotch, Warning } from '@phosphor-icons/react'
 import { Button, Card } from '@metabuilder/components/fakemui'
 import { runPythonViaFlask } from '@/lib/flask-runner'
 import { PythonTerminal } from '@/components/features/python-runner/PythonTerminal'
+import styles from './PythonOutput.module.scss'
 
 interface PythonOutputProps {
   code: string
@@ -44,21 +45,20 @@ export function PythonOutput({ code }: PythonOutputProps) {
   }
 
   return (
-    <div className="flex flex-col h-full bg-card" data-testid="python-output">
-      <div className="flex items-center justify-between p-4 border-b border-border bg-muted/30">
-        <h3 className="text-sm font-semibold text-foreground">Python Output</h3>
+    <div className={styles.container} data-testid="python-output">
+      <div className={styles.header}>
+        <h3 className={styles.headerTitle}>Python Output</h3>
         <Button
           onClick={handleRun}
           disabled={isRunning}
           size="sm"
-          className="gap-2"
           data-testid="run-python-code-btn"
           aria-label={isRunning ? 'Running code' : 'Run Python code'}
           aria-busy={isRunning}
         >
           {isRunning ? (
             <>
-              <CircleNotch className="animate-spin" size={16} aria-hidden="true" />
+              <CircleNotch className={styles.spinIcon} size={16} aria-hidden="true" />
               Running...
             </>
           ) : (
@@ -70,10 +70,10 @@ export function PythonOutput({ code }: PythonOutputProps) {
         </Button>
       </div>
 
-      <div className="flex-1 overflow-auto p-4 space-y-4" role="region" aria-label="Output content">
+      <div className={styles.body} role="region" aria-label="Output content">
         {!isRunning && !output && !error && (
           <div
-            className="flex items-center justify-center h-full text-muted-foreground text-sm"
+            className={styles.emptyState}
             data-testid="empty-output"
             role="status"
           >
@@ -90,8 +90,8 @@ export function PythonOutput({ code }: PythonOutputProps) {
             role="region"
             aria-label="Python output result"
           >
-            <Card className="p-4 bg-background">
-              <pre className="text-sm font-mono whitespace-pre-wrap text-foreground">
+            <Card className={styles.outputCard}>
+              <pre className={styles.outputPre}>
                 {output || '(no output)'}
               </pre>
             </Card>
@@ -103,14 +103,13 @@ export function PythonOutput({ code }: PythonOutputProps) {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.2 }}
-            className="mt-4"
             data-testid="python-error-card"
             role="alert"
           >
-            <Card className="p-4 bg-destructive/10 border-destructive/20">
-              <div className="flex items-start gap-2">
-                <Warning size={16} weight="fill" className="text-destructive mt-0.5 shrink-0" aria-hidden="true" />
-                <pre className="text-sm font-mono whitespace-pre-wrap text-destructive flex-1">
+            <Card className={styles.errorCard}>
+              <div className={styles.errorRow}>
+                <Warning size={16} weight="fill" className={styles.errorIcon} aria-hidden="true" />
+                <pre className={styles.errorPre}>
                   {error}
                 </pre>
               </div>

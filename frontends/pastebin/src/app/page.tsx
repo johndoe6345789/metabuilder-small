@@ -20,7 +20,7 @@ export default function HomePage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
       >
-        <div className="mb-8">
+        <div style={{ marginBottom: '2rem' }}>
           <h1 style={{ fontFamily: 'var(--mat-sys-headline-large-font)', fontSize: '2rem', fontWeight: 700, letterSpacing: '-0.02em', marginBottom: 6, color: 'var(--mat-sys-on-surface)' }}>{t.page.heading}</h1>
           <p style={{ color: 'var(--mat-sys-on-surface-variant)', fontSize: '1rem' }}>{t.page.subtitle}</p>
         </div>

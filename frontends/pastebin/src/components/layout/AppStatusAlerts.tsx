@@ -15,14 +15,14 @@ export function AppStatusAlerts() {
   const usingLocal = backend === 'indexeddb'
 
   return (
-    <div className="space-y-2" data-testid="status-alerts" role="region" aria-label="Application status alerts">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }} data-testid="status-alerts" role="region" aria-label="Application status alerts">
       <Alert
         data-testid="alert-success"
         className="alert-m3-success"
         role="status"
         aria-live="polite"
         severity="success"
-        icon={<CheckCircle className="col-start-1 mt-0.5 text-emerald-500" weight="fill" aria-hidden="true" />}
+        icon={<CheckCircle style={{ gridColumnStart: 1, marginTop: '0.125rem', color: 'var(--mat-sys-tertiary)' }} weight="fill" aria-hidden="true" />}
       >
         <AlertTitle>{t.statusAlerts.workspaceReady}</AlertTitle>
         {usingLocal ? t.statusAlerts.localModeDesc : t.statusAlerts.connectedDesc}
@@ -35,7 +35,7 @@ export function AppStatusAlerts() {
           role="alert"
           aria-live="assertive"
           severity="error"
-          icon={<WarningCircle className="col-start-1 mt-0.5" weight="fill" aria-hidden="true" />}
+          icon={<WarningCircle style={{ gridColumnStart: 1, marginTop: '0.125rem' }} weight="fill" aria-hidden="true" />}
         >
           <AlertTitle>{t.statusAlerts.cloudUnavailable}</AlertTitle>
           {t.statusAlerts.cloudUnavailableDesc}

@@ -3,6 +3,7 @@ import { Alert, AlertTitle, Button } from "@metabuilder/components/fakemui";
 import { AIErrorHelper } from "@/components/error/AIErrorHelper";
 import { Warning, ArrowClockwise, CaretDown, CaretUp, Copy, Check } from "@phosphor-icons/react";
 import { useTranslation } from "@/hooks/useTranslation";
+import styles from "./ErrorFallback.module.scss";
 
 interface ErrorFallbackProps {
   error: unknown;
@@ -25,15 +26,15 @@ export function ErrorFallback({ error, resetErrorBoundary }: ErrorFallbackProps)
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4" data-testid="error-fallback">
-      <div className="w-full max-w-3xl">
-        <Alert severity="error" className="mb-6" data-testid="error-alert" role="alert">
+    <div className={styles.root} data-testid="error-fallback">
+      <div className={styles.inner}>
+        <Alert severity="error" style={{ marginBottom: '1.5rem' }} data-testid="error-alert" role="alert">
           <Warning aria-hidden="true" />
           <AlertTitle>{t.errorFallback.title}</AlertTitle>
-          <div className="mt-3 space-y-4">
-            <div className="flex items-center justify-between gap-2">
+          <div className={styles.alertBody}>
+            <div className={styles.messageRow}>
               <code
-                className="text-sm bg-destructive/20 px-2 py-1 rounded flex-1 break-all"
+                className={styles.errorCode}
                 data-testid="error-message"
               >
                 {err.message}
@@ -42,19 +43,18 @@ export function ErrorFallback({ error, resetErrorBoundary }: ErrorFallbackProps)
                 size="sm"
                 variant="outlined"
                 onClick={handleCopy}
-                className="shrink-0"
                 data-testid="copy-error-btn"
                 aria-label="Copy error details"
                 aria-live="polite"
               >
                 {copied ? (
                   <>
-                    <Check className="h-3.5 w-3.5" />
+                    <Check style={{ width: '0.875rem', height: '0.875rem' }} />
                     {t.errorFallback.copied}
                   </>
                 ) : (
                   <>
-                    <Copy className="h-3.5 w-3.5" />
+                    <Copy style={{ width: '0.875rem', height: '0.875rem' }} />
                     {t.errorFallback.copy}
                   </>
                 )}
@@ -66,23 +66,23 @@ export function ErrorFallback({ error, resetErrorBoundary }: ErrorFallbackProps)
                 variant="ghost"
                 size="sm"
                 onClick={() => setIsStackOpen(!isStackOpen)}
-                className="w-full justify-between"
+                style={{ width: '100%', justifyContent: 'space-between' }}
                 aria-expanded={isStackOpen}
                 data-testid="stack-trace-trigger"
               >
                 {isStackOpen ? (
                   <>
-                    {t.errorFallback.hideStack} <CaretUp className="h-4 w-4 ml-2" aria-hidden="true" />
+                    {t.errorFallback.hideStack} <CaretUp style={{ width: '1rem', height: '1rem', marginLeft: '0.5rem' }} aria-hidden="true" />
                   </>
                 ) : (
                   <>
-                    {t.errorFallback.showStack} <CaretDown className="h-4 w-4 ml-2" aria-hidden="true" />
+                    {t.errorFallback.showStack} <CaretDown style={{ width: '1rem', height: '1rem', marginLeft: '0.5rem' }} aria-hidden="true" />
                   </>
                 )}
               </Button>
               {isStackOpen && (
-                <div className="mt-4" data-testid="stack-trace-content">
-                  <pre className="text-xs bg-destructive/10 p-3 rounded overflow-auto max-h-60" data-testid="error-stack-trace">
+                <div className={styles.stackContent} data-testid="stack-trace-content">
+                  <pre className={styles.stackPre} data-testid="error-stack-trace">
                     {err.stack || t.errorFallback.noStack}
                   </pre>
                 </div>
@@ -95,12 +95,12 @@ export function ErrorFallback({ error, resetErrorBoundary }: ErrorFallbackProps)
 
         <Button
           onClick={() => (resetErrorBoundary ? resetErrorBoundary() : window.location.reload())}
-          className="w-full mt-6"
+          className={styles.reloadBtn}
           variant="outlined"
           data-testid="reload-btn"
           aria-label="Try reloading the page"
         >
-          <ArrowClockwise className="h-4 w-4 mr-2" aria-hidden="true" />
+          <ArrowClockwise style={{ width: '1rem', height: '1rem', marginRight: '0.5rem' }} aria-hidden="true" />
           {t.errorFallback.reload}
         </Button>
       </div>

@@ -61,7 +61,7 @@ export function SnippetToolbar({
         <Button
           variant={selectionMode ? "filled" : "outline"}
           onClick={onToggleSelectionMode}
-          className="gap-2"
+          className={styles.btnGap}
           data-testid="snippet-selection-mode-btn"
           aria-pressed={selectionMode}
           aria-label={selectionMode ? "Cancel selection mode" : "Enter selection mode"}
@@ -79,7 +79,7 @@ export function SnippetToolbar({
           )}
         </Button>
         <Button
-          className="gap-2 w-full sm:w-auto"
+          className={styles.createBtn}
           onClick={(e) => setMenuAnchor(e.currentTarget)}
           data-testid="snippet-create-menu-trigger"
           aria-label="Create new snippet"

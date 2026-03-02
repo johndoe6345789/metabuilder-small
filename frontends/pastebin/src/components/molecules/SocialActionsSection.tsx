@@ -3,45 +3,45 @@ import { Heart, ChatCircle, Share, DotsThree } from '@phosphor-icons/react'
 
 export function SocialActionsSection() {
   return (
-    <section className="space-y-6" data-testid="social-actions-section" role="region" aria-label="Social action buttons">
+    <section style={{ display: 'flex', flexDirection: 'column', gap: '24px' }} data-testid="social-actions-section" role="region" aria-label="Social action buttons">
       <div>
-        <h2 className="text-3xl font-bold mb-2">Social Actions</h2>
-        <p className="text-muted-foreground">
+        <h2 style={{ fontSize: '1.875rem', lineHeight: '2.25rem', fontWeight: 700, marginBottom: '8px' }}>Social Actions</h2>
+        <p style={{ color: 'var(--mat-sys-on-surface-variant)' }}>
           Grouped interactive buttons for social features
         </p>
       </div>
 
       <Card className="p-6">
-        <div className="space-y-6">
-          <div className="flex items-center gap-2">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Button variant="ghost" size="sm">
-              <Heart className="mr-2" />
+              <Heart style={{ marginRight: '8px' }} />
               Like
             </Button>
             <Button variant="ghost" size="sm">
-              <ChatCircle className="mr-2" />
+              <ChatCircle style={{ marginRight: '8px' }} />
               Comment
             </Button>
             <Button variant="ghost" size="sm">
-              <Share className="mr-2" />
+              <Share style={{ marginRight: '8px' }} />
               Share
             </Button>
           </div>
 
           <Divider />
 
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
               <Button variant="outlined" size="sm">
-                <Heart weight="fill" className="text-destructive mr-2" />
-                <span className="text-foreground">256</span>
+                <Heart weight="fill" style={{ color: 'var(--mat-sys-error)', marginRight: '8px' }} />
+                <span style={{ color: 'var(--mat-sys-on-background)' }}>256</span>
               </Button>
               <Button variant="outlined" size="sm">
-                <ChatCircle className="mr-2" />
+                <ChatCircle style={{ marginRight: '8px' }} />
                 <span>42</span>
               </Button>
             </div>
-            <div className="flex items-center gap-2">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Button variant="ghost" size="sm">
                 <Share />
               </Button>

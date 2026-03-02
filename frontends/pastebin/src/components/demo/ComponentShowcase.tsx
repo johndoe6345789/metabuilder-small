@@ -51,13 +51,12 @@ export function ComponentShowcase({
 
   return (
     <>
-      <Card className="relative group" data-testid={`showcase-${category}-${title.toLowerCase().replace(/\s+/g, '-')}`}>
-        <div className="absolute top-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity" data-testid="showcase-save-btn-container">
+      <Card style={{ position: 'relative' }} data-testid={`showcase-${category}-${title.toLowerCase().replace(/\s+/g, '-')}`}>
+        <div style={{ position: 'absolute', top: '16px', right: '16px', zIndex: 10 }} data-testid="showcase-save-btn-container">
           <Button
             variant="secondary"
             size="sm"
             onClick={handleSaveClick}
-            className="gap-2 shadow-lg"
             data-testid="showcase-save-btn"
             aria-label={`Save ${title} as snippet`}
           >

@@ -1,67 +1,68 @@
 import { Card } from '@metabuilder/components/fakemui'
+import styles from './ColorsSection.module.scss'
 
 export function ColorsSection() {
   return (
-    <section className="space-y-6" data-testid="colors-section" role="region" aria-label="Colors palette">
+    <section style={{ display: 'flex', flexDirection: 'column', gap: '24px' }} data-testid="colors-section" role="region" aria-label="Colors palette">
       <div>
-        <h2 className="text-3xl font-bold mb-2">Colors</h2>
-        <p className="text-muted-foreground">
+        <h2 style={{ fontSize: '1.875rem', lineHeight: '2.25rem', fontWeight: 700, marginBottom: '8px' }}>Colors</h2>
+        <p style={{ color: 'var(--mat-sys-on-surface-variant)' }}>
           Semantic color palette with accessibility in mind
         </p>
       </div>
-      
+
       <Card className="p-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div className="space-y-2">
-            <div className="h-24 rounded-lg bg-primary" />
+        <div className={styles.colorsGrid}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div style={{ height: '96px', borderRadius: '12px', backgroundColor: 'var(--mat-sys-primary)' }} />
             <div>
-              <p className="font-medium">Primary</p>
-              <code className="text-xs text-muted-foreground">
+              <p style={{ fontWeight: 500 }}>Primary</p>
+              <code style={{ fontSize: '0.75rem', lineHeight: '1rem', color: 'var(--mat-sys-on-surface-variant)' }}>
                 oklch(0.50 0.18 310)
               </code>
             </div>
           </div>
-          <div className="space-y-2">
-            <div className="h-24 rounded-lg bg-secondary" />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div style={{ height: '96px', borderRadius: '12px', backgroundColor: 'var(--mat-sys-secondary)' }} />
             <div>
-              <p className="font-medium">Secondary</p>
-              <code className="text-xs text-muted-foreground">
+              <p style={{ fontWeight: 500 }}>Secondary</p>
+              <code style={{ fontSize: '0.75rem', lineHeight: '1rem', color: 'var(--mat-sys-on-surface-variant)' }}>
                 oklch(0.30 0.08 310)
               </code>
             </div>
           </div>
-          <div className="space-y-2">
-            <div className="h-24 rounded-lg bg-accent" />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div style={{ height: '96px', borderRadius: '12px', backgroundColor: 'var(--mat-sys-secondary-container)' }} />
             <div>
-              <p className="font-medium">Accent</p>
-              <code className="text-xs text-muted-foreground">
+              <p style={{ fontWeight: 500 }}>Accent</p>
+              <code style={{ fontSize: '0.75rem', lineHeight: '1rem', color: 'var(--mat-sys-on-surface-variant)' }}>
                 oklch(0.72 0.20 25)
               </code>
             </div>
           </div>
-          <div className="space-y-2">
-            <div className="h-24 rounded-lg bg-destructive" />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div style={{ height: '96px', borderRadius: '12px', backgroundColor: 'var(--mat-sys-error)' }} />
             <div>
-              <p className="font-medium">Destructive</p>
-              <code className="text-xs text-muted-foreground">
+              <p style={{ fontWeight: 500 }}>Destructive</p>
+              <code style={{ fontSize: '0.75rem', lineHeight: '1rem', color: 'var(--mat-sys-on-surface-variant)' }}>
                 oklch(0.577 0.245 27.325)
               </code>
             </div>
           </div>
-          <div className="space-y-2">
-            <div className="h-24 rounded-lg bg-muted" />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div style={{ height: '96px', borderRadius: '12px', backgroundColor: 'var(--mat-sys-surface-variant)' }} />
             <div>
-              <p className="font-medium">Muted</p>
-              <code className="text-xs text-muted-foreground">
+              <p style={{ fontWeight: 500 }}>Muted</p>
+              <code style={{ fontSize: '0.75rem', lineHeight: '1rem', color: 'var(--mat-sys-on-surface-variant)' }}>
                 oklch(0.25 0.06 310)
               </code>
             </div>
           </div>
-          <div className="space-y-2">
-            <div className="h-24 rounded-lg bg-card border border-border" />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div style={{ height: '96px', borderRadius: '12px', backgroundColor: 'var(--mat-sys-surface-container)', border: '1px solid var(--mat-sys-outline-variant)' }} />
             <div>
-              <p className="font-medium">Card</p>
-              <code className="text-xs text-muted-foreground">
+              <p style={{ fontWeight: 500 }}>Card</p>
+              <code style={{ fontSize: '0.75rem', lineHeight: '1rem', color: 'var(--mat-sys-on-surface-variant)' }}>
                 oklch(0.20 0.12 310)
               </code>
             </div>

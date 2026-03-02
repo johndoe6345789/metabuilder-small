@@ -62,13 +62,13 @@ export function CodeEditorSection({
   }
 
   return (
-    <div className="space-y-2">
+    <div className={styles.sectionRoot}>
       <div className={styles.codeHeader}>
         <FormLabel htmlFor="code">Code *</FormLabel>
         {isPreviewSupported && (
           <label
             htmlFor="hasPreview"
-            className={`flex items-center gap-2 cursor-pointer ${styles.previewLabel}`}
+            className={styles.previewLabel}
             data-testid="enable-preview-label"
           >
             <Checkbox
@@ -84,9 +84,7 @@ export function CodeEditorSection({
       </div>
 
       <div
-        className={`rounded-md border ${
-          errors.code ? 'border-destructive ring-2 ring-destructive/20' : 'border-border'
-        } ${styles.editorWrapper}`}
+        className={`${styles.editorWrapper}${errors.code ? ` ${styles.editorWrapperError}` : ''}`}
         data-testid="code-editor-container"
         role="region"
         aria-label="Code editor"
@@ -127,7 +125,7 @@ export function CodeEditorSection({
       </div>
 
       {errors.code && (
-        <p className="text-sm text-destructive" id="code-error" data-testid="code-error-message" role="alert">
+        <p className={styles.errorText} id="code-error" data-testid="code-error-message" role="alert">
           {errors.code}
         </p>
       )}

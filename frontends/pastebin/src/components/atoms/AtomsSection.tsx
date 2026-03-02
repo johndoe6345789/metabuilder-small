@@ -12,7 +12,7 @@ interface AtomsSectionProps {
 
 export function AtomsSection({ onSaveSnippet }: AtomsSectionProps) {
   return (
-    <div className="space-y-16" data-testid="atoms-section" role="region" aria-label="Atomic design system components">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '64px' }} data-testid="atoms-section" role="region" aria-label="Atomic design system components">
       <ButtonsSection onSaveSnippet={onSaveSnippet} />
       <BadgesSection onSaveSnippet={onSaveSnippet} />
       <InputsSection onSaveSnippet={onSaveSnippet} />

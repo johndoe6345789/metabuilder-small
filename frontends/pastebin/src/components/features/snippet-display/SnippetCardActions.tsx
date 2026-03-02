@@ -30,53 +30,53 @@ export function SnippetCardActions({
   const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null)
 
   return (
-    <div className="flex items-center justify-between gap-2 pt-2" data-testid="snippet-card-actions" role="group" aria-label="Snippet actions">
-      <div className="flex-1 flex items-center gap-2">
+    <div className={styles.actionsRow} data-testid="snippet-card-actions" role="group" aria-label="Snippet actions">
+      <div className={styles.actionsLeft}>
         <Button
           variant="ghost"
           size="sm"
           onClick={onView}
-          className="gap-2"
+          className={styles.btnGap}
           data-testid="snippet-card-view-btn"
           aria-label="View snippet"
         >
-          <Eye className="h-4 w-4" aria-hidden="true" />
-          <span className="hidden sm:inline">{t.snippetCard.viewButton}</span>
+          <Eye size={16} aria-hidden="true" />
+          <span className={styles.btnLabelInline}>{t.snippetCard.viewButton}</span>
         </Button>
       </div>
-      <div className="flex items-center gap-2">
+      <div className={styles.actionsRight}>
         <Button
           variant="ghost"
           size="sm"
           onClick={onCopy}
-          className="gap-2"
+          className={styles.btnGap}
           data-testid="snippet-card-copy-btn"
           aria-label={t.snippetCard.ariaLabels.copy}
         >
-          <Copy className="h-4 w-4" aria-hidden="true" />
-          <span className="hidden sm:inline">{isCopied ? t.snippetCard.copiedButton : t.snippetCard.copyButton}</span>
+          <Copy size={16} aria-hidden="true" />
+          <span className={styles.btnLabelInline}>{isCopied ? t.snippetCard.copiedButton : t.snippetCard.copyButton}</span>
         </Button>
         <Button
           variant="ghost"
           size="sm"
           onClick={onEdit}
-          className="min-h-[44px] min-w-[44px]"
+          className={styles.btnSquare}
           data-testid="snippet-card-edit-btn"
           aria-label={t.snippetCard.ariaLabels.edit}
         >
-          <Pencil className="h-4 w-4" aria-hidden="true" />
+          <Pencil size={16} aria-hidden="true" />
         </Button>
 
         <Button
           variant="ghost"
           size="sm"
           onClick={(e) => { e.stopPropagation(); setMenuAnchor(e.currentTarget) }}
-          className="min-h-[44px] min-w-[44px]"
+          className={styles.btnSquare}
           data-testid="snippet-card-actions-menu"
           aria-label="More options"
           aria-haspopup="menu"
         >
-          <DotsThree className="h-4 w-4" weight="bold" aria-hidden="true" />
+          <DotsThree size={16} weight="bold" aria-hidden="true" />
         </Button>
 
         <Menu
@@ -92,7 +92,7 @@ export function SnippetCardActions({
               className={styles.menuLabel}
               aria-hidden="true"
             >
-              <FolderOpen className="h-4 w-4 mr-2" aria-hidden="true" />
+              <FolderOpen size={16} style={{ marginRight: 8 }} aria-hidden="true" />
               {t.snippetCard.moveTo}
             </MenuItem>
           )}
@@ -102,7 +102,7 @@ export function SnippetCardActions({
               data-testid="snippet-card-move-submenu"
               aria-label="Move snippet to another namespace"
             >
-              <FolderOpen className="h-4 w-4 mr-2" aria-hidden="true" />
+              <FolderOpen size={16} style={{ marginRight: 8 }} aria-hidden="true" />
               {t.snippetCard.noOtherNamespaces}
             </MenuItem>
           )}
@@ -115,7 +115,7 @@ export function SnippetCardActions({
             >
               {namespace.name}
               {namespace.isDefault && (
-                <span className={`ml-2 text-xs ${styles.defaultBadge}`}>{t.common.default}</span>
+                <span className={styles.defaultBadge}>{t.common.default}</span>
               )}
             </MenuItem>
           ))}
@@ -126,7 +126,7 @@ export function SnippetCardActions({
             data-testid="snippet-card-delete-btn"
             aria-label={t.snippetCard.ariaLabels.delete}
           >
-            <Trash className="h-4 w-4 mr-2" aria-hidden="true" />
+            <Trash size={16} style={{ marginRight: 8 }} aria-hidden="true" />
             {t.common.delete}
           </MenuItem>
         </Menu>

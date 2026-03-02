@@ -47,3 +47,20 @@
   align-items: center;
   flex-shrink: 0;
 }
+
+.btnGap {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.createBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+
+  @media (min-width: 640px) {
+    width: auto;
+  }
+}

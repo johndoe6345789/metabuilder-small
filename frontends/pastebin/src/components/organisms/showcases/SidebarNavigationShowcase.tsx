@@ -8,61 +8,63 @@ import {
   Folder,
 } from '@phosphor-icons/react'
 
+const fullWidthStart: React.CSSProperties = { width: '100%', justifyContent: 'flex-start' }
+
 export function SidebarNavigationShowcase() {
   return (
-    <section className="space-y-6" data-testid="sidebar-navigation-showcase" role="region" aria-label="Sidebar navigation showcase">
+    <section style={{ display: 'flex', flexDirection: 'column', gap: '24px' }} data-testid="sidebar-navigation-showcase" role="region" aria-label="Sidebar navigation showcase">
       <div>
-        <h2 className="text-3xl font-bold mb-2">Sidebar Navigation</h2>
-        <p className="text-muted-foreground">
+        <h2 style={{ fontSize: '1.875rem', lineHeight: '2.25rem', fontWeight: 700, marginBottom: '8px' }}>Sidebar Navigation</h2>
+        <p style={{ color: 'var(--mat-sys-on-surface-variant)' }}>
           Complete sidebar with nested navigation
         </p>
       </div>
 
-      <Card className="overflow-hidden">
-        <div className="flex">
-          <aside className="w-64 border-r border-border bg-card/50 p-4">
-            <div className="space-y-6">
-              <div className="flex items-center gap-2 px-2">
-                <div className="h-8 w-8 rounded-lg bg-accent" />
-                <span className="font-bold">Dashboard</span>
+      <Card style={{ overflow: 'hidden' }}>
+        <div style={{ display: 'flex' }}>
+          <aside style={{ width: '256px', borderRight: '1px solid var(--mat-sys-outline-variant)', backgroundColor: 'color-mix(in srgb, var(--mat-sys-surface-container) 50%, transparent)', padding: '16px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', paddingInline: '8px' }}>
+                <div style={{ height: '32px', width: '32px', borderRadius: '8px', backgroundColor: 'var(--mat-sys-secondary-container)' }} />
+                <span style={{ fontWeight: 700 }}>Dashboard</span>
               </div>
 
-              <nav className="space-y-1">
-                <Button variant="ghost" className="w-full justify-start">
-                  <House className="mr-2" aria-hidden="true" />
+              <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <Button variant="ghost" style={fullWidthStart}>
+                  <House style={{ marginRight: '8px' }} aria-hidden="true" />
                   Home
                 </Button>
-                <Button variant="filled" className="w-full justify-start">
-                  <ChartBar className="mr-2" aria-hidden="true" />
+                <Button variant="filled" style={fullWidthStart}>
+                  <ChartBar style={{ marginRight: '8px' }} aria-hidden="true" />
                   Analytics
                 </Button>
-                <Button variant="ghost" className="w-full justify-start">
-                  <Folder className="mr-2" aria-hidden="true" />
+                <Button variant="ghost" style={fullWidthStart}>
+                  <Folder style={{ marginRight: '8px' }} aria-hidden="true" />
                   Projects
                 </Button>
-                <Button variant="ghost" className="w-full justify-start">
-                  <User className="mr-2" aria-hidden="true" />
+                <Button variant="ghost" style={fullWidthStart}>
+                  <User style={{ marginRight: '8px' }} aria-hidden="true" />
                   Team
                 </Button>
               </nav>
 
               <Divider />
 
-              <nav className="space-y-1">
-                <Button variant="ghost" className="w-full justify-start">
-                  <Gear className="mr-2" aria-hidden="true" />
+              <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <Button variant="ghost" style={fullWidthStart}>
+                  <Gear style={{ marginRight: '8px' }} aria-hidden="true" />
                   Settings
                 </Button>
-                <Button variant="ghost" className="w-full justify-start text-destructive">
-                  <SignOut className="mr-2" aria-hidden="true" />
+                <Button variant="ghost" style={{ ...fullWidthStart, color: 'var(--mat-sys-error)' }}>
+                  <SignOut style={{ marginRight: '8px' }} aria-hidden="true" />
                   Sign Out
                 </Button>
               </nav>
             </div>
           </aside>
 
-          <div className="flex-1 p-6">
-            <p className="text-sm text-muted-foreground">
+          <div style={{ flex: 1, padding: '24px' }}>
+            <p style={{ fontSize: '0.875rem', lineHeight: '1.25rem', color: 'var(--mat-sys-on-surface-variant)' }}>
               Sidebar with navigation items and user actions
             </p>
           </div>

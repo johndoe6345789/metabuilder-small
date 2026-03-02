@@ -5,17 +5,18 @@ import {
   Gear,
   ArrowRight,
 } from '@phosphor-icons/react'
+import styles from './LandingPageTemplate.module.scss'
 
 export function LandingPageTemplate() {
   return (
-    <Card className="overflow-hidden" data-testid="landing-page-template" role="main" aria-label="Landing page template">
-      <div className="border-b border-border bg-card p-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-accent" />
-            <h3 className="text-xl font-bold">ProductName</h3>
+    <Card style={{ overflow: 'hidden' }} data-testid="landing-page-template" role="main" aria-label="Landing page template">
+      <div style={{ borderBottom: '1px solid var(--mat-sys-outline-variant)', backgroundColor: 'var(--mat-sys-surface-container)', padding: '16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ height: '32px', width: '32px', borderRadius: '8px', backgroundColor: 'var(--mat-sys-secondary-container)' }} />
+            <h3 style={{ fontSize: '1.25rem', lineHeight: '1.75rem', fontWeight: 700 }}>ProductName</h3>
           </div>
-          <div className="flex items-center gap-2">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Button variant="ghost" size="sm">
               Features
             </Button>
@@ -30,19 +31,19 @@ export function LandingPageTemplate() {
         </div>
       </div>
 
-      <div className="p-12 text-center bg-gradient-to-br from-primary/20 to-accent/20">
-        <Chip className="mb-4">New Release</Chip>
-        <h1 className="text-5xl font-bold mb-6">
+      <div style={{ padding: '48px', textAlign: 'center', background: 'linear-gradient(to bottom right, color-mix(in srgb, var(--mat-sys-primary) 20%, transparent), color-mix(in srgb, var(--mat-sys-secondary-container) 20%, transparent))' }}>
+        <Chip style={{ marginBottom: '16px' }}>New Release</Chip>
+        <h1 style={{ fontSize: '3rem', lineHeight: 1, fontWeight: 700, marginBottom: '24px' }}>
           Build Amazing Products Faster
         </h1>
-        <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+        <p style={{ fontSize: '1.25rem', lineHeight: '1.75rem', color: 'var(--mat-sys-on-surface-variant)', marginBottom: '32px', maxWidth: '672px', marginInline: 'auto' }}>
           The complete toolkit for modern product development. Ship faster with our
           component library and design system.
         </p>
-        <div className="flex items-center justify-center gap-4">
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px' }}>
           <Button size="lg">
             Get Started
-            <ArrowRight className="ml-2" />
+            <ArrowRight style={{ marginLeft: '8px' }} />
           </Button>
           <Button size="lg" variant="outlined">
             View Demo
@@ -50,55 +51,55 @@ export function LandingPageTemplate() {
         </div>
       </div>
 
-      <div className="p-12">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold mb-4">Features</h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
+      <div style={{ padding: '48px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '48px' }}>
+          <h2 style={{ fontSize: '1.875rem', lineHeight: '2.25rem', fontWeight: 700, marginBottom: '16px' }}>Features</h2>
+          <p style={{ color: 'var(--mat-sys-on-surface-variant)', maxWidth: '672px', marginInline: 'auto' }}>
             Everything you need to build production-ready applications
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <Card className="p-6">
-            <div className="h-12 w-12 rounded-lg bg-accent/20 flex items-center justify-center mb-4">
-              <ChartBar className="h-6 w-6 text-accent" />
+        <div className={styles.featuresGrid}>
+          <Card style={{ padding: '24px' }}>
+            <div style={{ height: '48px', width: '48px', borderRadius: '8px', backgroundColor: 'color-mix(in srgb, var(--mat-sys-secondary-container) 20%, transparent)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
+              <ChartBar style={{ width: '24px', height: '24px', color: 'var(--mat-sys-secondary-container)' }} />
             </div>
-            <h3 className="font-semibold text-lg mb-2">Analytics</h3>
-            <p className="text-sm text-muted-foreground">
+            <h3 style={{ fontWeight: 600, fontSize: '1.125rem', lineHeight: '1.75rem', marginBottom: '8px' }}>Analytics</h3>
+            <p style={{ fontSize: '0.875rem', lineHeight: '1.25rem', color: 'var(--mat-sys-on-surface-variant)' }}>
               Track and analyze your product metrics in real-time
             </p>
           </Card>
 
-          <Card className="p-6">
-            <div className="h-12 w-12 rounded-lg bg-accent/20 flex items-center justify-center mb-4">
-              <Users className="h-6 w-6 text-accent" />
+          <Card style={{ padding: '24px' }}>
+            <div style={{ height: '48px', width: '48px', borderRadius: '8px', backgroundColor: 'color-mix(in srgb, var(--mat-sys-secondary-container) 20%, transparent)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
+              <Users style={{ width: '24px', height: '24px', color: 'var(--mat-sys-secondary-container)' }} />
             </div>
-            <h3 className="font-semibold text-lg mb-2">Collaboration</h3>
-            <p className="text-sm text-muted-foreground">
+            <h3 style={{ fontWeight: 600, fontSize: '1.125rem', lineHeight: '1.75rem', marginBottom: '8px' }}>Collaboration</h3>
+            <p style={{ fontSize: '0.875rem', lineHeight: '1.25rem', color: 'var(--mat-sys-on-surface-variant)' }}>
               Work together with your team seamlessly
             </p>
           </Card>
 
-          <Card className="p-6">
-            <div className="h-12 w-12 rounded-lg bg-accent/20 flex items-center justify-center mb-4">
-              <Gear className="h-6 w-6 text-accent" />
+          <Card style={{ padding: '24px' }}>
+            <div style={{ height: '48px', width: '48px', borderRadius: '8px', backgroundColor: 'color-mix(in srgb, var(--mat-sys-secondary-container) 20%, transparent)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
+              <Gear style={{ width: '24px', height: '24px', color: 'var(--mat-sys-secondary-container)' }} />
             </div>
-            <h3 className="font-semibold text-lg mb-2">Customizable</h3>
-            <p className="text-sm text-muted-foreground">
+            <h3 style={{ fontWeight: 600, fontSize: '1.125rem', lineHeight: '1.75rem', marginBottom: '8px' }}>Customizable</h3>
+            <p style={{ fontSize: '0.875rem', lineHeight: '1.25rem', color: 'var(--mat-sys-on-surface-variant)' }}>
               Adapt the platform to your specific needs
             </p>
           </Card>
         </div>
       </div>
 
-      <div className="p-12 text-center bg-gradient-to-br from-primary to-accent text-primary-foreground">
-        <h2 className="text-4xl font-bold mb-4">Ready to get started?</h2>
-        <p className="text-xl mb-8 opacity-90">
+      <div style={{ padding: '48px', textAlign: 'center', background: 'linear-gradient(to bottom right, var(--mat-sys-primary), var(--mat-sys-secondary-container))', color: 'var(--mat-sys-on-primary)' }}>
+        <h2 style={{ fontSize: '2.25rem', lineHeight: '2.5rem', fontWeight: 700, marginBottom: '16px' }}>Ready to get started?</h2>
+        <p style={{ fontSize: '1.25rem', lineHeight: '1.75rem', marginBottom: '32px', opacity: 0.9 }}>
           Join thousands of teams already building with our platform
         </p>
         <Button size="lg" variant="secondary">
           Start Free Trial
-          <ArrowRight className="ml-2" />
+          <ArrowRight style={{ marginLeft: '8px' }} />
         </Button>
       </div>
     </Card>

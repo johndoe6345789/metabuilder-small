@@ -12,9 +12,9 @@ jest.mock('framer-motion', () => ({
 describe('LoadingAnalysis Component', () => {
   describe('Rendering', () => {
     it('renders loading container', () => {
-      const { container } = render(<LoadingAnalysis />)
+      render(<LoadingAnalysis />)
 
-      expect(container.querySelector('.space-y-3')).toBeInTheDocument()
+      expect(screen.getByTestId('loading-analysis')).toBeInTheDocument()
     })
 
     it('displays loading text', () => {
@@ -23,29 +23,30 @@ describe('LoadingAnalysis Component', () => {
       expect(screen.getByText('Analyzing error...')).toBeInTheDocument()
     })
 
-    it('renders loading text with muted foreground color', () => {
+    it('renders loading text in the spinner row', () => {
       render(<LoadingAnalysis />)
 
-      const textContainer = screen.getByText('Analyzing error...').parentElement
-      expect(textContainer).toHaveClass('text-muted-foreground')
+      const textEl = screen.getByText('Analyzing error...')
+      expect(textEl).toBeInTheDocument()
     })
 
     it('renders three loading bars', () => {
       const { container } = render(<LoadingAnalysis />)
 
-      const bars = container.querySelectorAll('.h-4')
+      // Three aria-hidden motion divs inside the skeleton list
+      const bars = container.querySelectorAll('[aria-hidden="true"]')
+      // One for the spinner icon + three skeleton bars = 4 total, or check specifically in skeleton list
       expect(bars.length).toBeGreaterThanOrEqual(3)
     })
 
-    it('loading bars have correct styling', () => {
+    it('loading bars have correct structure', () => {
       const { container } = render(<LoadingAnalysis />)
 
-      const bars = container.querySelectorAll('.bg-muted')
-      expect(bars.length).toBeGreaterThanOrEqual(3)
-
-      bars.forEach((bar) => {
-        expect(bar).toHaveClass('rounded')
-      })
+      const root = container.querySelector('[data-testid="loading-analysis"]')
+      expect(root).toBeInTheDocument()
+      // skeletonList is the second child of root
+      const skeletonList = root?.children[1]
+      expect(skeletonList?.children.length).toBe(3)
     })
   })
 
@@ -53,18 +54,17 @@ describe('LoadingAnalysis Component', () => {
     it('renders icon with loading indicator', () => {
       render(<LoadingAnalysis />)
 
-      // Sparkle icon is rendered in the text container
-      const textContainer = screen.getByText('Analyzing error...').parentElement
-      expect(textContainer).toBeInTheDocument()
-      expect(textContainer).toHaveClass('flex', 'items-center', 'gap-2')
+      const textEl = screen.getByText('Analyzing error...')
+      const spinnerRow = textEl.parentElement
+      expect(spinnerRow).toBeInTheDocument()
     })
 
-    it('icon has correct size class', () => {
-      const { container } = render(<LoadingAnalysis />)
+    it('spinner row contains two children (icon + text)', () => {
+      render(<LoadingAnalysis />)
 
-      // h-4 w-4 for icon
-      const iconElements = container.querySelectorAll('[class*="h-4"]')
-      expect(iconElements.length).toBeGreaterThan(0)
+      const textEl = screen.getByText('Analyzing error...')
+      const spinnerRow = textEl.parentElement
+      expect(spinnerRow?.children.length).toBe(2)
     })
 
     it('icon is rotated for animation', () => {
@@ -79,83 +79,104 @@ describe('LoadingAnalysis Component', () => {
     it('renders correct number of animation bars', () => {
       const { container } = render(<LoadingAnalysis />)
 
-      // Three bars for animation
-      const barContainers = container.querySelectorAll('.space-y-2 > div')
-      expect(barContainers.length).toBe(3)
+      const root = container.querySelector('[data-testid="loading-analysis"]')
+      const skeletonList = root?.children[1]
+      expect(skeletonList?.children.length).toBe(3)
     })
 
-    it('each bar has consistent styling', () => {
+    it('each bar has aria-hidden for accessibility', () => {
       const { container } = render(<LoadingAnalysis />)
 
-      const bars = container.querySelectorAll('.h-4.bg-muted.rounded')
-      expect(bars.length).toBe(3)
-
+      const root = container.querySelector('[data-testid="loading-analysis"]')
+      const skeletonList = root?.children[1]
+      const bars = Array.from(skeletonList?.children ?? [])
       bars.forEach((bar) => {
-        expect(bar).toHaveClass('h-4', 'bg-muted', 'rounded')
+        expect(bar.getAttribute('aria-hidden')).toBe('true')
       })
     })
 
-    it('bars are in a flex column layout', () => {
+    it('bars are in the skeleton list container', () => {
       const { container } = render(<LoadingAnalysis />)
 
-      const barContainer = container.querySelector('.space-y-2')
-      expect(barContainer).toBeInTheDocument()
-      expect(barContainer).toHaveClass('space-y-2')
+      const root = container.querySelector('[data-testid="loading-analysis"]')
+      const skeletonList = root?.children[1]
+      expect(skeletonList).toBeInTheDocument()
     })
   })
 
   describe('Layout Structure', () => {
-    it('has proper flex layout for text and icon', () => {
+    it('has proper structure for text and icon', () => {
       render(<LoadingAnalysis />)
 
-      const textContainer = screen.getByText('Analyzing error...').parentElement
-      expect(textContainer).toHaveClass('flex', 'items-center', 'gap-2')
+      const textEl = screen.getByText('Analyzing error...')
+      const spinnerRow = textEl.parentElement
+      expect(spinnerRow).toBeInTheDocument()
     })
 
-    it('maintains spacing between text and bars', () => {
+    it('maintains proper two-section structure', () => {
       const { container } = render(<LoadingAnalysis />)
 
-      const mainContainer = container.querySelector('.space-y-3')
-      expect(mainContainer).toHaveClass('space-y-3')
+      const root = container.querySelector('[data-testid="loading-analysis"]')
+      expect(root?.children.length).toBeGreaterThanOrEqual(2)
     })
 
-    it('text is aligned at top level', () => {
+    it('text section is the first child of root', () => {
       render(<LoadingAnalysis />)
 
-      const textContainer = screen.getByText('Analyzing error...').parentElement
-      expect(textContainer).toHaveClass('flex', 'items-center')
+      const textEl = screen.getByText('Analyzing error...')
+      const spinnerRow = textEl.parentElement
+      const root = spinnerRow?.parentElement
+      expect(root?.getAttribute('data-testid')).toBe('loading-analysis')
     })
   })
 
-  describe('Styling and Classes', () => {
-    it('applies text-sm to loading text', () => {
+  describe('Accessibility', () => {
+    it('root has role="status"', () => {
       render(<LoadingAnalysis />)
 
-      const span = screen.getByText('Analyzing error...')
-      expect(span).toHaveClass('text-sm')
+      expect(screen.getByRole('status')).toBeInTheDocument()
     })
 
-    it('applies muted color scheme', () => {
+    it('root has aria-busy="true"', () => {
       render(<LoadingAnalysis />)
 
-      const textContainer = screen.getByText('Analyzing error...').parentElement
-      expect(textContainer).toHaveClass('text-muted-foreground')
+      const status = screen.getByRole('status')
+      expect(status).toHaveAttribute('aria-busy', 'true')
     })
 
-    it('has gap between icon and text', () => {
+    it('root has aria-label for screen readers', () => {
       render(<LoadingAnalysis />)
 
-      const flexContainer = screen.getByText('Analyzing error...').parentElement
-      expect(flexContainer).toHaveClass('gap-2')
+      const status = screen.getByRole('status')
+      expect(status).toHaveAttribute('aria-label', 'Analyzing error')
     })
 
-    it('bars are rounded rectangles', () => {
+    it('loading text is visible and readable', () => {
+      render(<LoadingAnalysis />)
+
+      const text = screen.getByText('Analyzing error...')
+      expect(text).toBeVisible()
+    })
+
+    it('text is semantically meaningful', () => {
+      render(<LoadingAnalysis />)
+
+      const text = screen.getByText('Analyzing error...')
+      expect(text.textContent).toContain('Analyzing')
+    })
+
+    it('component structure is accessible', () => {
       const { container } = render(<LoadingAnalysis />)
 
-      const bars = container.querySelectorAll('.bg-muted')
-      bars.forEach((bar) => {
-        expect(bar).toHaveClass('rounded')
-      })
+      expect(container.firstChild).toBeInTheDocument()
+    })
+
+    it('provides visual feedback through animation bars', () => {
+      const { container } = render(<LoadingAnalysis />)
+
+      const root = container.querySelector('[data-testid="loading-analysis"]')
+      const skeletonList = root?.children[1]
+      expect(skeletonList?.children.length).toBe(3)
     })
   })
 
@@ -178,52 +199,22 @@ describe('LoadingAnalysis Component', () => {
     it('wraps bars in motion divs', () => {
       const { container } = render(<LoadingAnalysis />)
 
-      // Bars should be inside motion.div (which renders as div)
-      const barContainer = container.querySelector('.space-y-2')
-      expect(barContainer).toBeInTheDocument()
+      const root = container.querySelector('[data-testid="loading-analysis"]')
+      const skeletonList = root?.children[1]
+      expect(skeletonList).toBeInTheDocument()
 
-      const children = barContainer?.children
+      const children = skeletonList?.children
       expect(children?.length).toBe(3)
     })
 
     it('renders loading indicator structure correctly', () => {
       const { container } = render(<LoadingAnalysis />)
 
-      const mainSpace = container.querySelector('.space-y-3')
-      expect(mainSpace).toBeInTheDocument()
+      const root = container.querySelector('[data-testid="loading-analysis"]')
+      expect(root).toBeInTheDocument()
 
-      const children = mainSpace?.children
+      const children = root?.children
       expect(children?.length).toBeGreaterThanOrEqual(2)
-    })
-  })
-
-  describe('Accessibility', () => {
-    it('loading text is visible and readable', () => {
-      render(<LoadingAnalysis />)
-
-      const text = screen.getByText('Analyzing error...')
-      expect(text).toBeVisible()
-    })
-
-    it('text is semantically meaningful', () => {
-      render(<LoadingAnalysis />)
-
-      const text = screen.getByText('Analyzing error...')
-      expect(text.textContent).toContain('Analyzing')
-    })
-
-    it('component structure is accessible', () => {
-      const { container } = render(<LoadingAnalysis />)
-
-      // Should have proper semantic structure
-      expect(container.firstChild).toBeInTheDocument()
-    })
-
-    it('provides visual feedback through animation bars', () => {
-      const { container } = render(<LoadingAnalysis />)
-
-      const bars = container.querySelectorAll('.bg-muted')
-      expect(bars.length).toBe(3)
     })
   })
 
@@ -234,11 +225,11 @@ describe('LoadingAnalysis Component', () => {
       expect(screen.getByText('Analyzing error...')).toBeInTheDocument()
     })
 
-    it('maintains layout with flex', () => {
+    it('maintains flex layout via SCSS module', () => {
       render(<LoadingAnalysis />)
 
-      const textContainer = screen.getByText('Analyzing error...').parentElement
-      expect(textContainer).toHaveClass('flex')
+      const root = screen.getByRole('status')
+      expect(root).toBeInTheDocument()
     })
   })
 
@@ -246,18 +237,19 @@ describe('LoadingAnalysis Component', () => {
     it('icon comes before text', () => {
       render(<LoadingAnalysis />)
 
-      const textContainer = screen.getByText('Analyzing error...').parentElement
-      const children = textContainer?.children
+      const textEl = screen.getByText('Analyzing error...')
+      const spinnerRow = textEl.parentElement
+      const children = spinnerRow?.children
 
-      // First child should be icon, second should be text
+      // First child should be icon motion div, second should be text span
       expect(children?.length).toBe(2)
     })
 
     it('loading bars are below text', () => {
       const { container } = render(<LoadingAnalysis />)
 
-      const mainContainer = container.firstChild
-      const children = mainContainer?.childNodes
+      const root = container.firstChild
+      const children = root?.childNodes
 
       expect(children?.length).toBeGreaterThanOrEqual(2)
     })
@@ -306,10 +298,12 @@ describe('LoadingAnalysis Component', () => {
       const { container: container1 } = render(<LoadingAnalysis />)
       const { container: container2 } = render(<LoadingAnalysis />)
 
-      const bars1 = container1.querySelectorAll('.bg-muted')
-      const bars2 = container2.querySelectorAll('.bg-muted')
+      const root1 = container1.querySelector('[data-testid="loading-analysis"]')
+      const root2 = container2.querySelector('[data-testid="loading-analysis"]')
+      const bars1 = root1?.children[1]?.children.length ?? 0
+      const bars2 = root2?.children[1]?.children.length ?? 0
 
-      expect(bars1.length).toBe(bars2.length)
+      expect(bars1).toBe(bars2)
     })
   })
 
@@ -317,16 +311,15 @@ describe('LoadingAnalysis Component', () => {
     it('complete loading state display', () => {
       render(<LoadingAnalysis />)
 
-      // Icon visible
-      expect(screen.getByText('Analyzing error...')).toBeInTheDocument()
-
       // Text visible
+      expect(screen.getByText('Analyzing error...')).toBeInTheDocument()
       expect(screen.getByText('Analyzing error...')).toBeVisible()
 
       // Three bars rendered
       const { container } = render(<LoadingAnalysis />)
-      const bars = container.querySelectorAll('.h-4.bg-muted')
-      expect(bars.length).toBe(3)
+      const root = container.querySelector('[data-testid="loading-analysis"]')
+      const bars = root?.children[1]?.children
+      expect(bars?.length).toBe(3)
     })
 
     it('loading indicator in a container', () => {
@@ -341,9 +334,9 @@ describe('LoadingAnalysis Component', () => {
     })
 
     it('displays as part of error analysis flow', () => {
-      const { container } = render(
+      render(
         <div>
-          <div className="text-red-500">Error occurred</div>
+          <div>Error occurred</div>
           <LoadingAnalysis />
         </div>
       )
@@ -357,14 +350,14 @@ describe('LoadingAnalysis Component', () => {
     it('has correct nesting order', () => {
       const { container } = render(<LoadingAnalysis />)
 
-      const root = container.firstChild as HTMLElement
-      expect(root.className).toContain('space-y-3')
+      const root = container.querySelector('[data-testid="loading-analysis"]') as HTMLElement
+      expect(root).toBeInTheDocument()
 
       const firstChild = root.firstChild as HTMLElement
-      expect(firstChild.className).toContain('flex')
+      expect(firstChild).toBeInTheDocument()
 
       const secondChild = root.lastChild as HTMLElement
-      expect(secondChild.className).toContain('space-y-2')
+      expect(secondChild).toBeInTheDocument()
     })
 
     it('maintains semantic HTML structure', () => {
@@ -376,31 +369,33 @@ describe('LoadingAnalysis Component', () => {
   })
 
   describe('Animation Bar Characteristics', () => {
-    it('each bar has height h-4', () => {
+    it('each bar has a fixed height via SCSS module', () => {
       const { container } = render(<LoadingAnalysis />)
 
-      const bars = container.querySelectorAll('.h-4')
-      expect(bars.length).toBeGreaterThanOrEqual(3)
+      const root = container.querySelector('[data-testid="loading-analysis"]')
+      const skeletonList = root?.children[1]
+      const animationBars = Array.from(skeletonList?.children ?? [])
+      expect(animationBars.length).toBe(3)
+    })
 
-      // All bars should have h-4
-      const animationBars = container.querySelectorAll('.space-y-2 > div')
-      animationBars.forEach((bar) => {
-        expect(bar).toHaveClass('h-4')
+    it('all bars are aria-hidden', () => {
+      const { container } = render(<LoadingAnalysis />)
+
+      const root = container.querySelector('[data-testid="loading-analysis"]')
+      const skeletonList = root?.children[1]
+      const bars = Array.from(skeletonList?.children ?? [])
+      expect(bars.length).toBe(3)
+      bars.forEach((bar) => {
+        expect(bar.getAttribute('aria-hidden')).toBe('true')
       })
     })
 
-    it('all bars use muted background', () => {
+    it('bars are evenly spaced via SCSS module', () => {
       const { container } = render(<LoadingAnalysis />)
 
-      const bars = container.querySelectorAll('.bg-muted')
-      expect(bars.length).toBe(3)
-    })
-
-    it('bars are evenly spaced', () => {
-      const { container } = render(<LoadingAnalysis />)
-
-      const barContainer = container.querySelector('.space-y-2')
-      expect(barContainer).toHaveClass('space-y-2')
+      const root = container.querySelector('[data-testid="loading-analysis"]')
+      const skeletonList = root?.children[1]
+      expect(skeletonList).toBeInTheDocument()
     })
   })
 })

@@ -25,16 +25,16 @@ export function SnippetFormFields({
 }: SnippetFormFieldsProps) {
   const t = useTranslation()
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row gap-6 items-start">
-        <div className="flex-1 space-y-2">
+    <div className={styles.formRoot}>
+      <div className={styles.titleRow}>
+        <div className={styles.titleField}>
           <FormLabel htmlFor="title">{t.snippetDialog.fields.title.label} *</FormLabel>
           <Input
             id="title"
             placeholder={t.snippetDialog.fields.title.placeholder}
             value={title}
             onChange={(e) => onTitleChange(e.target.value)}
-            className={errors.title ? 'border-destructive ring-destructive' : ''}
+            className={errors.title ? styles.inputError : ''}
             data-testid="snippet-title-input"
             required
             aria-required="true"
@@ -42,13 +42,13 @@ export function SnippetFormFields({
             aria-describedby={errors.title ? "title-error" : undefined}
           />
           {errors.title && (
-            <p className="text-sm text-destructive" id="title-error">
+            <p className={styles.errorText} id="title-error">
               {errors.title}
             </p>
           )}
         </div>
 
-        <div className="space-y-2 w-full sm:w-auto sm:min-w-[180px]">
+        <div className={styles.languageField}>
           <FormLabel htmlFor="language">{t.snippetDialog.fields.language.label}</FormLabel>
           <Select
             value={language}
@@ -69,7 +69,7 @@ export function SnippetFormFields({
         </div>
       </div>
 
-      <div className="space-y-3">
+      <div className={styles.descriptionField}>
         <FormLabel htmlFor="description">{t.snippetDialog.fields.description.label}</FormLabel>
         <Textarea
           id="description"

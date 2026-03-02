@@ -5,6 +5,7 @@ import { Copy, Pencil, Check, SplitVertical } from '@phosphor-icons/react'
 import { Snippet } from '@/lib/types'
 import { LANGUAGE_COLORS } from '@/lib/config'
 import { useTranslation } from '@/hooks/useTranslation'
+import styles from './snippet-viewer-header.module.scss'
 
 interface SnippetViewerHeaderProps {
   snippet: Snippet
@@ -27,40 +28,40 @@ export function SnippetViewerHeader({
 }: SnippetViewerHeaderProps) {
   const t = useTranslation()
   return (
-    <div className="flex items-start justify-between gap-4">
-      <div className="flex-1 min-w-0 space-y-2">
-        <div className="flex items-center gap-3">
-          <h2 className="text-2xl font-bold truncate">
+    <div className={styles.root}>
+      <div className={styles.titleSection}>
+        <div className={styles.titleRow}>
+          <h2 className={styles.title}>
             {snippet.title}
           </h2>
           <Chip
             label={snippet.language}
             variant="outlined"
             size="small"
-            className={`shrink-0 font-medium text-xs px-2 py-1 ${LANGUAGE_COLORS[snippet.language] || LANGUAGE_COLORS['Other']}`}
+            className={`${styles.languageChip} ${LANGUAGE_COLORS[snippet.language] || LANGUAGE_COLORS['Other']}`}
           />
         </div>
         {snippet.description && (
-          <p className="text-sm text-muted-foreground">
+          <p className={styles.description}>
             {snippet.description}
           </p>
         )}
-        <p className="text-xs text-muted-foreground">
+        <p className={styles.timestamp}>
           {t.snippetViewer.lastUpdated}: {new Date(snippet.updatedAt).toLocaleString()}
         </p>
       </div>
-      <div className="flex gap-2 shrink-0" data-testid="viewer-header-actions" role="toolbar" aria-label="Snippet viewer actions">
+      <div className={styles.actions} data-testid="viewer-header-actions" role="toolbar" aria-label="Snippet viewer actions">
         {canPreview && (
           <Button
             variant={showPreview ? "filled" : "outline"}
             size="sm"
             onClick={onTogglePreview}
-            className="gap-2"
+            className={styles.actionBtn}
             data-testid="snippet-viewer-toggle-preview-btn"
             aria-pressed={showPreview}
             aria-label={showPreview ? "Hide preview" : "Show preview"}
           >
-            <SplitVertical className="h-4 w-4" aria-hidden="true" />
+            <SplitVertical className={styles.actionIcon} aria-hidden="true" />
             {showPreview ? t.snippetViewer.buttons.hidePreview : t.snippetViewer.buttons.showPreview}
           </Button>
         )}
@@ -68,19 +69,19 @@ export function SnippetViewerHeader({
           variant="outlined"
           size="sm"
           onClick={onCopy}
-          className="gap-2"
+          className={styles.actionBtn}
           data-testid="snippet-viewer-copy-btn"
           aria-label={isCopied ? "Code copied to clipboard" : "Copy code to clipboard"}
           aria-live="polite"
         >
           {isCopied ? (
             <>
-              <Check className="h-4 w-4" weight="bold" aria-hidden="true" />
+              <Check className={styles.actionIcon} weight="bold" aria-hidden="true" />
               {t.snippetViewer.buttons.copied}
             </>
           ) : (
             <>
-              <Copy className="h-4 w-4" aria-hidden="true" />
+              <Copy className={styles.actionIcon} aria-hidden="true" />
               {t.snippetViewer.buttons.copy}
             </>
           )}
@@ -89,11 +90,11 @@ export function SnippetViewerHeader({
           variant="outlined"
           size="sm"
           onClick={onEdit}
-          className="gap-2"
+          className={styles.actionBtn}
           data-testid="snippet-viewer-edit-btn"
           aria-label="Edit snippet"
         >
-          <Pencil className="h-4 w-4" aria-hidden="true" />
+          <Pencil className={styles.actionIcon} aria-hidden="true" />
           {t.snippetViewer.buttons.edit}
         </Button>
       </div>

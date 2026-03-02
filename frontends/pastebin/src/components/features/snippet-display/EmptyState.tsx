@@ -20,14 +20,14 @@ export function EmptyState({ onCreateClick, onCreateFromTemplate }: EmptyStatePr
 
   return (
     <div
-      className="flex flex-col items-center justify-center py-20 px-4 text-center"
+      className={styles.container}
       data-testid="empty-state"
       role="status"
       aria-live="polite"
       aria-label="No snippets available"
     >
       <div
-        className="sr-only"
+        className={styles.srOnly}
         role="status"
         aria-live="polite"
         aria-atomic="true"
@@ -40,21 +40,22 @@ export function EmptyState({ onCreateClick, onCreateFromTemplate }: EmptyStatePr
         <Code className={styles.icon} weight="duotone" />
       </div>
       <h2 className={styles.title}>{t.emptyState.title}</h2>
-      <p className="text-muted-foreground mb-8 max-w-sm">
+      <p className={styles.description}>
         {t.emptyState.description}
       </p>
       <Button
         size="lg"
-        className="gap-2"
         data-testid="empty-state-create-menu"
         aria-label="Create new snippet from templates"
         aria-haspopup="menu"
         aria-expanded={Boolean(menuAnchor)}
         onClick={(e) => setMenuAnchor(menuAnchor ? null : e.currentTarget)}
       >
-        <Code className="h-5 w-5" weight="bold" aria-hidden="true" />
-        {t.emptyState.buttonText}
-        <CaretDown weight="bold" aria-hidden="true" className={menuAnchor ? `${styles.caret} ${styles.caretOpen}` : styles.caret} />
+        <span className={styles.btnInner}>
+          <Code size={20} weight="bold" aria-hidden="true" />
+          {t.emptyState.buttonText}
+          <CaretDown weight="bold" aria-hidden="true" className={menuAnchor ? `${styles.caret} ${styles.caretOpen}` : styles.caret} />
+        </span>
       </Button>
       <TemplatePicker
         anchor={menuAnchor}

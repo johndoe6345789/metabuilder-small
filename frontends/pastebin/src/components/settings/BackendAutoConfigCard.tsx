@@ -26,9 +26,9 @@ export function BackendAutoConfigCard({
   if (!envVarSet) return null
 
   return (
-    <Card className="border-accent" data-testid="backend-auto-config-card">
+    <Card data-testid="backend-auto-config-card">
       <CardHeader>
-        <h3 className={`${styles.cardTitle} flex items-center gap-2 text-accent`}>
+        <h3 className={styles.cardTitleAccent}>
           <CloudCheck weight="fill" size={24} aria-hidden="true" />
           {s.title}
         </h3>
@@ -37,25 +37,25 @@ export function BackendAutoConfigCard({
         </p>
       </CardHeader>
       <CardContent>
-        <div className="space-y-3">
-          <div className="flex items-center justify-between py-2" data-testid="backend-url">
-            <span className="text-sm text-muted-foreground">{s.backendUrl}</span>
-            <code className="text-sm font-mono bg-muted px-2 py-1 rounded">{flaskUrl}</code>
+        <div className={styles.infoStack}>
+          <div className={styles.infoRow} data-testid="backend-url">
+            <span className={styles.infoLabel}>{s.backendUrl}</span>
+            <code className={styles.infoCode}>{flaskUrl}</code>
           </div>
-          <div className="flex items-center justify-between py-2" data-testid="config-source">
-            <span className="text-sm text-muted-foreground">{s.configSource}</span>
-            <code className="text-sm font-mono bg-muted px-2 py-1 rounded">NEXT_PUBLIC_FLASK_BACKEND_URL</code>
+          <div className={styles.infoRow} data-testid="config-source">
+            <span className={styles.infoLabel}>{s.configSource}</span>
+            <code className={styles.infoCode}>NEXT_PUBLIC_FLASK_BACKEND_URL</code>
           </div>
-          <div className="flex items-center justify-between py-2" data-testid="connection-status">
-            <span className="text-sm text-muted-foreground">{s.status}</span>
+          <div className={styles.infoRow} data-testid="connection-status">
+            <span className={styles.infoLabel}>{s.status}</span>
             {flaskConnectionStatus === 'connected' && (
-              <span className="flex items-center gap-2 text-sm text-green-600">
+              <span className={styles.statusConnected}>
                 <CloudCheck weight="fill" size={16} aria-hidden="true" />
                 {s.connected}
               </span>
             )}
             {flaskConnectionStatus === 'failed' && (
-              <span className="flex items-center gap-2 text-sm text-destructive">
+              <span className={styles.statusFailed}>
                 <CloudSlash weight="fill" size={16} aria-hidden="true" />
                 {s.failed}
               </span>

@@ -9,98 +9,101 @@ import {
   TrendUp,
   Users,
 } from '@phosphor-icons/react'
+import styles from './DashboardTemplate.module.scss'
+
+const fullWidthStart: React.CSSProperties = { width: '100%', justifyContent: 'flex-start' }
 
 export function DashboardTemplate() {
   return (
-    <Card className="overflow-hidden" data-testid="dashboard-template" role="main" aria-label="Dashboard template">
-      <div className="border-b border-border bg-card p-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-6">
-            <h3 className="text-xl font-bold">Dashboard</h3>
+    <Card style={{ overflow: 'hidden' }} data-testid="dashboard-template" role="main" aria-label="Dashboard template">
+      <div style={{ borderBottom: '1px solid var(--mat-sys-outline-variant)', backgroundColor: 'var(--mat-sys-surface-container)', padding: '16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+            <h3 style={{ fontSize: '1.25rem', lineHeight: '1.75rem', fontWeight: 700 }}>Dashboard</h3>
           </div>
-          <div className="flex items-center gap-2">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Button variant="ghost">
               <Bell />
             </Button>
             <Button variant="ghost">
               <Gear />
             </Button>
-            <Avatar className="h-8 w-8" src="https://i.pravatar.cc/150?img=4" alt="User">U</Avatar>
+            <Avatar style={{ width: '32px', height: '32px' }} src="https://i.pravatar.cc/150?img=4" alt="User">U</Avatar>
           </div>
         </div>
       </div>
 
-      <div className="flex">
-        <aside className="w-64 border-r border-border bg-card/30 p-4 hidden lg:block">
-          <nav className="space-y-1">
-            <Button variant="filled" className="w-full justify-start">
-              <House className="mr-2" />
+      <div style={{ display: 'flex' }}>
+        <aside className={styles.sidebar}>
+          <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            <Button variant="filled" style={fullWidthStart}>
+              <House style={{ marginRight: '8px' }} />
               Overview
             </Button>
-            <Button variant="ghost" className="w-full justify-start">
-              <ChartBar className="mr-2" />
+            <Button variant="ghost" style={fullWidthStart}>
+              <ChartBar style={{ marginRight: '8px' }} />
               Analytics
             </Button>
-            <Button variant="ghost" className="w-full justify-start">
-              <Folder className="mr-2" />
+            <Button variant="ghost" style={fullWidthStart}>
+              <Folder style={{ marginRight: '8px' }} />
               Projects
             </Button>
-            <Button variant="ghost" className="w-full justify-start">
-              <Users className="mr-2" />
+            <Button variant="ghost" style={fullWidthStart}>
+              <Users style={{ marginRight: '8px' }} />
               Team
             </Button>
           </nav>
         </aside>
 
-        <main className="flex-1 p-6">
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
+        <main style={{ flex: 1, padding: '24px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div>
-                <h1 className="text-3xl font-bold">Overview</h1>
-                <p className="text-muted-foreground">
+                <h1 style={{ fontSize: '1.875rem', lineHeight: '2.25rem', fontWeight: 700 }}>Overview</h1>
+                <p style={{ color: 'var(--mat-sys-on-surface-variant)' }}>
                   Welcome back, here's what's happening
                 </p>
               </div>
               <Button>
-                <Plus className="mr-2" />
+                <Plus style={{ marginRight: '8px' }} />
                 New Project
               </Button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <Card className="p-6">
-                <div className="flex items-center justify-between">
+            <div className={styles.statsGrid}>
+              <Card style={{ padding: '24px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div>
-                    <p className="text-sm text-muted-foreground">Total Revenue</p>
-                    <p className="text-3xl font-bold mt-2">$45,231</p>
-                    <p className="text-sm text-accent mt-2 flex items-center gap-1">
-                      <TrendUp className="h-4 w-4" />
+                    <p style={{ fontSize: '0.875rem', lineHeight: '1.25rem', color: 'var(--mat-sys-on-surface-variant)' }}>Total Revenue</p>
+                    <p style={{ fontSize: '1.875rem', lineHeight: '2.25rem', fontWeight: 700, marginTop: '8px' }}>$45,231</p>
+                    <p style={{ fontSize: '0.875rem', lineHeight: '1.25rem', color: 'var(--mat-sys-secondary-container)', marginTop: '8px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <TrendUp style={{ width: '16px', height: '16px' }} />
                       +20.1% from last month
                     </p>
                   </div>
                 </div>
               </Card>
 
-              <Card className="p-6">
-                <div className="flex items-center justify-between">
+              <Card style={{ padding: '24px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div>
-                    <p className="text-sm text-muted-foreground">Active Users</p>
-                    <p className="text-3xl font-bold mt-2">2,350</p>
-                    <p className="text-sm text-accent mt-2 flex items-center gap-1">
-                      <TrendUp className="h-4 w-4" />
+                    <p style={{ fontSize: '0.875rem', lineHeight: '1.25rem', color: 'var(--mat-sys-on-surface-variant)' }}>Active Users</p>
+                    <p style={{ fontSize: '1.875rem', lineHeight: '2.25rem', fontWeight: 700, marginTop: '8px' }}>2,350</p>
+                    <p style={{ fontSize: '0.875rem', lineHeight: '1.25rem', color: 'var(--mat-sys-secondary-container)', marginTop: '8px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <TrendUp style={{ width: '16px', height: '16px' }} />
                       +12.5% from last month
                     </p>
                   </div>
                 </div>
               </Card>
 
-              <Card className="p-6">
-                <div className="flex items-center justify-between">
+              <Card style={{ padding: '24px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div>
-                    <p className="text-sm text-muted-foreground">Total Orders</p>
-                    <p className="text-3xl font-bold mt-2">1,234</p>
-                    <p className="text-sm text-accent mt-2 flex items-center gap-1">
-                      <TrendUp className="h-4 w-4" />
+                    <p style={{ fontSize: '0.875rem', lineHeight: '1.25rem', color: 'var(--mat-sys-on-surface-variant)' }}>Total Orders</p>
+                    <p style={{ fontSize: '1.875rem', lineHeight: '2.25rem', fontWeight: 700, marginTop: '8px' }}>1,234</p>
+                    <p style={{ fontSize: '0.875rem', lineHeight: '1.25rem', color: 'var(--mat-sys-secondary-container)', marginTop: '8px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <TrendUp style={{ width: '16px', height: '16px' }} />
                       +8.2% from last month
                     </p>
                   </div>
@@ -108,20 +111,20 @@ export function DashboardTemplate() {
               </Card>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className={styles.activityGrid}>
               <Card>
-                <div className="p-4 border-b border-border">
-                  <h3 className="font-semibold">Recent Activity</h3>
+                <div style={{ padding: '16px', borderBottom: '1px solid var(--mat-sys-outline-variant)' }}>
+                  <h3 style={{ fontWeight: 600 }}>Recent Activity</h3>
                 </div>
-                <div className="p-4 space-y-4">
+                <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
                   {[1, 2, 3].map((i) => (
-                    <div key={i} className="flex items-start gap-3">
-                      <Avatar className="h-8 w-8" src={`https://i.pravatar.cc/150?img=${i + 10}`} alt={`User ${i}`}>U</Avatar>
-                      <div className="flex-1">
-                        <p className="text-sm">
-                          <span className="font-medium">User {i}</span> completed a task
+                    <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                      <Avatar style={{ width: '32px', height: '32px' }} src={`https://i.pravatar.cc/150?img=${i + 10}`} alt={`User ${i}`}>U</Avatar>
+                      <div style={{ flex: 1 }}>
+                        <p style={{ fontSize: '0.875rem', lineHeight: '1.25rem' }}>
+                          <span style={{ fontWeight: 500 }}>User {i}</span> completed a task
                         </p>
-                        <p className="text-xs text-muted-foreground">2 hours ago</p>
+                        <p style={{ fontSize: '0.75rem', lineHeight: '1rem', color: 'var(--mat-sys-on-surface-variant)' }}>2 hours ago</p>
                       </div>
                     </div>
                   ))}
@@ -129,20 +132,20 @@ export function DashboardTemplate() {
               </Card>
 
               <Card>
-                <div className="p-4 border-b border-border">
-                  <h3 className="font-semibold">Quick Actions</h3>
+                <div style={{ padding: '16px', borderBottom: '1px solid var(--mat-sys-outline-variant)' }}>
+                  <h3 style={{ fontWeight: 600 }}>Quick Actions</h3>
                 </div>
-                <div className="p-4 space-y-3">
-                  <Button className="w-full justify-start" variant="outlined">
-                    <Plus className="mr-2" />
+                <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  <Button style={fullWidthStart} variant="outlined">
+                    <Plus style={{ marginRight: '8px' }} />
                     Create New Project
                   </Button>
-                  <Button className="w-full justify-start" variant="outlined">
-                    <Users className="mr-2" />
+                  <Button style={fullWidthStart} variant="outlined">
+                    <Users style={{ marginRight: '8px' }} />
                     Invite Team Members
                   </Button>
-                  <Button className="w-full justify-start" variant="outlined">
-                    <Folder className="mr-2" />
+                  <Button style={fullWidthStart} variant="outlined">
+                    <Folder style={{ marginRight: '8px' }} />
                     Browse Templates
                   </Button>
                 </div>

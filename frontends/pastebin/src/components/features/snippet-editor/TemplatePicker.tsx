@@ -47,7 +47,7 @@ export function TemplatePicker({
       data-testid={testId}
     >
       <MenuItem onClick={() => { onCreateNew(); onClose() }}>
-        <Plus className="mr-2 h-4 w-4" weight="bold" aria-hidden="true" />
+        <Plus style={{ marginRight: 8, width: 16, height: 16 }} weight="bold" aria-hidden="true" />
         {t.templatePicker.blank}
       </MenuItem>
       {sections.map((section) => (

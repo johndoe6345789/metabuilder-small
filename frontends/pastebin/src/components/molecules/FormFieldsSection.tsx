@@ -12,10 +12,10 @@ interface FormFieldsSectionProps {
 
 export function FormFieldsSection({ onSaveSnippet }: FormFieldsSectionProps) {
   return (
-    <section className="space-y-6" data-testid="form-fields-section" role="region" aria-label="Form field components">
+    <section style={{ display: 'flex', flexDirection: 'column', gap: '24px' }} data-testid="form-fields-section" role="region" aria-label="Form field components">
       <div>
-        <h2 className="text-3xl font-bold mb-2">Form Fields</h2>
-        <p className="text-muted-foreground">
+        <h2 style={{ fontSize: '1.875rem', lineHeight: '2.25rem', fontWeight: 700, marginBottom: '8px' }}>Form Fields</h2>
+        <p style={{ color: 'var(--mat-sys-on-surface-variant)' }}>
           Input fields with labels and helper text
         </p>
       </div>
@@ -28,27 +28,27 @@ export function FormFieldsSection({ onSaveSnippet }: FormFieldsSectionProps) {
         onSaveSnippet={onSaveSnippet}
       >
         <Card className="p-6">
-          <div className="space-y-6 max-w-md">
-            <div className="space-y-2">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', maxWidth: '448px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <FormLabel htmlFor="name">Full Name</FormLabel>
               <Input id="name" placeholder="John Doe" />
             </div>
 
-            <div className="space-y-2">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <FormLabel htmlFor="email">Email Address</FormLabel>
-              <div className="relative">
-                <Envelope className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+              <div style={{ position: 'relative' }}>
+                <Envelope style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', width: '20px', height: '20px', color: 'var(--mat-sys-on-surface-variant)' }} />
                 <Input id="email" type="email" placeholder="john@example.com" className="pl-10" />
               </div>
-              <p className="text-sm text-muted-foreground">
-                We'll never share your email with anyone else.
+              <p style={{ fontSize: '0.875rem', lineHeight: '1.25rem', color: 'var(--mat-sys-on-surface-variant)' }}>
+                We&apos;ll never share your email with anyone else.
               </p>
             </div>
 
-            <div className="space-y-2">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <FormLabel htmlFor="password">Password</FormLabel>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+              <div style={{ position: 'relative' }}>
+                <Lock style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', width: '20px', height: '20px', color: 'var(--mat-sys-on-surface-variant)' }} />
                 <Input id="password" type="password" placeholder="••••••••" className="pl-10" />
               </div>
             </div>

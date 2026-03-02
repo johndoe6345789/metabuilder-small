@@ -38,7 +38,7 @@ function NewSnippetContent() {
 export default function NewSnippetPage() {
   return (
     <PageLayout>
-      <Suspense fallback={<div className="text-center py-20 text-muted-foreground">Loading…</div>}>
+      <Suspense fallback={<div style={{ textAlign: 'center', padding: '5rem 0', color: 'var(--mat-sys-on-surface-variant)' }}>Loading…</div>}>
         <NewSnippetContent />
       </Suspense>
     </PageLayout>

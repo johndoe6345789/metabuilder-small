@@ -26,24 +26,24 @@ export default function DemoPage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="space-y-8"
+        style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}
       >
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-accent to-primary flex items-center justify-center">
-              <Sparkle className="h-5 w-5 text-primary-foreground" weight="fill" />
+        <div style={{ marginBottom: '32px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+            <div style={{ height: '40px', width: '40px', borderRadius: '12px', background: 'linear-gradient(to bottom right, var(--mat-sys-accent, var(--mat-sys-tertiary)), var(--mat-sys-primary))', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Sparkle style={{ width: '20px', height: '20px', color: 'var(--mat-sys-on-primary)' }} weight="fill" />
             </div>
-            <h2 className="text-3xl font-bold tracking-tight">Split-Screen Demo</h2>
+            <h2 style={{ fontSize: '1.875rem', fontWeight: 700 }}>Split-Screen Demo</h2>
           </div>
-          <p className="text-muted-foreground">
+          <p style={{ color: 'var(--mat-sys-on-surface-variant)' }}>
             Experience live React component editing with real-time preview. Edit the code on the left and watch it update instantly on the right.
           </p>
         </div>
 
-        <Card className="border-accent/20 bg-card/50 backdrop-blur">
+        <Card>
           <CardHeader>
-            <h3 style={{fontWeight:600, marginBottom:'2px'}} className="flex items-center gap-2">
-              <Sparkle className="h-5 w-5 text-accent" weight="fill" />
+            <h3 style={{ fontWeight: 600, marginBottom: '2px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Sparkle style={{ width: '20px', height: '20px', color: 'var(--mat-sys-accent, var(--mat-sys-tertiary))' }} weight="fill" />
               Interactive Code Editor
             </h3>
             <p style={{color:'var(--mat-sys-on-surface-variant)',fontSize:'0.875rem'}}>

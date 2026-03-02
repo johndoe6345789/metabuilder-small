@@ -12,14 +12,14 @@ interface BadgesSectionProps {
 
 export function BadgesSection({ onSaveSnippet }: BadgesSectionProps) {
   return (
-    <section className="space-y-6" data-testid="badges-section" role="region" aria-label="Badge status indicators">
+    <section style={{ display: 'flex', flexDirection: 'column', gap: '24px' }} data-testid="badges-section" role="region" aria-label="Badge status indicators">
       <div>
-        <h2 className="text-3xl font-bold mb-2">Badges</h2>
-        <p className="text-muted-foreground">
+        <h2 style={{ fontSize: '1.875rem', lineHeight: '2.25rem', fontWeight: 700, marginBottom: '8px' }}>Badges</h2>
+        <p style={{ color: 'var(--mat-sys-on-surface-variant)' }}>
           Small status indicators and labels
         </p>
       </div>
-      
+
       <ComponentShowcase
         code={atomsCodeSnippets.badgeWithIcons}
         title="Badge with Icons"
@@ -28,12 +28,12 @@ export function BadgesSection({ onSaveSnippet }: BadgesSectionProps) {
         onSaveSnippet={onSaveSnippet}
       >
         <Card className="p-6">
-          <div className="space-y-8">
-            <div className="space-y-3">
-              <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <h3 style={{ fontSize: '0.875rem', lineHeight: '1.25rem', fontWeight: 500, color: 'var(--mat-sys-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                 Variants
               </h3>
-              <div className="flex flex-wrap gap-4">
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px' }}>
                 <Chip>Default</Chip>
                 <Chip color="secondary">Secondary</Chip>
                 <Chip color="error">Destructive</Chip>
@@ -43,21 +43,21 @@ export function BadgesSection({ onSaveSnippet }: BadgesSectionProps) {
 
             <Divider />
 
-            <div className="space-y-3">
-              <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <h3 style={{ fontSize: '0.875rem', lineHeight: '1.25rem', fontWeight: 500, color: 'var(--mat-sys-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                 With Icons
               </h3>
-              <div className="flex flex-wrap gap-4">
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px' }}>
                 <Chip>
-                  <Check weight="bold" className="mr-1" />
+                  <Check weight="bold" style={{ marginRight: '4px' }} />
                   Completed
                 </Chip>
                 <Chip color="error">
-                  <X weight="bold" className="mr-1" />
+                  <X weight="bold" style={{ marginRight: '4px' }} />
                   Failed
                 </Chip>
                 <Chip color="secondary">
-                  <Star weight="fill" className="mr-1" />
+                  <Star weight="fill" style={{ marginRight: '4px' }} />
                   Featured
                 </Chip>
               </div>

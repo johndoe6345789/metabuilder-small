@@ -129,8 +129,8 @@ export function SnippetCard({
 
   if (!snippet) {
     return (
-      <Card className="p-4 sm:p-6">
-        <p className="text-muted-foreground">{t.snippetCard.errorMessage}</p>
+      <Card>
+        <p className={styles.errorText}>{t.snippetCard.errorMessage}</p>
       </Card>
     )
   }
@@ -139,9 +139,7 @@ export function SnippetCard({
 
   return (
     <Card
-      className={`group overflow-hidden hover:border-accent/50 transition-all cursor-pointer ${
-        isSelected ? 'border-accent ring-2 ring-accent/20' : ''
-      }`}
+      className={isSelected ? styles.cardSelected : undefined}
       onClick={handleView}
       data-testid={`snippet-card-${snippet.id}`}
       role="article"
@@ -153,7 +151,7 @@ export function SnippetCard({
         }
       }}
     >
-      <div className="p-4 sm:p-6 space-y-3 sm:space-y-4">
+      <div className={styles.cardBody}>
         <SnippetCardHeader 
           snippet={snippet}
           description={snippetData.description}

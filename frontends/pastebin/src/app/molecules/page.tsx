@@ -32,9 +32,9 @@ export default function MoleculesPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
       >
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold tracking-tight mb-2">Molecules</h2>
-          <p className="text-muted-foreground">Simple combinations of atoms that work together as functional units</p>
+        <div style={{ marginBottom: '32px' }}>
+          <h2 style={{ fontSize: '1.875rem', lineHeight: '2.25rem', fontWeight: 700, letterSpacing: '-0.025em', marginBottom: '8px' }}>Molecules</h2>
+          <p style={{ color: 'var(--mat-sys-on-surface-variant)' }}>Simple combinations of atoms that work together as functional units</p>
         </div>
         <MoleculesSection onSaveSnippet={handleSaveSnippet} />
       </motion.div>

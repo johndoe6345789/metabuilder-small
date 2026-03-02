@@ -6,6 +6,7 @@ import { analyzeErrorWithAI } from './analyzeError'
 import { MarkdownRenderer } from './MarkdownRenderer'
 import { LoadingAnalysis } from './LoadingAnalysis'
 import { useTranslation } from '@/hooks/useTranslation'
+import styles from './ai-error-helper.module.scss'
 
 interface AIErrorHelperProps {
   error: Error | string
@@ -55,7 +56,6 @@ export function AIErrorHelper({ error, context, className }: AIErrorHelperProps)
           onClick={analyzeError}
           variant="outlined"
           size="sm"
-          className="gap-2 border-accent/50 text-accent hover:bg-accent/10 hover:text-accent hover:border-accent transition-all"
           data-testid="ai-helper-btn"
           aria-label="Ask AI for help with this error"
         >
@@ -64,35 +64,34 @@ export function AIErrorHelper({ error, context, className }: AIErrorHelperProps)
             transition={{ duration: 2, repeat: Infinity, repeatDelay: 1 }}
             aria-hidden="true"
           >
-            <Sparkle className="h-4 w-4" weight="fill" />
+            <Sparkle style={{ width: '1rem', height: '1rem' }} weight="fill" />
           </motion.div>
           {t.aiErrorHelper.button}
         </Button>
       </motion.div>
 
       <Dialog open={open} onClose={() => setOpen(false)} maxWidth="md" fullWidth>
-        <DialogHeader className="pr-8">
+        <DialogHeader style={{ paddingRight: '2rem' }}>
           <DialogTitle>
-            <span className="flex items-center gap-2" data-testid="ai-analysis-title">
-              <Sparkle className="h-5 w-5 text-accent" weight="fill" aria-hidden="true" />
+            <span className={styles.dialogTitleRow} data-testid="ai-analysis-title">
+              <Sparkle className={styles.sparkleIcon} weight="fill" aria-hidden="true" />
               {t.aiErrorHelper.dialogTitle}
             </span>
           </DialogTitle>
         </DialogHeader>
 
-        <DialogContent data-testid="ai-analysis-dialog" className="max-h-[80vh] overflow-hidden flex flex-col">
+        <DialogContent data-testid="ai-analysis-dialog" className={styles.dialogContent}>
           <p style={{ color: 'var(--mat-sys-on-surface-variant)', marginBottom: '16px' }}>
             {t.aiErrorHelper.dialogSubtitle}
           </p>
 
-          <div className="flex-1 overflow-y-auto space-y-4" role="region" aria-label="Error analysis results">
+          <div className={styles.scrollArea} role="region" aria-label="Error analysis results">
             <Alert
               severity="error"
               variant="outlined"
-              className="bg-destructive/10 border-destructive/30"
               data-testid="error-message-alert"
             >
-              <span className="text-sm font-mono">{errorMessage}</span>
+              <span className={styles.errorMessageCode}>{errorMessage}</span>
             </Alert>
 
             {isAnalyzing && <LoadingAnalysis />}

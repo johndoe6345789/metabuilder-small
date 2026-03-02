@@ -12,14 +12,14 @@ interface InputsSectionProps {
 
 export function InputsSection({ onSaveSnippet }: InputsSectionProps) {
   return (
-    <section className="space-y-6" data-testid="inputs-section" role="region" aria-label="Input form fields">
+    <section style={{ display: 'flex', flexDirection: 'column', gap: '24px' }} data-testid="inputs-section" role="region" aria-label="Input form fields">
       <div>
-        <h2 className="text-3xl font-bold mb-2">Inputs</h2>
-        <p className="text-muted-foreground">
+        <h2 style={{ fontSize: '1.875rem', lineHeight: '2.25rem', fontWeight: 700, marginBottom: '8px' }}>Inputs</h2>
+        <p style={{ color: 'var(--mat-sys-on-surface-variant)' }}>
           Form input fields for user data entry
         </p>
       </div>
-      
+
       <ComponentShowcase
         code={atomsCodeSnippets.inputWithIcon}
         title="Input with Icon"
@@ -28,16 +28,16 @@ export function InputsSection({ onSaveSnippet }: InputsSectionProps) {
         onSaveSnippet={onSaveSnippet}
       >
         <Card className="p-6">
-          <div className="space-y-8">
-            <div className="space-y-3">
-              <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <h3 style={{ fontSize: '0.875rem', lineHeight: '1.25rem', fontWeight: 500, color: 'var(--mat-sys-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                 States
               </h3>
-              <div className="space-y-4 max-w-md">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxWidth: '448px' }}>
                 <Input placeholder="Default input" />
                 <Input placeholder="Disabled input" disabled />
-                <div className="relative">
-                  <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" aria-hidden="true" />
+                <div style={{ position: 'relative' }}>
+                  <MagnifyingGlass style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', width: '20px', height: '20px', color: 'var(--mat-sys-on-surface-variant)' }} aria-hidden="true" />
                   <Input placeholder="Search..." className="pl-10" />
                 </div>
               </div>
@@ -45,11 +45,11 @@ export function InputsSection({ onSaveSnippet }: InputsSectionProps) {
 
             <Divider />
 
-            <div className="space-y-3">
-              <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <h3 style={{ fontSize: '0.875rem', lineHeight: '1.25rem', fontWeight: 500, color: 'var(--mat-sys-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                 Types
               </h3>
-              <div className="space-y-4 max-w-md">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxWidth: '448px' }}>
                 <Input type="text" placeholder="Text input" />
                 <Input type="email" placeholder="email@example.com" />
                 <Input type="password" placeholder="Password" />

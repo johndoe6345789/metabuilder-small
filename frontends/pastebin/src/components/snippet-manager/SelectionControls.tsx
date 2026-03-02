@@ -3,6 +3,7 @@ import { Button, Menu, MenuItem } from '@metabuilder/components/fakemui'
 import { FolderOpen } from '@phosphor-icons/react'
 import { Namespace } from '@/lib/types'
 import { useTranslation } from '@/hooks/useTranslation'
+import styles from './selection-controls.module.scss'
 
 interface SelectionControlsProps {
   selectedIds: string[]
@@ -26,7 +27,7 @@ export function SelectionControls({
   const isAllSelected = selectedIds.length === totalFilteredCount
 
   return (
-    <div className="flex items-center gap-2 p-4 bg-muted/50 rounded-lg" data-testid="selection-controls" role="region" aria-label="Selection controls">
+    <div className={styles.container} data-testid="selection-controls" role="region" aria-label="Selection controls">
       <Button
         variant="outlined"
         size="sm"
@@ -38,19 +39,19 @@ export function SelectionControls({
       </Button>
       {selectedIds.length > 0 && (
         <>
-          <span className="text-sm text-muted-foreground" data-testid="selection-count" role="status" aria-live="polite">
+          <span className={styles.count} data-testid="selection-count" role="status" aria-live="polite">
             {t.selectionControls.selected.replace('{count}', String(selectedIds.length))}
           </span>
           <Button
             variant="outlined"
             size="sm"
-            className="gap-2"
+            className={styles.moveBtn}
             onClick={(e) => setMenuAnchor(e.currentTarget)}
             data-testid="bulk-move-menu-trigger"
             aria-label={t.selectionControls.moveToAria}
             aria-haspopup="menu"
           >
-            <FolderOpen weight="bold" className="h-4 w-4" aria-hidden="true" />
+            <FolderOpen weight="bold" size={16} aria-hidden="true" />
             {t.selectionControls.moveTo}
           </Button>
           <Menu
