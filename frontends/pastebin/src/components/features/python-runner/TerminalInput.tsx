@@ -37,13 +37,13 @@ export function TerminalInput({
       style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}
       data-testid="terminal-input-form"
     >
-      <span style={{ color: '#4fc3f7', fontWeight: 'bold' }} aria-hidden="true">{'>'}</span>
+      <span style={{ color: 'var(--mat-sys-primary)', fontWeight: 'bold' }} aria-hidden="true">{'>'}</span>
       <Input
         ref={inputRef}
         type="text"
         value={inputValue}
         onChange={(e) => onInputChange(e.target.value)}
-        style={{ flex: 1, fontFamily: 'monospace', background: '#1a1a1a', borderColor: '#4fc3f7', color: '#d4d4d4' }}
+        style={{ flex: 1, fontFamily: 'monospace', background: 'var(--mat-sys-surface-container-low)', borderColor: 'var(--mat-sys-primary)', color: 'var(--mat-sys-on-surface)' }}
         placeholder={t.pythonTerminal.inputPlaceholder}
         disabled={!waitingForInput}
         data-testid="terminal-input"
