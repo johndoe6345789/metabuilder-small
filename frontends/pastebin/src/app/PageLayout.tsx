@@ -9,6 +9,8 @@ import { useNavigation } from '@/components/layout/navigation/useNavigation';
 import { BackendIndicator } from '@/components/layout/BackendIndicator';
 import { AlertsBell } from '@/components/layout/AlertsBell';
 import { LangSelector } from '@/components/layout/LangSelector';
+import { ThemeSwitcher } from '@/components/layout/ThemeSwitcher';
+import { ThemeApplier } from '@/components/layout/ThemeApplier';
 import { useTranslation } from '@/hooks/useTranslation';
 import { ReactNode } from 'react';
 import styles from './page-layout.module.scss';
@@ -27,6 +29,7 @@ export function PageLayout({ children }: { children: ReactNode }) {
     <div className="min-h-screen" style={{ backgroundColor: 'var(--mat-sys-background)' }} data-testid="page-layout">
       <div className="grid-pattern" aria-hidden="true" />
 
+      <ThemeApplier />
       <NavigationSidebar />
 
       <motion.div
@@ -70,6 +73,7 @@ export function PageLayout({ children }: { children: ReactNode }) {
                 className={styles.headerActions}
               >
                 <AlertsBell />
+                <ThemeSwitcher />
                 <LangSelector />
                 <BackendIndicator />
               </motion.div>

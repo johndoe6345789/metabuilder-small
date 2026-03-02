@@ -13,6 +13,7 @@ export const selectNamespacesLoading = (state: RootState) => state.namespaces.lo
 export const selectSearchQuery = (state: RootState) => state.ui.searchQuery
 export const selectViewerOpen = (state: RootState) => state.ui.viewerOpen
 export const selectViewingSnippet = (state: RootState) => state.ui.viewingSnippet
+export const selectTheme = (state: RootState) => state.ui.theme ?? 'light'
 
 export const selectSelectedNamespace = createSelector(
   [selectNamespaces, selectSelectedNamespaceId],

@@ -2,12 +2,14 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { Snippet } from '@/lib/types'
 
 export type AppLocale = 'en' | 'es'
+export type AppTheme = 'light' | 'dark'
 
 interface UiState {
   viewerOpen: boolean
   viewingSnippet: Snippet | null
   searchQuery: string
   locale: AppLocale
+  theme: AppTheme
 }
 
 const initialState: UiState = {
@@ -15,6 +17,7 @@ const initialState: UiState = {
   viewingSnippet: null,
   searchQuery: '',
   locale: 'en',
+  theme: 'light',
 }
 
 const uiSlice = createSlice({
@@ -35,6 +38,9 @@ const uiSlice = createSlice({
     setLocale: (state, action: PayloadAction<AppLocale>) => {
       state.locale = action.payload
     },
+    setTheme: (state, action: PayloadAction<AppTheme>) => {
+      state.theme = action.payload
+    },
   },
 })
 
@@ -43,6 +49,7 @@ export const {
   closeViewer,
   setSearchQuery,
   setLocale,
+  setTheme,
 } = uiSlice.actions
 
 export default uiSlice.reducer
