@@ -347,6 +347,7 @@ export default function SnippetViewPage() {
           onOpenChange={setEditOpen}
           editingSnippet={snippet}
           onSave={handleSave}
+          metadataOnly
         />
 
       </div>

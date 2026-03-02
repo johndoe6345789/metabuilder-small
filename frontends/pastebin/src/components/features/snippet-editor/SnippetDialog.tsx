@@ -15,9 +15,11 @@ interface SnippetDialogProps {
   onOpenChange: (open: boolean) => void
   onSave: (snippet: Omit<Snippet, 'id' | 'createdAt' | 'updatedAt'>) => void
   editingSnippet?: Snippet | null
+  /** When true, only the Details tab is shown (no Code/Preview tabs) */
+  metadataOnly?: boolean
 }
 
-export function SnippetDialog({ open, onOpenChange, onSave, editingSnippet }: SnippetDialogProps) {
+export function SnippetDialog({ open, onOpenChange, onSave, editingSnippet, metadataOnly = false }: SnippetDialogProps) {
   const t = useTranslation()
   const [activeTab, setActiveTab] = useState(0)
 
@@ -37,8 +39,8 @@ export function SnippetDialog({ open, onOpenChange, onSave, editingSnippet }: Sn
   } = useSnippetForm(editingSnippet, open)
 
   const isPreviewSupported = appConfig.previewEnabledLanguages.includes(language)
-  const showPreviewTab = isPreviewSupported && hasPreview
-  const tabCount = showPreviewTab ? 3 : 2
+  const showPreviewTab = !metadataOnly && isPreviewSupported && hasPreview
+  const tabCount = metadataOnly ? 1 : (showPreviewTab ? 3 : 2)
 
   const handleCodeChange = (value: string) => {
     updateFileContent(activeFile, value)
@@ -68,6 +70,7 @@ export function SnippetDialog({ open, onOpenChange, onSave, editingSnippet }: Sn
         <SnippetDialogTabs
           activeTab={activeTab}
           onTabChange={setActiveTab}
+          metadataOnly={metadataOnly}
           title={title}
           description={description}
           language={language}

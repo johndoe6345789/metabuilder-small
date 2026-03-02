@@ -50,6 +50,7 @@ export interface SnippetDialogTabsProps {
   activeTab: number
   onTabChange: (tab: number) => void
   editorHeight?: string
+  metadataOnly?: boolean
   title: string
   description: string
   language: string
@@ -80,6 +81,7 @@ export function SnippetDialogTabs({
   activeTab,
   onTabChange,
   editorHeight = '360px',
+  metadataOnly = false,
   title,
   description,
   language,
@@ -107,9 +109,11 @@ export function SnippetDialogTabs({
 }: SnippetDialogTabsProps) {
   const t = useTranslation()
   const isPreviewSupported = appConfig.previewEnabledLanguages.includes(language)
-  const showPreviewTab = isPreviewSupported && hasPreview
+  const showPreviewTab = !metadataOnly && isPreviewSupported && hasPreview
 
-  const tabs = [t.snippetDialog.tabs.details, t.snippetDialog.tabs.code, ...(showPreviewTab ? [t.snippetDialog.tabs.previewConfig] : [])]
+  const tabs = metadataOnly
+    ? [t.snippetDialog.tabs.details]
+    : [t.snippetDialog.tabs.details, t.snippetDialog.tabs.code, ...(showPreviewTab ? [t.snippetDialog.tabs.previewConfig] : [])]
 
   return (
     <>
@@ -127,26 +131,28 @@ export function SnippetDialogTabs({
         />
       </TabPanel>
 
-      <TabPanel active={activeTab === 1} index={1}>
-        <CodeEditorSection
-          code={code}
-          language={language}
-          hasPreview={hasPreview}
-          functionName={functionName}
-          inputParameters={inputParameters}
-          errors={errors}
-          onCodeChange={onCodeChange}
-          onPreviewChange={onPreviewChange}
-          height={editorHeight}
-          files={files}
-          activeFile={activeFile}
-          onActiveFileSelect={onActiveFileSelect}
-          onFileAdd={onFileAdd}
-          onFileDelete={onFileDelete}
-          onFileRename={onFileRename}
-          onFileUpload={onFileUpload}
-        />
-      </TabPanel>
+      {!metadataOnly && (
+        <TabPanel active={activeTab === 1} index={1}>
+          <CodeEditorSection
+            code={code}
+            language={language}
+            hasPreview={hasPreview}
+            functionName={functionName}
+            inputParameters={inputParameters}
+            errors={errors}
+            onCodeChange={onCodeChange}
+            onPreviewChange={onPreviewChange}
+            height={editorHeight}
+            files={files}
+            activeFile={activeFile}
+            onActiveFileSelect={onActiveFileSelect}
+            onFileAdd={onFileAdd}
+            onFileDelete={onFileDelete}
+            onFileRename={onFileRename}
+            onFileUpload={onFileUpload}
+          />
+        </TabPanel>
+      )}
 
       {showPreviewTab && (
         <TabPanel active={activeTab === 2} index={2}>

@@ -141,17 +141,6 @@ export function NavigationSidebar() {
               </ul>
             </nav>
 
-            {/* Footer */}
-            <div className="p-4 border-t border-border/50" data-testid="navigation-footer">
-              <p className="text-xs text-muted-foreground text-center">
-                Material Design 3
-              </p>
-            </div>
-
-            {/* Android gesture bar indicator */}
-            <div className="h-5 flex items-center justify-center pb-2" data-testid="gesture-bar" aria-hidden="true">
-              <div className="w-[134px] h-[5px] bg-muted-foreground/40 rounded-full" />
-            </div>
           </motion.aside>
         </>
       )}
