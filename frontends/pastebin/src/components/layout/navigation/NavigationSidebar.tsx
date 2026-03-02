@@ -3,7 +3,7 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { X } from '@phosphor-icons/react'
+import { MaterialIcon } from '@metabuilder/components/fakemui'
 import { navigationItems } from './navigation-items'
 import { useNavigation } from './useNavigation'
 import styles from './NavigationSidebar.module.scss'
@@ -46,13 +46,12 @@ export function NavigationSidebar() {
                 aria-label="Close navigation"
                 data-testid="navigation-sidebar-close-btn"
               >
-                <X weight="bold" size={16} aria-hidden="true" />
+                <MaterialIcon name="close" size={16} aria-hidden="true" />
               </button>
             </div>
 
             <nav className={styles.nav} data-testid="navigation-items">
               {navigationItems.map((item) => {
-                const Icon = item.icon
                 const isActive = pathname === item.path
                 return (
                   <Link
@@ -63,7 +62,7 @@ export function NavigationSidebar() {
                     data-testid={`nav-link-${item.path.replace(/\//g, '-')}`}
                     aria-current={isActive ? 'page' : undefined}
                   >
-                    <Icon weight={isActive ? 'fill' : 'regular'} size={16} aria-hidden="true" />
+                    <MaterialIcon name={item.icon} size={16} aria-hidden="true" />
                     <span>{item.label}</span>
                   </Link>
                 )

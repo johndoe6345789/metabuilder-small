@@ -1,9 +1,4 @@
-import { Card, Button, Input, FormLabel, Divider } from '@metabuilder/components/fakemui'
-import {
-  Envelope,
-  Lock,
-  ArrowRight,
-} from '@phosphor-icons/react'
+import { Card, Button, Input, FormLabel, Divider, MaterialIcon } from '@metabuilder/components/fakemui'
 import styles from './FormsShowcase.module.scss'
 
 export function FormsShowcase() {
@@ -41,7 +36,7 @@ export function FormsShowcase() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             <FormLabel htmlFor="formEmail">Email</FormLabel>
             <div style={{ position: 'relative' }}>
-              <Envelope className={styles.inputIcon} aria-hidden="true" />
+              <MaterialIcon name="mail" className={styles.inputIcon} aria-hidden="true" />
               <Input id="formEmail" type="email" placeholder="john@example.com" className={styles.inputWithIcon} />
             </div>
           </div>
@@ -49,7 +44,7 @@ export function FormsShowcase() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             <FormLabel htmlFor="formPassword">Password</FormLabel>
             <div style={{ position: 'relative' }}>
-              <Lock className={styles.inputIcon} aria-hidden="true" />
+              <MaterialIcon name="lock" className={styles.inputIcon} aria-hidden="true" />
               <Input id="formPassword" type="password" placeholder="••••••••" className={styles.inputWithIcon} />
             </div>
             <p style={{ fontSize: '0.875rem', lineHeight: '1.25rem', color: 'var(--mat-sys-on-surface-variant)' }}>
@@ -65,7 +60,7 @@ export function FormsShowcase() {
             </Button>
             <Button type="submit">
               Create Account
-              <ArrowRight style={{ marginLeft: '8px' }} aria-hidden="true" />
+              <MaterialIcon name="arrow_forward" style={{ marginLeft: '8px' }} aria-hidden="true" />
             </Button>
           </div>
         </form>

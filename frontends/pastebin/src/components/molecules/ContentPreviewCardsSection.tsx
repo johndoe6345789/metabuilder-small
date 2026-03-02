@@ -1,6 +1,5 @@
-import { Card } from '@metabuilder/components/fakemui'
+import { Card, MaterialIcon } from '@metabuilder/components/fakemui'
 import { Chip } from '@metabuilder/components/fakemui'
-import { Calendar } from '@phosphor-icons/react'
 import styles from './ContentPreviewCardsSection.module.scss'
 
 export function ContentPreviewCardsSection() {
@@ -28,7 +27,7 @@ export function ContentPreviewCardsSection() {
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px', fontSize: '0.875rem', lineHeight: '1.25rem', color: 'var(--mat-sys-on-surface-variant)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <Calendar style={{ width: '16px', height: '16px' }} />
+                <MaterialIcon name="calendar_today" size={16} />
                 <span>Mar 15, 2024</span>
               </div>
               <span>•</span>
@@ -55,7 +54,7 @@ export function ContentPreviewCardsSection() {
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px', fontSize: '0.875rem', lineHeight: '1.25rem', color: 'var(--mat-sys-on-surface-variant)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <Calendar style={{ width: '16px', height: '16px' }} />
+                <MaterialIcon name="calendar_today" size={16} />
                 <span>Mar 12, 2024</span>
               </div>
               <span>•</span>

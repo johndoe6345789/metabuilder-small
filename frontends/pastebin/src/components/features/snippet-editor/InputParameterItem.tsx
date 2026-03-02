@@ -1,5 +1,4 @@
-import { Trash } from '@phosphor-icons/react'
-import { Button, Card, CardContent, Input, FormLabel, Select, MenuItem } from '@metabuilder/components/fakemui'
+import { Button, Card, CardContent, Input, FormLabel, Select, MenuItem, MaterialIcon } from '@metabuilder/components/fakemui'
 import type { SelectChangeEvent } from '@metabuilder/components/fakemui'
 import { InputParameter } from '@/lib/types'
 import styles from './input-parameter-item.module.scss'
@@ -82,7 +81,7 @@ export function InputParameterItem({ param, index, onUpdate, onRemove }: InputPa
             data-testid={`remove-parameter-btn-${index}`}
             aria-label={`Remove parameter ${index + 1}`}
           >
-            <Trash className={styles.removeIcon} aria-hidden="true" />
+            <MaterialIcon name="delete" className={styles.removeIcon} aria-hidden="true" />
           </Button>
         </div>
         <div className={styles.fieldGroup}>

@@ -1,5 +1,4 @@
-import { Card, Button, Input, Divider } from '@metabuilder/components/fakemui'
-import { MagnifyingGlass } from '@phosphor-icons/react'
+import { Card, Button, Input, Divider, MaterialIcon } from '@metabuilder/components/fakemui'
 import { ComponentShowcase } from '@/components/demo/ComponentShowcase'
 import { moleculesCodeSnippets } from '@/lib/component-code-snippets'
 import { Snippet } from '@/lib/types'
@@ -28,7 +27,7 @@ export function SearchBarsSection({ onSaveSnippet }: SearchBarsSectionProps) {
         <Card className="p-6">
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             <div style={{ position: 'relative', maxWidth: '448px' }}>
-              <MagnifyingGlass style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', width: '20px', height: '20px', color: 'var(--mat-sys-on-surface-variant)' }} aria-hidden="true" />
+              <MaterialIcon name="search" size={20} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--mat-sys-on-surface-variant)' }} aria-hidden="true" />
               <Input placeholder="Search..." className="pl-10" />
             </div>
 
@@ -36,7 +35,7 @@ export function SearchBarsSection({ onSaveSnippet }: SearchBarsSectionProps) {
 
             <div style={{ display: 'flex', gap: '8px', maxWidth: '448px' }}>
               <div style={{ position: 'relative', flex: 1 }}>
-                <MagnifyingGlass style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', width: '20px', height: '20px', color: 'var(--mat-sys-on-surface-variant)' }} aria-hidden="true" />
+                <MaterialIcon name="search" size={20} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--mat-sys-on-surface-variant)' }} aria-hidden="true" />
                 <Input placeholder="Search..." className="pl-10" />
               </div>
               <Button>Search</Button>
@@ -45,7 +44,7 @@ export function SearchBarsSection({ onSaveSnippet }: SearchBarsSectionProps) {
             <Divider />
 
             <div style={{ position: 'relative', maxWidth: '448px' }}>
-              <MagnifyingGlass style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', width: '20px', height: '20px', color: 'var(--mat-sys-on-surface-variant)' }} aria-hidden="true" />
+              <MaterialIcon name="search" size={20} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--mat-sys-on-surface-variant)' }} aria-hidden="true" />
               <Input placeholder="Search products, articles, documentation..." className="pl-10 h-12" />
             </div>
           </div>

@@ -1,8 +1,7 @@
 import { useState } from 'react'
-import { Card, CardContent, CardHeader, Button, Input, FormLabel } from '@metabuilder/components/fakemui'
+import { Card, CardContent, CardHeader, Button, Input, FormLabel, MaterialIcon } from '@metabuilder/components/fakemui'
 import { useAppDispatch } from '@/store/hooks'
 import { createSnippet } from '@/store/slices/snippetsSlice'
-import { FloppyDisk, Plus } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import styles from './PersistenceExample.module.scss'
 
@@ -35,7 +34,7 @@ export function PersistenceExample() {
       <CardHeader>
         <div className={styles.headerRow}>
           <div className={styles.iconWrap} aria-hidden="true">
-            <FloppyDisk className={styles.headerIcon} weight="duotone" />
+            <MaterialIcon name="save" className={styles.headerIcon} />
           </div>
           <div>
             <h3 style={{ fontWeight: 600 }}>Auto-Persistence Example</h3>
@@ -73,7 +72,7 @@ export function PersistenceExample() {
           </div>
 
           <Button onClick={handleCreate} className={styles.fullWidthBtn} data-testid="create-snippet-button" aria-label="Create snippet and auto-save to database">
-            <Plus weight="bold" size={16} aria-hidden="true" />
+            <MaterialIcon name="add" size={16} aria-hidden="true" />
             Create Snippet (Auto-Saves)
           </Button>
 

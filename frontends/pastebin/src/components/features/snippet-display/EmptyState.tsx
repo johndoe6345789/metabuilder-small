@@ -1,6 +1,5 @@
 import { useState } from 'react'
-import { Code, CaretDown } from '@phosphor-icons/react'
-import { Button } from '@metabuilder/components/fakemui'
+import { Button, MaterialIcon } from '@metabuilder/components/fakemui'
 import { useTranslation } from '@/hooks/useTranslation'
 import { SnippetTemplate } from '@/lib/types'
 import templatesData from '@/data/templates.json'
@@ -37,7 +36,7 @@ export function EmptyState({ onCreateClick, onCreateFromTemplate }: EmptyStatePr
       </div>
 
       <div className={styles.iconContainer} aria-hidden="true">
-        <Code className={styles.icon} weight="duotone" />
+        <MaterialIcon name="code" className={styles.icon} />
       </div>
       <h2 className={styles.title}>{t.emptyState.title}</h2>
       <p className={styles.description}>
@@ -52,9 +51,9 @@ export function EmptyState({ onCreateClick, onCreateFromTemplate }: EmptyStatePr
         onClick={(e) => setMenuAnchor(menuAnchor ? null : e.currentTarget)}
       >
         <span className={styles.btnInner}>
-          <Code size={20} weight="bold" aria-hidden="true" />
+          <MaterialIcon name="code" size={20} aria-hidden="true" />
           {t.emptyState.buttonText}
-          <CaretDown weight="bold" aria-hidden="true" className={menuAnchor ? `${styles.caret} ${styles.caretOpen}` : styles.caret} />
+          <MaterialIcon name="expand_more" aria-hidden="true" className={menuAnchor ? `${styles.caret} ${styles.caretOpen}` : styles.caret} />
         </span>
       </Button>
       <TemplatePicker

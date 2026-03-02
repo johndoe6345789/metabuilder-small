@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { Globe, Check } from '@phosphor-icons/react'
+import { MaterialIcon } from '@metabuilder/components/fakemui'
 import { useAppDispatch, useAppSelector, setLocale } from '@/store/exports'
 import type { AppLocale } from '@/store/slices/uiSlice'
 import { useTranslation } from '@/hooks/useTranslation'
@@ -38,7 +38,7 @@ export function LangSelector() {
         aria-haspopup="listbox"
         data-testid="lang-trigger"
       >
-        <Globe size={16} aria-hidden="true" />
+        <MaterialIcon name="language" size={16} aria-hidden="true" />
         <span>{locale.toUpperCase()}</span>
       </button>
 
@@ -55,7 +55,7 @@ export function LangSelector() {
             >
               <span className={styles.optionLabel}>{lang.native}</span>
               <span className={styles.optionSub}>{lang.label}</span>
-              {locale === lang.code && <Check size={14} weight="bold" className={styles.check} aria-hidden="true" />}
+              {locale === lang.code && <MaterialIcon name="check" size={14} className={styles.check} aria-hidden="true" />}
             </button>
           ))}
         </div>

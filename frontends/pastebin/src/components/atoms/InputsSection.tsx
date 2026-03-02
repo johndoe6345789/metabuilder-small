@@ -1,7 +1,6 @@
-import { Input } from '@metabuilder/components/fakemui'
+import { Input, MaterialIcon } from '@metabuilder/components/fakemui'
 import { Card } from '@metabuilder/components/fakemui'
 import { Divider } from '@metabuilder/components/fakemui'
-import { MagnifyingGlass } from '@phosphor-icons/react'
 import { ComponentShowcase } from '@/components/demo/ComponentShowcase'
 import { atomsCodeSnippets } from '@/lib/component-code-snippets'
 import { Snippet } from '@/lib/types'
@@ -37,7 +36,7 @@ export function InputsSection({ onSaveSnippet }: InputsSectionProps) {
                 <Input placeholder="Default input" />
                 <Input placeholder="Disabled input" disabled />
                 <div style={{ position: 'relative' }}>
-                  <MagnifyingGlass style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', width: '20px', height: '20px', color: 'var(--mat-sys-on-surface-variant)' }} aria-hidden="true" />
+                  <MaterialIcon name="search" size={20} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--mat-sys-on-surface-variant)' }} aria-hidden="true" />
                   <Input placeholder="Search..." className="pl-10" />
                 </div>
               </div>

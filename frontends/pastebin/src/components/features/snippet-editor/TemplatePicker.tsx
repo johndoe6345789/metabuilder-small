@@ -1,8 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
-import { Plus } from '@phosphor-icons/react'
-import { Menu, MenuItem, Divider } from '@metabuilder/components/fakemui'
+import { Menu, MenuItem, Divider, MaterialIcon } from '@metabuilder/components/fakemui'
 import { SnippetTemplate } from '@/lib/types'
 import { useTranslation } from '@/hooks/useTranslation'
 import styles from './template-picker.module.scss'
@@ -47,7 +46,7 @@ export function TemplatePicker({
       data-testid={testId}
     >
       <MenuItem onClick={() => { onCreateNew(); onClose() }}>
-        <Plus style={{ marginRight: 8, width: 16, height: 16 }} weight="bold" aria-hidden="true" />
+        <MaterialIcon name="add" size={16} style={{ marginRight: 8 }} aria-hidden="true" />
         {t.templatePicker.blank}
       </MenuItem>
       {sections.map((section) => (

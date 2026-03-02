@@ -1,14 +1,4 @@
-import { Card, Button, Avatar } from '@metabuilder/components/fakemui'
-import {
-  Bell,
-  Gear,
-  House,
-  ChartBar,
-  Folder,
-  Plus,
-  TrendUp,
-  Users,
-} from '@phosphor-icons/react'
+import { Card, Button, Avatar, MaterialIcon } from '@metabuilder/components/fakemui'
 import styles from './DashboardTemplate.module.scss'
 
 const fullWidthStart: React.CSSProperties = { width: '100%', justifyContent: 'flex-start' }
@@ -23,10 +13,10 @@ export function DashboardTemplate() {
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Button variant="ghost">
-              <Bell />
+              <MaterialIcon name="notifications" />
             </Button>
             <Button variant="ghost">
-              <Gear />
+              <MaterialIcon name="settings" />
             </Button>
             <Avatar style={{ width: '32px', height: '32px' }} src="https://i.pravatar.cc/150?img=4" alt="User">U</Avatar>
           </div>
@@ -37,19 +27,19 @@ export function DashboardTemplate() {
         <aside className={styles.sidebar}>
           <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
             <Button variant="filled" style={fullWidthStart}>
-              <House style={{ marginRight: '8px' }} />
+              <MaterialIcon name="home" style={{ marginRight: '8px' }} />
               Overview
             </Button>
             <Button variant="ghost" style={fullWidthStart}>
-              <ChartBar style={{ marginRight: '8px' }} />
+              <MaterialIcon name="bar_chart" style={{ marginRight: '8px' }} />
               Analytics
             </Button>
             <Button variant="ghost" style={fullWidthStart}>
-              <Folder style={{ marginRight: '8px' }} />
+              <MaterialIcon name="folder" style={{ marginRight: '8px' }} />
               Projects
             </Button>
             <Button variant="ghost" style={fullWidthStart}>
-              <Users style={{ marginRight: '8px' }} />
+              <MaterialIcon name="group" style={{ marginRight: '8px' }} />
               Team
             </Button>
           </nav>
@@ -65,7 +55,7 @@ export function DashboardTemplate() {
                 </p>
               </div>
               <Button>
-                <Plus style={{ marginRight: '8px' }} />
+                <MaterialIcon name="add" style={{ marginRight: '8px' }} />
                 New Project
               </Button>
             </div>
@@ -77,7 +67,7 @@ export function DashboardTemplate() {
                     <p style={{ fontSize: '0.875rem', lineHeight: '1.25rem', color: 'var(--mat-sys-on-surface-variant)' }}>Total Revenue</p>
                     <p style={{ fontSize: '1.875rem', lineHeight: '2.25rem', fontWeight: 700, marginTop: '8px' }}>$45,231</p>
                     <p style={{ fontSize: '0.875rem', lineHeight: '1.25rem', color: 'var(--mat-sys-secondary-container)', marginTop: '8px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      <TrendUp style={{ width: '16px', height: '16px' }} />
+                      <MaterialIcon name="trending_up" size={16} />
                       +20.1% from last month
                     </p>
                   </div>
@@ -90,7 +80,7 @@ export function DashboardTemplate() {
                     <p style={{ fontSize: '0.875rem', lineHeight: '1.25rem', color: 'var(--mat-sys-on-surface-variant)' }}>Active Users</p>
                     <p style={{ fontSize: '1.875rem', lineHeight: '2.25rem', fontWeight: 700, marginTop: '8px' }}>2,350</p>
                     <p style={{ fontSize: '0.875rem', lineHeight: '1.25rem', color: 'var(--mat-sys-secondary-container)', marginTop: '8px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      <TrendUp style={{ width: '16px', height: '16px' }} />
+                      <MaterialIcon name="trending_up" size={16} />
                       +12.5% from last month
                     </p>
                   </div>
@@ -103,7 +93,7 @@ export function DashboardTemplate() {
                     <p style={{ fontSize: '0.875rem', lineHeight: '1.25rem', color: 'var(--mat-sys-on-surface-variant)' }}>Total Orders</p>
                     <p style={{ fontSize: '1.875rem', lineHeight: '2.25rem', fontWeight: 700, marginTop: '8px' }}>1,234</p>
                     <p style={{ fontSize: '0.875rem', lineHeight: '1.25rem', color: 'var(--mat-sys-secondary-container)', marginTop: '8px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      <TrendUp style={{ width: '16px', height: '16px' }} />
+                      <MaterialIcon name="trending_up" size={16} />
                       +8.2% from last month
                     </p>
                   </div>
@@ -137,15 +127,15 @@ export function DashboardTemplate() {
                 </div>
                 <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   <Button style={fullWidthStart} variant="outlined">
-                    <Plus style={{ marginRight: '8px' }} />
+                    <MaterialIcon name="add" style={{ marginRight: '8px' }} />
                     Create New Project
                   </Button>
                   <Button style={fullWidthStart} variant="outlined">
-                    <Users style={{ marginRight: '8px' }} />
+                    <MaterialIcon name="group" style={{ marginRight: '8px' }} />
                     Invite Team Members
                   </Button>
                   <Button style={fullWidthStart} variant="outlined">
-                    <Folder style={{ marginRight: '8px' }} />
+                    <MaterialIcon name="folder" style={{ marginRight: '8px' }} />
                     Browse Templates
                   </Button>
                 </div>

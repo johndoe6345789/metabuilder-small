@@ -1,7 +1,6 @@
 'use client';
 
-import { CheckCircle, WarningCircle } from '@phosphor-icons/react'
-import { Alert, AlertTitle } from '@metabuilder/components/fakemui'
+import { Alert, AlertTitle, MaterialIcon } from '@metabuilder/components/fakemui'
 import { getStorageConfig } from '@/lib/storage'
 import { useTranslation } from '@/hooks/useTranslation'
 
@@ -22,7 +21,7 @@ export function AppStatusAlerts() {
         role="status"
         aria-live="polite"
         severity="success"
-        icon={<CheckCircle style={{ gridColumnStart: 1, marginTop: '0.125rem', color: 'var(--mat-sys-tertiary)' }} weight="fill" aria-hidden="true" />}
+        icon={<MaterialIcon name="check_circle" style={{ gridColumnStart: 1, marginTop: '0.125rem', color: 'var(--mat-sys-tertiary)' }} aria-hidden="true" />}
       >
         <AlertTitle>{t.statusAlerts.workspaceReady}</AlertTitle>
         {usingLocal ? t.statusAlerts.localModeDesc : t.statusAlerts.connectedDesc}
@@ -35,7 +34,7 @@ export function AppStatusAlerts() {
           role="alert"
           aria-live="assertive"
           severity="error"
-          icon={<WarningCircle style={{ gridColumnStart: 1, marginTop: '0.125rem' }} weight="fill" aria-hidden="true" />}
+          icon={<MaterialIcon name="error" style={{ gridColumnStart: 1, marginTop: '0.125rem' }} aria-hidden="true" />}
         >
           <AlertTitle>{t.statusAlerts.cloudUnavailable}</AlertTitle>
           {t.statusAlerts.cloudUnavailableDesc}

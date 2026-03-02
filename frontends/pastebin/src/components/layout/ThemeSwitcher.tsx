@@ -1,6 +1,6 @@
 'use client'
 
-import { Sun, Moon } from '@phosphor-icons/react'
+import { MaterialIcon } from '@metabuilder/components/fakemui'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { setTheme } from '@/store/slices/uiSlice'
 import { selectTheme } from '@/store/selectors'
@@ -19,8 +19,8 @@ export function ThemeSwitcher() {
       data-testid="theme-switcher"
     >
       {isDark
-        ? <Sun size={18} weight="regular" aria-hidden="true" />
-        : <Moon size={18} weight="regular" aria-hidden="true" />
+        ? <MaterialIcon name="light_mode" size={18} aria-hidden="true" />
+        : <MaterialIcon name="dark_mode" size={18} aria-hidden="true" />
       }
     </button>
   )

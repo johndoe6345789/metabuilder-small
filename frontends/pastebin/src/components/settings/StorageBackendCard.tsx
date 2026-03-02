@@ -1,7 +1,6 @@
 'use client'
 
-import { Card, CardHeader, CardContent, Button, Input, FormLabel, Alert, AlertDescription, RadioGroup, Radio, FormControlLabel } from '@metabuilder/components/fakemui'
-import { Database, CloudArrowUp, CloudCheck, CloudSlash, Upload, Download } from '@phosphor-icons/react'
+import { Card, CardHeader, CardContent, Button, Input, FormLabel, Alert, AlertDescription, RadioGroup, Radio, FormControlLabel, MaterialIcon } from '@metabuilder/components/fakemui'
 import { type StorageBackend } from '@/lib/storage'
 import { useTranslation } from '@/hooks/useTranslation'
 import styles from './settings-card.module.scss'
@@ -39,7 +38,7 @@ export function StorageBackendCard({
     <Card data-testid="storage-backend-card">
       <CardHeader>
         <h3 className={styles.cardTitleWithIcon}>
-          <CloudArrowUp weight="duotone" size={24} aria-hidden="true" />
+          <MaterialIcon name="cloud_upload" size={24} aria-hidden="true" />
           {s.title}
         </h3>
         <p className={styles.cardDescription}>
@@ -51,7 +50,7 @@ export function StorageBackendCard({
           {envVarSet && (
             <Alert severity="info" className={styles.alertAccent} data-testid="env-var-alert" role="status">
               <AlertDescription className={styles.alertAccentDescription}>
-                <CloudCheck weight="fill" size={16} aria-hidden="true" />
+                <MaterialIcon name="cloud_done" size={16} aria-hidden="true" />
                 <span>
                   {s.envVarAlertBefore} <code className={styles.envVarCode}>NEXT_PUBLIC_FLASK_BACKEND_URL</code> {s.envVarAlertAfter}
                 </span>
@@ -132,13 +131,13 @@ export function StorageBackendCard({
                 </div>
                 {flaskConnectionStatus === 'connected' && (
                   <div className={styles.flaskStatusConnected} data-testid="flask-connected-status">
-                    <CloudCheck weight="fill" size={16} aria-hidden="true" />
+                    <MaterialIcon name="cloud_done" size={16} aria-hidden="true" />
                     {s.connectedStatus}
                   </div>
                 )}
                 {flaskConnectionStatus === 'failed' && (
                   <div className={styles.flaskStatusFailed} data-testid="flask-failed-status">
-                    <CloudSlash weight="fill" size={16} aria-hidden="true" />
+                    <MaterialIcon name="cloud_off" size={16} aria-hidden="true" />
                     {s.failedStatus}
                   </div>
                 )}
@@ -153,7 +152,7 @@ export function StorageBackendCard({
                   data-testid="migrate-to-flask-btn"
                   aria-label="Migrate IndexedDB data to Flask backend"
                 >
-                  <Upload weight="bold" size={16} aria-hidden="true" />
+                  <MaterialIcon name="upload" size={16} aria-hidden="true" />
                   {s.migrateToFlask}
                 </Button>
                 <Button
@@ -164,7 +163,7 @@ export function StorageBackendCard({
                   data-testid="migrate-to-indexeddb-btn"
                   aria-label="Migrate Flask data to IndexedDB"
                 >
-                  <Download weight="bold" size={16} aria-hidden="true" />
+                  <MaterialIcon name="download" size={16} aria-hidden="true" />
                   {s.migrateToIndexedDB}
                 </Button>
               </div>
@@ -179,7 +178,7 @@ export function StorageBackendCard({
               data-testid="save-storage-settings-btn"
               aria-label="Save storage configuration"
             >
-              <Database weight="bold" size={16} aria-hidden="true" />
+              <MaterialIcon name="storage" size={16} aria-hidden="true" />
               {s.save}
             </Button>
           </div>

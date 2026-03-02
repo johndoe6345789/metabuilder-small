@@ -1,6 +1,5 @@
 import { useState } from 'react'
-import { Button, Dialog, DialogHeader, DialogTitle, DialogContent, Alert } from '@metabuilder/components/fakemui'
-import { Sparkle } from '@phosphor-icons/react'
+import { Button, Dialog, DialogHeader, DialogTitle, DialogContent, Alert, MaterialIcon } from '@metabuilder/components/fakemui'
 import { motion, AnimatePresence } from 'framer-motion'
 import { analyzeErrorWithAI } from './analyzeError'
 import { MarkdownRenderer } from './MarkdownRenderer'
@@ -64,7 +63,7 @@ export function AIErrorHelper({ error, context, className }: AIErrorHelperProps)
             transition={{ duration: 2, repeat: Infinity, repeatDelay: 1 }}
             aria-hidden="true"
           >
-            <Sparkle style={{ width: '1rem', height: '1rem' }} weight="fill" />
+            <MaterialIcon name="auto_awesome" size={16} />
           </motion.div>
           {t.aiErrorHelper.button}
         </Button>
@@ -74,7 +73,7 @@ export function AIErrorHelper({ error, context, className }: AIErrorHelperProps)
         <DialogHeader style={{ paddingRight: '2rem' }}>
           <DialogTitle>
             <span className={styles.dialogTitleRow} data-testid="ai-analysis-title">
-              <Sparkle className={styles.sparkleIcon} weight="fill" aria-hidden="true" />
+              <MaterialIcon name="auto_awesome" className={styles.sparkleIcon} aria-hidden="true" />
               {t.aiErrorHelper.dialogTitle}
             </span>
           </DialogTitle>

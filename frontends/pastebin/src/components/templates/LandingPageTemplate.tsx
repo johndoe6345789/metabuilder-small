@@ -1,10 +1,4 @@
-import { Card, Button, Chip } from '@metabuilder/components/fakemui'
-import {
-  ChartBar,
-  Users,
-  Gear,
-  ArrowRight,
-} from '@phosphor-icons/react'
+import { Card, Button, Chip, MaterialIcon } from '@metabuilder/components/fakemui'
 import styles from './LandingPageTemplate.module.scss'
 
 export function LandingPageTemplate() {
@@ -43,7 +37,7 @@ export function LandingPageTemplate() {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px' }}>
           <Button size="lg">
             Get Started
-            <ArrowRight style={{ marginLeft: '8px' }} />
+            <MaterialIcon name="arrow_forward" style={{ marginLeft: '8px' }} />
           </Button>
           <Button size="lg" variant="outlined">
             View Demo
@@ -62,7 +56,7 @@ export function LandingPageTemplate() {
         <div className={styles.featuresGrid}>
           <Card style={{ padding: '24px' }}>
             <div style={{ height: '48px', width: '48px', borderRadius: '8px', backgroundColor: 'color-mix(in srgb, var(--mat-sys-secondary-container) 20%, transparent)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
-              <ChartBar style={{ width: '24px', height: '24px', color: 'var(--mat-sys-secondary-container)' }} />
+              <MaterialIcon name="bar_chart" size={24} style={{ color: 'var(--mat-sys-secondary-container)' }} />
             </div>
             <h3 style={{ fontWeight: 600, fontSize: '1.125rem', lineHeight: '1.75rem', marginBottom: '8px' }}>Analytics</h3>
             <p style={{ fontSize: '0.875rem', lineHeight: '1.25rem', color: 'var(--mat-sys-on-surface-variant)' }}>
@@ -72,7 +66,7 @@ export function LandingPageTemplate() {
 
           <Card style={{ padding: '24px' }}>
             <div style={{ height: '48px', width: '48px', borderRadius: '8px', backgroundColor: 'color-mix(in srgb, var(--mat-sys-secondary-container) 20%, transparent)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
-              <Users style={{ width: '24px', height: '24px', color: 'var(--mat-sys-secondary-container)' }} />
+              <MaterialIcon name="group" size={24} style={{ color: 'var(--mat-sys-secondary-container)' }} />
             </div>
             <h3 style={{ fontWeight: 600, fontSize: '1.125rem', lineHeight: '1.75rem', marginBottom: '8px' }}>Collaboration</h3>
             <p style={{ fontSize: '0.875rem', lineHeight: '1.25rem', color: 'var(--mat-sys-on-surface-variant)' }}>
@@ -82,7 +76,7 @@ export function LandingPageTemplate() {
 
           <Card style={{ padding: '24px' }}>
             <div style={{ height: '48px', width: '48px', borderRadius: '8px', backgroundColor: 'color-mix(in srgb, var(--mat-sys-secondary-container) 20%, transparent)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
-              <Gear style={{ width: '24px', height: '24px', color: 'var(--mat-sys-secondary-container)' }} />
+              <MaterialIcon name="settings" size={24} style={{ color: 'var(--mat-sys-secondary-container)' }} />
             </div>
             <h3 style={{ fontWeight: 600, fontSize: '1.125rem', lineHeight: '1.75rem', marginBottom: '8px' }}>Customizable</h3>
             <p style={{ fontSize: '0.875rem', lineHeight: '1.25rem', color: 'var(--mat-sys-on-surface-variant)' }}>
@@ -99,7 +93,7 @@ export function LandingPageTemplate() {
         </p>
         <Button size="lg" variant="secondary">
           Start Free Trial
-          <ArrowRight style={{ marginLeft: '8px' }} />
+          <MaterialIcon name="arrow_forward" style={{ marginLeft: '8px' }} />
         </Button>
       </div>
     </Card>

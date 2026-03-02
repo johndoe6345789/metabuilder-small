@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Play, CircleNotch, Warning } from '@phosphor-icons/react'
-import { Button, Card } from '@metabuilder/components/fakemui'
+import { Button, Card, MaterialIcon } from '@metabuilder/components/fakemui'
 import { runPythonViaFlask } from '@/lib/flask-runner'
 import { PythonTerminal } from '@/components/features/python-runner/PythonTerminal'
 import styles from './PythonOutput.module.scss'
@@ -58,12 +57,12 @@ export function PythonOutput({ code }: PythonOutputProps) {
         >
           {isRunning ? (
             <>
-              <CircleNotch className={styles.spinIcon} size={16} aria-hidden="true" />
+              <MaterialIcon name="progress_activity" className={styles.spinIcon} size={16} aria-hidden="true" />
               Running...
             </>
           ) : (
             <>
-              <Play size={16} weight="fill" aria-hidden="true" />
+              <MaterialIcon name="play_arrow" size={16} aria-hidden="true" />
               Run
             </>
           )}
@@ -108,7 +107,7 @@ export function PythonOutput({ code }: PythonOutputProps) {
           >
             <Card className={styles.errorCard}>
               <div className={styles.errorRow}>
-                <Warning size={16} weight="fill" className={styles.errorIcon} aria-hidden="true" />
+                <MaterialIcon name="warning" size={16} className={styles.errorIcon} aria-hidden="true" />
                 <pre className={styles.errorPre}>
                   {error}
                 </pre>

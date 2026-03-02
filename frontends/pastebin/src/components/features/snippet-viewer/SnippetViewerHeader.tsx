@@ -1,7 +1,6 @@
 "use client"
 
-import { Button, Chip } from '@metabuilder/components/fakemui'
-import { Copy, Pencil, Check, SplitVertical } from '@phosphor-icons/react'
+import { Button, Chip, MaterialIcon } from '@metabuilder/components/fakemui'
 import { Snippet } from '@/lib/types'
 import { LANGUAGE_COLORS } from '@/lib/config'
 import { useTranslation } from '@/hooks/useTranslation'
@@ -61,7 +60,7 @@ export function SnippetViewerHeader({
             aria-pressed={showPreview}
             aria-label={showPreview ? "Hide preview" : "Show preview"}
           >
-            <SplitVertical className={styles.actionIcon} aria-hidden="true" />
+            <MaterialIcon name="vertical_split" className={styles.actionIcon} aria-hidden="true" />
             {showPreview ? t.snippetViewer.buttons.hidePreview : t.snippetViewer.buttons.showPreview}
           </Button>
         )}
@@ -76,12 +75,12 @@ export function SnippetViewerHeader({
         >
           {isCopied ? (
             <>
-              <Check className={styles.actionIcon} weight="bold" aria-hidden="true" />
+              <MaterialIcon name="check" className={styles.actionIcon} aria-hidden="true" />
               {t.snippetViewer.buttons.copied}
             </>
           ) : (
             <>
-              <Copy className={styles.actionIcon} aria-hidden="true" />
+              <MaterialIcon name="content_copy" className={styles.actionIcon} aria-hidden="true" />
               {t.snippetViewer.buttons.copy}
             </>
           )}
@@ -94,7 +93,7 @@ export function SnippetViewerHeader({
           data-testid="snippet-viewer-edit-btn"
           aria-label="Edit snippet"
         >
-          <Pencil className={styles.actionIcon} aria-hidden="true" />
+          <MaterialIcon name="edit" className={styles.actionIcon} aria-hidden="true" />
           {t.snippetViewer.buttons.edit}
         </Button>
       </div>

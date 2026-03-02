@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
-import { Pencil, TrashSimple, Copy, LinkSimple } from '@phosphor-icons/react'
+import { MaterialIcon } from '@metabuilder/components/fakemui'
 import styles from './file-menu.module.scss'
 
 interface FileMenuProps {
@@ -50,7 +50,7 @@ export function FileMenu({ anchorRect, canDelete, onClose, onRename, onDuplicate
         role="menuitem"
         onClick={() => { onRename(); onClose() }}
       >
-        <Pencil size={13} />
+        <MaterialIcon name="edit" size={13} />
         <span>Rename</span>
         <span className={styles.shortcut}>F2</span>
       </button>
@@ -60,7 +60,7 @@ export function FileMenu({ anchorRect, canDelete, onClose, onRename, onDuplicate
         role="menuitem"
         onClick={() => { onDuplicate(); onClose() }}
       >
-        <Copy size={13} />
+        <MaterialIcon name="content_copy" size={13} />
         <span>Duplicate</span>
       </button>
 
@@ -69,7 +69,7 @@ export function FileMenu({ anchorRect, canDelete, onClose, onRename, onDuplicate
         role="menuitem"
         onClick={() => { onCopyPath(); onClose() }}
       >
-        <LinkSimple size={13} />
+        <MaterialIcon name="link" size={13} />
         <span>Copy Path</span>
       </button>
 
@@ -82,7 +82,7 @@ export function FileMenu({ anchorRect, canDelete, onClose, onRename, onDuplicate
         disabled={!canDelete}
         title={!canDelete ? 'Cannot delete the last file' : undefined}
       >
-        <TrashSimple size={13} />
+        <MaterialIcon name="delete" size={13} />
         <span>Delete</span>
       </button>
     </div>

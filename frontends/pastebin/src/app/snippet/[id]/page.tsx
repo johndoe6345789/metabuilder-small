@@ -2,11 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import {
-  ArrowLeft, Copy, Check, Pencil, SplitVertical, TextAlignLeft, File, Folder,
-  Play, Stop, Terminal as TerminalIcon, FilePlus, DotsThreeVertical, Keyboard,
-  TrashSimple, LinkSimple,
-} from '@phosphor-icons/react'
+import { MaterialIcon } from '@metabuilder/components/fakemui'
 import dynamic from 'next/dynamic'
 import { PageLayout } from '@/app/PageLayout'
 import { useAppSelector, useAppDispatch } from '@/store/hooks'
@@ -17,7 +13,6 @@ import { useTranslation } from '@/hooks/useTranslation'
 import { useCodeTerminal } from '@/hooks/useCodeTerminal'
 import { Snippet } from '@/lib/types'
 import { toast } from 'sonner'
-import type { Icon } from '@phosphor-icons/react'
 import { FileCommandPalette, CommandItem } from '@/components/features/file-ops/FileCommandPalette'
 import { FileMenu } from '@/components/features/file-ops/FileMenu'
 import styles from './snippet-view-page.module.scss'
@@ -281,41 +276,41 @@ export default function SnippetViewPage() {
   // ── Command palette commands ───────────────────────────────────
   const commands: CommandItem[] = [
     // FILE group
-    { id: 'new-file', label: 'New File', icon: FilePlus, shortcut: '⌘N', group: 'FILE',
+    { id: 'new-file', label: 'New File', icon: 'note_add', shortcut: '⌘N', group: 'FILE',
       action: handleNewFile },
-    { id: 'rename-file', label: 'Rename File', icon: Pencil, shortcut: 'F2', group: 'FILE',
+    { id: 'rename-file', label: 'Rename File', icon: 'edit', shortcut: 'F2', group: 'FILE',
       action: () => handleStartRename(activeFile) },
-    { id: 'duplicate-file', label: 'Duplicate File', icon: Copy, shortcut: '⌘D', group: 'FILE',
+    { id: 'duplicate-file', label: 'Duplicate File', icon: 'content_copy', shortcut: '⌘D', group: 'FILE',
       action: () => handleDuplicateFile(activeFile) },
-    { id: 'delete-file', label: 'Delete File', icon: TrashSimple, shortcut: '⌦', group: 'FILE',
+    { id: 'delete-file', label: 'Delete File', icon: 'delete', shortcut: '⌦', group: 'FILE',
       action: () => handleDeleteFile(activeFile), disabled: files.length <= 1, danger: true },
-    { id: 'copy-path', label: 'Copy File Path', icon: LinkSimple, shortcut: '⌥⌘C', group: 'FILE',
+    { id: 'copy-path', label: 'Copy File Path', icon: 'link', shortcut: '⌥⌘C', group: 'FILE',
       action: handleCopyPath },
 
     // CLIPBOARD group
-    { id: 'copy-code', label: 'Copy Code', icon: Copy, shortcut: '⌘C', group: 'CLIPBOARD',
+    { id: 'copy-code', label: 'Copy Code', icon: 'content_copy', shortcut: '⌘C', group: 'CLIPBOARD',
       action: handleCopy },
 
     // VIEW group
-    { id: 'toggle-wrap', label: 'Toggle Word Wrap', icon: TextAlignLeft, shortcut: '⌥Z', group: 'VIEW',
+    { id: 'toggle-wrap', label: 'Toggle Word Wrap', icon: 'wrap_text', shortcut: '⌥Z', group: 'VIEW',
       action: () => setWordWrap(w => w === 'on' ? 'off' : 'on') },
-    { id: 'toggle-preview', label: 'Toggle Preview', icon: SplitVertical, shortcut: '⌘\\', group: 'VIEW',
+    { id: 'toggle-preview', label: 'Toggle Preview', icon: 'vertical_split', shortcut: '⌘\\', group: 'VIEW',
       action: () => setShowPreview(p => !p), disabled: !canPreview },
-    { id: 'focus-editor', label: 'Focus Editor', icon: File, shortcut: '⌘1', group: 'VIEW',
+    { id: 'focus-editor', label: 'Focus Editor', icon: 'insert_drive_file', shortcut: '⌘1', group: 'VIEW',
       action: () => setActiveTab('code') },
-    { id: 'focus-terminal', label: 'Focus Terminal', icon: TerminalIcon, shortcut: '⌃`', group: 'VIEW',
+    { id: 'focus-terminal', label: 'Focus Terminal', icon: 'terminal', shortcut: '⌃`', group: 'VIEW',
       action: () => setActiveTab('terminal') },
 
     // RUN group
-    { id: 'run-code', label: 'Run Code', icon: Play, shortcut: 'F5', group: 'RUN',
+    { id: 'run-code', label: 'Run Code', icon: 'play_arrow', shortcut: 'F5', group: 'RUN',
       action: handleRun, disabled: terminal.isRunning },
-    { id: 'stop-execution', label: 'Stop Execution', icon: Stop, shortcut: '⌃C', group: 'RUN',
+    { id: 'stop-execution', label: 'Stop Execution', icon: 'stop', shortcut: '⌃C', group: 'RUN',
       action: terminal.handleStop, disabled: !terminal.isRunning },
 
     // NAVIGATE group
-    { id: 'edit-metadata', label: 'Edit Snippet Metadata', icon: Pencil, shortcut: '', group: 'NAVIGATE',
+    { id: 'edit-metadata', label: 'Edit Snippet Metadata', icon: 'edit', shortcut: '', group: 'NAVIGATE',
       action: () => setEditOpen(true) },
-    { id: 'go-back', label: 'Back to Snippets', icon: ArrowLeft, shortcut: '⌘←', group: 'NAVIGATE',
+    { id: 'go-back', label: 'Back to Snippets', icon: 'arrow_back', shortcut: '⌘←', group: 'NAVIGATE',
       action: () => router.push('/') },
   ]
 
@@ -326,7 +321,7 @@ export default function SnippetViewPage() {
         {/* Minimal top bar */}
         <div className={styles.topBar}>
           <button className={styles.backBtn} onClick={() => router.push('/')} aria-label="Back to snippets">
-            <ArrowLeft size={14} weight="bold" />
+            <MaterialIcon name="arrow_back" size={14} />
             <span>Back</span>
           </button>
           <div className={styles.titleGroup}>
@@ -344,7 +339,7 @@ export default function SnippetViewPage() {
           {/* Edit */}
           <div className={styles.toolGroup}>
             <button className={styles.toolBtn} onClick={() => setEditOpen(true)} title="Edit snippet">
-              <Pencil size={14} />
+              <MaterialIcon name="edit" size={14} />
               <span>Edit</span>
             </button>
           </div>
@@ -360,8 +355,8 @@ export default function SnippetViewPage() {
               aria-live="polite"
             >
               {isCopied
-                ? <><Check size={14} weight="bold" /><span>Copied!</span></>
-                : <><Copy size={14} /><span>Copy</span></>}
+                ? <><MaterialIcon name="check" size={14} /><span>Copied!</span></>
+                : <><MaterialIcon name="content_copy" size={14} /><span>Copy</span></>}
             </button>
           </div>
 
@@ -375,7 +370,7 @@ export default function SnippetViewPage() {
               title="Toggle word wrap"
               aria-pressed={wordWrap === 'on'}
             >
-              <TextAlignLeft size={14} />
+              <MaterialIcon name="wrap_text" size={14} />
               <span>Wrap</span>
             </button>
             {canPreview && (
@@ -385,7 +380,7 @@ export default function SnippetViewPage() {
                 title={showPreview ? 'Hide preview' : 'Show preview'}
                 aria-pressed={showPreview}
               >
-                <SplitVertical size={14} />
+                <MaterialIcon name="vertical_split" size={14} />
                 <span>Preview</span>
               </button>
             )}
@@ -401,7 +396,7 @@ export default function SnippetViewPage() {
               disabled={terminal.isRunning}
               title="Run code"
             >
-              <Play size={14} weight="fill" />
+              <MaterialIcon name="play_arrow" size={14} />
               <span>{terminal.isRunning ? 'Running…' : 'Run'}</span>
             </button>
             <button
@@ -410,7 +405,7 @@ export default function SnippetViewPage() {
               disabled={!terminal.isRunning}
               title="Stop execution"
             >
-              <Stop size={14} weight="fill" />
+              <MaterialIcon name="stop" size={14} />
               <span>Stop</span>
             </button>
           </div>
@@ -422,7 +417,7 @@ export default function SnippetViewPage() {
             title="Open command palette"
             aria-label="Open command palette"
           >
-            <Keyboard size={13} />
+            <MaterialIcon name="keyboard" size={13} />
             <span>Commands</span>
             <kbd>⌘K</kbd>
           </button>
@@ -443,14 +438,14 @@ export default function SnippetViewPage() {
                   title="New File"
                   aria-label="New File"
                 >
-                  <FilePlus size={13} />
+                  <MaterialIcon name="note_add" size={13} />
                 </button>
               </div>
             </div>
 
             <div className={styles.treeRoot}>
               <div className={styles.treeFolder}>
-                <Folder size={13} weight="fill" className={styles.folderIcon} aria-hidden="true" />
+                <MaterialIcon name="folder" size={13} className={styles.folderIcon} aria-hidden="true" />
                 <span className={styles.folderName}>{snippet.title}</span>
               </div>
 
@@ -482,7 +477,7 @@ export default function SnippetViewPage() {
                           aria-pressed={f.name === activeFile}
                         >
                           <span className={`${styles.langDot} ${langBgClass}`} aria-hidden="true" />
-                          <File size={12} aria-hidden="true" className={styles.fileIcon} />
+                          <MaterialIcon name="insert_drive_file" size={12} aria-hidden="true" className={styles.fileIcon} />
                           <span className={styles.fileName}>{f.name}</span>
                         </button>
 
@@ -500,7 +495,7 @@ export default function SnippetViewPage() {
                           aria-haspopup="menu"
                           aria-expanded={menuFile === f.name}
                         >
-                          <DotsThreeVertical size={13} weight="bold" />
+                          <MaterialIcon name="more_vert" size={13} />
                         </button>
                       </>
                     )}
@@ -510,7 +505,7 @@ export default function SnippetViewPage() {
                 {/* New file inline input */}
                 {addingFile && (
                   <div className={styles.treeFileRow}>
-                    <File size={12} aria-hidden="true" className={styles.fileIcon} />
+                    <MaterialIcon name="insert_drive_file" size={12} aria-hidden="true" className={styles.fileIcon} />
                     <input
                       ref={newFileInputRef}
                       className={styles.renameInput}
@@ -539,7 +534,7 @@ export default function SnippetViewPage() {
                 aria-selected={activeTab === 'code'}
                 onClick={() => setActiveTab('code')}
               >
-                <File size={12} aria-hidden="true" />
+                <MaterialIcon name="insert_drive_file" size={12} aria-hidden="true" />
                 <span>{activeFile || filename}</span>
               </button>
               <button
@@ -548,7 +543,7 @@ export default function SnippetViewPage() {
                 aria-selected={activeTab === 'terminal'}
                 onClick={() => setActiveTab('terminal')}
               >
-                <TerminalIcon size={12} aria-hidden="true" />
+                <MaterialIcon name="terminal" size={12} aria-hidden="true" />
                 <span>Terminal</span>
                 {terminal.isRunning && <span className={styles.runningDot} aria-hidden="true" />}
               </button>

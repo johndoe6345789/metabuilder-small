@@ -1,5 +1,4 @@
-import { Card, Button, Chip, Avatar, Divider } from '@metabuilder/components/fakemui'
-import { ArrowRight } from '@phosphor-icons/react'
+import { Card, Button, Chip, Avatar, Divider, MaterialIcon } from '@metabuilder/components/fakemui'
 
 export function BlogTemplate() {
   return (
@@ -85,7 +84,7 @@ export function BlogTemplate() {
             </Button>
             <Button>
               Next Article
-              <ArrowRight style={{ marginLeft: '8px' }} />
+              <MaterialIcon name="arrow_forward" style={{ marginLeft: '8px' }} />
             </Button>
           </div>
         </div>

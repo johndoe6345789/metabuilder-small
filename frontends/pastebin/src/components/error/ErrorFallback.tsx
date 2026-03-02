@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { Alert, AlertTitle, Button } from "@metabuilder/components/fakemui";
+import { Alert, AlertTitle, Button, MaterialIcon } from "@metabuilder/components/fakemui";
 import { AIErrorHelper } from "@/components/error/AIErrorHelper";
-import { Warning, ArrowClockwise, CaretDown, CaretUp, Copy, Check } from "@phosphor-icons/react";
 import { useTranslation } from "@/hooks/useTranslation";
 import styles from "./ErrorFallback.module.scss";
 
@@ -29,7 +28,7 @@ export function ErrorFallback({ error, resetErrorBoundary }: ErrorFallbackProps)
     <div className={styles.root} data-testid="error-fallback">
       <div className={styles.inner}>
         <Alert severity="error" style={{ marginBottom: '1.5rem' }} data-testid="error-alert" role="alert">
-          <Warning aria-hidden="true" />
+          <MaterialIcon name="warning" aria-hidden="true" />
           <AlertTitle>{t.errorFallback.title}</AlertTitle>
           <div className={styles.alertBody}>
             <div className={styles.messageRow}>
@@ -49,12 +48,12 @@ export function ErrorFallback({ error, resetErrorBoundary }: ErrorFallbackProps)
               >
                 {copied ? (
                   <>
-                    <Check style={{ width: '0.875rem', height: '0.875rem' }} />
+                    <MaterialIcon name="check" size={14} />
                     {t.errorFallback.copied}
                   </>
                 ) : (
                   <>
-                    <Copy style={{ width: '0.875rem', height: '0.875rem' }} />
+                    <MaterialIcon name="content_copy" size={14} />
                     {t.errorFallback.copy}
                   </>
                 )}
@@ -72,11 +71,11 @@ export function ErrorFallback({ error, resetErrorBoundary }: ErrorFallbackProps)
               >
                 {isStackOpen ? (
                   <>
-                    {t.errorFallback.hideStack} <CaretUp style={{ width: '1rem', height: '1rem', marginLeft: '0.5rem' }} aria-hidden="true" />
+                    {t.errorFallback.hideStack} <MaterialIcon name="expand_less" size={16} style={{ marginLeft: '0.5rem' }} aria-hidden="true" />
                   </>
                 ) : (
                   <>
-                    {t.errorFallback.showStack} <CaretDown style={{ width: '1rem', height: '1rem', marginLeft: '0.5rem' }} aria-hidden="true" />
+                    {t.errorFallback.showStack} <MaterialIcon name="expand_more" size={16} style={{ marginLeft: '0.5rem' }} aria-hidden="true" />
                   </>
                 )}
               </Button>
@@ -100,7 +99,7 @@ export function ErrorFallback({ error, resetErrorBoundary }: ErrorFallbackProps)
           data-testid="reload-btn"
           aria-label="Try reloading the page"
         >
-          <ArrowClockwise style={{ width: '1rem', height: '1rem', marginRight: '0.5rem' }} aria-hidden="true" />
+          <MaterialIcon name="refresh" size={16} style={{ marginRight: '0.5rem' }} aria-hidden="true" />
           {t.errorFallback.reload}
         </Button>
       </div>

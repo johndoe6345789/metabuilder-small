@@ -1,7 +1,6 @@
-import { Card } from '@metabuilder/components/fakemui'
+import { Card, MaterialIcon } from '@metabuilder/components/fakemui'
 import { Input } from '@metabuilder/components/fakemui'
 import { FormLabel } from '@metabuilder/components/fakemui'
-import { Envelope, Lock } from '@phosphor-icons/react'
 import { ComponentShowcase } from '@/components/demo/ComponentShowcase'
 import { moleculesCodeSnippets } from '@/lib/component-code-snippets'
 import { Snippet } from '@/lib/types'
@@ -37,7 +36,7 @@ export function FormFieldsSection({ onSaveSnippet }: FormFieldsSectionProps) {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <FormLabel htmlFor="email">Email Address</FormLabel>
               <div style={{ position: 'relative' }}>
-                <Envelope style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', width: '20px', height: '20px', color: 'var(--mat-sys-on-surface-variant)' }} />
+                <MaterialIcon name="mail" size={20} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--mat-sys-on-surface-variant)' }} />
                 <Input id="email" type="email" placeholder="john@example.com" className="pl-10" />
               </div>
               <p style={{ fontSize: '0.875rem', lineHeight: '1.25rem', color: 'var(--mat-sys-on-surface-variant)' }}>
@@ -48,7 +47,7 @@ export function FormFieldsSection({ onSaveSnippet }: FormFieldsSectionProps) {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <FormLabel htmlFor="password">Password</FormLabel>
               <div style={{ position: 'relative' }}>
-                <Lock style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', width: '20px', height: '20px', color: 'var(--mat-sys-on-surface-variant)' }} />
+                <MaterialIcon name="lock" size={20} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--mat-sys-on-surface-variant)' }} />
                 <Input id="password" type="password" placeholder="••••••••" className="pl-10" />
               </div>
             </div>

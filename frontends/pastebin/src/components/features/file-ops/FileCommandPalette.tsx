@@ -1,13 +1,13 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import type { Icon } from '@phosphor-icons/react'
+import { MaterialIcon } from '@metabuilder/components/fakemui'
 import styles from './file-command-palette.module.scss'
 
 export interface CommandItem {
   id: string
   label: string
-  icon: Icon
+  icon: string
   shortcut?: string
   action: () => void
   disabled?: boolean
@@ -104,7 +104,6 @@ export function FileCommandPalette({ open, onClose, commands }: FileCommandPalet
             <div key={group} className={styles.group}>
               <div className={styles.groupLabel} aria-hidden="true">{group}</div>
               {items.map(({ cmd, flatIdx }) => {
-                const Icon = cmd.icon
                 const isActive = flatIdx === activeIdx
                 return (
                   <button
@@ -115,7 +114,7 @@ export function FileCommandPalette({ open, onClose, commands }: FileCommandPalet
                     role="option"
                     aria-selected={isActive}
                   >
-                    <Icon size={14} className={styles.itemIcon} />
+                    <MaterialIcon name={cmd.icon} size={14} className={styles.itemIcon} />
                     <span className={styles.itemLabel}>{cmd.label}</span>
                     {cmd.shortcut && <kbd className={styles.shortcut}>{cmd.shortcut}</kbd>}
                   </button>

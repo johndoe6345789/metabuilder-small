@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { Folder, Plus, X } from '@phosphor-icons/react'
+import { MaterialIcon } from '@metabuilder/components/fakemui'
 import { toast } from 'sonner'
 import { Namespace } from '@/lib/types'
 import {
@@ -115,7 +115,7 @@ export function NamespaceSelector({ selectedNamespaceId, onNamespaceChange }: Na
             aria-pressed={isActive}
             aria-label={`Switch to ${namespace.name} namespace`}
           >
-            {isActive && <Folder weight="fill" size={14} aria-hidden="true" />}
+            {isActive && <MaterialIcon name="folder" size={14} aria-hidden="true" />}
             <span>{namespace.name}</span>
             {isActive && !namespace.isDefault && (
               <button
@@ -128,7 +128,7 @@ export function NamespaceSelector({ selectedNamespaceId, onNamespaceChange }: Na
                 data-testid="delete-namespace-trigger"
                 aria-label={`Delete ${namespace.name} namespace`}
               >
-                <X size={11} weight="bold" aria-hidden="true" />
+                <MaterialIcon name="close" size={11} aria-hidden="true" />
               </button>
             )}
           </button>
@@ -141,7 +141,7 @@ export function NamespaceSelector({ selectedNamespaceId, onNamespaceChange }: Na
         data-testid="create-namespace-trigger"
         aria-label="Create new namespace"
       >
-        <Plus size={16} weight="bold" aria-hidden="true" />
+        <MaterialIcon name="add" size={16} aria-hidden="true" />
       </button>
 
       <CreateNamespaceDialog

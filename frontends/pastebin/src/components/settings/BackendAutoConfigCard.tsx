@@ -1,7 +1,6 @@
 'use client'
 
-import { Card, CardContent, CardHeader, Button } from '@metabuilder/components/fakemui'
-import { CloudCheck, CloudSlash } from '@phosphor-icons/react'
+import { Card, CardContent, CardHeader, Button, MaterialIcon } from '@metabuilder/components/fakemui'
 import { useTranslation } from '@/hooks/useTranslation'
 import styles from './settings-card.module.scss'
 
@@ -29,7 +28,7 @@ export function BackendAutoConfigCard({
     <Card data-testid="backend-auto-config-card">
       <CardHeader>
         <h3 className={styles.cardTitleAccent}>
-          <CloudCheck weight="fill" size={24} aria-hidden="true" />
+          <MaterialIcon name="cloud_done" size={24} aria-hidden="true" />
           {s.title}
         </h3>
         <p className={styles.cardDescription}>
@@ -50,13 +49,13 @@ export function BackendAutoConfigCard({
             <span className={styles.infoLabel}>{s.status}</span>
             {flaskConnectionStatus === 'connected' && (
               <span className={styles.statusConnected}>
-                <CloudCheck weight="fill" size={16} aria-hidden="true" />
+                <MaterialIcon name="cloud_done" size={16} aria-hidden="true" />
                 {s.connected}
               </span>
             )}
             {flaskConnectionStatus === 'failed' && (
               <span className={styles.statusFailed}>
-                <CloudSlash weight="fill" size={16} aria-hidden="true" />
+                <MaterialIcon name="cloud_off" size={16} aria-hidden="true" />
                 {s.failed}
               </span>
             )}

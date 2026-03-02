@@ -3,8 +3,7 @@
 import { useState } from 'react';
 import dynamic from 'next/dynamic';
 import { motion } from 'framer-motion';
-import { Card, CardContent, CardHeader } from '@metabuilder/components/fakemui';
-import { Sparkle } from '@phosphor-icons/react';
+import { Card, CardContent, CardHeader, MaterialIcon } from '@metabuilder/components/fakemui';
 import { DEMO_CODE } from '@/components/demo/demo-constants';
 import { DemoFeatureCards } from '@/components/demo/DemoFeatureCards';
 import { PageLayout } from '../PageLayout';
@@ -31,7 +30,7 @@ export default function DemoPage() {
         <div style={{ marginBottom: '32px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
             <div style={{ height: '40px', width: '40px', borderRadius: '12px', background: 'linear-gradient(to bottom right, var(--mat-sys-accent, var(--mat-sys-tertiary)), var(--mat-sys-primary))', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Sparkle style={{ width: '20px', height: '20px', color: 'var(--mat-sys-on-primary)' }} weight="fill" />
+              <MaterialIcon name="auto_awesome" size={20} style={{ color: 'var(--mat-sys-on-primary)' }} />
             </div>
             <h2 style={{ fontSize: '1.875rem', fontWeight: 700 }}>Split-Screen Demo</h2>
           </div>
@@ -43,7 +42,7 @@ export default function DemoPage() {
         <Card>
           <CardHeader>
             <h3 style={{ fontWeight: 600, marginBottom: '2px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Sparkle style={{ width: '20px', height: '20px', color: 'var(--mat-sys-accent, var(--mat-sys-tertiary))' }} weight="fill" />
+              <MaterialIcon name="auto_awesome" size={20} style={{ color: 'var(--mat-sys-accent, var(--mat-sys-tertiary))' }} />
               Interactive Code Editor
             </h3>
             <p style={{color:'var(--mat-sys-on-surface-variant)',fontSize:'0.875rem'}}>

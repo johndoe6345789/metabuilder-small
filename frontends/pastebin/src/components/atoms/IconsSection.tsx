@@ -1,14 +1,4 @@
-import { Card } from '@metabuilder/components/fakemui'
-import {
-  Heart,
-  Star,
-  Lightning,
-  Check,
-  X,
-  Plus,
-  Minus,
-  MagnifyingGlass,
-} from '@phosphor-icons/react'
+import { Card, MaterialIcon } from '@metabuilder/components/fakemui'
 import styles from './IconsSection.module.scss'
 
 export function IconsSection() {
@@ -17,42 +7,42 @@ export function IconsSection() {
       <div>
         <h2 style={{ fontSize: '1.875rem', lineHeight: '2.25rem', fontWeight: 700, marginBottom: '8px' }}>Icons</h2>
         <p style={{ color: 'var(--mat-sys-on-surface-variant)' }}>
-          Phosphor icon set with multiple weights
+          Material Symbols icon set
         </p>
       </div>
 
       <Card className="p-6">
         <div className={styles.iconsGrid}>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-            <Heart style={{ width: '32px', height: '32px' }} aria-hidden="true" />
+            <MaterialIcon name="favorite" size={32} aria-hidden="true" />
             <span style={{ fontSize: '0.75rem', lineHeight: '1rem', color: 'var(--mat-sys-on-surface-variant)' }}>Heart</span>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-            <Star style={{ width: '32px', height: '32px' }} aria-hidden="true" />
+            <MaterialIcon name="star" size={32} aria-hidden="true" />
             <span style={{ fontSize: '0.75rem', lineHeight: '1rem', color: 'var(--mat-sys-on-surface-variant)' }}>Star</span>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-            <Lightning style={{ width: '32px', height: '32px' }} aria-hidden="true" />
+            <MaterialIcon name="bolt" size={32} aria-hidden="true" />
             <span style={{ fontSize: '0.75rem', lineHeight: '1rem', color: 'var(--mat-sys-on-surface-variant)' }}>Lightning</span>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-            <Check style={{ width: '32px', height: '32px' }} aria-hidden="true" />
+            <MaterialIcon name="check" size={32} aria-hidden="true" />
             <span style={{ fontSize: '0.75rem', lineHeight: '1rem', color: 'var(--mat-sys-on-surface-variant)' }}>Check</span>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-            <X style={{ width: '32px', height: '32px' }} aria-hidden="true" />
+            <MaterialIcon name="close" size={32} aria-hidden="true" />
             <span style={{ fontSize: '0.75rem', lineHeight: '1rem', color: 'var(--mat-sys-on-surface-variant)' }}>X</span>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-            <Plus style={{ width: '32px', height: '32px' }} aria-hidden="true" />
+            <MaterialIcon name="add" size={32} aria-hidden="true" />
             <span style={{ fontSize: '0.75rem', lineHeight: '1rem', color: 'var(--mat-sys-on-surface-variant)' }}>Plus</span>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-            <Minus style={{ width: '32px', height: '32px' }} aria-hidden="true" />
+            <MaterialIcon name="remove" size={32} aria-hidden="true" />
             <span style={{ fontSize: '0.75rem', lineHeight: '1rem', color: 'var(--mat-sys-on-surface-variant)' }}>Minus</span>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-            <MagnifyingGlass style={{ width: '32px', height: '32px' }} aria-hidden="true" />
+            <MaterialIcon name="search" size={32} aria-hidden="true" />
             <span style={{ fontSize: '0.75rem', lineHeight: '1rem', color: 'var(--mat-sys-on-surface-variant)' }}>Search</span>
           </div>
         </div>

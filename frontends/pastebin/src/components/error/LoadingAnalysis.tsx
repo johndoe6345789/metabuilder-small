@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { Sparkle } from '@phosphor-icons/react'
+import { MaterialIcon } from '@metabuilder/components/fakemui'
 import { useTranslation } from '@/hooks/useTranslation'
 import styles from './loading-analysis.module.scss'
 
@@ -13,7 +13,7 @@ export function LoadingAnalysis() {
           transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
           aria-hidden="true"
         >
-          <Sparkle style={{ width: '1rem', height: '1rem' }} weight="fill" />
+          <MaterialIcon name="auto_awesome" size={16} />
         </motion.div>
         <span className={styles.spinnerText}>{t.loadingAnalysis.text}</span>
       </div>

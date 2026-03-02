@@ -1,6 +1,6 @@
 'use client'
 
-import { List } from '@phosphor-icons/react'
+import { MaterialIcon } from '@metabuilder/components/fakemui'
 import { useNavigation } from './useNavigation'
 
 export function Navigation() {
@@ -15,7 +15,7 @@ export function Navigation() {
       data-testid="navigation-toggle-btn"
       aria-haspopup="menu"
     >
-      <List weight="bold" aria-hidden="true" />
+      <MaterialIcon name="list" aria-hidden="true" />
     </button>
   )
 }

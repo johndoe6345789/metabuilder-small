@@ -1,5 +1,4 @@
-import { Play, CircleNotch, Terminal as TerminalIcon } from '@phosphor-icons/react'
-import { Button } from '@metabuilder/components/fakemui'
+import { Button, MaterialIcon } from '@metabuilder/components/fakemui'
 import { useTranslation } from '@/hooks/useTranslation'
 import styles from './TerminalHeader.module.scss'
 
@@ -20,7 +19,7 @@ export function TerminalHeader({
   return (
     <div className={styles.header} data-testid="terminal-header">
       <div className={styles.titleGroup}>
-        <TerminalIcon size={18} weight="bold" className={styles.terminalIcon} aria-hidden="true" />
+        <MaterialIcon name="terminal" size={18} className={styles.terminalIcon} aria-hidden="true" />
         <h3 className={styles.title}>{t.pythonTerminal.title}</h3>
       </div>
       <Button
@@ -33,12 +32,12 @@ export function TerminalHeader({
       >
         {isRunning || isInitializing ? (
           <>
-            <CircleNotch className={styles.spinIcon} size={16} aria-hidden="true" />
+            <MaterialIcon name="progress_activity" className={styles.spinIcon} size={16} aria-hidden="true" />
             {isInitializing ? t.pythonTerminal.loading : t.pythonTerminal.running}
           </>
         ) : (
           <>
-            <Play size={16} weight="fill" aria-hidden="true" />
+            <MaterialIcon name="play_arrow" size={16} aria-hidden="true" />
             {t.pythonTerminal.run}
           </>
         )}

@@ -1,12 +1,6 @@
-import { Button, IconButton } from '@metabuilder/components/fakemui'
+import { Button, IconButton, MaterialIcon } from '@metabuilder/components/fakemui'
 import { Card } from '@metabuilder/components/fakemui'
 import { Divider } from '@metabuilder/components/fakemui'
-import {
-  Heart,
-  Star,
-  Lightning,
-  Plus,
-} from '@phosphor-icons/react'
 import { ComponentShowcase } from '@/components/demo/ComponentShowcase'
 import { atomsCodeSnippets } from '@/lib/component-code-snippets'
 import { Snippet } from '@/lib/types'
@@ -59,7 +53,7 @@ export function ButtonsSection({ onSaveSnippet }: ButtonsSectionProps) {
                 <Button>Default</Button>
                 <Button size="lg">Large</Button>
                 <IconButton aria-label="Heart">
-                  <Heart weight="fill" aria-hidden="true" />
+                  <MaterialIcon name="favorite" aria-hidden="true" />
                 </IconButton>
               </div>
             </div>
@@ -72,15 +66,15 @@ export function ButtonsSection({ onSaveSnippet }: ButtonsSectionProps) {
               </h3>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px' }}>
                 <Button>
-                  <Star weight="fill" aria-hidden="true" />
+                  <MaterialIcon name="star" aria-hidden="true" />
                   Favorite
                 </Button>
                 <Button variant="outlined">
-                  <Plus weight="bold" aria-hidden="true" />
+                  <MaterialIcon name="add" aria-hidden="true" />
                   Add Item
                 </Button>
                 <Button variant="secondary">
-                  <Lightning weight="fill" aria-hidden="true" />
+                  <MaterialIcon name="bolt" aria-hidden="true" />
                   Quick Action
                 </Button>
               </div>

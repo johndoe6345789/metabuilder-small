@@ -1,6 +1,5 @@
 import { useState } from 'react'
-import { Button, Menu, MenuItem, Divider } from '@metabuilder/components/fakemui'
-import { Copy, Pencil, Trash, Eye, DotsThree, FolderOpen } from '@phosphor-icons/react'
+import { Button, Menu, MenuItem, Divider, MaterialIcon } from '@metabuilder/components/fakemui'
 import { Namespace } from '@/lib/types'
 import { useTranslation } from '@/hooks/useTranslation'
 import styles from './snippet-card-actions.module.scss'
@@ -40,7 +39,7 @@ export function SnippetCardActions({
           data-testid="snippet-card-view-btn"
           aria-label="View snippet"
         >
-          <Eye size={16} aria-hidden="true" />
+          <MaterialIcon name="visibility" size={16} aria-hidden="true" />
           <span className={styles.btnLabelInline}>{t.snippetCard.viewButton}</span>
         </Button>
       </div>
@@ -53,7 +52,7 @@ export function SnippetCardActions({
           data-testid="snippet-card-copy-btn"
           aria-label={t.snippetCard.ariaLabels.copy}
         >
-          <Copy size={16} aria-hidden="true" />
+          <MaterialIcon name="content_copy" size={16} aria-hidden="true" />
           <span className={styles.btnLabelInline}>{isCopied ? t.snippetCard.copiedButton : t.snippetCard.copyButton}</span>
         </Button>
         <Button
@@ -64,7 +63,7 @@ export function SnippetCardActions({
           data-testid="snippet-card-edit-btn"
           aria-label={t.snippetCard.ariaLabels.edit}
         >
-          <Pencil size={16} aria-hidden="true" />
+          <MaterialIcon name="edit" size={16} aria-hidden="true" />
         </Button>
 
         <Button
@@ -76,7 +75,7 @@ export function SnippetCardActions({
           aria-label="More options"
           aria-haspopup="menu"
         >
-          <DotsThree size={16} weight="bold" aria-hidden="true" />
+          <MaterialIcon name="more_horiz" size={16} aria-hidden="true" />
         </Button>
 
         <Menu
@@ -92,7 +91,7 @@ export function SnippetCardActions({
               className={styles.menuLabel}
               aria-hidden="true"
             >
-              <FolderOpen size={16} style={{ marginRight: 8 }} aria-hidden="true" />
+              <MaterialIcon name="folder_open" size={16} style={{ marginRight: 8 }} aria-hidden="true" />
               {t.snippetCard.moveTo}
             </MenuItem>
           )}
@@ -102,7 +101,7 @@ export function SnippetCardActions({
               data-testid="snippet-card-move-submenu"
               aria-label="Move snippet to another namespace"
             >
-              <FolderOpen size={16} style={{ marginRight: 8 }} aria-hidden="true" />
+              <MaterialIcon name="folder_open" size={16} style={{ marginRight: 8 }} aria-hidden="true" />
               {t.snippetCard.noOtherNamespaces}
             </MenuItem>
           )}
@@ -126,7 +125,7 @@ export function SnippetCardActions({
             data-testid="snippet-card-delete-btn"
             aria-label={t.snippetCard.ariaLabels.delete}
           >
-            <Trash size={16} style={{ marginRight: 8 }} aria-hidden="true" />
+            <MaterialIcon name="delete" size={16} style={{ marginRight: 8 }} aria-hidden="true" />
             {t.common.delete}
           </MenuItem>
         </Menu>

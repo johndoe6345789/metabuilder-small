@@ -1,8 +1,7 @@
 import { useMemo } from 'react'
 import * as React from 'react'
-import { Alert, AlertDescription } from '@metabuilder/components/fakemui'
+import { Alert, AlertDescription, MaterialIcon } from '@metabuilder/components/fakemui'
 import { AIErrorHelper } from '@/components/error/AIErrorHelper'
-import { WarningCircle } from '@phosphor-icons/react'
 import { InputParameter } from '@/lib/types'
 import { transformReactCode } from '@/lib/react-transform'
 import { parseInputParameters } from '@/lib/parse-parameters'
@@ -41,7 +40,7 @@ export function ReactPreview({ code, language, functionName, inputParameters }: 
         aria-label="Preview not available for this language"
       >
         <div className={styles.unsupportedCenter}>
-          <WarningCircle className={styles.unsupportedIcon} aria-hidden="true" />
+          <MaterialIcon name="error" className={styles.unsupportedIcon} aria-hidden="true" />
           <p className={styles.unsupportedText}>Preview not available for {language}</p>
           <p className={styles.unsupportedSub}>Use JSX, TSX, JavaScript, or TypeScript</p>
         </div>
@@ -59,7 +58,7 @@ export function ReactPreview({ code, language, functionName, inputParameters }: 
         aria-atomic="true"
       >
         <Alert severity="error" className={styles.errorAlert} data-testid="preview-error-alert">
-          <WarningCircle style={{ width: 16, height: 16 }} aria-hidden="true" />
+          <MaterialIcon name="error" size={16} aria-hidden="true" />
           <AlertDescription className={styles.errorDescription} data-testid="preview-error-message">
             {error}
           </AlertDescription>

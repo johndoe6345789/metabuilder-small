@@ -2,8 +2,7 @@
 
 import { useState } from 'react'
 import dynamic from 'next/dynamic'
-import { Button } from '@metabuilder/components/fakemui'
-import { Code, Eye, SplitHorizontal } from '@phosphor-icons/react'
+import { Button, MaterialIcon } from '@metabuilder/components/fakemui'
 import { InputParameter } from '@/lib/types'
 import styles from './split-screen-editor.module.scss'
 
@@ -70,7 +69,7 @@ export function SplitScreenEditor({
             aria-label="Show code only"
             aria-pressed={viewMode === 'code'}
           >
-            <Code className={styles.iconSm} aria-hidden="true" />
+            <MaterialIcon name="code" className={styles.iconSm} aria-hidden="true" />
             <span className={styles.btnLabel}>Code</span>
           </Button>
           <Button
@@ -82,7 +81,7 @@ export function SplitScreenEditor({
             aria-label="Show code and preview side by side"
             aria-pressed={viewMode === 'split'}
           >
-            <SplitHorizontal className={styles.iconSm} aria-hidden="true" />
+            <MaterialIcon name="horizontal_split" className={styles.iconSm} aria-hidden="true" />
             <span className={styles.btnLabel}>Split</span>
           </Button>
           <Button
@@ -94,7 +93,7 @@ export function SplitScreenEditor({
             aria-label={`Show ${isPython ? 'output' : 'preview'} only`}
             aria-pressed={viewMode === 'preview'}
           >
-            <Eye className={styles.iconSm} aria-hidden="true" />
+            <MaterialIcon name="visibility" className={styles.iconSm} aria-hidden="true" />
             <span className={styles.btnLabel}>{isPython ? 'Output' : 'Preview'}</span>
           </Button>
         </div>

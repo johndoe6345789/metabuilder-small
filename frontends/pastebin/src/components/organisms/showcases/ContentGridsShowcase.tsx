@@ -1,8 +1,4 @@
-import { Card, Button, Chip } from '@metabuilder/components/fakemui'
-import {
-  List,
-  GridFour,
-} from '@phosphor-icons/react'
+import { Card, Button, Chip, MaterialIcon } from '@metabuilder/components/fakemui'
 import { useState } from 'react'
 import styles from './ContentGridsShowcase.module.scss'
 
@@ -27,13 +23,13 @@ export function ContentGridsShowcase() {
                 variant={viewMode === 'grid' ? 'filled' : 'outlined'}
                 onClick={() => setViewMode('grid')}
               >
-                <GridFour aria-hidden="true" />
+                <MaterialIcon name="grid_view" aria-hidden="true" />
               </Button>
               <Button
                 variant={viewMode === 'list' ? 'filled' : 'outlined'}
                 onClick={() => setViewMode('list')}
               >
-                <List aria-hidden="true" />
+                <MaterialIcon name="list" aria-hidden="true" />
               </Button>
             </div>
           </div>

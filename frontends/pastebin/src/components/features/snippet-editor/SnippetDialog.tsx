@@ -1,8 +1,7 @@
 "use client"
 
 import { useState, useEffect } from 'react'
-import { Dialog, DialogTitle, DialogContent, DialogActions, DialogClose, Button } from '@metabuilder/components/fakemui'
-import { X } from '@phosphor-icons/react'
+import { Dialog, DialogTitle, DialogContent, DialogActions, DialogClose, Button, MaterialIcon } from '@metabuilder/components/fakemui'
 import { Snippet } from '@/lib/types'
 import { appConfig } from '@/lib/config'
 import { useTranslation } from '@/hooks/useTranslation'
@@ -59,7 +58,7 @@ export function SnippetDialog({ open, onOpenChange, onSave, editingSnippet, meta
   return (
     <Dialog open={open} onClose={() => onOpenChange(false)} maxWidth="lg" fullWidth>
       <DialogClose onClick={() => onOpenChange(false)} aria-label="Close dialog">
-        <X size={20} />
+        <MaterialIcon name="close" size={20} />
       </DialogClose>
 
       <DialogTitle>

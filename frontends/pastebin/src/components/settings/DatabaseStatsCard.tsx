@@ -1,7 +1,6 @@
 'use client'
 
-import { Card, CardHeader, CardContent } from '@metabuilder/components/fakemui'
-import { Database } from '@phosphor-icons/react'
+import { Card, CardHeader, CardContent, MaterialIcon } from '@metabuilder/components/fakemui'
 import { useTranslation } from '@/hooks/useTranslation'
 import styles from './settings-card.module.scss'
 
@@ -23,7 +22,7 @@ export function DatabaseStatsCard({ loading, stats, formatBytes }: DatabaseStats
     <Card data-testid="database-stats-card">
       <CardHeader>
         <h3 className={styles.cardTitleWithIcon}>
-          <Database weight="duotone" size={24} aria-hidden="true" />
+          <MaterialIcon name="storage" size={24} aria-hidden="true" />
           {s.title}
         </h3>
         <p className={styles.cardDescription}>

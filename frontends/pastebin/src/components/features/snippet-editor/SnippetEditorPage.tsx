@@ -2,8 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft } from '@phosphor-icons/react'
-import { Button } from '@metabuilder/components/fakemui'
+import { Button, MaterialIcon } from '@metabuilder/components/fakemui'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { createSnippet, updateSnippet } from '@/store/slices/snippetsSlice'
 import { selectSelectedNamespaceId } from '@/store/selectors'
@@ -79,7 +78,7 @@ export function SnippetEditorPage({ initialSnippet }: SnippetEditorPageProps) {
           onClick={() => router.push('/')}
           aria-label="Back to snippets"
         >
-          <ArrowLeft size={18} weight="bold" />
+          <MaterialIcon name="arrow_back" size={18} />
           <span>Back</span>
         </button>
 

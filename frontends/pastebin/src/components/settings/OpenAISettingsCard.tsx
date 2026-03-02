@@ -1,8 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Card, CardContent, CardHeader, Input, Button, FormLabel } from '@metabuilder/components/fakemui';
-import { Eye, EyeClosed, Key } from '@phosphor-icons/react';
+import { Card, CardContent, CardHeader, Input, Button, FormLabel, MaterialIcon } from '@metabuilder/components/fakemui';
 import { useTranslation } from '@/hooks/useTranslation';
 import { AI_PLATFORMS, DEFAULT_PLATFORM_ID, getPlatform } from '@/config/aiPlatforms';
 import styles from './settings-card.module.scss';
@@ -54,7 +53,7 @@ export function OpenAISettingsCard() {
     <Card data-testid="openai-settings-card" role="region" aria-label="AI platform configuration">
       <CardHeader>
         <div className={styles.headerIconRow}>
-          <Key className={styles.iconPrimary} size={20} weight="duotone" aria-hidden="true" />
+          <MaterialIcon name="key" className={styles.iconPrimary} size={20} aria-hidden="true" />
           <h3 className={styles.cardTitle}>{s.title}</h3>
         </div>
         <p className={styles.cardDescription}>{s.description}</p>
@@ -102,7 +101,7 @@ export function OpenAISettingsCard() {
                     aria-label={showKey ? s.hideKey : s.showKey}
                     aria-pressed={showKey}
                   >
-                    {showKey ? <EyeClosed size={18} aria-hidden="true" /> : <Eye size={18} aria-hidden="true" />}
+                    {showKey ? <MaterialIcon name="visibility_off" size={18} aria-hidden="true" /> : <MaterialIcon name="visibility" size={18} aria-hidden="true" />}
                   </button>
                 </div>
               </div>

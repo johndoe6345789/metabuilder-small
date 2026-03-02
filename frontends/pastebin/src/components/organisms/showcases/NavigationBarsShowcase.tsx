@@ -1,13 +1,6 @@
-import { Card } from '@metabuilder/components/fakemui'
+import { Card, MaterialIcon } from '@metabuilder/components/fakemui'
 import { Button } from '@metabuilder/components/fakemui'
 import { Avatar } from '@metabuilder/components/fakemui'
-import {
-  Bell,
-  Gear,
-  House,
-  ChartBar,
-  Folder,
-} from '@phosphor-icons/react'
 import { ComponentShowcase } from '@/components/demo/ComponentShowcase'
 import { organismsCodeSnippets } from '@/lib/component-code-snippets'
 import { Snippet } from '@/lib/types'
@@ -41,25 +34,25 @@ export function NavigationBarsShowcase({ onSaveSnippet }: NavigationBarsShowcase
                 <h3 style={{ fontSize: '1.25rem', lineHeight: '1.75rem', fontWeight: 700 }}>BrandName</h3>
                 <nav className={styles.desktopNav}>
                   <Button variant="ghost" size="sm">
-                    <House style={{ marginRight: '8px' }} aria-hidden="true" />
+                    <MaterialIcon name="home" style={{ marginRight: '8px' }} aria-hidden="true" />
                     Home
                   </Button>
                   <Button variant="ghost" size="sm">
-                    <ChartBar style={{ marginRight: '8px' }} aria-hidden="true" />
+                    <MaterialIcon name="bar_chart" style={{ marginRight: '8px' }} aria-hidden="true" />
                     Analytics
                   </Button>
                   <Button variant="ghost" size="sm">
-                    <Folder style={{ marginRight: '8px' }} aria-hidden="true" />
+                    <MaterialIcon name="folder" style={{ marginRight: '8px' }} aria-hidden="true" />
                     Projects
                   </Button>
                 </nav>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Button variant="ghost">
-                  <Bell aria-hidden="true" />
+                  <MaterialIcon name="notifications" aria-hidden="true" />
                 </Button>
                 <Button variant="ghost">
-                  <Gear aria-hidden="true" />
+                  <MaterialIcon name="settings" aria-hidden="true" />
                 </Button>
                 <Avatar style={{ width: '32px', height: '32px' }} src="https://i.pravatar.cc/150?img=3" alt="User">U</Avatar>
               </div>

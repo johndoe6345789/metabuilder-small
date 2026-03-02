@@ -1,10 +1,4 @@
-import { Card, Button, Chip } from '@metabuilder/components/fakemui'
-import {
-  CheckCircle,
-  Clock,
-  XCircle,
-  Plus,
-} from '@phosphor-icons/react'
+import { Card, Button, Chip, MaterialIcon } from '@metabuilder/components/fakemui'
 import styles from './TaskListsShowcase.module.scss'
 
 export function TaskListsShowcase() {
@@ -22,7 +16,7 @@ export function TaskListsShowcase() {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <h3 style={{ fontWeight: 600, fontSize: '1.125rem', lineHeight: '1.75rem' }}>Project Tasks</h3>
             <Button size="sm">
-              <Plus style={{ marginRight: '8px' }} aria-hidden="true" />
+              <MaterialIcon name="add" style={{ marginRight: '8px' }} aria-hidden="true" />
               Add Task
             </Button>
           </div>
@@ -31,7 +25,7 @@ export function TaskListsShowcase() {
         <div>
           <div className={styles.taskItem}>
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
-              <CheckCircle weight="fill" style={{ width: '24px', height: '24px', color: 'var(--mat-sys-secondary-container)', marginTop: '2px' }} aria-hidden="true" />
+              <MaterialIcon name="check_circle" size={24} style={{ color: 'var(--mat-sys-secondary-container)', marginTop: '2px' }} aria-hidden="true" />
               <div style={{ flex: 1, minWidth: 0 }}>
                 <h4 style={{ fontWeight: 500 }}>Design system documentation</h4>
                 <p style={{ fontSize: '0.875rem', lineHeight: '1.25rem', color: 'var(--mat-sys-on-surface-variant)', marginTop: '4px' }}>
@@ -47,7 +41,7 @@ export function TaskListsShowcase() {
 
           <div className={styles.taskItem}>
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
-              <Clock weight="fill" style={{ width: '24px', height: '24px', color: 'var(--mat-sys-secondary-container)', marginTop: '2px' }} aria-hidden="true" />
+              <MaterialIcon name="schedule" size={24} style={{ color: 'var(--mat-sys-secondary-container)', marginTop: '2px' }} aria-hidden="true" />
               <div style={{ flex: 1, minWidth: 0 }}>
                 <h4 style={{ fontWeight: 500 }}>API integration</h4>
                 <p style={{ fontSize: '0.875rem', lineHeight: '1.25rem', color: 'var(--mat-sys-on-surface-variant)', marginTop: '4px' }}>
@@ -63,7 +57,7 @@ export function TaskListsShowcase() {
 
           <div className={styles.taskItem}>
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
-              <XCircle weight="fill" style={{ width: '24px', height: '24px', color: 'var(--mat-sys-error)', marginTop: '2px' }} aria-hidden="true" />
+              <MaterialIcon name="cancel" size={24} style={{ color: 'var(--mat-sys-error)', marginTop: '2px' }} aria-hidden="true" />
               <div style={{ flex: 1, minWidth: 0 }}>
                 <h4 style={{ fontWeight: 500 }}>Performance optimization</h4>
                 <p style={{ fontSize: '0.875rem', lineHeight: '1.25rem', color: 'var(--mat-sys-on-surface-variant)', marginTop: '4px' }}>

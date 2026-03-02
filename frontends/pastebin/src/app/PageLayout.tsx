@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Code } from '@phosphor-icons/react';
+import { MaterialIcon } from '@metabuilder/components/fakemui';
 import pkg from '../../package.json';
 import { Navigation } from '@/components/layout/navigation/Navigation';
 import { NavigationSidebar } from '@/components/layout/navigation/NavigationSidebar';
@@ -36,7 +36,7 @@ export function PageLayout({ children }: { children: ReactNode }) {
               >
                 <Navigation />
                 <div className="logo-icon-box">
-                  <Code weight="bold" />
+                  <MaterialIcon name="code" />
                 </div>
                 <span className="logo-text" aria-label="CodeSnippet" data-testid="logo-text">
                   CodeSnippet

@@ -1,7 +1,6 @@
-import { Chip } from '@metabuilder/components/fakemui'
+import { Chip, MaterialIcon } from '@metabuilder/components/fakemui'
 import { Card } from '@metabuilder/components/fakemui'
 import { Divider } from '@metabuilder/components/fakemui'
-import { Check, X, Star } from '@phosphor-icons/react'
 import { ComponentShowcase } from '@/components/demo/ComponentShowcase'
 import { atomsCodeSnippets } from '@/lib/component-code-snippets'
 import { Snippet } from '@/lib/types'
@@ -49,15 +48,15 @@ export function BadgesSection({ onSaveSnippet }: BadgesSectionProps) {
               </h3>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px' }}>
                 <Chip>
-                  <Check weight="bold" style={{ marginRight: '4px' }} />
+                  <MaterialIcon name="check" style={{ marginRight: '4px' }} />
                   Completed
                 </Chip>
                 <Chip color="error">
-                  <X weight="bold" style={{ marginRight: '4px' }} />
+                  <MaterialIcon name="close" style={{ marginRight: '4px' }} />
                   Failed
                 </Chip>
                 <Chip color="secondary">
-                  <Star weight="fill" style={{ marginRight: '4px' }} />
+                  <MaterialIcon name="star" style={{ marginRight: '4px' }} />
                   Featured
                 </Chip>
               </div>

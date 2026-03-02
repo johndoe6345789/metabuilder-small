@@ -1,7 +1,6 @@
 'use client'
 
-import { Card, CardContent, CardHeader, Chip } from '@metabuilder/components/fakemui'
-import { FloppyDisk } from '@phosphor-icons/react'
+import { Card, CardContent, CardHeader, Chip, MaterialIcon } from '@metabuilder/components/fakemui'
 import styles from './PersistenceSettings.module.scss'
 
 const PERSIST_CONFIG = {
@@ -17,7 +16,7 @@ export function PersistenceSettings() {
       <CardHeader>
         <div className={styles.headerRow}>
           <div className={styles.iconWrap} aria-hidden="true">
-            <FloppyDisk className={styles.headerIcon} weight="duotone" />
+            <MaterialIcon name="save" className={styles.headerIcon} />
           </div>
           <div>
             <h3 style={{fontWeight:600, marginBottom:'2px'}}>Redux Persistence</h3>

@@ -1,5 +1,4 @@
-import { Card, Button, Divider } from '@metabuilder/components/fakemui'
-import { Heart, ChatCircle, Share, DotsThree } from '@phosphor-icons/react'
+import { Card, Button, Divider, MaterialIcon } from '@metabuilder/components/fakemui'
 
 export function SocialActionsSection() {
   return (
@@ -15,15 +14,15 @@ export function SocialActionsSection() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Button variant="ghost" size="sm">
-              <Heart style={{ marginRight: '8px' }} />
+              <MaterialIcon name="favorite" style={{ marginRight: '8px' }} />
               Like
             </Button>
             <Button variant="ghost" size="sm">
-              <ChatCircle style={{ marginRight: '8px' }} />
+              <MaterialIcon name="chat_bubble" style={{ marginRight: '8px' }} />
               Comment
             </Button>
             <Button variant="ghost" size="sm">
-              <Share style={{ marginRight: '8px' }} />
+              <MaterialIcon name="share" style={{ marginRight: '8px' }} />
               Share
             </Button>
           </div>
@@ -33,20 +32,20 @@ export function SocialActionsSection() {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
               <Button variant="outlined" size="sm">
-                <Heart weight="fill" style={{ color: 'var(--mat-sys-error)', marginRight: '8px' }} />
+                <MaterialIcon name="favorite" style={{ color: 'var(--mat-sys-error)', marginRight: '8px' }} />
                 <span style={{ color: 'var(--mat-sys-on-background)' }}>256</span>
               </Button>
               <Button variant="outlined" size="sm">
-                <ChatCircle style={{ marginRight: '8px' }} />
+                <MaterialIcon name="chat_bubble" style={{ marginRight: '8px' }} />
                 <span>42</span>
               </Button>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Button variant="ghost" size="sm">
-                <Share />
+                <MaterialIcon name="share" />
               </Button>
               <Button variant="ghost" size="sm">
-                <DotsThree weight="bold" />
+                <MaterialIcon name="more_horiz" />
               </Button>
             </div>
           </div>

@@ -1,8 +1,7 @@
 'use client'
 
 import { useRef } from 'react'
-import { Card, CardHeader, CardContent, Button } from '@metabuilder/components/fakemui'
-import { Database, Download, Upload, Trash } from '@phosphor-icons/react'
+import { Card, CardHeader, CardContent, Button, MaterialIcon } from '@metabuilder/components/fakemui'
 import { useTranslation } from '@/hooks/useTranslation'
 import styles from './settings-card.module.scss'
 
@@ -39,7 +38,7 @@ export function DatabaseActionsCard({
               {s.exportDesc}
             </p>
             <Button onClick={onExport} variant="outlined" className={styles.btnWithIcon} data-testid="export-db-btn" aria-label="Export database as file">
-              <Download weight="bold" size={16} aria-hidden="true" />
+              <MaterialIcon name="download" size={16} aria-hidden="true" />
               {s.exportButton}
             </Button>
           </div>
@@ -66,7 +65,7 @@ export function DatabaseActionsCard({
               onClick={() => fileInputRef.current?.click()}
               aria-label="Import database file"
             >
-              <Upload weight="bold" size={16} aria-hidden="true" />
+              <MaterialIcon name="upload" size={16} aria-hidden="true" />
               {s.importButton}
             </Button>
           </div>
@@ -77,7 +76,7 @@ export function DatabaseActionsCard({
               {s.seedDesc}
             </p>
             <Button onClick={onSeed} variant="outlined" className={styles.btnWithIcon} data-testid="seed-db-btn" aria-label="Add sample data to database">
-              <Database weight="bold" size={16} aria-hidden="true" />
+              <MaterialIcon name="storage" size={16} aria-hidden="true" />
               {s.seedButton}
             </Button>
           </div>
@@ -88,7 +87,7 @@ export function DatabaseActionsCard({
               {s.clearDesc}
             </p>
             <Button onClick={onClear} variant="danger" className={styles.btnWithIcon} data-testid="clear-db-btn" aria-label="Permanently delete all database contents">
-              <Trash weight="bold" size={16} aria-hidden="true" />
+              <MaterialIcon name="delete" size={16} aria-hidden="true" />
               {s.clearButton}
             </Button>
           </div>

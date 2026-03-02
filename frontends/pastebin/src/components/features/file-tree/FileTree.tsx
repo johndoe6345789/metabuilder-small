@@ -1,22 +1,7 @@
 'use client'
 
 import { useRef, useState } from 'react'
-import {
-  FilePy,
-  FileJs,
-  FileTs,
-  FileCpp,
-  FileHtml,
-  FileCss,
-  File,
-  Plus,
-  Trash,
-  Upload,
-  PencilSimple,
-  Check,
-  X,
-} from '@phosphor-icons/react'
-import { Button, Input } from '@metabuilder/components/fakemui'
+import { Button, Input, MaterialIcon } from '@metabuilder/components/fakemui'
 import { type SnippetFile } from '@/lib/types'
 import { useTranslation } from '@/hooks/useTranslation'
 import styles from './FileTree.module.scss'
@@ -31,26 +16,8 @@ interface FileTreeProps {
   onFileUpload: (file: File) => void
 }
 
-function fileIcon(name: string) {
-  const ext = name.split('.').pop()?.toLowerCase() ?? ''
-  const sz = 14
-  switch (ext) {
-    case 'py':  return <FilePy size={sz} weight="duotone" />
-    case 'js':  return <FileJs size={sz} weight="duotone" />
-    case 'ts':  return <FileTs size={sz} weight="duotone" />
-    case 'tsx': return <FileTs size={sz} weight="duotone" />
-    case 'jsx': return <FileJs size={sz} weight="duotone" />
-    case 'cpp':
-    case 'cc':
-    case 'cxx':
-    case 'c':
-    case 'h':
-    case 'hpp': return <FileCpp size={sz} weight="duotone" />
-    case 'html': return <FileHtml size={sz} weight="duotone" />
-    case 'css':
-    case 'scss': return <FileCss size={sz} weight="duotone" />
-    default:    return <File size={sz} weight="duotone" />
-  }
+function fileIcon(_name: string) {
+  return <MaterialIcon name="insert_drive_file" size={14} />
 }
 
 export function FileTree({
@@ -104,7 +71,7 @@ export function FileTree({
             title={ft.addFile}
             data-testid="file-tree-add-btn"
           >
-            <Plus size={14} weight="bold" />
+            <MaterialIcon name="add" size={14} />
           </button>
           <button
             className={styles.iconBtn}
@@ -113,7 +80,7 @@ export function FileTree({
             title={ft.uploadFile}
             data-testid="file-tree-upload-btn"
           >
-            <Upload size={14} weight="bold" />
+            <MaterialIcon name="upload" size={14} />
           </button>
           <input
             ref={uploadInputRef}
@@ -155,10 +122,10 @@ export function FileTree({
                   data-testid="file-tree-rename-input"
                 />
                 <button className={styles.iconBtn} onClick={commitRename} aria-label="Confirm rename">
-                  <Check size={12} weight="bold" />
+                  <MaterialIcon name="check" size={12} />
                 </button>
                 <button className={styles.iconBtn} onClick={() => { setRenamingFile(null); setRenameValue('') }} aria-label="Cancel rename">
-                  <X size={12} weight="bold" />
+                  <MaterialIcon name="close" size={12} />
                 </button>
               </div>
             ) : (
@@ -181,7 +148,7 @@ export function FileTree({
                 disabled={files.length <= 1}
                 data-testid={`file-tree-delete-${file.name}`}
               >
-                <Trash size={12} weight="bold" />
+                <MaterialIcon name="delete" size={12} />
               </button>
             )}
           </li>
@@ -203,10 +170,10 @@ export function FileTree({
               data-testid="file-tree-new-name-input"
             />
             <button className={styles.iconBtn} onClick={commitAdd} aria-label="Confirm add">
-              <Check size={12} weight="bold" />
+              <MaterialIcon name="check" size={12} />
             </button>
             <button className={styles.iconBtn} onClick={() => { setAddingFile(false); setNewFileName('') }} aria-label="Cancel add">
-              <X size={12} weight="bold" />
+              <MaterialIcon name="close" size={12} />
             </button>
           </li>
         )}

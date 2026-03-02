@@ -1,5 +1,4 @@
-import { Button, IconButton, Dialog, DialogHeader, DialogTitle, DialogContent, DialogActions, DialogClose } from '@metabuilder/components/fakemui'
-import { Trash, X } from '@phosphor-icons/react'
+import { Button, IconButton, Dialog, DialogHeader, DialogTitle, DialogContent, DialogActions, DialogClose, MaterialIcon } from '@metabuilder/components/fakemui'
 import { Namespace } from '@/lib/types'
 import { useTranslation } from '@/hooks/useTranslation'
 
@@ -31,13 +30,13 @@ export function DeleteNamespaceDialog({
           data-testid="delete-namespace-trigger"
           aria-label={t.namespace.delete.ariaLabel}
         >
-          <Trash weight="bold" aria-hidden="true" />
+          <MaterialIcon name="delete" aria-hidden="true" />
         </IconButton>
       )}
 
       <Dialog open={open} onClose={() => onOpenChange(false)} maxWidth="sm" fullWidth>
         <DialogClose onClick={() => onOpenChange(false)} aria-label={t.common.close}>
-          <X size={20} />
+          <MaterialIcon name="close" size={20} />
         </DialogClose>
         <DialogHeader>
           <DialogTitle>{t.namespace.delete.title}</DialogTitle>

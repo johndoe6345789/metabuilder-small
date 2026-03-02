@@ -1,5 +1,4 @@
-import { Plus } from '@phosphor-icons/react'
-import { Button, Card, CardContent, CardHeader, Input, FormLabel } from '@metabuilder/components/fakemui'
+import { Button, Card, CardContent, CardHeader, Input, FormLabel, MaterialIcon } from '@metabuilder/components/fakemui'
 import { InputParameter } from '@/lib/types'
 import { InputParameterItem } from './InputParameterItem'
 import styles from './input-parameter-list.module.scss'
@@ -37,7 +36,7 @@ export function InputParameterList({
             data-testid="add-parameter-btn"
             aria-label={`Add new parameter. Current parameters: ${inputParameters.length}`}
           >
-            <Plus className={styles.addParamIcon} aria-hidden="true" />
+            <MaterialIcon name="add" className={styles.addParamIcon} aria-hidden="true" />
             Add Parameter
           </Button>
         </h3>

@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { Button, Input } from '@metabuilder/components/fakemui'
-import { Plus, MagnifyingGlass, CaretDown, CheckSquare, X } from '@phosphor-icons/react'
+import { Button, Input, MaterialIcon } from '@metabuilder/components/fakemui'
 import { useTranslation } from '@/hooks/useTranslation'
 import { SnippetTemplate } from '@/lib/types'
 import { TemplatePicker } from '@/components/features/snippet-editor/TemplatePicker'
@@ -43,7 +42,8 @@ export function SnippetToolbar({
   return (
     <div className={styles.toolbar} data-testid="snippet-toolbar" role="toolbar" aria-label="Snippet management toolbar">
       <div className={styles.searchContainer} data-testid="search-container">
-        <MagnifyingGlass
+        <MaterialIcon
+          name="search"
           className={styles.searchIcon}
           size={18}
           aria-hidden="true"
@@ -68,12 +68,12 @@ export function SnippetToolbar({
         >
           {selectionMode ? (
             <>
-              <X weight="bold" aria-hidden="true" />
+              <MaterialIcon name="close" aria-hidden="true" />
               {t.snippetToolbar.cancelSelection}
             </>
           ) : (
             <>
-              <CheckSquare weight="bold" aria-hidden="true" />
+              <MaterialIcon name="check_box" aria-hidden="true" />
               {t.snippetToolbar.select}
             </>
           )}
@@ -85,9 +85,9 @@ export function SnippetToolbar({
           aria-label="Create new snippet"
           aria-haspopup="menu"
         >
-          <Plus weight="bold" aria-hidden="true" />
+          <MaterialIcon name="add" aria-hidden="true" />
           {t.app.header.newSnippetButton}
-          <CaretDown weight="bold" aria-hidden="true" />
+          <MaterialIcon name="expand_more" aria-hidden="true" />
         </Button>
         <TemplatePicker
           anchor={menuAnchor}

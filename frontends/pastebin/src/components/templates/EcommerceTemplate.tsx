@@ -1,8 +1,4 @@
-import { Card, Button, Input, Chip, Avatar, Divider } from '@metabuilder/components/fakemui'
-import {
-  MagnifyingGlass,
-  ShoppingCart,
-} from '@phosphor-icons/react'
+import { Card, Button, Input, Chip, Avatar, Divider, MaterialIcon } from '@metabuilder/components/fakemui'
 import styles from './EcommerceTemplate.module.scss'
 
 export function EcommerceTemplate() {
@@ -13,13 +9,13 @@ export function EcommerceTemplate() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
             <h3 style={{ fontSize: '1.25rem', lineHeight: '1.75rem', fontWeight: 700 }}>Store</h3>
             <div className={styles.searchBar}>
-              <MagnifyingGlass className={styles.searchIcon} />
+              <MaterialIcon name="search" className={styles.searchIcon} />
               <Input placeholder="Search products..." className={styles.searchInputWithIcon} />
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Button variant="ghost">
-              <ShoppingCart />
+              <MaterialIcon name="shopping_cart" />
             </Button>
             <Avatar style={{ width: '32px', height: '32px' }} alt="User">U</Avatar>
           </div>
@@ -76,7 +72,7 @@ export function EcommerceTemplate() {
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <Button size="lg" style={{ width: '100%' }}>
-                <ShoppingCart style={{ marginRight: '8px' }} />
+                <MaterialIcon name="shopping_cart" style={{ marginRight: '8px' }} />
                 Add to Cart
               </Button>
               <Button size="lg" variant="outlined" style={{ width: '100%' }}>

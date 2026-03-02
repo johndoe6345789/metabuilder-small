@@ -1,12 +1,4 @@
-import { Card, Button, Divider } from '@metabuilder/components/fakemui'
-import {
-  Gear,
-  SignOut,
-  User,
-  House,
-  ChartBar,
-  Folder,
-} from '@phosphor-icons/react'
+import { Card, Button, Divider, MaterialIcon } from '@metabuilder/components/fakemui'
 
 const fullWidthStart: React.CSSProperties = { width: '100%', justifyContent: 'flex-start' }
 
@@ -31,19 +23,19 @@ export function SidebarNavigationShowcase() {
 
               <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                 <Button variant="ghost" style={fullWidthStart}>
-                  <House style={{ marginRight: '8px' }} aria-hidden="true" />
+                  <MaterialIcon name="home" style={{ marginRight: '8px' }} aria-hidden="true" />
                   Home
                 </Button>
                 <Button variant="filled" style={fullWidthStart}>
-                  <ChartBar style={{ marginRight: '8px' }} aria-hidden="true" />
+                  <MaterialIcon name="bar_chart" style={{ marginRight: '8px' }} aria-hidden="true" />
                   Analytics
                 </Button>
                 <Button variant="ghost" style={fullWidthStart}>
-                  <Folder style={{ marginRight: '8px' }} aria-hidden="true" />
+                  <MaterialIcon name="folder" style={{ marginRight: '8px' }} aria-hidden="true" />
                   Projects
                 </Button>
                 <Button variant="ghost" style={fullWidthStart}>
-                  <User style={{ marginRight: '8px' }} aria-hidden="true" />
+                  <MaterialIcon name="person" style={{ marginRight: '8px' }} aria-hidden="true" />
                   Team
                 </Button>
               </nav>
@@ -52,11 +44,11 @@ export function SidebarNavigationShowcase() {
 
               <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                 <Button variant="ghost" style={fullWidthStart}>
-                  <Gear style={{ marginRight: '8px' }} aria-hidden="true" />
+                  <MaterialIcon name="settings" style={{ marginRight: '8px' }} aria-hidden="true" />
                   Settings
                 </Button>
                 <Button variant="ghost" style={{ ...fullWidthStart, color: 'var(--mat-sys-error)' }}>
-                  <SignOut style={{ marginRight: '8px' }} aria-hidden="true" />
+                  <MaterialIcon name="logout" style={{ marginRight: '8px' }} aria-hidden="true" />
                   Sign Out
                 </Button>
               </nav>

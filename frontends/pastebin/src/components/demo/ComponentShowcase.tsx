@@ -1,6 +1,5 @@
 import { useState } from 'react'
-import { Card, Button } from '@metabuilder/components/fakemui'
-import { FloppyDisk } from '@phosphor-icons/react'
+import { Card, Button, MaterialIcon } from '@metabuilder/components/fakemui'
 import { Snippet } from '@/lib/types'
 import { SnippetDialog } from '@/components/features/snippet-editor/SnippetDialog'
 
@@ -60,7 +59,7 @@ export function ComponentShowcase({
             data-testid="showcase-save-btn"
             aria-label={`Save ${title} as snippet`}
           >
-            <FloppyDisk weight="bold" aria-hidden="true" />
+            <MaterialIcon name="save" aria-hidden="true" />
             Save as Snippet
           </Button>
         </div>

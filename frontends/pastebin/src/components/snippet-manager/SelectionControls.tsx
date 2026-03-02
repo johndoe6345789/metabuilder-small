@@ -1,6 +1,5 @@
 import { useState } from 'react'
-import { Button, Menu, MenuItem } from '@metabuilder/components/fakemui'
-import { FolderOpen } from '@phosphor-icons/react'
+import { Button, Menu, MenuItem, MaterialIcon } from '@metabuilder/components/fakemui'
 import { Namespace } from '@/lib/types'
 import { useTranslation } from '@/hooks/useTranslation'
 import styles from './selection-controls.module.scss'
@@ -51,7 +50,7 @@ export function SelectionControls({
             aria-label={t.selectionControls.moveToAria}
             aria-haspopup="menu"
           >
-            <FolderOpen weight="bold" size={16} aria-hidden="true" />
+            <MaterialIcon name="folder_open" size={16} aria-hidden="true" />
             {t.selectionControls.moveTo}
           </Button>
           <Menu
