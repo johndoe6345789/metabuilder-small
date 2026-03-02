@@ -34,7 +34,7 @@
     "embla-carousel-react": "^8.6.0",
     "framer-motion": "^12.34.3",
     "idb": "^8.0.3",
-    "lucide-react": "^0.575.0",
+    "lucide-react": "^0.576.0",
     "monaco-editor": "^0.55.1",
     "next": "^16.1.6",
     "pyodide": "^0.29.3",
