@@ -5,7 +5,6 @@ import { Code } from '@phosphor-icons/react';
 import pkg from '../../package.json';
 import { Navigation } from '@/components/layout/navigation/Navigation';
 import { NavigationSidebar } from '@/components/layout/navigation/NavigationSidebar';
-import { useNavigation } from '@/components/layout/navigation/useNavigation';
 import { BackendIndicator } from '@/components/layout/BackendIndicator';
 import { AlertsBell } from '@/components/layout/AlertsBell';
 import { LangSelector } from '@/components/layout/LangSelector';
@@ -16,7 +15,6 @@ import { ReactNode } from 'react';
 import styles from './page-layout.module.scss';
 
 export function PageLayout({ children }: { children: ReactNode }) {
-  const { menuOpen } = useNavigation();
   const t = useTranslation();
 
   const safePad = '0.5rem';
@@ -32,12 +30,7 @@ export function PageLayout({ children }: { children: ReactNode }) {
       <ThemeApplier />
       <NavigationSidebar />
 
-      <motion.div
-        initial={false}
-        animate={{ marginLeft: menuOpen ? 320 : 0 }}
-        transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-        className={styles.contentWrapper}
-      >
+      <div className={styles.contentWrapper}>
         <header className={styles.header} data-testid="page-header">
           <div
             className={styles.headerInner}
@@ -103,7 +96,7 @@ export function PageLayout({ children }: { children: ReactNode }) {
             </div>
           </div>
         </footer>
-      </motion.div>
+      </div>
     </div>
   );
 }
