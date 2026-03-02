@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { PersistenceSettings } from '@/components/demo/PersistenceSettings';
 import { SchemaHealthCard } from '@/components/settings/SchemaHealthCard';
@@ -16,8 +17,11 @@ import styles from './settings-page.module.scss';
 
 export const dynamic = 'force-dynamic'
 
+type Tab = 'ai' | 'storage' | 'database';
+
 export default function SettingsPage() {
   const t = useTranslation();
+  const [activeTab, setActiveTab] = useState<Tab>('ai');
   const {
     stats,
     loading,
@@ -43,6 +47,8 @@ export default function SettingsPage() {
     checkSchemaHealth,
   } = useSettingsState();
 
+  const tabs = (t.settingsPage as any).tabs;
+
   return (
     <PageLayout>
       <motion.div
@@ -55,57 +61,83 @@ export default function SettingsPage() {
           <p className={styles.pageSubtitle}>{t.settingsPage.subtitle}</p>
         </div>
 
-        <div className={styles.cardGrid}>
-          <OpenAISettingsCard />
-          
-          <PersistenceSettings />
+        <div className={styles.tabBar} role="tablist" aria-label="Settings sections">
+          {(['ai', 'storage', 'database'] as Tab[]).map(tab => (
+            <button
+              key={tab}
+              role="tab"
+              aria-selected={activeTab === tab}
+              aria-controls={`tabpanel-${tab}`}
+              id={`tab-${tab}`}
+              onClick={() => setActiveTab(tab)}
+              className={`${styles.tabBtn} ${activeTab === tab ? styles.tabBtnActive : ''}`}
+            >
+              {tabs?.[tab] ?? tab}
+            </button>
+          ))}
+        </div>
 
-          <SchemaHealthCard 
-            schemaHealth={schemaHealth}
-            checkingSchema={checkingSchema}
-            onClear={handleClear}
-            onCheckSchema={checkSchemaHealth}
-          />
+        <div
+          className={styles.cardGrid}
+          role="tabpanel"
+          id={`tabpanel-${activeTab}`}
+          aria-labelledby={`tab-${activeTab}`}
+        >
+          {activeTab === 'ai' && (
+            <OpenAISettingsCard />
+          )}
 
-          <BackendAutoConfigCard 
-            envVarSet={envVarSet}
-            flaskUrl={flaskUrl}
-            flaskConnectionStatus={flaskConnectionStatus}
-            testingConnection={testingConnection}
-            onTestConnection={handleTestConnection}
-          />
-          
-          <StorageBackendCard 
-            storageBackend={storageBackend}
-            flaskUrl={flaskUrl}
-            flaskConnectionStatus={flaskConnectionStatus}
-            testingConnection={testingConnection}
-            envVarSet={envVarSet}
-            onStorageBackendChange={setStorageBackend}
-            onFlaskUrlChange={(url) => {
-              setFlaskUrl(url);
-              setFlaskConnectionStatus('unknown');
-            }}
-            onTestConnection={handleTestConnection}
-            onSaveConfig={handleSaveStorageConfig}
-            onMigrateToFlask={handleMigrateToFlask}
-            onMigrateToIndexedDB={handleMigrateToIndexedDB}
-          />
+          {activeTab === 'storage' && (
+            <>
+              <BackendAutoConfigCard
+                envVarSet={envVarSet}
+                flaskUrl={flaskUrl}
+                flaskConnectionStatus={flaskConnectionStatus}
+                testingConnection={testingConnection}
+                onTestConnection={handleTestConnection}
+              />
+              <StorageBackendCard
+                storageBackend={storageBackend}
+                flaskUrl={flaskUrl}
+                flaskConnectionStatus={flaskConnectionStatus}
+                testingConnection={testingConnection}
+                envVarSet={envVarSet}
+                onStorageBackendChange={setStorageBackend}
+                onFlaskUrlChange={(url) => {
+                  setFlaskUrl(url);
+                  setFlaskConnectionStatus('unknown');
+                }}
+                onTestConnection={handleTestConnection}
+                onSaveConfig={handleSaveStorageConfig}
+                onMigrateToFlask={handleMigrateToFlask}
+                onMigrateToIndexedDB={handleMigrateToIndexedDB}
+              />
+              <StorageInfoCard storageType={stats?.storageType} />
+              <PersistenceSettings />
+            </>
+          )}
 
-          <DatabaseStatsCard 
-            loading={loading}
-            stats={stats}
-            formatBytes={formatBytes}
-          />
-
-          <StorageInfoCard storageType={stats?.storageType} />
-
-          <DatabaseActionsCard 
-            onExport={handleExport}
-            onImport={handleImport}
-            onSeed={handleSeed}
-            onClear={handleClear}
-          />
+          {activeTab === 'database' && (
+            <>
+              <SchemaHealthCard
+                schemaHealth={schemaHealth}
+                checkingSchema={checkingSchema}
+                onClear={handleClear}
+                onCheckSchema={checkSchemaHealth}
+              />
+              <DatabaseStatsCard
+                loading={loading}
+                stats={stats}
+                formatBytes={formatBytes}
+              />
+              <DatabaseActionsCard
+                onExport={handleExport}
+                onImport={handleImport}
+                onSeed={handleSeed}
+                onClear={handleClear}
+              />
+            </>
+          )}
         </div>
       </motion.div>
     </PageLayout>

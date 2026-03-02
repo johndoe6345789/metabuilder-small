@@ -219,7 +219,12 @@
   },
   "settingsPage": {
     "heading": "Settings",
-    "subtitle": "Manage your database and application settings"
+    "subtitle": "Manage your database and application settings",
+    "tabs": {
+      "ai": "AI",
+      "storage": "Storage",
+      "database": "Database"
+    }
   },
   "backendIndicator": {
     "disconnected": "Disconnected from backend - Using local storage",
@@ -325,17 +330,18 @@
       "noneDesc": "No persistent storage detected. Your data will be lost when you close the browser."
     },
     "openAI": {
-      "title": "OpenAI API Settings",
-      "description": "Configure your OpenAI API key for AI-powered error analysis. Your key is stored locally in your browser.",
-      "keyLabel": "OpenAI API Key",
-      "keyPlaceholder": "sk-...",
+      "title": "AI Platform Settings",
+      "description": "Configure your AI platform for error analysis. Your key is stored locally in your browser.",
+      "platformLabel": "AI Platform",
+      "keyLabel": "API Key",
+      "keyPlaceholder": "Enter your API key",
       "keyHint": "Get your API key from",
       "showKey": "Show API key",
       "hideKey": "Hide API key",
       "saved": "Saved!",
-      "saveButton": "Save API Key",
+      "saveButton": "Save Settings",
       "clearButton": "Clear",
-      "configuredStatus": "✓ API key is configured. Error analysis will use OpenAI GPT-4o-mini."
+      "configuredStatus": "✓ {platform} configured. Error analysis will use {model}."
     }
   },
   "fileTree": {

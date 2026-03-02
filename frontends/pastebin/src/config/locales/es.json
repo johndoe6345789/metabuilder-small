@@ -219,7 +219,12 @@
   },
   "settingsPage": {
     "heading": "Configuración",
-    "subtitle": "Administra tu base de datos y la configuración de la aplicación"
+    "subtitle": "Administra tu base de datos y configuración de la aplicación",
+    "tabs": {
+      "ai": "IA",
+      "storage": "Almacenamiento",
+      "database": "Base de datos"
+    }
   },
   "backendIndicator": {
     "disconnected": "Sin conexión al servidor — Usando almacenamiento local",
@@ -325,17 +330,18 @@
       "noneDesc": "No se detectó almacenamiento persistente. Tus datos se perderán cuando cierres el navegador."
     },
     "openAI": {
-      "title": "Configuración de OpenAI",
-      "description": "Configura tu clave de API de OpenAI para el análisis de errores con IA. Tu clave se guarda localmente en tu navegador.",
-      "keyLabel": "Clave de API de OpenAI",
-      "keyPlaceholder": "sk-...",
-      "keyHint": "Obtén tu clave de API en",
-      "showKey": "Mostrar clave de API",
-      "hideKey": "Ocultar clave de API",
+      "title": "Configuración de Plataforma IA",
+      "description": "Configure su plataforma de IA para el análisis de errores. Su clave se almacena localmente en su navegador.",
+      "platformLabel": "Plataforma IA",
+      "keyLabel": "Clave API",
+      "keyPlaceholder": "Ingrese su clave API",
+      "keyHint": "Obtenga su clave API en",
+      "showKey": "Mostrar clave API",
+      "hideKey": "Ocultar clave API",
       "saved": "¡Guardado!",
-      "saveButton": "Guardar clave de API",
+      "saveButton": "Guardar configuración",
       "clearButton": "Limpiar",
-      "configuredStatus": "✓ Clave de API configurada. El análisis de errores usará OpenAI GPT-4o-mini."
+      "configuredStatus": "✓ {platform} configurado. El análisis usará {model}."
     }
   },
   "fileTree": {

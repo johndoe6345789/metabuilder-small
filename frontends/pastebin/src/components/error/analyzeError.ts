@@ -1,39 +1,43 @@
+import { getPlatform } from '@/config/aiPlatforms';
+
 export async function analyzeErrorWithAI(
   errorMessage: string,
   errorStack?: string,
   context?: string
 ): Promise<string> {
-  // Check if OpenAI API key is configured
-  const apiKey = localStorage.getItem('openai_api_key');
-  
-  if (!apiKey) {
-    // Fallback to simple error analysis if no API key
-    const lines = ['## Error Analysis\n'];
-    
-    lines.push('**Error Message:**');
-    lines.push(`\`${errorMessage}\`\n`);
-    
-    if (context) {
-      lines.push('**Context:**');
-      lines.push(`${context}\n`);
-    }
-    
-    lines.push('**Note:** Configure your OpenAI API key in Settings to enable AI-powered error analysis.\n');
-    
-    lines.push('**Basic Troubleshooting:**');
-    lines.push('1. Check the browser console for more details');
-    lines.push('2. Try refreshing the page');
-    lines.push('3. Clear your browser cache and local storage');
-    
-    return lines.join('\n');
+  const platformId = (typeof window !== 'undefined' && localStorage.getItem('ai_platform')) || 'openai';
+  const platform = getPlatform(platformId);
+
+  // Backward compat: fall back to legacy openai_api_key for OpenAI platform
+  const apiKey = (typeof window !== 'undefined' &&
+    (localStorage.getItem(`ai_key_${platformId}`) || (platformId === 'openai' ? localStorage.getItem('openai_api_key') : null))
+  ) || '';
+
+  if (platform.keyRequired && !apiKey) {
+    return buildFallback(errorMessage, context, 'Configure your AI platform API key in Settings to enable AI-powered error analysis.');
   }
 
-  // Use OpenAI API for advanced error analysis
   try {
-    const contextInfo = context ? `\n\nContext: ${context}` : '';
-    const stackInfo = errorStack ? `\n\nStack trace: ${errorStack}` : '';
-    
-    const prompt = `You are a helpful debugging assistant for a code snippet manager app. Analyze this error and provide:
+    const prompt = buildPrompt(errorMessage, context, errorStack);
+    let responseText: string;
+
+    if (platform.apiFormat === 'anthropic') {
+      responseText = await callAnthropic(platform.endpoint, platform.defaultModel, apiKey, prompt);
+    } else {
+      responseText = await callOpenAICompat(platform.endpoint, platform.defaultModel, apiKey, prompt);
+    }
+
+    return responseText;
+  } catch (err) {
+    console.error('Error calling AI API:', err);
+    return buildFallback(errorMessage, context, `Failed to get AI analysis. ${err instanceof Error ? err.message : 'Unknown error'}`);
+  }
+}
+
+function buildPrompt(errorMessage: string, context?: string, errorStack?: string): string {
+  const contextInfo = context ? `\n\nContext: ${context}` : '';
+  const stackInfo = errorStack ? `\n\nStack trace: ${errorStack}` : '';
+  return `You are a helpful debugging assistant for a code snippet manager app. Analyze this error and provide:
 
 1. A clear explanation of what went wrong (in plain language)
 2. Why this error likely occurred
@@ -42,50 +46,59 @@ export async function analyzeErrorWithAI(
 Error message: ${errorMessage}${contextInfo}${stackInfo}
 
 Keep your response concise, friendly, and focused on practical solutions. Format your response with clear sections using markdown.`;
+}
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [
-          {
-            role: 'system',
-            content: 'You are a helpful debugging assistant for a code snippet manager app.',
-          },
-          {
-            role: 'user',
-            content: prompt,
-          },
-        ],
-        temperature: 0.7,
-        max_tokens: 500,
-      }),
-    });
+async function callOpenAICompat(endpoint: string, model: string, apiKey: string, prompt: string): Promise<string> {
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  if (apiKey) headers['Authorization'] = `Bearer ${apiKey}`;
 
-    if (!response.ok) {
-      throw new Error('Failed to analyze error with AI. Please check your API key.');
-    }
+  const response = await fetch(endpoint, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({
+      model,
+      messages: [
+        { role: 'system', content: 'You are a helpful debugging assistant for a code snippet manager app.' },
+        { role: 'user', content: prompt },
+      ],
+      temperature: 0.7,
+      max_tokens: 500,
+    }),
+  });
 
-    const data = await response.json();
-    return data.choices[0]?.message?.content || 'Unable to analyze error.';
-  } catch (err) {
-    console.error('Error calling OpenAI API:', err);
-    
-    // Fallback to simple analysis if API call fails
-    return `## Error Analysis
+  if (!response.ok) throw new Error('Failed to analyze error with AI. Please check your API key.');
+  const data = await response.json();
+  return data.choices[0]?.message?.content || 'Unable to analyze error.';
+}
 
-**Error Message:**
-\`${errorMessage}\`
+async function callAnthropic(endpoint: string, model: string, apiKey: string, prompt: string): Promise<string> {
+  const response = await fetch(endpoint, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+    },
+    body: JSON.stringify({
+      model,
+      max_tokens: 500,
+      system: 'You are a helpful debugging assistant for a code snippet manager app.',
+      messages: [{ role: 'user', content: prompt }],
+    }),
+  });
 
-**Note:** Failed to get AI analysis. ${err instanceof Error ? err.message : 'Unknown error'}
+  if (!response.ok) throw new Error('Failed to analyze error with AI. Please check your API key.');
+  const data = await response.json();
+  return data.content[0]?.text || 'Unable to analyze error.';
+}
 
-**Basic Troubleshooting:**
-1. Check the browser console for more details
-2. Try refreshing the page
-3. Verify your OpenAI API key in Settings`;
-  }
+function buildFallback(errorMessage: string, context?: string, note?: string): string {
+  const lines = ['## Error Analysis\n', '**Error Message:**', `\`${errorMessage}\`\n`];
+  if (context) { lines.push('**Context:**'); lines.push(`${context}\n`); }
+  if (note) lines.push(`**Note:** ${note}\n`);
+  lines.push('**Basic Troubleshooting:**');
+  lines.push('1. Check the browser console for more details');
+  lines.push('2. Try refreshing the page');
+  lines.push('3. Clear your browser cache and local storage');
+  return lines.join('\n');
 }
