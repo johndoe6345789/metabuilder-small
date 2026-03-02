@@ -30,7 +30,7 @@
   width: 160px;
   background: var(--mat-sys-surface-container-high);
   border-radius: 14px;
-  box-shadow: 0 4px 20px color-mix(in srgb, var(--mat-sys-on-surface) 18%, transparent);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.18);
   z-index: 100;
   overflow: hidden;
   padding: 6px;
