@@ -7,6 +7,14 @@ const componentsPath = resolve(__dirname, '../../components');
 const nextConfig = {
   basePath: '/pastebin',
   output: 'standalone',
+  async rewrites() {
+    // Proxy /pastebin-api/* → Flask backend (for direct port-3003 dev access).
+    // In production, nginx handles this routing instead.
+    const flaskUrl = process.env.FLASK_BACKEND_INTERNAL_URL || 'http://pastebin-backend:5000';
+    return [
+      { source: '/pastebin-api/:path*', destination: `${flaskUrl}/:path*`, basePath: false },
+    ];
+  },
   transpilePackages: [
     '@metabuilder/components',
     '@metabuilder/fakemui',
