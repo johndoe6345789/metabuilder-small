@@ -17,14 +17,8 @@ import styles from './page-layout.module.scss';
 export function PageLayout({ children }: { children: ReactNode }) {
   const t = useTranslation();
 
-  const safePad = '0.5rem';
-  const safeAreaPadding = {
-    paddingLeft: `max(${safePad}, env(safe-area-inset-left, 0px))`,
-    paddingRight: `max(${safePad}, env(safe-area-inset-right, 0px))`,
-  };
-
   return (
-    <div className={styles.root} style={{ backgroundColor: 'var(--mat-sys-background)' }} data-testid="page-layout">
+    <div className={styles.root} data-testid="page-layout">
       <div className={styles.gridPattern} aria-hidden="true" />
 
       <ThemeApplier />
@@ -32,14 +26,7 @@ export function PageLayout({ children }: { children: ReactNode }) {
 
       <div className={styles.contentWrapper}>
         <header className={styles.header} data-testid="page-header">
-          <div
-            className={styles.headerInner}
-            style={{
-              ...safeAreaPadding,
-              paddingTop: `max(0.75rem, env(safe-area-inset-top, 0px))`,
-              paddingBottom: '0.75rem',
-            }}
-          >
+          <div className={styles.headerInner}>
             <div className={styles.headerRow}>
               <motion.div
                 initial={{ opacity: 0 }}
@@ -74,22 +61,12 @@ export function PageLayout({ children }: { children: ReactNode }) {
           </div>
         </header>
 
-        <main
-          className={styles.main}
-          style={safeAreaPadding}
-          data-testid="main-content"
-        >
+        <main className={styles.main} data-testid="main-content">
           {children}
         </main>
 
         <footer className={styles.footer}>
-          <div
-            className={styles.footerInner}
-            style={{
-              ...safeAreaPadding,
-              paddingBottom: `max(1rem, env(safe-area-inset-bottom, 0px))`,
-            }}
-          >
+          <div className={styles.footerInner}>
             <div className={styles.footerText}>
               <p>{t.page.footer.tagline}</p>
               <p className={styles.footerNote}>{t.page.footer.techNote}</p>

@@ -1,5 +1,6 @@
 .root {
   min-height: 100vh;
+  background-color: var(--mat-sys-background);
 }
 
 .gridPattern {
@@ -27,12 +28,14 @@
   max-width: 1280px;
   margin-left: auto;
   margin-right: auto;
-  padding-left: 0.5rem;
-  padding-right: 0.5rem;
+  padding-top: max(0.75rem, env(safe-area-inset-top, 0px));
+  padding-bottom: 0.75rem;
+  padding-left: max(0.5rem, env(safe-area-inset-left, 0px));
+  padding-right: max(0.5rem, env(safe-area-inset-right, 0px));
 
   @media (min-width: 640px) {
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
+    padding-left: max(1.5rem, env(safe-area-inset-left, 0px));
+    padding-right: max(1.5rem, env(safe-area-inset-right, 0px));
   }
 }
 
@@ -42,14 +45,23 @@
   width: 100%;
   margin-left: auto;
   margin-right: auto;
-  padding: 1.5rem 1rem;
+  padding-top: 1.5rem;
+  padding-bottom: 1.5rem;
+  padding-left: max(1rem, env(safe-area-inset-left, 0px));
+  padding-right: max(1rem, env(safe-area-inset-right, 0px));
 
   @media (min-width: 640px) {
-    padding: 2.5rem 2rem;
+    padding-top: 2.5rem;
+    padding-bottom: 2.5rem;
+    padding-left: max(2rem, env(safe-area-inset-left, 0px));
+    padding-right: max(2rem, env(safe-area-inset-right, 0px));
   }
 
   @media (min-width: 1024px) {
-    padding: 3rem 2.5rem;
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+    padding-left: max(2.5rem, env(safe-area-inset-left, 0px));
+    padding-right: max(2.5rem, env(safe-area-inset-right, 0px));
   }
 }
 
@@ -63,10 +75,16 @@
   width: 100%;
   margin-left: auto;
   margin-right: auto;
-  padding: 0.75rem;
+  padding-top: 0.75rem;
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom, 0px));
+  padding-left: max(0.75rem, env(safe-area-inset-left, 0px));
+  padding-right: max(0.75rem, env(safe-area-inset-right, 0px));
 
   @media (min-width: 640px) {
-    padding: 2rem 1.5rem;
+    padding-top: 2rem;
+    padding-bottom: max(2rem, env(safe-area-inset-bottom, 0px));
+    padding-left: max(1.5rem, env(safe-area-inset-left, 0px));
+    padding-right: max(1.5rem, env(safe-area-inset-right, 0px));
   }
 }
 
