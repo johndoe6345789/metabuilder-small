@@ -9,7 +9,7 @@
   align-items: center;
   justify-content: center;
   height: 100%;
-  color: #888;
+  color: var(--mat-sys-on-surface-variant);
 }
 
 .srOnly {
@@ -30,21 +30,21 @@
 
 .output {
   white-space: pre-wrap;
-  color: #d4d4d4;
+  color: var(--mat-sys-on-surface);
 }
 
 .error {
   white-space: pre-wrap;
-  color: #f48a8a;
+  color: var(--mat-sys-error);
 }
 
 .inputPrompt {
   white-space: pre-wrap;
-  color: #4fc3f7;
+  color: var(--mat-sys-primary);
   font-weight: 500;
 }
 
 .inputValue {
   white-space: pre-wrap;
-  color: #6ec87a;
+  color: var(--mat-sys-tertiary);
 }

@@ -2,6 +2,8 @@ import { lazy, Suspense } from 'react'
 import { Skeleton } from '@metabuilder/components/fakemui'
 import { configureMonacoTypeScript, getMonacoLanguage } from '@/lib/monaco-config'
 import type { Monaco } from '@monaco-editor/react'
+import { useAppSelector } from '@/store/hooks'
+import { selectTheme } from '@/store/selectors'
 
 const Editor = lazy(() => import('@monaco-editor/react'))
 
@@ -35,6 +37,8 @@ export function MonacoEditor({
   wordWrap = 'on',
 }: MonacoEditorProps) {
   const monacoLanguage = getMonacoLanguage(language)
+  const theme = useAppSelector(selectTheme)
+  const monacoTheme = theme === 'dark' ? 'vs-dark' : 'vs'
 
   return (
     <Suspense fallback={<EditorLoadingSkeleton height={height} />}>
@@ -54,7 +58,7 @@ export function MonacoEditor({
           language={monacoLanguage}
           value={value}
           onChange={(newValue) => onChange(newValue || '')}
-          theme="vs-dark"
+          theme={monacoTheme}
           beforeMount={handleEditorBeforeMount}
           options={{
             minimap: { enabled: false },
