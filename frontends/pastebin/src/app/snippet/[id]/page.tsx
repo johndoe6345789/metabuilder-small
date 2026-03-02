@@ -1,21 +1,20 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import {
-  ArrowLeft, Copy, Check, SplitVertical, TextAlignLeft, File, Folder,
-  Play, Stop, Terminal as TerminalIcon, FloppyDisk, X as XIcon, Pencil,
-  Plus, Upload,
+  ArrowLeft, Copy, Check, Pencil, SplitVertical, TextAlignLeft, File, Folder,
+  Play, Stop, Terminal as TerminalIcon,
 } from '@phosphor-icons/react'
 import dynamic from 'next/dynamic'
 import { PageLayout } from '@/app/PageLayout'
 import { useAppSelector, useAppDispatch } from '@/store/hooks'
 import { selectSnippets, selectNamespaces } from '@/store/selectors'
 import { updateSnippet } from '@/store/slices/snippetsSlice'
-import { LANGUAGE_COLORS, LANGUAGES, appConfig } from '@/lib/config'
+import { LANGUAGE_COLORS, appConfig } from '@/lib/config'
 import { useTranslation } from '@/hooks/useTranslation'
 import { useCodeTerminal } from '@/hooks/useCodeTerminal'
-import { useSnippetForm } from '@/hooks/useSnippetForm'
+import { Snippet } from '@/lib/types'
 import { toast } from 'sonner'
 import styles from './snippet-view-page.module.scss'
 
@@ -29,8 +28,8 @@ const CodeTerminal = dynamic(
   { ssr: false }
 )
 
-const MonacoEditor = dynamic(
-  () => import('@/components/features/snippet-editor/MonacoEditor').then(mod => ({ default: mod.MonacoEditor })),
+const SnippetDialog = dynamic(
+  () => import('@/components/features/snippet-editor/SnippetDialog').then(mod => ({ default: mod.SnippetDialog })),
   { ssr: false }
 )
 
@@ -76,16 +75,9 @@ export default function SnippetViewPage() {
   const [wordWrap, setWordWrap] = useState<'on' | 'off'>('on')
   const [activeFile, setActiveFile] = useState('')
   const [activeTab, setActiveTab] = useState<ActiveTab>('code')
-  const [isEditing, setIsEditing] = useState(false)
-
-  // Edit-mode inline file add state
-  const [addingFile, setAddingFile] = useState(false)
-  const [newFileName, setNewFileName] = useState('')
-  const uploadInputRef = useRef<HTMLInputElement>(null)
+  const [editOpen, setEditOpen] = useState(false)
 
   const terminal = useCodeTerminal()
-  // useSnippetForm re-seeds from snippet whenever isEditing changes (open param)
-  const form = useSnippetForm(snippet, isEditing)
 
   useEffect(() => {
     if (snippets.length > 0 && !snippet) {
@@ -113,25 +105,21 @@ export default function SnippetViewPage() {
   const namespace = namespaces.find(n => n.id === snippet.namespaceId)
   const langBgClass = (LANGUAGE_COLORS[snippet.language] || LANGUAGE_COLORS['Other']).split(' ')[0]
 
-  // View-mode files (from saved snippet)
-  const viewFiles = snippet.files && snippet.files.length > 0
+  const files = snippet.files && snippet.files.length > 0
     ? snippet.files
     : [{ name: filename, content: snippet.code }]
 
-  // Active display state depends on edit mode
-  const displayFiles = isEditing ? form.files : viewFiles
-  const displayActiveFile = isEditing ? form.activeFile : activeFile
-  const displayActiveFileObj = displayFiles.find(f => f.name === displayActiveFile) ?? displayFiles[0]
-  const displayActiveCode = displayActiveFileObj?.content ?? snippet.code
-  const lineCount = displayActiveCode.split('\n').length
+  const activeFileObj = files.find(f => f.name === activeFile) ?? files[0]
+  const activeCode = activeFileObj?.content ?? snippet.code
+  const lineCount = activeCode.split('\n').length
 
-  const viewSnippet = { ...snippet, code: displayActiveCode }
-  const isEntryFile = !displayActiveFile || displayActiveFile === (snippet.entryPoint ?? displayFiles[0]?.name)
+  const viewSnippet = { ...snippet, code: activeCode }
+  const isEntryFile = !activeFile || activeFile === (snippet.entryPoint ?? files[0]?.name)
   const canPreview = !!(isEntryFile && snippet.hasPreview && appConfig.previewEnabledLanguages.includes(snippet.language))
   const isPython = snippet.language === 'Python'
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(displayActiveCode)
+    navigator.clipboard.writeText(activeCode)
     toast.success(t.toast.codeCopied)
     setIsCopied(true)
     setTimeout(() => setIsCopied(false), appConfig.copiedTimeout)
@@ -142,136 +130,48 @@ export default function SnippetViewPage() {
       (appConfig as unknown as { languageRunnerMap: Record<string, string> }).languageRunnerMap ?? {}
     const runnerKey = languageRunnerMap[snippet.language]
       ?? snippet.language.toLowerCase().replace(/[^a-z0-9]+/g, '-')
-    terminal.handleRun(runnerKey, displayFiles, snippet.entryPoint ?? displayActiveFile)
+    terminal.handleRun(runnerKey, files, snippet.entryPoint ?? activeFile)
     setActiveTab('terminal')
   }
 
-  const handleSave = async () => {
-    if (!form.validate()) return
-    const data = form.getFormData()
+  const handleSave = async (data: Omit<Snippet, 'id' | 'createdAt' | 'updatedAt'>) => {
     try {
       await dispatch(updateSnippet({ ...snippet, ...data })).unwrap()
       toast.success(t.toast.snippetUpdated)
-      setIsEditing(false)
     } catch {
       toast.error(t.toast.failedToSaveSnippet)
     }
-  }
-
-  const handleCancelEdit = () => {
-    setIsEditing(false)
-    setAddingFile(false)
-    setNewFileName('')
-  }
-
-  function commitAddFile() {
-    const name = newFileName.trim()
-    if (name) form.addFile(name)
-    setAddingFile(false)
-    setNewFileName('')
-  }
-
-  function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (file) form.uploadFile(file)
-    e.target.value = ''
   }
 
   return (
     <PageLayout>
       <div className={styles.page} data-testid="snippet-view-page">
 
-        {/* Top bar */}
+        {/* Minimal top bar */}
         <div className={styles.topBar}>
           <button className={styles.backBtn} onClick={() => router.push('/')} aria-label="Back to snippets">
             <ArrowLeft size={14} weight="bold" />
             <span>Back</span>
           </button>
           <div className={styles.titleGroup}>
-            {isEditing ? (
-              <>
-                <input
-                  className={styles.titleInput}
-                  value={form.title}
-                  onChange={e => form.setTitle(e.target.value)}
-                  placeholder="Title"
-                  aria-label="Snippet title"
-                />
-                <input
-                  className={styles.descInput}
-                  value={form.description}
-                  onChange={e => form.setDescription(e.target.value)}
-                  placeholder="Description (optional)"
-                  aria-label="Snippet description"
-                />
-              </>
-            ) : (
-              <>
-                <h1 className={styles.pageTitle}>{snippet.title}</h1>
-                {snippet.description && (
-                  <span className={styles.titleDescription} title={snippet.description}>
-                    {snippet.description}
-                  </span>
-                )}
-              </>
+            <h1 className={styles.pageTitle}>{snippet.title}</h1>
+            {snippet.description && (
+              <span className={styles.titleDescription} title={snippet.description}>
+                {snippet.description}
+              </span>
             )}
           </div>
         </div>
 
         {/* Toolbar */}
         <div className={styles.wordToolbar} role="toolbar" aria-label="Document toolbar">
-
-          {/* Edit / Save / Cancel */}
+          {/* Edit */}
           <div className={styles.toolGroup}>
-            {isEditing ? (
-              <>
-                <button
-                  className={`${styles.toolBtn} ${styles.toolBtnRun}`}
-                  onClick={handleSave}
-                  title="Save snippet"
-                >
-                  <FloppyDisk size={14} />
-                  <span>Save</span>
-                </button>
-                <button
-                  className={styles.toolBtn}
-                  onClick={handleCancelEdit}
-                  title="Discard changes"
-                >
-                  <XIcon size={14} />
-                  <span>Cancel</span>
-                </button>
-              </>
-            ) : (
-              <button
-                className={styles.toolBtn}
-                onClick={() => setIsEditing(true)}
-                title="Edit snippet"
-              >
-                <Pencil size={14} />
-                <span>Edit</span>
-              </button>
-            )}
+            <button className={styles.toolBtn} onClick={() => setEditOpen(true)} title="Edit snippet">
+              <Pencil size={14} />
+              <span>Edit</span>
+            </button>
           </div>
-
-          {/* Language selector — edit mode only */}
-          {isEditing && (
-            <>
-              <div className={styles.toolSep} aria-hidden="true" />
-              <div className={styles.toolGroup}>
-                <select
-                  className={styles.langSelect}
-                  value={form.language}
-                  onChange={e => form.setLanguage(e.target.value)}
-                  aria-label="Language"
-                >
-                  {LANGUAGES.map(lang => (
-                    <option key={lang} value={lang}>{lang}</option>
-                  ))}
-                </select>
-              </div>
-            </>
-          )}
 
           <div className={styles.toolSep} aria-hidden="true" />
 
@@ -302,7 +202,7 @@ export default function SnippetViewPage() {
               <TextAlignLeft size={14} />
               <span>Wrap</span>
             </button>
-            {canPreview && !isEditing && (
+            {canPreview && (
               <button
                 className={`${styles.toolBtn} ${showPreview ? styles.toolBtnActive : ''}`}
                 onClick={() => setShowPreview(p => !p)}
@@ -343,114 +243,33 @@ export default function SnippetViewPage() {
         {/* Work area */}
         <div className={styles.workArea}>
 
-          {/* File tree — edit mode shows management controls */}
-          {isEditing ? (
-            <div className={styles.fileTreeEdit} aria-label="File explorer">
-              <div className={styles.explorerHeader}>
-                <span>EXPLORER</span>
-                <div className={styles.explorerActions}>
-                  <button
-                    className={styles.explorerBtn}
-                    onClick={() => setAddingFile(true)}
-                    title="Add file"
-                    aria-label="Add file"
-                  >
-                    <Plus size={13} weight="bold" />
-                  </button>
-                  <button
-                    className={styles.explorerBtn}
-                    onClick={() => uploadInputRef.current?.click()}
-                    title="Upload file"
-                    aria-label="Upload file"
-                  >
-                    <Upload size={13} weight="bold" />
-                  </button>
-                  <input
-                    ref={uploadInputRef}
-                    type="file"
-                    style={{ display: 'none' }}
-                    onChange={handleUpload}
-                    aria-hidden="true"
-                    tabIndex={-1}
-                  />
-                </div>
+          {/* File tree */}
+          <div className={styles.fileTree} aria-label="File explorer">
+            <div className={styles.explorerHeader}>EXPLORER</div>
+            <div className={styles.treeRoot}>
+              <div className={styles.treeFolder}>
+                <Folder size={13} weight="fill" className={styles.folderIcon} aria-hidden="true" />
+                <span className={styles.folderName}>{snippet.title}</span>
               </div>
-              <div className={styles.treeRoot}>
-                <div className={styles.treeFiles}>
-                  {form.files.map(f => (
-                    <div key={f.name} className={styles.editFileRow}>
-                      <button
-                        className={`${styles.treeFile} ${f.name === form.activeFile ? styles.treeFileActive : ''}`}
-                        onClick={() => { form.setActiveFile(f.name); setActiveTab('code') }}
-                        title={f.name}
-                      >
-                        <File size={12} aria-hidden="true" className={styles.fileIcon} />
-                        <span className={styles.fileName}>{f.name}</span>
-                      </button>
-                      <button
-                        className={styles.explorerBtn}
-                        onClick={() => form.deleteFile(f.name)}
-                        disabled={form.files.length <= 1}
-                        title={`Delete ${f.name}`}
-                        aria-label={`Delete ${f.name}`}
-                      >
-                        <XIcon size={11} />
-                      </button>
-                    </div>
-                  ))}
-                  {addingFile && (
-                    <div className={styles.addFileRow}>
-                      <input
-                        className={styles.addFileInput}
-                        value={newFileName}
-                        onChange={e => setNewFileName(e.target.value)}
-                        onKeyDown={e => {
-                          if (e.key === 'Enter') commitAddFile()
-                          if (e.key === 'Escape') { setAddingFile(false); setNewFileName('') }
-                        }}
-                        placeholder="filename.cpp"
-                        autoFocus
-                        aria-label="New file name"
-                      />
-                      <button className={styles.explorerBtn} onClick={commitAddFile} aria-label="Confirm">
-                        <Check size={11} weight="bold" />
-                      </button>
-                      <button className={styles.explorerBtn} onClick={() => { setAddingFile(false); setNewFileName('') }} aria-label="Cancel">
-                        <XIcon size={11} />
-                      </button>
-                    </div>
-                  )}
-                </div>
+              <div className={styles.treeFiles}>
+                {files.map(f => (
+                  <button
+                    key={f.name}
+                    className={`${styles.treeFile} ${f.name === activeFile ? styles.treeFileActive : ''}`}
+                    onClick={() => { setActiveFile(f.name); setActiveTab('code') }}
+                    title={f.name}
+                    aria-pressed={f.name === activeFile}
+                  >
+                    <span className={`${styles.langDot} ${langBgClass}`} aria-hidden="true" />
+                    <File size={12} aria-hidden="true" className={styles.fileIcon} />
+                    <span className={styles.fileName}>{f.name}</span>
+                  </button>
+                ))}
               </div>
             </div>
-          ) : (
-            <div className={styles.fileTree} aria-label="File explorer">
-              <div className={styles.explorerHeader}>EXPLORER</div>
-              <div className={styles.treeRoot}>
-                <div className={styles.treeFolder}>
-                  <Folder size={13} weight="fill" className={styles.folderIcon} aria-hidden="true" />
-                  <span className={styles.folderName}>{snippet.title}</span>
-                </div>
-                <div className={styles.treeFiles}>
-                  {viewFiles.map(f => (
-                    <button
-                      key={f.name}
-                      className={`${styles.treeFile} ${f.name === activeFile ? styles.treeFileActive : ''}`}
-                      onClick={() => { setActiveFile(f.name); setActiveTab('code') }}
-                      title={f.name}
-                      aria-pressed={f.name === activeFile}
-                    >
-                      <span className={`${styles.langDot} ${langBgClass}`} aria-hidden="true" />
-                      <File size={12} aria-hidden="true" className={styles.fileIcon} />
-                      <span className={styles.fileName}>{f.name}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
+          </div>
 
-          {/* Editor column */}
+          {/* Editor + Terminal with tab bar */}
           <div className={styles.editorColumn}>
 
             {/* Tab bar */}
@@ -462,7 +281,7 @@ export default function SnippetViewPage() {
                 onClick={() => setActiveTab('code')}
               >
                 <File size={12} aria-hidden="true" />
-                <span>{displayActiveFile || filename}</span>
+                <span>{activeFile || filename}</span>
               </button>
               <button
                 className={`${styles.editorTab} ${activeTab === 'terminal' ? styles.editorTabActive : ''}`}
@@ -478,40 +297,22 @@ export default function SnippetViewPage() {
             </div>
 
             {/* Code panel */}
-            <div
-              className={`${styles.editorPanel} ${activeTab === 'code' ? styles.editorPanelVisible : styles.editorPanelHidden}`}
-              role="tabpanel"
-            >
-              {isEditing ? (
-                <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
-                  <MonacoEditor
-                    value={displayActiveCode}
-                    onChange={v => form.updateFileContent(displayActiveFile, v)}
-                    language={form.language}
-                    height="100%"
-                    wordWrap={wordWrap}
-                  />
-                </div>
-              ) : (
-                <SnippetViewerContent
-                  snippet={viewSnippet}
-                  canPreview={canPreview}
-                  showPreview={showPreview}
-                  isPython={isPython}
-                  wordWrap={wordWrap}
-                />
-              )}
+            <div className={`${styles.editorPanel} ${activeTab === 'code' ? styles.editorPanelVisible : styles.editorPanelHidden}`} role="tabpanel">
+              <SnippetViewerContent
+                snippet={viewSnippet}
+                canPreview={canPreview}
+                showPreview={showPreview}
+                isPython={isPython}
+                wordWrap={wordWrap}
+              />
             </div>
 
             {/* Terminal panel */}
-            <div
-              className={`${styles.editorPanel} ${activeTab === 'terminal' ? styles.editorPanelVisible : styles.editorPanelHidden}`}
-              role="tabpanel"
-            >
+            <div className={`${styles.editorPanel} ${activeTab === 'terminal' ? styles.editorPanelVisible : styles.editorPanelHidden}`} role="tabpanel">
               <CodeTerminal
                 language={snippet.language}
-                files={displayFiles}
-                entryPoint={snippet.entryPoint ?? displayActiveFile}
+                files={files}
+                entryPoint={snippet.entryPoint ?? activeFile}
                 controller={terminal}
               />
             </div>
@@ -522,9 +323,9 @@ export default function SnippetViewPage() {
         {/* Status bar */}
         <div className={styles.statusBar} role="status" aria-label="File information">
           <div className={styles.statusLeft}>
-            <span className={styles.statusItem}>{isEditing ? form.language : snippet.language}</span>
+            <span className={styles.statusItem}>{snippet.language}</span>
             <span className={styles.statusSep} aria-hidden="true" />
-            <span className={styles.statusItem}>{displayActiveFile || filename}</span>
+            <span className={styles.statusItem}>{activeFile || filename}</span>
             <span className={styles.statusSep} aria-hidden="true" />
             <span className={styles.statusItem}>{lineCount} {lineCount === 1 ? 'line' : 'lines'}</span>
             {namespace && (
@@ -535,11 +336,18 @@ export default function SnippetViewPage() {
             )}
           </div>
           <div className={styles.statusRight}>
-            {isEditing && <span className={styles.statusItem} style={{ color: '#f4c96a' }}>● Editing</span>}
             {terminal.isRunning && <span className={styles.statusItem} style={{ color: '#6ec87a' }}>● Running</span>}
             <span className={styles.statusItem}>Updated {relativeTime(snippet.updatedAt)}</span>
           </div>
         </div>
+
+        {/* Edit dialog */}
+        <SnippetDialog
+          open={editOpen}
+          onOpenChange={setEditOpen}
+          editingSnippet={snippet}
+          onSave={handleSave}
+        />
 
       </div>
     </PageLayout>
