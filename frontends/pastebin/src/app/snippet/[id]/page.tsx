@@ -1,10 +1,11 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import {
   ArrowLeft, Copy, Check, Pencil, SplitVertical, TextAlignLeft, File, Folder,
-  Play, Stop, Terminal as TerminalIcon,
+  Play, Stop, Terminal as TerminalIcon, FilePlus, TrashSimple, LinkSimple,
+  Keyboard,
 } from '@phosphor-icons/react'
 import dynamic from 'next/dynamic'
 import { PageLayout } from '@/app/PageLayout'
@@ -16,6 +17,8 @@ import { useTranslation } from '@/hooks/useTranslation'
 import { useCodeTerminal } from '@/hooks/useCodeTerminal'
 import { Snippet } from '@/lib/types'
 import { toast } from 'sonner'
+import type { Icon } from '@phosphor-icons/react'
+import { FileCommandPalette, CommandItem } from '@/components/features/file-ops/FileCommandPalette'
 import styles from './snippet-view-page.module.scss'
 
 const SnippetViewerContent = dynamic(
@@ -77,6 +80,18 @@ export default function SnippetViewPage() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('code')
   const [editOpen, setEditOpen] = useState(false)
 
+  // Command palette
+  const [paletteOpen, setPaletteOpen] = useState(false)
+
+  // Inline rename state
+  const [renaming, setRenaming] = useState<string | null>(null)
+  const [renameValue, setRenameValue] = useState('')
+
+  // New file inline input state
+  const [addingFile, setAddingFile] = useState(false)
+  const [newFileName, setNewFileName] = useState('')
+  const newFileInputRef = useRef<HTMLInputElement>(null)
+
   const terminal = useCodeTerminal()
 
   useEffect(() => {
@@ -93,10 +108,27 @@ export default function SnippetViewPage() {
     setActiveFile(initial)
   }, [snippet?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Global keyboard shortcuts
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault()
+        setPaletteOpen(prev => !prev)
+      }
+      if (e.key === 'F2' && activeFile && !paletteOpen && !renaming) {
+        e.preventDefault()
+        setRenaming(activeFile)
+        setRenameValue(activeFile)
+      }
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [activeFile, paletteOpen, renaming])
+
   if (!snippet) {
     return (
       <PageLayout>
-        <div style={{ textAlign: 'center', padding: '80px 0', color: '#888' }}>Loading…</div>
+        <div className={styles.loading}>Loading…</div>
       </PageLayout>
     )
   }
@@ -118,6 +150,7 @@ export default function SnippetViewPage() {
   const canPreview = !!(isEntryFile && snippet.hasPreview && appConfig.previewEnabledLanguages.includes(snippet.language))
   const isPython = snippet.language === 'Python'
 
+  // ── Clipboard ─────────────────────────────────────────────────
   const handleCopy = () => {
     navigator.clipboard.writeText(activeCode)
     toast.success(t.toast.codeCopied)
@@ -125,6 +158,12 @@ export default function SnippetViewPage() {
     setTimeout(() => setIsCopied(false), appConfig.copiedTimeout)
   }
 
+  const handleCopyPath = () => {
+    navigator.clipboard.writeText(`/${id}/${activeFile}`)
+    toast.success('Path copied to clipboard')
+  }
+
+  // ── Run / Stop ────────────────────────────────────────────────
   const handleRun = () => {
     const languageRunnerMap: Record<string, string> =
       (appConfig as unknown as { languageRunnerMap: Record<string, string> }).languageRunnerMap ?? {}
@@ -134,6 +173,7 @@ export default function SnippetViewPage() {
     setActiveTab('terminal')
   }
 
+  // ── Snippet metadata save ─────────────────────────────────────
   const handleSave = async (data: Omit<Snippet, 'id' | 'createdAt' | 'updatedAt'>) => {
     try {
       await dispatch(updateSnippet({ ...snippet, ...data })).unwrap()
@@ -142,6 +182,137 @@ export default function SnippetViewPage() {
       toast.error(t.toast.failedToSaveSnippet)
     }
   }
+
+  // ── File operations ───────────────────────────────────────────
+  const handleNewFile = () => {
+    setAddingFile(true)
+    setNewFileName('')
+    setTimeout(() => newFileInputRef.current?.focus(), 10)
+  }
+
+  const commitNewFile = async () => {
+    const name = newFileName.trim()
+    setAddingFile(false)
+    if (!name) return
+    const currentFiles = snippet.files && snippet.files.length > 0
+      ? snippet.files
+      : [{ name: filename, content: snippet.code }]
+    if (currentFiles.some(f => f.name === name)) {
+      toast.error(`File "${name}" already exists`)
+      return
+    }
+    try {
+      await dispatch(updateSnippet({ ...snippet, files: [...currentFiles, { name, content: '' }] })).unwrap()
+      setActiveFile(name)
+      setActiveTab('code')
+    } catch {
+      toast.error('Failed to create file')
+    }
+  }
+
+  const handleNewFileKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') { e.preventDefault(); commitNewFile() }
+    if (e.key === 'Escape') { e.preventDefault(); setAddingFile(false) }
+  }
+
+  const handleStartRename = (name: string) => {
+    setRenaming(name)
+    setRenameValue(name)
+  }
+
+  const commitRename = async () => {
+    const oldName = renaming
+    setRenaming(null)
+    if (!oldName) return
+    const newName = renameValue.trim()
+    if (!newName || newName === oldName) return
+    if (files.some(f => f.name === newName)) {
+      toast.error(`File "${newName}" already exists`)
+      return
+    }
+    const newFiles = files.map(f => f.name === oldName ? { ...f, name: newName } : f)
+    const newEntry = snippet.entryPoint === oldName ? newName : snippet.entryPoint
+    try {
+      await dispatch(updateSnippet({ ...snippet, files: newFiles, entryPoint: newEntry })).unwrap()
+      if (activeFile === oldName) setActiveFile(newName)
+    } catch {
+      toast.error('Failed to rename file')
+    }
+  }
+
+  const handleRenameKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') { e.preventDefault(); commitRename() }
+    if (e.key === 'Escape') { e.preventDefault(); setRenaming(null) }
+  }
+
+  const handleDeleteFile = async (name: string) => {
+    if (files.length <= 1) { toast.error('Cannot delete the last file'); return }
+    const newFiles = files.filter(f => f.name !== name)
+    const newEntry = snippet.entryPoint === name ? newFiles[0]?.name : snippet.entryPoint
+    try {
+      await dispatch(updateSnippet({ ...snippet, files: newFiles, entryPoint: newEntry })).unwrap()
+      if (activeFile === name) setActiveFile(newFiles[0]?.name ?? '')
+      toast.success(`Deleted ${name}`)
+    } catch {
+      toast.error('Failed to delete file')
+    }
+  }
+
+  const handleDuplicateFile = async (name: string) => {
+    const file = files.find(f => f.name === name)
+    if (!file) return
+    const ext = name.includes('.') ? `.${name.split('.').pop()}` : ''
+    const base = name.replace(/\.[^.]+$/, '')
+    const dupName = `${base}-copy${ext}`
+    try {
+      await dispatch(updateSnippet({ ...snippet, files: [...files, { name: dupName, content: file.content }] })).unwrap()
+      setActiveFile(dupName)
+      toast.success(`Duplicated as ${dupName}`)
+    } catch {
+      toast.error('Failed to duplicate file')
+    }
+  }
+
+  // ── Command palette commands ───────────────────────────────────
+  const commands: CommandItem[] = [
+    // FILE group
+    { id: 'new-file', label: 'New File', icon: FilePlus, shortcut: '⌘N', group: 'FILE',
+      action: handleNewFile },
+    { id: 'rename-file', label: 'Rename File', icon: Pencil, shortcut: 'F2', group: 'FILE',
+      action: () => handleStartRename(activeFile) },
+    { id: 'duplicate-file', label: 'Duplicate File', icon: Copy, shortcut: '⌘D', group: 'FILE',
+      action: () => handleDuplicateFile(activeFile) },
+    { id: 'delete-file', label: 'Delete File', icon: TrashSimple, shortcut: '⌦', group: 'FILE',
+      action: () => handleDeleteFile(activeFile), disabled: files.length <= 1, danger: true },
+    { id: 'copy-path', label: 'Copy File Path', icon: LinkSimple, shortcut: '⌥⌘C', group: 'FILE',
+      action: handleCopyPath },
+
+    // CLIPBOARD group
+    { id: 'copy-code', label: 'Copy Code', icon: Copy, shortcut: '⌘C', group: 'CLIPBOARD',
+      action: handleCopy },
+
+    // VIEW group
+    { id: 'toggle-wrap', label: 'Toggle Word Wrap', icon: TextAlignLeft, shortcut: '⌥Z', group: 'VIEW',
+      action: () => setWordWrap(w => w === 'on' ? 'off' : 'on') },
+    { id: 'toggle-preview', label: 'Toggle Preview', icon: SplitVertical, shortcut: '⌘\\', group: 'VIEW',
+      action: () => setShowPreview(p => !p), disabled: !canPreview },
+    { id: 'focus-editor', label: 'Focus Editor', icon: File, shortcut: '⌘1', group: 'VIEW',
+      action: () => setActiveTab('code') },
+    { id: 'focus-terminal', label: 'Focus Terminal', icon: TerminalIcon, shortcut: '⌃`', group: 'VIEW',
+      action: () => setActiveTab('terminal') },
+
+    // RUN group
+    { id: 'run-code', label: 'Run Code', icon: Play, shortcut: 'F5', group: 'RUN',
+      action: handleRun, disabled: terminal.isRunning },
+    { id: 'stop-execution', label: 'Stop Execution', icon: Stop, shortcut: '⌃C', group: 'RUN',
+      action: terminal.handleStop, disabled: !terminal.isRunning },
+
+    // NAVIGATE group
+    { id: 'edit-metadata', label: 'Edit Snippet Metadata', icon: Pencil, shortcut: '', group: 'NAVIGATE',
+      action: () => setEditOpen(true) },
+    { id: 'go-back', label: 'Back to Snippets', icon: ArrowLeft, shortcut: '⌘←', group: 'NAVIGATE',
+      action: () => router.push('/') },
+  ]
 
   return (
     <PageLayout>
@@ -238,6 +409,18 @@ export default function SnippetViewPage() {
               <span>Stop</span>
             </button>
           </div>
+
+          {/* Command palette trigger — pushes to right edge */}
+          <button
+            className={styles.paletteTrigger}
+            onClick={() => setPaletteOpen(true)}
+            title="Open command palette"
+            aria-label="Open command palette"
+          >
+            <Keyboard size={13} />
+            <span>Commands</span>
+            <kbd>⌘K</kbd>
+          </button>
         </div>
 
         {/* Work area */}
@@ -245,26 +428,101 @@ export default function SnippetViewPage() {
 
           {/* File tree */}
           <div className={styles.fileTree} aria-label="File explorer">
-            <div className={styles.explorerHeader}>EXPLORER</div>
+            {/* Explorer header with hover-revealed New File button */}
+            <div className={styles.explorerHeader}>
+              <span>EXPLORER</span>
+              <div className={styles.explorerActions}>
+                <button
+                  className={styles.explorerAction}
+                  onClick={handleNewFile}
+                  title="New File"
+                  aria-label="New File"
+                >
+                  <FilePlus size={13} />
+                </button>
+              </div>
+            </div>
+
             <div className={styles.treeRoot}>
               <div className={styles.treeFolder}>
                 <Folder size={13} weight="fill" className={styles.folderIcon} aria-hidden="true" />
                 <span className={styles.folderName}>{snippet.title}</span>
               </div>
+
               <div className={styles.treeFiles}>
                 {files.map(f => (
-                  <button
+                  <div
                     key={f.name}
-                    className={`${styles.treeFile} ${f.name === activeFile ? styles.treeFileActive : ''}`}
-                    onClick={() => { setActiveFile(f.name); setActiveTab('code') }}
-                    title={f.name}
-                    aria-pressed={f.name === activeFile}
+                    className={`${styles.treeFileRow} ${f.name === activeFile ? styles.treeFileRowActive : ''}`}
                   >
-                    <span className={`${styles.langDot} ${langBgClass}`} aria-hidden="true" />
-                    <File size={12} aria-hidden="true" className={styles.fileIcon} />
-                    <span className={styles.fileName}>{f.name}</span>
-                  </button>
+                    {renaming === f.name ? (
+                      /* Inline rename input */
+                      <input
+                        className={styles.renameInput}
+                        value={renameValue}
+                        onChange={e => setRenameValue(e.target.value)}
+                        onKeyDown={handleRenameKeyDown}
+                        onBlur={commitRename}
+                        autoFocus
+                        aria-label={`Rename ${f.name}`}
+                        spellCheck={false}
+                      />
+                    ) : (
+                      <>
+                        {/* File select button */}
+                        <button
+                          className={styles.treeFileBtn}
+                          onClick={() => { setActiveFile(f.name); setActiveTab('code') }}
+                          title={f.name}
+                          aria-pressed={f.name === activeFile}
+                        >
+                          <span className={`${styles.langDot} ${langBgClass}`} aria-hidden="true" />
+                          <File size={12} aria-hidden="true" className={styles.fileIcon} />
+                          <span className={styles.fileName}>{f.name}</span>
+                        </button>
+
+                        {/* Hover-revealed action icons */}
+                        <div className={styles.fileActions} aria-hidden="true">
+                          <button
+                            className={styles.fileAction}
+                            onClick={e => { e.stopPropagation(); handleStartRename(f.name) }}
+                            title="Rename file (F2)"
+                            tabIndex={-1}
+                          >
+                            <Pencil size={11} />
+                          </button>
+                          <button
+                            className={`${styles.fileAction} ${styles.fileActionDanger}`}
+                            onClick={e => { e.stopPropagation(); handleDeleteFile(f.name) }}
+                            title="Delete file"
+                            tabIndex={-1}
+                            disabled={files.length <= 1}
+                          >
+                            <TrashSimple size={11} />
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
                 ))}
+
+                {/* New file inline input */}
+                {addingFile && (
+                  <div className={styles.treeFileRow}>
+                    <File size={12} aria-hidden="true" className={styles.fileIcon} />
+                    <input
+                      ref={newFileInputRef}
+                      className={styles.renameInput}
+                      placeholder="filename.ext"
+                      value={newFileName}
+                      onChange={e => setNewFileName(e.target.value)}
+                      onKeyDown={handleNewFileKeyDown}
+                      onBlur={commitNewFile}
+                      aria-label="New file name"
+                      spellCheck={false}
+                    />
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -297,7 +555,10 @@ export default function SnippetViewPage() {
             </div>
 
             {/* Code panel */}
-            <div className={`${styles.editorPanel} ${activeTab === 'code' ? styles.editorPanelVisible : styles.editorPanelHidden}`} role="tabpanel">
+            <div
+              className={`${styles.editorPanel} ${activeTab === 'code' ? styles.editorPanelVisible : styles.editorPanelHidden}`}
+              role="tabpanel"
+            >
               <SnippetViewerContent
                 snippet={viewSnippet}
                 canPreview={canPreview}
@@ -308,7 +569,10 @@ export default function SnippetViewPage() {
             </div>
 
             {/* Terminal panel */}
-            <div className={`${styles.editorPanel} ${activeTab === 'terminal' ? styles.editorPanelVisible : styles.editorPanelHidden}`} role="tabpanel">
+            <div
+              className={`${styles.editorPanel} ${activeTab === 'terminal' ? styles.editorPanelVisible : styles.editorPanelHidden}`}
+              role="tabpanel"
+            >
               <CodeTerminal
                 language={snippet.language}
                 files={files}
@@ -336,7 +600,9 @@ export default function SnippetViewPage() {
             )}
           </div>
           <div className={styles.statusRight}>
-            {terminal.isRunning && <span className={styles.statusItem} style={{ color: '#6ec87a' }}>● Running</span>}
+            {terminal.isRunning && (
+              <span className={`${styles.statusItem} ${styles.statusRunning}`}>● Running</span>
+            )}
             <span className={styles.statusItem}>Updated {relativeTime(snippet.updatedAt)}</span>
           </div>
         </div>
@@ -348,6 +614,13 @@ export default function SnippetViewPage() {
           editingSnippet={snippet}
           onSave={handleSave}
           metadataOnly
+        />
+
+        {/* Command palette */}
+        <FileCommandPalette
+          open={paletteOpen}
+          onClose={() => setPaletteOpen(false)}
+          commands={commands}
         />
 
       </div>

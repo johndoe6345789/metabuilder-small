@@ -192,7 +192,10 @@
 }
 
 .explorerHeader {
-  padding: 6px 10px 5px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 6px 5px 10px;
   font-family: 'Tahoma', 'Segoe UI', sans-serif;
   font-size: 10px;
   font-weight: 700;
@@ -202,6 +205,37 @@
   border-bottom: 1px solid var(--mat-sys-surface-container-lowest);
   flex-shrink: 0;
   text-transform: uppercase;
+
+  // Reveal action buttons on header hover
+  &:hover .explorerActions { opacity: 1; }
+}
+
+.explorerActions {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  opacity: 0;
+  transition: opacity 0.1s;
+}
+
+.explorerAction {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  color: var(--mat-sys-on-surface-variant);
+  transition: background 0.1s, color 0.1s;
+
+  &:hover {
+    background: var(--mat-sys-surface-container-high);
+    color: var(--mat-sys-on-surface);
+  }
 }
 
 .treeRoot {
@@ -237,26 +271,75 @@
   padding-left: 14px;
 }
 
-.treeFile {
+// Wrapper for each file row — handles hover reveal of action icons
+.treeFileRow {
+  position: relative;
+  display: flex;
+  align-items: center;
+  border-radius: 2px;
+  transition: background 0.1s;
+
+  &:hover {
+    background: color-mix(in srgb, var(--mat-sys-on-surface) 6%, transparent);
+
+    .fileActions { opacity: 1; }
+    .treeFileBtn .fileName { padding-right: 42px; } // make room for action icons
+  }
+
+  &.treeFileRowActive {
+    background: color-mix(in srgb, var(--mat-sys-on-surface) 12%, transparent);
+  }
+}
+
+// The clickable area: file icon + name
+.treeFileBtn {
   display: flex;
   align-items: center;
   gap: 5px;
   padding: 2px 8px 2px 4px;
   cursor: pointer;
-  border-radius: 2px;
   border: none;
   background: none;
   width: 100%;
   text-align: left;
-  transition: background 0.1s;
-
-  &:hover {
-    background: color-mix(in srgb, var(--mat-sys-on-surface) 6%, transparent);
-  }
+  min-width: 0;
 }
 
-.treeFileActive {
-  background: color-mix(in srgb, var(--mat-sys-on-surface) 12%, transparent) !important;
+// Hover-revealed action icons (rename, delete)
+.fileActions {
+  position: absolute;
+  right: 3px;
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  opacity: 0;
+  transition: opacity 0.1s;
+  flex-shrink: 0;
+}
+
+.fileAction {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  color: var(--mat-sys-on-surface-variant);
+  transition: background 0.1s, color 0.1s;
+
+  &:hover {
+    background: var(--mat-sys-surface-container-high);
+    color: var(--mat-sys-on-surface);
+  }
+
+  &.fileActionDanger:hover {
+    background: color-mix(in srgb, var(--mat-sys-error) 12%, transparent);
+    color: var(--mat-sys-error);
+  }
 }
 
 .fileIcon {
@@ -272,6 +355,22 @@
   overflow: hidden;
   text-overflow: ellipsis;
   flex: 1;
+  transition: padding-right 0.1s;
+}
+
+// Inline rename / new-file input (renders in place of the file name)
+.renameInput {
+  flex: 1;
+  margin: 1px 4px 1px 2px;
+  padding: 1px 4px;
+  background: var(--mat-sys-surface-container-high);
+  border: 1px solid var(--mat-sys-primary);
+  border-radius: 2px;
+  color: var(--mat-sys-on-surface);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  outline: none;
+  min-width: 0;
 }
 
 .langDot {
@@ -279,6 +378,13 @@
   height: 7px;
   border-radius: 50%;
   flex-shrink: 0;
+}
+
+// Loading state for the page
+.loading {
+  text-align: center;
+  padding: 80px 0;
+  color: var(--mat-sys-on-surface-variant);
 }
 
 // ── Editor column (tabs + panels) ────────────────────────────────
@@ -395,4 +501,43 @@
   width: 1px;
   height: 10px;
   background: color-mix(in srgb, var(--mat-sys-on-primary) 40%, transparent);
+}
+
+.statusRunning {
+  color: var(--mat-sys-tertiary);
+}
+
+// Palette trigger button in the toolbar
+.paletteTrigger {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  background: transparent;
+  border: 1px solid color-mix(in srgb, var(--mat-sys-outline) 50%, transparent);
+  border-radius: 3px;
+  cursor: pointer;
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 11px;
+  white-space: nowrap;
+  line-height: 1;
+  margin-left: auto;
+  transition: background 0.1s, color 0.1s, border-color 0.1s;
+
+  kbd {
+    font-size: 10px;
+    padding: 1px 4px;
+    border-radius: 3px;
+    background: var(--mat-sys-surface-container-high);
+    border: 1px solid var(--mat-sys-outline-variant);
+    color: var(--mat-sys-on-surface-variant);
+    font-family: inherit;
+    line-height: 1.4;
+  }
+
+  &:hover {
+    background: var(--mat-sys-surface-container-high);
+    border-color: var(--mat-sys-outline);
+    color: var(--mat-sys-on-surface);
+  }
 }
