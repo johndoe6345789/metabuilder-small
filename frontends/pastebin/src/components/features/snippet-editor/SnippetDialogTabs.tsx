@@ -117,7 +117,7 @@ export function SnippetDialogTabs({
 
   return (
     <>
-      <DialogTabBar tabs={tabs} activeTab={activeTab} onTabChange={onTabChange} />
+      {!metadataOnly && <DialogTabBar tabs={tabs} activeTab={activeTab} onTabChange={onTabChange} />}
 
       <TabPanel active={activeTab === 0} index={0}>
         <SnippetFormFields
