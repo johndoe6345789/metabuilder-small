@@ -75,9 +75,13 @@ export default function SnippetViewPage() {
   const [activeFile, setActiveFile] = useState('')
   const [activeTab, setActiveTab] = useState<ActiveTab>('code')
   const [editOpen, setEditOpen] = useState(false)
-  const [localCode, setLocalCode] = useState('')
+  const [localCode, setLocalCode] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  // Refs so the timer callback always reads the latest values, avoiding stale closures
+  const snippetRef = useRef(snippet)
+  const activeFileRef = useRef('')
+  const filesRef = useRef<{ name: string; content: string }[]>([])
 
   // Command palette
   const [paletteOpen, setPaletteOpen] = useState(false)
@@ -156,9 +160,14 @@ export default function SnippetViewPage() {
 
   const activeFileObj = files.find(f => f.name === activeFile) ?? files[0]
   const activeCode = activeFileObj?.content ?? snippet.code
-  const lineCount = activeCode.split('\n').length
+  const lineCount = (localCode ?? activeCode).split('\n').length
 
-  const viewSnippet = { ...snippet, code: localCode || activeCode }
+  // Keep refs current so the debounced save always writes the latest snapshot
+  snippetRef.current = snippet
+  activeFileRef.current = activeFile || (files[0]?.name ?? '')
+  filesRef.current = files
+
+  const viewSnippet = { ...snippet, code: localCode ?? activeCode }
   const isEntryFile = !activeFile || activeFile === (snippet.entryPoint ?? files[0]?.name)
   const canPreview = !!(isEntryFile && snippet.hasPreview && appConfig.previewEnabledLanguages.includes(snippet.language))
   const isPython = snippet.language === 'Python'
@@ -168,19 +177,20 @@ export default function SnippetViewPage() {
     setLocalCode(value)
     if (saveTimer.current) clearTimeout(saveTimer.current)
     saveTimer.current = setTimeout(async () => {
-      if (!snippet) return
+      // Read from refs — always the latest snapshot regardless of when the timer fires
+      const currentSnippet = snippetRef.current
+      const currentActiveFile = activeFileRef.current
+      const currentFiles = filesRef.current
+      if (!currentSnippet) return
       setSaving(true)
       try {
-        const currentFiles = snippet.files && snippet.files.length > 0
-          ? snippet.files
-          : [{ name: getFilename(snippet.title, snippet.language), content: snippet.code }]
         const updatedFiles = currentFiles.map(f =>
-          f.name === activeFile ? { ...f, content: value } : f
+          f.name === currentActiveFile ? { ...f, content: value } : f
         )
-        const isEntry = activeFile === (snippet.entryPoint ?? currentFiles[0]?.name)
+        const isEntry = currentActiveFile === (currentSnippet.entryPoint ?? currentFiles[0]?.name)
         await dispatch(updateSnippet({
-          ...snippet,
-          code: isEntry ? value : snippet.code,
+          ...currentSnippet,
+          code: isEntry ? value : currentSnippet.code,
           files: updatedFiles,
         })).unwrap()
       } catch {
