@@ -75,6 +75,9 @@ export default function SnippetViewPage() {
   const [activeFile, setActiveFile] = useState('')
   const [activeTab, setActiveTab] = useState<ActiveTab>('code')
   const [editOpen, setEditOpen] = useState(false)
+  const [localCode, setLocalCode] = useState('')
+  const [saving, setSaving] = useState(false)
+  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Command palette
   const [paletteOpen, setPaletteOpen] = useState(false)
@@ -107,6 +110,16 @@ export default function SnippetViewPage() {
       || (snippet.files?.length ? snippet.files[0].name : defaultName)
     setActiveFile(initial)
   }, [snippet?.id]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Keep localCode in sync when switching files or snippets
+  useEffect(() => {
+    if (!snippet) return
+    const currentFiles = snippet.files && snippet.files.length > 0
+      ? snippet.files
+      : [{ name: getFilename(snippet.title, snippet.language), content: snippet.code }]
+    const fileObj = currentFiles.find(f => f.name === activeFile) ?? currentFiles[0]
+    setLocalCode(fileObj?.content ?? snippet.code)
+  }, [activeFile, snippet?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Global keyboard shortcuts
   useEffect(() => {
@@ -145,10 +158,38 @@ export default function SnippetViewPage() {
   const activeCode = activeFileObj?.content ?? snippet.code
   const lineCount = activeCode.split('\n').length
 
-  const viewSnippet = { ...snippet, code: activeCode }
+  const viewSnippet = { ...snippet, code: localCode || activeCode }
   const isEntryFile = !activeFile || activeFile === (snippet.entryPoint ?? files[0]?.name)
   const canPreview = !!(isEntryFile && snippet.hasPreview && appConfig.previewEnabledLanguages.includes(snippet.language))
   const isPython = snippet.language === 'Python'
+
+  // ── Auto-save ─────────────────────────────────────────────────
+  const handleCodeChange = (value: string) => {
+    setLocalCode(value)
+    if (saveTimer.current) clearTimeout(saveTimer.current)
+    saveTimer.current = setTimeout(async () => {
+      if (!snippet) return
+      setSaving(true)
+      try {
+        const currentFiles = snippet.files && snippet.files.length > 0
+          ? snippet.files
+          : [{ name: getFilename(snippet.title, snippet.language), content: snippet.code }]
+        const updatedFiles = currentFiles.map(f =>
+          f.name === activeFile ? { ...f, content: value } : f
+        )
+        const isEntry = activeFile === (snippet.entryPoint ?? currentFiles[0]?.name)
+        await dispatch(updateSnippet({
+          ...snippet,
+          code: isEntry ? value : snippet.code,
+          files: updatedFiles,
+        })).unwrap()
+      } catch {
+        toast.error(t.toast.failedToSaveSnippet)
+      } finally {
+        setSaving(false)
+      }
+    }, 1000)
+  }
 
   // ── Clipboard ─────────────────────────────────────────────────
   const handleCopy = () => {
@@ -561,6 +602,7 @@ export default function SnippetViewPage() {
                 showPreview={showPreview}
                 isPython={isPython}
                 wordWrap={wordWrap}
+                onChange={handleCodeChange}
               />
             </div>
 
@@ -599,6 +641,7 @@ export default function SnippetViewPage() {
             {terminal.isRunning && (
               <span className={`${styles.statusItem} ${styles.statusRunning}`}>● Running</span>
             )}
+            {saving && <span className={styles.statusItem}>Saving…</span>}
             <span className={styles.statusItem}>Updated {relativeTime(snippet.updatedAt)}</span>
           </div>
         </div>

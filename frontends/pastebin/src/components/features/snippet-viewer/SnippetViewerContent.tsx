@@ -10,6 +10,7 @@ interface SnippetViewerContentProps {
   showPreview: boolean
   isPython: boolean
   wordWrap?: 'on' | 'off'
+  onChange?: (value: string) => void
 }
 
 export function SnippetViewerContent({
@@ -18,7 +19,10 @@ export function SnippetViewerContent({
   showPreview,
   isPython,
   wordWrap = 'on',
+  onChange,
 }: SnippetViewerContentProps) {
+  const readOnly = !onChange
+
   if (canPreview && showPreview) {
     return (
       <>
@@ -30,10 +34,10 @@ export function SnippetViewerContent({
         >
           <MonacoEditor
             value={snippet.code}
-            onChange={() => {}}
+            onChange={onChange ?? (() => {})}
             language={snippet.language}
             height="100%"
-            readOnly={true}
+            readOnly={readOnly}
             wordWrap={wordWrap}
           />
         </div>
@@ -62,10 +66,10 @@ export function SnippetViewerContent({
     <div className={styles.fullPane} data-testid="viewer-code-full" role="region" aria-label="Full code viewer">
       <MonacoEditor
         value={snippet.code}
-        onChange={() => {}}
+        onChange={onChange ?? (() => {})}
         language={snippet.language}
         height="100%"
-        readOnly={true}
+        readOnly={readOnly}
         wordWrap={wordWrap}
       />
     </div>
