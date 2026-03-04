@@ -1,7 +1,7 @@
 # MetaBuilder - AI Assistant Guide
 
-**Last Updated**: 2026-02-07 | **Status**: Phase 2 & 3 Complete, Universal Platform in Progress
-**Scale**: 27,826+ files across 34 directories | **Philosophy**: 95% JSON/YAML config, 5% TS/C++ infrastructure
+**Last Updated**: 2026-03-04 | **Status**: Phase 2 & 3 Complete, Universal Platform in Progress
+**Scale**: 27,826+ files across 34 directories | **Philosophy**: 95% JSON config, 5% TS/C++ infrastructure
 **Documentation**: Code = Doc (self-documenting Python scripts with argparse)
 
 ---
@@ -30,6 +30,7 @@ python3 docs.py list --category guides
 
 ## Completed Milestones (All ✅)
 
+- **Mar 4**: DBAL C++ event-driven workflow engine (`pastebin.User.created` → 15-node JSON workflow → seeded namespaces + snippets), full YAML→JSON migration (63 files, yaml-cpp removed), JWT auth + JSON ACL, declarative seed data (`dbal/shared/seeds/database/`), i18n (EN/ES) across all pastebin components, dark/light theme switcher
 - **Feb 7**: Game engine CLI args (`--bootstrap`, `--game`), 27/27 tests passing (100%)
 - **Feb 6**: 6 new DB backends (total 14), SQLite3 doc migration, Docker dev container, WorkflowUI E2E (92.6%)
 - **Feb 5**: WorkflowUI mock DBAL testing, Settings/Help pages, DBAL env var config
@@ -73,14 +74,15 @@ python3 docs.py list --category guides
 ## Core Principles
 
 ### 1. 95% Data, 5% Code
-- UI, workflows, pages, business logic = **JSON/YAML**
-- Entities NEVER hardcoded - loaded from YAML schemas
+- UI, workflows, pages, business logic = **JSON**
+- Entities NEVER hardcoded - loaded from JSON schemas
 - Adapters NEVER hardcoded - discovered dynamically
 
 ### 2. Schema-First Development
 ```
-dbal/shared/api/schema/entities/    # YAML entities (SOURCE OF TRUTH)
+dbal/shared/api/schema/entities/    # JSON entities (SOURCE OF TRUTH)
 schemas/package-schemas/            # JSON validation schemas (27 total)
+dbal/shared/seeds/database/         # Declarative JSON seed data
 ```
 
 ### 3. Multi-Tenant by Default
@@ -111,11 +113,24 @@ C++ REST API daemon. Client-side persistence handled by `@metabuilder/redux-pers
 dbal/
 ├── production/      # C++ daemon - SQLite, PostgreSQL, MySQL, Drogon HTTP
 │   ├── src/config/  # EnvConfig (env vars, NO hardcoded paths)
-│   ├── build-config/# Dockerfile, docker-compose, CMakeLists, conanfile
+│   ├── src/workflow/ # Event-driven workflow engine (WfEngine, WfExecutor, 7 step types)
+│   ├── src/auth/     # JWT validation + JSON ACL config
+│   ├── build-config/# Dockerfile, CMakeLists, conanfile (no yaml-cpp — JSON only)
 │   ├── templates/sql/# Jinja2 SQL templates (Inja library)
 │   └── .env.example # ~30 config options documented
-└── shared/api/schema/entities/ # YAML entity definitions (18 entities)
+├── shared/api/schema/
+│   ├── entities/    # JSON entity definitions (39 entities, SOURCE OF TRUTH)
+│   ├── events/      # event_config.json → workflow mappings
+│   ├── workflows/   # on_user_created.json etc.
+│   └── auth/        # auth.json (JWT + ACL rules)
+└── shared/seeds/database/ # Declarative JSON seed data (auto-loaded at startup)
 ```
+
+**Workflow Engine**: `pastebin.User.created` → detached thread → `on_user_created.json` → Default + Examples namespaces + 5 snippet templates. Event dispatch wraps `send_success` callback in entity route handler.
+
+**Auto-Seed**: `DBAL_SEED_ON_STARTUP=true` → `SeedLoaderAction::loadSeeds()` in `registerRoutes()`. Seed files are idempotent (skip if records exist). Must call `ensureClient()` before seeding — `dbal_client_` is null during route registration.
+
+**JWT Auth**: `DBAL_AUTH_CONFIG=/app/schemas/auth/auth.json` — defines which endpoints require auth and what roles can access them.
 
 **Entity Categories**: Core (user, session, workflow, package, ui_page), Access (credential, component_node, page_config), Packages (forum, notification, audit_log, media, irc, streaming), Domain (product, game, artist, video)
 
@@ -213,6 +228,21 @@ Frontends (CLI C++ | Qt6 QML | Next.js React)
 npm run dev / build / typecheck / lint / test:e2e
 npm run build --workspaces
 cd deployment && ./build-base-images.sh  # Build Docker base images
+
+# Deploy full stack
+cd deployment && docker compose -f docker-compose.stack.yml up -d
+
+# Build & deploy specific apps
+./build-apps.sh --force dbal pastebin        # Next.js frontend only
+docker compose -f docker-compose.stack.yml build pastebin-backend  # Flask backend
+
+# DBAL logs / seed verification
+docker logs -f metabuilder-dbal
+docker logs metabuilder-dbal 2>&1 | grep -i "workflow\|seed"
+
+# Force re-seed
+curl -X POST http://localhost:8080/admin/seed \
+  -H "Authorization: Bearer $DBAL_ADMIN_TOKEN" -d '{"force": true}'
 ```
 
 Pre-commit: `npm run build && npm run typecheck && npm run lint && npm run test:e2e`
@@ -303,6 +333,13 @@ Multi-version peer deps. React 18/19, TypeScript 5.9.3, Next.js 14-16, @reduxjs/
 | Version conflicts (eslint, vite) | Check ALL workspaces upfront |
 | nlohmann/json includes | Link to ALL targets, not just transitive |
 | Docker Compose YAML special chars | Quote env vars: `"DATABASE_URL=:memory:"` |
+| nlohmann/json iterators | Use `it.value()` not `it->second` (std::map syntax fails) |
+| dbal-init volume stale | Rebuild with `docker compose build dbal-init` when schema file extensions change |
+| `.dockerignore` excludes `dbal/` | Whitelist specific subdirs: `!dbal/shared/seeds/database` |
+| `build-apps.sh pastebin` ≠ Flask backend | Use `docker compose build pastebin-backend` for Flask |
+| `ensureClient()` before startup DB ops | `dbal_client_` is null in `registerRoutes()` — must call `ensureClient()` first |
+| Seed data in Flask Python | NEVER — declarative seed data belongs in `dbal/shared/seeds/database/*.json` |
+| Werkzeug scrypt on macOS Python | Generate hashes inside running container: `docker exec metabuilder-pastebin-backend python3 -c "..."` |
 
 ### Critical Folders to Check Before Any Task
 

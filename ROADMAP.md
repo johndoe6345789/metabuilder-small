@@ -2,9 +2,9 @@
 
 > **The Single Source of Truth for MetaBuilder Development**
 
-**Version:** 0.2.0-alpha
-**Last Updated:** January 21, 2026
-**Status:** 🎯 Phase 2 Complete ✅ → Monorepo Consolidated (15 Standalone Projects)
+**Version:** 0.8.8
+**Last Updated:** March 4, 2026
+**Status:** 🎯 C++ DBAL Production Live ✅ — Event-Driven Workflows, JWT Auth, Full-Stack Pastebin
 **Structure:** Universal Platform Monorepo
 
 ---
@@ -20,7 +20,7 @@ metabuilder/
 ├── dbal/                 # Database Abstraction Layer
 │   ├── development/      # TypeScript implementation
 │   ├── production/       # C++ implementation
-│   └── shared/api/schema/# YAML entities (SOURCE OF TRUTH)
+│   └── shared/api/schema/# JSON entities (SOURCE OF TRUTH)
 ├── deployment/           # Docker & infrastructure
 ├── dockerterminal/       # Docker Swarm management (Next.js)
 ├── docs/                 # Documentation (organized)
@@ -84,32 +84,34 @@ metabuilder/
 
 ## 🚀 Executive Summary
 
-**What's Done (Phase 0 & 1 - ✅ Complete):**
+**What's Done (Phase 0–2 - ✅ Complete):**
 - ✅ Core architecture (Next.js, Prisma, DBAL, Multi-tenant)
 - ✅ Authentication & authorization (Session-based, 6-level permissions)
 - ✅ CRUD operations (Schema-driven, all major endpoints)
-- ✅ Package system (52 packages, auto-loading, dynamic routing)
+- ✅ Package system (62 packages, auto-loading, dynamic routing)
 - ✅ Generic component renderer (JSON-to-React)
 - ✅ Infrastructure (Docker, PostgreSQL, Redis, Nginx)
-- ✅ Test suite (464 tests, 100% pass rate)
+- ✅ Game engine (SDL3/bgfx, 27/27 tests passing)
+- ✅ FakeMUI (167 components — Material Design clone)
+- ✅ WorkflowUI visual editor (n8n-style, 152 plugin nodes)
 
-**What's In Progress (Phase 2 - 90% Complete):**
-- ✅ API endpoints fully implemented (GET, POST, PUT, DELETE)
-- ✅ Request/response validation (Zod schemas)
-- ✅ Pagination (offset & cursor-based)
-- ✅ Filtering & sorting
-- ✅ Authentication middleware
-- ⏳ Rate limiting (planned)
-- ⏳ Error handling documentation (planned)
-- ⏳ OpenAPI/Swagger specs (planned)
+**What's Done (Phase 7 — C++ DBAL Production ✅ Complete, shipped Mar 2026):**
+- ✅ C++ DBAL daemon in production (Drogon HTTP, 14 DB backends)
+- ✅ Full YAML → JSON migration (63 files, yaml-cpp removed)
+- ✅ JWT authentication + JSON ACL config
+- ✅ Event-driven workflow engine (`pastebin.User.created` → 15-node JSON workflow)
+- ✅ Declarative seed data (`dbal/shared/seeds/database/` — 3 users, 12 namespaces, 28 snippets)
+- ✅ Flask auth backend (register, login, JWT, Python runner)
+- ✅ Pastebin full-stack (Next.js + Redux + IndexedDB + Flask + DBAL C++)
+- ✅ Dark/light theme switcher, i18n (EN/ES)
 
 **What's Planned (Phase 3+ - Future):**
 - 🔮 Phase 3: Enhanced CRUD (Rich forms, bulk operations, relationships)
 - 🔮 Phase 4: God Panel (Admin dashboard, system management)
-- 🔮 Phase 5: Advanced Features (Workflows, webhooks, integrations)
+- 🔮 Phase 5: Advanced Features (Webhooks, DBAL workflow triggers)
 - 🔮 Phase 6: Advanced Auth (SSO, SAML, OAuth)
-- 🔮 Phase 7: C++ DBAL Production (Daemon mode, security isolation)
 - 🔮 Phase 8: Multi-Source Packages (NPM, git, http sources)
+- 🔮 Phase 9: Universal Platform (State Machine, Command Bus, Event Stream, VFS)
 
 ---
 
@@ -125,7 +127,7 @@ metabuilder/
 | **4** | God Panel | 🔮 Planned | 0% | Q2 2026 |
 | **5** | Advanced Features | 🔮 Planned | 0% | Q2-Q3 2026 |
 | **6** | Advanced Auth | 🔮 Planned | 0% | Q3 2026 |
-| **7** | C++ DBAL Production | 🔮 Planned | 0% | Q3-Q4 2026 |
+| **7** | C++ DBAL Production | ✅ Complete | 100% | March 2026 |
 | **8** | Multi-Source Packages | 🔮 Planned | 0% | Q4 2026 |
 | **9** | Universal Platform | 🔮 Planned | 0% | 2027 |
 
@@ -323,23 +325,23 @@ The original Spark-based version is preserved in `/old` directory for reference:
 
 | Metric | Value |
 |--------|-------|
-| **Current Phase** | Phase 3: Enhanced CRUD (In Progress - 25% Complete) |
-| **Version** | 0.2.0-alpha |
-| **Build Status** | ✅ Functional |
-| **Test Coverage** | 464/464 tests passing (100%) |
-| **Last Release** | January 2026 (Phase 2 Complete) |
-| **Last Update** | January 21, 2026 |
+| **Current Phase** | Phase 7 Complete ✅ — C++ DBAL Production shipped |
+| **Version** | 0.8.8 (pastebin) |
+| **Build Status** | ✅ Production |
+| **Game Engine Tests** | 27/27 passing (100%) |
+| **Last Release** | March 4, 2026 (C++ DBAL + workflows + JWT auth) |
+| **Last Update** | March 4, 2026 |
 
 ### Quick Stats
 
-- **Database Models:** 27 YAML entity definitions
+- **Entity Schemas:** 39 JSON entity definitions (was YAML, migrated Mar 2026)
+- **DB Backends:** 14 (memory, sqlite, postgres, mysql, mariadb, cockroachdb, mongodb, redis, elasticsearch, cassandra, surrealdb, supabase, prisma)
 - **Built-in Packages:** 62+ packages ready to use
 - **Standalone Projects:** 15 integrated into monorepo
-- **Technology Stack:** Next.js 16.1, React 19, TypeScript 5.9, Prisma 7.2
-- **Architecture:** Multi-tenant, 6-level permissions, data-driven routing
-- **Services:** Frontend, DBAL, Media Daemon, PostgreSQL, Redis
-- **Test Suite:** 77 files, 464 tests (100% pass rate)
-- **Languages:** TypeScript, Python, C++, Kotlin, Mojo
+- **Technology Stack:** Next.js 16, React 19, TypeScript 5.9, Flask, Drogon C++
+- **Services:** Next.js frontend, Flask auth, DBAL C++ daemon, PostgreSQL, Nginx
+- **Workflow Steps:** 7 (dbal.uuid, dbal.timestamp, dbal.entity.create/get/list, dbal.var.set, dbal.log)
+- **Languages:** TypeScript, Python, C++, Kotlin, Mojo, Go, Rust
 
 ### What's Working Today
 
@@ -347,18 +349,21 @@ The original Spark-based version is preserved in `/old` directory for reference:
 - ✨ Data-driven routing system (PageConfig + InstalledPackage)
 - ✨ 6-level permission system (Public → User → Moderator → Admin → God → Supergod)
 - ✨ Multi-tenant architecture with complete tenant isolation
-- ✨ DBAL (Database Abstraction Layer) - TypeScript (dev) + C++ (production)
+- ✨ DBAL C++ daemon (production) — 14 database backends, Drogon HTTP
+- ✨ Event-driven workflow engine — JSON workflows fire async on CRUD events
+- ✨ JWT authentication + JSON ACL rules (auth.json)
+- ✨ Declarative seed data — JSON files in `dbal/shared/seeds/database/`
 - ✨ Generic JSON-to-React component renderer
-- ✨ Package system with auto-loading seed data (52 packages available)
+- ✨ Package system with auto-loading seed data (62 packages available)
 - ✨ Dynamic package loading from filesystem
 - ✨ SQLite (dev) and PostgreSQL (production) support
 
 ✅ **Authentication & Authorization**
+- ✨ JWT authentication (Flask issues tokens, DBAL validates via auth.json ACL)
 - ✨ Session-based authentication with secure cookies
 - ✨ Role-to-level mapping (public=0, user=1, moderator=2, admin=3, god=4, supergod=5)
 - ✨ Permission level checks with automatic redirects
-- ✨ Access denied UI component with level details
-- ✨ getCurrentUser() server-side function
+- ✨ Flask auth backend (register, login, token refresh, Python runner)
 - ✨ Session expiry tracking and IP/user-agent logging
 
 ✅ **CRUD Operations**
@@ -460,7 +465,8 @@ The original Spark-based version is preserved in `/old` directory for reference:
 ### C++ Services
 | Service | Purpose | Status |
 |---------|---------|--------|
-| **DBAL Daemon** | Secure database access with credential isolation | 🔨 In Progress |
+| **DBAL Daemon** | Secure database access, JWT auth, event-driven workflows, 14 backends | ✅ Production |
+| **Flask Auth** | JWT issuance, user registration/login, Python runner | ✅ Production |
 | **Media Daemon** | Video/audio transcoding, radio streaming, TV channels | ✅ Functional |
 
 ---
@@ -553,18 +559,32 @@ packages/{packageId}/
 
 ### DBAL Architecture
 
-**Purpose:** Language-agnostic database abstraction with credential isolation
+**Purpose:** Language-agnostic database abstraction with credential isolation and event-driven workflows
 
-**Two Implementations:**
-1. **TypeScript (development)** - Fast iteration, easier debugging
-2. **C++ (production)** - Security (credential isolation), performance
+**Production Implementation (C++ — shipped Mar 2026):**
+- Drogon HTTP framework, 14 database backends
+- JWT auth + JSON ACL (`/app/schemas/auth/auth.json`)
+- Event-driven workflow engine (fires async on CRUD events, detached thread)
+- Auto-seed on startup (`DBAL_SEED_ON_STARTUP=true` → `SeedLoaderAction`)
+- All schemas pure JSON — yaml-cpp removed
+
+**Event Flow (on user registration):**
+```
+POST /pastebin/pastebin/User
+  └── handleCreate() → dispatchAsync("pastebin.User.created")
+        └── detached thread → on_user_created.json
+              ├── 7× dbal.uuid nodes (namespace + snippet IDs)
+              ├── 1× dbal.timestamp
+              ├── 2× dbal.entity.create → Namespace (Default, Examples)
+              └── 5× dbal.entity.create → seed Snippets
+```
 
 **Key Features:**
 - Credential isolation (users never see database URLs)
 - Row-level security enforcement
-- Multi-tenant query filtering
-- Conformance test suite (ensures TypeScript and C++ behave identically)
-- YAML-based API contracts
+- Multi-tenant query filtering (tenantId on every query)
+- Declarative seed data (JSON files, idempotent, loaded at startup)
+- JSON entity schemas as single source of truth (39 entities)
 
 ---
 
