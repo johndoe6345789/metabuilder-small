@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { PersistenceSettings } from '@/components/demo/PersistenceSettings';
 import { SchemaHealthCard } from '@/components/settings/SchemaHealthCard';
@@ -10,6 +11,7 @@ import { DatabaseStatsCard } from '@/components/settings/DatabaseStatsCard';
 import { StorageInfoCard } from '@/components/settings/StorageInfoCard';
 import { DatabaseActionsCard } from '@/components/settings/DatabaseActionsCard';
 import { OpenAISettingsCard } from '@/components/settings/OpenAISettingsCard';
+import { ProfileSettingsCard } from '@/components/settings/ProfileSettingsCard';
 import { useSettingsState } from '@/hooks/useSettingsState';
 import { useTranslation } from '@/hooks/useTranslation';
 import { PageLayout } from '../PageLayout';
@@ -17,11 +19,13 @@ import styles from './settings-page.module.scss';
 
 export const dynamic = 'force-dynamic'
 
-type Tab = 'ai' | 'storage' | 'database';
+type Tab = 'profile' | 'ai' | 'storage' | 'database';
 
 export default function SettingsPage() {
   const t = useTranslation();
-  const [activeTab, setActiveTab] = useState<Tab>('ai');
+  const searchParams = useSearchParams();
+  const initialTab = (searchParams.get('tab') as Tab) ?? 'ai';
+  const [activeTab, setActiveTab] = useState<Tab>(initialTab);
   const {
     stats,
     loading,
@@ -62,7 +66,7 @@ export default function SettingsPage() {
         </div>
 
         <div className={styles.tabBar} role="tablist" aria-label="Settings sections">
-          {(['ai', 'storage', 'database'] as Tab[]).map(tab => (
+          {(['profile', 'ai', 'storage', 'database'] as Tab[]).map(tab => (
             <button
               key={tab}
               role="tab"
@@ -83,6 +87,10 @@ export default function SettingsPage() {
           id={`tabpanel-${activeTab}`}
           aria-labelledby={`tab-${activeTab}`}
         >
+          {activeTab === 'profile' && (
+            <ProfileSettingsCard />
+          )}
+
           {activeTab === 'ai' && (
             <OpenAISettingsCard />
           )}

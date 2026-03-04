@@ -13,15 +13,14 @@ import { ThemeSwitcher } from '@/components/layout/ThemeSwitcher';
 import { ThemeApplier } from '@/components/layout/ThemeApplier';
 import { AuthGuard } from '@/components/auth/AuthGuard';
 import { useTranslation } from '@/hooks/useTranslation';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { logout } from '@/store/slices/authSlice';
+import { useAppSelector } from '@/store/hooks';
 import { selectIsAuthenticated, selectCurrentUser } from '@/store/selectors';
+import { ProfileMenu } from '@/components/layout/ProfileMenu';
 import { ReactNode } from 'react';
 import styles from './page-layout.module.scss';
 
 export function PageLayout({ children }: { children: ReactNode }) {
   const t = useTranslation();
-  const dispatch = useAppDispatch();
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const user = useAppSelector(selectCurrentUser);
 
@@ -64,18 +63,8 @@ export function PageLayout({ children }: { children: ReactNode }) {
                 <ThemeSwitcher />
                 <LangSelector />
                 <BackendIndicator />
-                {isAuthenticated ? (
-                  <>
-                    <span className={styles.userChip}>@{user?.username}</span>
-                    <button
-                      className={styles.iconBtn}
-                      onClick={() => dispatch(logout())}
-                      title="Sign out"
-                      aria-label="Sign out"
-                    >
-                      <MaterialIcon name="logout" />
-                    </button>
-                  </>
+                {isAuthenticated && user ? (
+                  <ProfileMenu username={user.username} />
                 ) : (
                   <Link href="/login" className={styles.iconBtn} title="Sign in" aria-label="Sign in">
                     <MaterialIcon name="login" />

@@ -138,10 +138,13 @@ export function NamespaceSelector({ selectedNamespaceId, onNamespaceChange }: Na
         const isEditing = editingId === namespace.id
 
         return (
-          <button
+          <div
             key={namespace.id}
+            role="button"
+            tabIndex={0}
             className={isActive ? styles.chipActive : styles.chip}
             onClick={() => !isEditing && onNamespaceChange(namespace.id)}
+            onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); !isEditing && onNamespaceChange(namespace.id) } }}
             data-testid={`namespace-chip-${namespace.id}`}
             aria-pressed={isActive}
             aria-label={`Switch to ${namespace.name} namespace`}
@@ -203,7 +206,7 @@ export function NamespaceSelector({ selectedNamespaceId, onNamespaceChange }: Na
                 <MaterialIcon name="close" size={11} aria-hidden="true" />
               </button>
             )}
-          </button>
+          </div>
         )
       })}
 

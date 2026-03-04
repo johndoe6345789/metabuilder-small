@@ -221,6 +221,7 @@
     "heading": "Configuración",
     "subtitle": "Administra tu base de datos y configuración de la aplicación",
     "tabs": {
+      "profile": "Perfil",
       "ai": "IA",
       "storage": "Almacenamiento",
       "database": "Base de datos"

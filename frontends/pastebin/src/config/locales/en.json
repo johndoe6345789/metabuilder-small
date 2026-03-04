@@ -221,6 +221,7 @@
     "heading": "Settings",
     "subtitle": "Manage your database and application settings",
     "tabs": {
+      "profile": "Profile",
       "ai": "AI",
       "storage": "Storage",
       "database": "Database"

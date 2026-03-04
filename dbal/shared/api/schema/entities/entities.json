@@ -1,79 +1,31 @@
 {
   "entities": [
-    {
-      "$ref": "./core/user.yaml"
-    },
-    {
-      "$ref": "./core/session.yaml"
-    },
-    {
-      "$ref": "./core/workflow.yaml"
-    },
-    {
-      "$ref": "./core/package.yaml"
-    },
-    {
-      "$ref": "./core/ui_page.yaml"
-    },
-    {
-      "$ref": "./workspace.yaml"
-    },
-    {
-      "$ref": "./access/credential.yaml"
-    },
-    {
-      "$ref": "./access/component_node.yaml"
-    },
-    {
-      "$ref": "./access/page_config.yaml"
-    },
-    {
-      "$ref": "./packages/forum.yaml"
-    },
-    {
-      "$ref": "./packages/notification.yaml"
-    },
-    {
-      "$ref": "./packages/audit_log.yaml"
-    },
-    {
-      "$ref": "./packages/media.yaml"
-    },
-    {
-      "$ref": "./packages/irc.yaml"
-    },
-    {
-      "$ref": "./packages/streaming.yaml"
-    },
-    {
-      "$ref": "./packages/email_client.yaml"
-    },
-    {
-      "$ref": "./packages/email_folder.yaml"
-    },
-    {
-      "$ref": "./packages/email_message.yaml"
-    },
-    {
-      "$ref": "./packages/email_attachment.yaml"
-    },
-    {
-      "$ref": "./pastebin/namespace.yaml"
-    },
-    {
-      "$ref": "./pastebin/snippet.yaml"
-    },
-    {
-      "$ref": "./ecommerce/product.yaml"
-    },
-    {
-      "$ref": "./gaming/game.yaml"
-    },
-    {
-      "$ref": "./spotify_clone/artist.yaml"
-    },
-    {
-      "$ref": "./youtube_clone/video.yaml"
-    }
+    { "$ref": "./core/user.json" },
+    { "$ref": "./core/session.json" },
+    { "$ref": "./core/workflow.json" },
+    { "$ref": "./core/package.json" },
+    { "$ref": "./core/ui_page.json" },
+    { "$ref": "./workspace.json" },
+    { "$ref": "./access/credential.json" },
+    { "$ref": "./access/component_node.json" },
+    { "$ref": "./access/page_config.json" },
+    { "$ref": "./packages/forum.json" },
+    { "$ref": "./packages/notification.json" },
+    { "$ref": "./packages/audit_log.json" },
+    { "$ref": "./packages/media.json" },
+    { "$ref": "./packages/irc.json" },
+    { "$ref": "./packages/streaming.json" },
+    { "$ref": "./packages/email_client.json" },
+    { "$ref": "./packages/email_folder.json" },
+    { "$ref": "./packages/email_message.json" },
+    { "$ref": "./packages/email_attachment.json" },
+    { "$ref": "./pastebin/namespace.json" },
+    { "$ref": "./pastebin/snippet.json" },
+    { "$ref": "./pastebin/snippet_comment.json" },
+    { "$ref": "./pastebin/profile_comment.json" },
+    { "$ref": "./ecommerce/product.json" },
+    { "$ref": "./gaming/game.json" },
+    { "$ref": "./spotify_clone/artist.json" },
+    { "$ref": "./youtube_clone/video.json" }
   ]
 }

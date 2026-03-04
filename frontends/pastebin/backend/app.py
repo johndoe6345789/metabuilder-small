@@ -1193,6 +1193,128 @@ def send_interactive_input(session_id):
     return jsonify({'ok': True})
 
 
+# ---------------------------------------------------------------------------
+# User profiles
+# ---------------------------------------------------------------------------
+
+def _get_username(user_id: str) -> str:
+    """Look up username from local SQLite auth table."""
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute('SELECT username FROM user_auth WHERE id = ?', (user_id,))
+    row = cursor.fetchone()
+    conn.close()
+    return row['username'] if row else ''
+
+
+@app.route('/api/users/<username>', methods=['GET'])
+def get_user_profile(username):
+    """Fetch a user's public profile by username."""
+    if not DBAL_BASE_URL:
+        return jsonify({'error': 'Backend not configured'}), 503
+    r = dbal_request('GET', f'/{DBAL_TENANT_ID}/pastebin/User?filter.username={username}&limit=1')
+    if not r or not r.ok:
+        return jsonify({'error': 'User not found'}), 404
+    items = r.json().get('data', {}).get('data', [])
+    if not items:
+        return jsonify({'error': 'User not found'}), 404
+    u = items[0]
+    return jsonify({
+        'id':        u.get('id', ''),
+        'username':  u.get('username', ''),
+        'bio':       u.get('bio', ''),
+        'createdAt': u.get('createdAt', 0),
+    })
+
+
+@app.route('/api/users/me/profile', methods=['PATCH'])
+@auth_required
+def update_my_profile():
+    """Update authenticated user's bio."""
+    data = request.json or {}
+    bio = data.get('bio', '')
+    r = dbal_request('PUT', f'/{DBAL_TENANT_ID}/pastebin/User/{g.user_id}', {'bio': bio})
+    if not r or not r.ok:
+        return jsonify({'error': 'Failed to update profile'}), 500
+    return jsonify({'bio': bio})
+
+
+# ---------------------------------------------------------------------------
+# Comments
+# ---------------------------------------------------------------------------
+
+@app.route('/api/comments/snippet/<snippet_id>', methods=['GET'])
+def get_snippet_comments(snippet_id):
+    """List all comments on a snippet (public)."""
+    if not DBAL_BASE_URL:
+        return jsonify([]), 200
+    r = dbal_request('GET', f'{_dbal_path("SnippetComment")}?filter.snippetId={snippet_id}&sort.createdAt=asc&limit=200')
+    if not r or not r.ok:
+        return jsonify([]), 200
+    items = r.json().get('data', {}).get('data', [])
+    return jsonify(items)
+
+
+@app.route('/api/comments/snippet/<snippet_id>', methods=['POST'])
+@auth_required
+def create_snippet_comment(snippet_id):
+    """Post a markdown comment on a snippet."""
+    data = request.json or {}
+    content = (data.get('content') or '').strip()
+    if not content:
+        return jsonify({'error': 'content is required'}), 400
+    author_username = _get_username(g.user_id)
+    comment = {
+        'id':             str(uuid.uuid4()),
+        'snippetId':      snippet_id,
+        'authorId':       g.user_id,
+        'authorUsername': author_username,
+        'content':        content,
+        'createdAt':      int(time.time() * 1000),
+        'tenantId':       DBAL_TENANT_ID,
+    }
+    r = dbal_request('POST', _dbal_path('SnippetComment'), comment)
+    if not r or not r.ok:
+        return jsonify({'error': 'Failed to save comment'}), 500
+    return jsonify(comment), 201
+
+
+@app.route('/api/comments/profile/<user_id>', methods=['GET'])
+def get_profile_comments(user_id):
+    """List all comments on a user profile wall (public)."""
+    if not DBAL_BASE_URL:
+        return jsonify([]), 200
+    r = dbal_request('GET', f'{_dbal_path("ProfileComment")}?filter.profileUserId={user_id}&sort.createdAt=asc&limit=200')
+    if not r or not r.ok:
+        return jsonify([]), 200
+    items = r.json().get('data', {}).get('data', [])
+    return jsonify(items)
+
+
+@app.route('/api/comments/profile/<user_id>', methods=['POST'])
+@auth_required
+def create_profile_comment(user_id):
+    """Post a markdown comment on a user profile wall."""
+    data = request.json or {}
+    content = (data.get('content') or '').strip()
+    if not content:
+        return jsonify({'error': 'content is required'}), 400
+    author_username = _get_username(g.user_id)
+    comment = {
+        'id':             str(uuid.uuid4()),
+        'profileUserId':  user_id,
+        'authorId':       g.user_id,
+        'authorUsername': author_username,
+        'content':        content,
+        'createdAt':      int(time.time() * 1000),
+        'tenantId':       DBAL_TENANT_ID,
+    }
+    r = dbal_request('POST', _dbal_path('ProfileComment'), comment)
+    if not r or not r.ok:
+        return jsonify({'error': 'Failed to save comment'}), 500
+    return jsonify(comment), 201
+
+
 def seed_test_users():
     """Seed demo accounts from dbal/shared/seeds/database/pastebin_users.json on first startup."""
     seed_file = os.path.join(

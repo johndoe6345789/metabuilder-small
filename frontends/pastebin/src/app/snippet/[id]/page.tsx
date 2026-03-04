@@ -15,6 +15,7 @@ import { Snippet } from '@/lib/types'
 import { toast } from 'sonner'
 import { FileCommandPalette, CommandItem } from '@/components/features/file-ops/FileCommandPalette'
 import { FileMenu } from '@/components/features/file-ops/FileMenu'
+import { SnippetComments } from '@/components/features/comments/SnippetComments'
 import styles from './snippet-view-page.module.scss'
 
 const SnippetViewerContent = dynamic(
@@ -690,6 +691,8 @@ export default function SnippetViewPage() {
             <span className={styles.statusItem}>Updated {relativeTime(snippet.updatedAt)}</span>
           </div>
         </div>
+
+        <SnippetComments snippetId={id} />
 
         {/* Edit dialog */}
         <SnippetDialog
