@@ -1,5 +1,4 @@
-#ifndef DBAL_SCHEMA_LOADER_HPP
-#define DBAL_SCHEMA_LOADER_HPP
+#pragma once
 
 #include <string>
 #include <vector>
@@ -7,7 +6,8 @@
 #include <optional>
 #include <algorithm>
 #include <cctype>
-#include <yaml-cpp/yaml.h>
+#include <fstream>
+#include <nlohmann/json.hpp>
 #include <filesystem>
 #include <spdlog/spdlog.h>
 
@@ -16,7 +16,7 @@ namespace adapters {
 
 struct FieldDefinition {
     std::string name;
-    std::string type;           // uuid, string, email, text, bigint, boolean, enum, etc.
+    std::string type;
     bool primary = false;
     bool required = false;
     bool unique = false;
@@ -44,102 +44,75 @@ struct EntityDefinition {
 };
 
 /**
- * Loads entity schemas from YAML files
+ * Loads entity schemas from JSON files
  */
 class SchemaLoader {
 public:
-    /**
-     * Load entity definition from YAML file
-     */
     static std::optional<EntityDefinition> loadFromFile(const std::string& file_path) {
         try {
-            YAML::Node yaml = YAML::LoadFile(file_path);
+            std::ifstream f(file_path);
+            if (!f.is_open()) return std::nullopt;
+            nlohmann::json root = nlohmann::json::parse(f);
+            // Use first element if file contains an array of entities
+            nlohmann::json json = (root.is_array() && !root.empty()) ? root[0] : root;
 
             EntityDefinition entity;
-            // Support both "entity:" and "name:" keys, with displayName for PascalCase
-            if (yaml["entity"]) {
-                entity.name = yaml["entity"].as<std::string>();
-            } else if (yaml["displayName"]) {
-                entity.name = yaml["displayName"].as<std::string>();
-            } else if (yaml["name"]) {
-                // Convert first letter to uppercase for table name
-                std::string raw_name = yaml["name"].as<std::string>();
-                if (!raw_name.empty()) {
+            if (json.contains("entity")) {
+                entity.name = json["entity"].get<std::string>();
+            } else if (json.contains("displayName")) {
+                entity.name = json["displayName"].get<std::string>();
+            } else if (json.contains("name")) {
+                std::string raw_name = json["name"].get<std::string>();
+                if (!raw_name.empty())
                     raw_name[0] = static_cast<char>(std::toupper(static_cast<unsigned char>(raw_name[0])));
-                }
                 entity.name = raw_name;
             } else {
-                return std::nullopt; // No entity name found
+                return std::nullopt;
             }
-            entity.version = yaml["version"] ? yaml["version"].as<std::string>() : "1.0";
-            entity.description = yaml["description"] ? yaml["description"].as<std::string>() : "";
+            entity.version     = json.value("version",     std::string("1.0"));
+            entity.description = json.value("description", std::string(""));
 
-            // Load fields
-            if (yaml["fields"]) {
-                for (const auto& field_entry : yaml["fields"]) {
-                    std::string field_name = field_entry.first.as<std::string>();
-                    YAML::Node field_def = field_entry.second;
-
+            if (json.contains("fields")) {
+                for (auto& [field_name, field_def] : json["fields"].items()) {
                     FieldDefinition field;
                     field.name = field_name;
-                    std::string field_type = field_def["type"].as<std::string>();
 
-                    // Normalize type to lowercase for consistent comparisons
+                    std::string field_type = field_def.value("type", std::string("string"));
                     std::transform(field_type.begin(), field_type.end(), field_type.begin(),
                                    [](unsigned char c) { return std::tolower(c); });
 
-                    // Skip relationship fields - they don't map to columns
-                    if (field_type == "relationship") {
-                        continue;
-                    }
-                    // Map datetime to bigint for SQL compatibility
-                    if (field_type == "datetime") {
-                        field_type = "bigint";
-                    }
-                    // Map number to bigint for SQL
-                    if (field_type == "number") {
-                        field_type = "bigint";
-                    }
-                    // Map json to text for basic SQL (Postgres JSONB handled by template)
-                    if (field_type == "json") {
-                        field_type = "json";
-                    }
+                    if (field_type == "relationship") continue;
+                    if (field_type == "datetime")     field_type = "bigint";
+                    if (field_type == "number")       field_type = "bigint";
 
-                    field.type = field_type;
-                    field.primary = (field_def["primary"] && field_def["primary"].as<bool>())
-                                 || (field_def["primaryKey"] && field_def["primaryKey"].as<bool>());
-                    field.required = field_def["required"] && field_def["required"].as<bool>();
-                    field.unique = field_def["unique"] && field_def["unique"].as<bool>();
-                    field.generated = field_def["generated"] && field_def["generated"].as<bool>();
-                    field.optional = field_def["optional"] && field_def["optional"].as<bool>();
-                    field.nullable = field_def["nullable"] && field_def["nullable"].as<bool>();
+                    field.type      = field_type;
+                    field.primary   = field_def.value("primary",    false) ||
+                                      field_def.value("primaryKey", false);
+                    field.required  = field_def.value("required",   false);
+                    field.unique    = field_def.value("unique",      false);
+                    field.generated = field_def.value("generated",  false);
+                    field.optional  = field_def.value("optional",   false);
+                    field.nullable  = field_def.value("nullable",   false);
 
-                    if (field_def["default"]) {
-                        // Handle various default value types
+                    if (field_def.contains("default")) {
                         const auto& def_node = field_def["default"];
-                        if (def_node.IsScalar()) {
-                            field.default_value = def_node.as<std::string>();
-                        } else if (def_node.IsMap() || def_node.IsSequence()) {
-                            // JSON-like defaults (e.g., default: {} or default: [])
-                            // Store as empty string for SQL DEFAULT, actual value is in JSON
-                            field.default_value = std::nullopt;
-                        }
+                        if (def_node.is_string())
+                            field.default_value = def_node.get<std::string>();
+                        else if (!def_node.is_null() && !def_node.is_object() && !def_node.is_array())
+                            field.default_value = def_node.dump();
                     }
-                    if (field_def["min_length"] || field_def["minLength"]) {
-                        auto ml_node = field_def["min_length"] ? field_def["min_length"] : field_def["minLength"];
-                        field.min_length = ml_node.as<int>();
-                    }
-                    if (field_def["max_length"] || field_def["maxLength"]) {
-                        auto ml_node = field_def["max_length"] ? field_def["max_length"] : field_def["maxLength"];
-                        field.max_length = ml_node.as<int>();
-                    }
-                    if (field_def["pattern"]) {
-                        field.pattern = field_def["pattern"].as<std::string>();
-                    }
-                    if (field_def["values"]) {
-                        for (const auto& val : field_def["values"]) {
-                            field.enum_values.push_back(val.as<std::string>());
-                        }
+                    auto get_len = [&](const char* snake, const char* camel) -> std::optional<int> {
+                        if (field_def.contains(snake)) return field_def[snake].get<int>();
+                        if (field_def.contains(camel)) return field_def[camel].get<int>();
+                        return std::nullopt;
+                    };
+                    field.min_length = get_len("min_length", "minLength");
+                    field.max_length = get_len("max_length", "maxLength");
+                    if (field_def.contains("pattern"))
+                        field.pattern = field_def["pattern"].get<std::string>();
+                    if (field_def.contains("values")) {
+                        for (const auto& val : field_def["values"])
+                            field.enum_values.push_back(val.get<std::string>());
                     }
 
                     entity.fields.push_back(field);
@@ -147,46 +120,38 @@ public:
             }
 
             // Auto-add tenantId field if top-level tenantId: true is set
-            if (yaml["tenantId"] && yaml["tenantId"].IsScalar()) {
-                bool has_tenant = false;
-                for (const auto& f : entity.fields) {
-                    if (f.name == "tenantId") { has_tenant = true; break; }
-                }
-                if (!has_tenant) {
-                    try {
-                        bool tenant_flag = yaml["tenantId"].as<bool>();
-                        if (tenant_flag) {
-                            FieldDefinition tenant_field;
-                            tenant_field.name = "tenantId";
-                            tenant_field.type = "string";
-                            tenant_field.required = false;
-                            tenant_field.nullable = true;
-                            entity.fields.push_back(tenant_field);
-                        }
-                    } catch (const YAML::BadConversion&) {
-                        // tenantId might be a string value, not a bool flag - skip
+            if (json.contains("tenantId") && json["tenantId"].is_boolean()) {
+                if (json["tenantId"].get<bool>()) {
+                    bool has_tenant = false;
+                    for (const auto& f : entity.fields)
+                        if (f.name == "tenantId") { has_tenant = true; break; }
+                    if (!has_tenant) {
+                        FieldDefinition tenant_field;
+                        tenant_field.name     = "tenantId";
+                        tenant_field.type     = "string";
+                        tenant_field.required = false;
+                        tenant_field.nullable = true;
+                        entity.fields.push_back(tenant_field);
                     }
                 }
             }
 
-            // Load indexes
-            if (yaml["indexes"]) {
-                for (const auto& index_node : yaml["indexes"]) {
+            if (json.contains("indexes")) {
+                for (const auto& index_node : json["indexes"]) {
                     IndexDefinition index;
-                    if (index_node["fields"]) {
-                        for (const auto& field : index_node["fields"]) {
-                            index.fields.push_back(field.as<std::string>());
-                        }
+                    if (index_node.contains("fields")) {
+                        for (const auto& f : index_node["fields"])
+                            index.fields.push_back(f.get<std::string>());
                     }
-                    index.unique = index_node["unique"] && index_node["unique"].as<bool>();
+                    index.unique = index_node.value("unique", false);
                     entity.indexes.push_back(index);
                 }
             }
 
             return entity;
 
-        } catch (const YAML::Exception& e) {
-            spdlog::warn("Failed to parse YAML {}: {}", file_path, e.what());
+        } catch (const nlohmann::json::parse_error& e) {
+            spdlog::warn("Failed to parse JSON {}: {}", file_path, e.what());
             return std::nullopt;
         } catch (const std::exception& e) {
             spdlog::warn("Failed to load entity from {}: {}", file_path, e.what());
@@ -194,31 +159,65 @@ public:
         }
     }
 
-    /**
-     * Scan directory for entity YAML files
-     */
     static std::vector<EntityDefinition> loadFromDirectory(const std::string& dir_path) {
         std::vector<EntityDefinition> entities;
+        if (!std::filesystem::exists(dir_path)) return entities;
 
-        if (!std::filesystem::exists(dir_path)) {
-            return entities;
-        }
-
-        // Recursively scan for .yaml files
         for (const auto& entry : std::filesystem::recursive_directory_iterator(dir_path)) {
-            if (entry.is_regular_file() && entry.path().extension() == ".yaml") {
-                auto entity = loadFromFile(entry.path().string());
-                if (entity) {
-                    entities.push_back(*entity);
+            if (!entry.is_regular_file() || entry.path().extension() != ".json") continue;
+            if (entry.path().filename() == "entities.json") continue;
+            try {
+                std::ifstream f(entry.path().string());
+                if (!f.is_open()) continue;
+                nlohmann::json root = nlohmann::json::parse(f);
+                nlohmann::json docs = root.is_array() ? root : nlohmann::json::array({root});
+                for (const auto& node : docs) {
+                    if (!node.is_object()) continue;
+                    // Inline parse to avoid array-truncation in loadFromFile
+                    nlohmann::json json = node;
+                    EntityDefinition entity;
+                    if (json.contains("entity"))          entity.name = json["entity"].get<std::string>();
+                    else if (json.contains("displayName")) entity.name = json["displayName"].get<std::string>();
+                    else if (json.contains("name"))        entity.name = json["name"].get<std::string>();
+                    else continue;
+                    entity.version     = json.value("version",     std::string("1.0"));
+                    entity.description = json.value("description", std::string(""));
+                    if (json.contains("fields")) {
+                        for (auto& [fn, fd] : json["fields"].items()) {
+                            FieldDefinition field;
+                            field.name = fn;
+                            std::string ft = fd.value("type", std::string("string"));
+                            std::transform(ft.begin(), ft.end(), ft.begin(),
+                                           [](unsigned char c){return std::tolower(c);});
+                            if (ft == "relationship") continue;
+                            if (ft == "datetime") ft = "bigint";
+                            if (ft == "number")   ft = "bigint";
+                            field.type      = ft;
+                            field.primary   = fd.value("primary",   false) || fd.value("primaryKey", false);
+                            field.required  = fd.value("required",  false);
+                            field.unique    = fd.value("unique",    false);
+                            field.generated = fd.value("generated", false);
+                            field.optional  = fd.value("optional",  false);
+                            field.nullable  = fd.value("nullable",  false);
+                            entity.fields.push_back(field);
+                        }
+                    }
+                    if (json.contains("indexes")) {
+                        for (const auto& idx : json["indexes"]) {
+                            IndexDefinition index;
+                            if (idx.contains("fields"))
+                                for (const auto& ff : idx["fields"]) index.fields.push_back(ff.get<std::string>());
+                            index.unique = idx.value("unique", false);
+                            entity.indexes.push_back(index);
+                        }
+                    }
+                    entities.push_back(entity);
                 }
-            }
+            } catch (...) {}
         }
-
         return entities;
     }
 };
 
 } // namespace adapters
 } // namespace dbal
-
-#endif // DBAL_SCHEMA_LOADER_HPP

@@ -13,7 +13,7 @@ export default function AtomsPage() {
     try {
       const newSnippet: Snippet = {
         ...snippetData,
-        id: Date.now().toString(),
+        id: crypto.randomUUID(),
         createdAt: Date.now(),
         updatedAt: Date.now(),
       };

@@ -11,8 +11,8 @@ ARG BUILD_TYPE
 
 WORKDIR /dbal
 
-# Install Conan and pyyaml (codegen dependency), detect Conan profile
-RUN pip3 install --break-system-packages conan pyyaml \
+# Install Conan (codegen dependency), detect Conan profile
+RUN pip3 install --break-system-packages conan \
     && conan profile detect --force
 
 # Copy dependency manifest first (layer caching)
@@ -64,6 +64,13 @@ RUN useradd -r -u 1001 -m -s /bin/bash dbal || \
 # Copy binary from builder
 COPY --from=builder /dbal/build/dbal_daemon /app/dbal_daemon
 
+# Embed auth config — can be overridden via DBAL_AUTH_CONFIG
+COPY --from=builder /dbal/shared/api/schema/auth /app/schemas/auth
+
+# Embed workflow event config + workflow definitions
+COPY --from=builder /dbal/shared/api/schema/events    /app/schemas/events
+COPY --from=builder /dbal/shared/api/schema/workflows /app/schemas/workflows
+
 # Create data directories
 RUN mkdir -p /app/data/blobs
 
@@ -78,6 +85,8 @@ ENV DBAL_BIND_ADDRESS=0.0.0.0 \
     DBAL_CONFIG=/app/config.yaml \
     DBAL_SCHEMA_DIR=/app/schemas/entities \
     DBAL_TEMPLATE_DIR=/app/templates/sql \
+    DBAL_AUTH_CONFIG=/app/schemas/auth/auth.json \
+    DBAL_EVENT_CONFIG=/app/schemas/events/event_config.json \
     DBAL_BLOB_BACKEND=filesystem \
     DBAL_BLOB_ROOT=/app/data/blobs
 

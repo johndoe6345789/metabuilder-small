@@ -412,6 +412,24 @@
   }
 }
 
+.tabClose {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 2px;
+  font-size: 13px;
+  line-height: 1;
+  color: var(--mat-sys-on-surface-variant);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--mat-sys-surface-variant);
+    color: var(--mat-sys-on-surface);
+  }
+}
+
 .runningDot {
   width: 6px;
   height: 6px;

@@ -1,0 +1,79 @@
+{
+  "entities": [
+    {
+      "$ref": "./core/user.yaml"
+    },
+    {
+      "$ref": "./core/session.yaml"
+    },
+    {
+      "$ref": "./core/workflow.yaml"
+    },
+    {
+      "$ref": "./core/package.yaml"
+    },
+    {
+      "$ref": "./core/ui_page.yaml"
+    },
+    {
+      "$ref": "./workspace.yaml"
+    },
+    {
+      "$ref": "./access/credential.yaml"
+    },
+    {
+      "$ref": "./access/component_node.yaml"
+    },
+    {
+      "$ref": "./access/page_config.yaml"
+    },
+    {
+      "$ref": "./packages/forum.yaml"
+    },
+    {
+      "$ref": "./packages/notification.yaml"
+    },
+    {
+      "$ref": "./packages/audit_log.yaml"
+    },
+    {
+      "$ref": "./packages/media.yaml"
+    },
+    {
+      "$ref": "./packages/irc.yaml"
+    },
+    {
+      "$ref": "./packages/streaming.yaml"
+    },
+    {
+      "$ref": "./packages/email_client.yaml"
+    },
+    {
+      "$ref": "./packages/email_folder.yaml"
+    },
+    {
+      "$ref": "./packages/email_message.yaml"
+    },
+    {
+      "$ref": "./packages/email_attachment.yaml"
+    },
+    {
+      "$ref": "./pastebin/namespace.yaml"
+    },
+    {
+      "$ref": "./pastebin/snippet.yaml"
+    },
+    {
+      "$ref": "./ecommerce/product.yaml"
+    },
+    {
+      "$ref": "./gaming/game.yaml"
+    },
+    {
+      "$ref": "./spotify_clone/artist.yaml"
+    },
+    {
+      "$ref": "./youtube_clone/video.yaml"
+    }
+  ]
+}

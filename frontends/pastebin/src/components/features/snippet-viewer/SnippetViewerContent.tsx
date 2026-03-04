@@ -10,7 +10,7 @@ interface SnippetViewerContentProps {
   showPreview: boolean
   isPython: boolean
   wordWrap?: 'on' | 'off'
-  onChange: (value: string) => void
+  onChange?: (value: string) => void
 }
 
 export function SnippetViewerContent({
@@ -19,7 +19,7 @@ export function SnippetViewerContent({
   showPreview,
   isPython,
   wordWrap = 'on',
-  onChange,
+  onChange = () => {},
 }: SnippetViewerContentProps) {
   if (canPreview && showPreview) {
     return (

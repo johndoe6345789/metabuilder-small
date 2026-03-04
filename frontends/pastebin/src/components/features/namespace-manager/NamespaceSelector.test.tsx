@@ -128,7 +128,7 @@ describe('NamespaceSelector', () => {
 
     it('should create namespace successfully', async () => {
       mockDB.getAllNamespaces.mockResolvedValue([]);
-      mockDB.createNamespace.mockResolvedValue(undefined);
+      mockDB.createNamespace.mockResolvedValue(createTestNamespace({ name: 'New Namespace' }));
       const user = userEvent.setup();
 
       render(
@@ -145,7 +145,7 @@ describe('NamespaceSelector', () => {
 
     it('should show success toast after creating namespace', async () => {
       mockDB.getAllNamespaces.mockResolvedValue([]);
-      mockDB.createNamespace.mockResolvedValue(undefined);
+      mockDB.createNamespace.mockResolvedValue(createTestNamespace({ name: 'New Namespace' }));
 
       render(
         <NamespaceSelector

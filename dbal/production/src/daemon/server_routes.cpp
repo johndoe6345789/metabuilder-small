@@ -6,6 +6,8 @@
 #include "server.hpp"
 #include "handlers/health_route_handler.hpp"
 #include "handlers/entity_route_handler.hpp"
+#include "security/jwt/jwt_validator.hpp"
+#include "auth/auth_config.hpp"
 #include "handlers/blob_route_handler.hpp"
 #include "handlers/rpc_route_handler.hpp"
 #include "handlers/schema_route_handler.hpp"
@@ -76,6 +78,44 @@ using DrogonCallback = std::function<void(const drogon::HttpResponsePtr&)>;
 void Server::registerRoutes() {
     if (routes_registered_.exchange(true)) {
         return;
+    }
+
+    // Initialize JWT validator + YAML auth config
+    {
+        const char* secret = std::getenv("JWT_SECRET_KEY");
+        jwt_secret_ = secret ? secret : "";
+        if (!jwt_secret_.empty()) {
+            spdlog::info("[auth] JWT_SECRET_KEY is set — entity auth enforcement enabled");
+        } else {
+            spdlog::warn("[auth] JWT_SECRET_KEY not set — entity routes will 503 if require_auth=true");
+        }
+
+        const char* auth_cfg_path = std::getenv("DBAL_AUTH_CONFIG");
+        if (auth_cfg_path && std::filesystem::exists(auth_cfg_path)) {
+            auth_config_ = dbal::auth::AuthConfig::load(auth_cfg_path);
+        } else {
+            auth_config_ = dbal::auth::AuthConfig::loadDefault();
+        }
+    }
+
+    // Initialize workflow engine from DBAL_EVENT_CONFIG
+    {
+        const char* event_cfg_path = std::getenv("DBAL_EVENT_CONFIG");
+        if (event_cfg_path && std::filesystem::exists(event_cfg_path)) {
+            dbal::ClientConfig wf_client_cfg;
+            {
+                std::lock_guard<std::mutex> cfg_lock(config_mutex_);
+                wf_client_cfg.adapter      = config_adapter_;
+                wf_client_cfg.database_url = config_database_url_;
+                wf_client_cfg.mode         = config_mode_;
+                wf_client_cfg.endpoint     = config_endpoint_;
+            }
+            wf_client_cfg.sandbox_enabled = config_sandbox_enabled_.load();
+            wf_engine_.emplace(wf_client_cfg);
+            wf_engine_->loadConfig(event_cfg_path);
+        } else {
+            spdlog::debug("[workflow] DBAL_EVENT_CONFIG not set — workflow engine disabled");
+        }
     }
 
     // Initialize handlers
@@ -583,12 +623,33 @@ void Server::registerRoutes() {
         "/{tenant}/{package}/{entity}",
         [this](const drogon::HttpRequestPtr& req, DrogonCallback&& callback,
                const std::string& tenant, const std::string& package, const std::string& entity) {
+            // CORS preflight
+            const char* env_cors = std::getenv("DBAL_CORS_ORIGIN");
+            std::string cors_org = env_cors ? env_cors : auth_config_.cors_origin;
+            if (req->method() == drogon::HttpMethod::Options) {
+                auto resp = drogon::HttpResponse::newHttpResponse();
+                resp->setStatusCode(drogon::k204NoContent);
+                resp->addHeader("Access-Control-Allow-Origin", cors_org);
+                resp->addHeader("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
+                resp->addHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+                resp->addHeader("Access-Control-Max-Age", "3600");
+                callback(resp);
+                return;
+            }
+            // Wrap callback to attach CORS headers to every response
+            auto cb = [orig = std::move(callback), cors_org](const drogon::HttpResponsePtr& resp) {
+                resp->addHeader("Access-Control-Allow-Origin", cors_org);
+                resp->addHeader("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
+                resp->addHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+                orig(resp);
+            };
+            // Rate limiting
             auto client_ip = req->getPeerAddr().toIp();
             auto& limiter = (req->method() == drogon::HttpMethod::Get) ? read_limiter : mutation_limiter;
             if (!limiter.allow(client_ip)) {
                 auto resp = drogon::HttpResponse::newHttpResponse();
                 resp->setStatusCode(drogon::k429TooManyRequests);
-                callback(resp);
+                cb(resp);
                 return;
             }
             if (!ensureClient()) {
@@ -597,13 +658,47 @@ void Server::registerRoutes() {
                 body["error"] = "DBAL client is unavailable";
                 auto response = drogon::HttpResponse::newHttpJsonResponse(body);
                 response->setStatusCode(drogon::HttpStatusCode::k503ServiceUnavailable);
-                callback(response);
+                cb(response);
                 return;
             }
-            auto entity_handler = std::make_shared<handlers::EntityRouteHandler>(*dbal_client_);
-            entity_handler->handleEntity(req, std::move(callback), tenant, package, entity);
+            // JWT auth + ownership context
+            std::optional<handlers::AuthContext> auth_ctx;
+            auto entity_cfg = auth_config_.getEntityConfig(tenant, entity);
+            if (entity_cfg.require_auth) {
+                bool is_admin = false;
+                const char* admin_tok = std::getenv("DBAL_ADMIN_TOKEN");
+                if (admin_tok && std::strlen(admin_tok) > 0) {
+                    auto auth_hdr = req->getHeader("Authorization");
+                    if (auth_hdr == std::string("Bearer ") + admin_tok) is_admin = true;
+                }
+                if (!is_admin) {
+                    if (jwt_secret_.empty()) {
+                        ::Json::Value body; body["success"] = false;
+                        body["error"] = "Auth not configured (JWT_SECRET_KEY not set)";
+                        auto resp = drogon::HttpResponse::newHttpJsonResponse(body);
+                        resp->setStatusCode(drogon::k503ServiceUnavailable);
+                        cb(resp); return;
+                    }
+                    auto claims = dbal::security::JwtValidator::fromRequest(req, jwt_secret_);
+                    if (!claims) {
+                        ::Json::Value body; body["success"] = false;
+                        body["error"] = "Unauthorized";
+                        auto resp = drogon::HttpResponse::newHttpJsonResponse(body);
+                        resp->setStatusCode(drogon::k401Unauthorized);
+                        cb(resp); return;
+                    }
+                    handlers::AuthContext ctx;
+                    ctx.user_id   = claims->user_id;
+                    ctx.tenant_id = tenant;
+                    ctx.config    = entity_cfg;
+                    auth_ctx = std::move(ctx);
+                }
+            }
+            auto entity_handler = std::make_shared<handlers::EntityRouteHandler>(
+                *dbal_client_, wf_engine_.has_value() ? &*wf_engine_ : nullptr);
+            entity_handler->handleEntity(req, std::move(cb), tenant, package, entity, auth_ctx);
         },
-        {drogon::HttpMethod::Get, drogon::HttpMethod::Post}
+        {drogon::HttpMethod::Get, drogon::HttpMethod::Post, drogon::HttpMethod::Options}
     );
 
     drogon::app().registerHandler(
@@ -611,29 +706,78 @@ void Server::registerRoutes() {
         [this](const drogon::HttpRequestPtr& req, DrogonCallback&& callback,
                const std::string& tenant, const std::string& package,
                const std::string& entity, const std::string& id) {
+            // CORS preflight
+            const char* env_cors = std::getenv("DBAL_CORS_ORIGIN");
+            std::string cors_org = env_cors ? env_cors : auth_config_.cors_origin;
+            if (req->method() == drogon::HttpMethod::Options) {
+                auto resp = drogon::HttpResponse::newHttpResponse();
+                resp->setStatusCode(drogon::k204NoContent);
+                resp->addHeader("Access-Control-Allow-Origin", cors_org);
+                resp->addHeader("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
+                resp->addHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+                resp->addHeader("Access-Control-Max-Age", "3600");
+                callback(resp);
+                return;
+            }
+            auto cb = [orig = std::move(callback), cors_org](const drogon::HttpResponsePtr& resp) {
+                resp->addHeader("Access-Control-Allow-Origin", cors_org);
+                resp->addHeader("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
+                resp->addHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+                orig(resp);
+            };
             auto client_ip = req->getPeerAddr().toIp();
             auto& limiter = (req->method() == drogon::HttpMethod::Get) ? read_limiter : mutation_limiter;
             if (!limiter.allow(client_ip)) {
                 auto resp = drogon::HttpResponse::newHttpResponse();
                 resp->setStatusCode(drogon::k429TooManyRequests);
-                callback(resp);
-                return;
+                cb(resp); return;
             }
             if (!ensureClient()) {
-                ::Json::Value body;
-                body["success"] = false;
+                ::Json::Value body; body["success"] = false;
                 body["error"] = "DBAL client is unavailable";
                 auto response = drogon::HttpResponse::newHttpJsonResponse(body);
                 response->setStatusCode(drogon::HttpStatusCode::k503ServiceUnavailable);
-                callback(response);
-                return;
+                cb(response); return;
             }
-            auto entity_handler = std::make_shared<handlers::EntityRouteHandler>(*dbal_client_);
-            entity_handler->handleEntityWithId(req, std::move(callback), tenant, package, entity, id);
+            std::optional<handlers::AuthContext> auth_ctx;
+            auto entity_cfg = auth_config_.getEntityConfig(tenant, entity);
+            if (entity_cfg.require_auth) {
+                bool is_admin = false;
+                const char* admin_tok = std::getenv("DBAL_ADMIN_TOKEN");
+                if (admin_tok && std::strlen(admin_tok) > 0) {
+                    auto auth_hdr = req->getHeader("Authorization");
+                    if (auth_hdr == std::string("Bearer ") + admin_tok) is_admin = true;
+                }
+                if (!is_admin) {
+                    if (jwt_secret_.empty()) {
+                        ::Json::Value body; body["success"] = false;
+                        body["error"] = "Auth not configured (JWT_SECRET_KEY not set)";
+                        auto resp = drogon::HttpResponse::newHttpJsonResponse(body);
+                        resp->setStatusCode(drogon::k503ServiceUnavailable);
+                        cb(resp); return;
+                    }
+                    auto claims = dbal::security::JwtValidator::fromRequest(req, jwt_secret_);
+                    if (!claims) {
+                        ::Json::Value body; body["success"] = false;
+                        body["error"] = "Unauthorized";
+                        auto resp = drogon::HttpResponse::newHttpJsonResponse(body);
+                        resp->setStatusCode(drogon::k401Unauthorized);
+                        cb(resp); return;
+                    }
+                    handlers::AuthContext ctx;
+                    ctx.user_id   = claims->user_id;
+                    ctx.tenant_id = tenant;
+                    ctx.config    = entity_cfg;
+                    auth_ctx = std::move(ctx);
+                }
+            }
+            auto entity_handler = std::make_shared<handlers::EntityRouteHandler>(
+                *dbal_client_, wf_engine_.has_value() ? &*wf_engine_ : nullptr);
+            entity_handler->handleEntityWithId(req, std::move(cb), tenant, package, entity, id, auth_ctx);
         },
         {drogon::HttpMethod::Get, drogon::HttpMethod::Post,
          drogon::HttpMethod::Put, drogon::HttpMethod::Patch,
-         drogon::HttpMethod::Delete}
+         drogon::HttpMethod::Delete, drogon::HttpMethod::Options}
     );
 
     drogon::app().registerHandler(
@@ -641,27 +785,70 @@ void Server::registerRoutes() {
         [this](const drogon::HttpRequestPtr& req, DrogonCallback&& callback,
                const std::string& tenant, const std::string& package,
                const std::string& entity, const std::string& id, const std::string& action) {
+            // CORS preflight
+            const char* env_cors = std::getenv("DBAL_CORS_ORIGIN");
+            std::string cors_org = env_cors ? env_cors : auth_config_.cors_origin;
+            if (req->method() == drogon::HttpMethod::Options) {
+                auto resp = drogon::HttpResponse::newHttpResponse();
+                resp->setStatusCode(drogon::k204NoContent);
+                resp->addHeader("Access-Control-Allow-Origin", cors_org);
+                resp->addHeader("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
+                resp->addHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+                resp->addHeader("Access-Control-Max-Age", "3600");
+                callback(resp);
+                return;
+            }
+            auto cb = [orig = std::move(callback), cors_org](const drogon::HttpResponsePtr& resp) {
+                resp->addHeader("Access-Control-Allow-Origin", cors_org);
+                resp->addHeader("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
+                resp->addHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+                orig(resp);
+            };
             auto client_ip = req->getPeerAddr().toIp();
             auto& limiter = (req->method() == drogon::HttpMethod::Get) ? read_limiter : mutation_limiter;
             if (!limiter.allow(client_ip)) {
                 auto resp = drogon::HttpResponse::newHttpResponse();
                 resp->setStatusCode(drogon::k429TooManyRequests);
-                callback(resp);
-                return;
+                cb(resp); return;
             }
             if (!ensureClient()) {
-                ::Json::Value body;
-                body["success"] = false;
+                ::Json::Value body; body["success"] = false;
                 body["error"] = "DBAL client is unavailable";
                 auto response = drogon::HttpResponse::newHttpJsonResponse(body);
                 response->setStatusCode(drogon::HttpStatusCode::k503ServiceUnavailable);
-                callback(response);
-                return;
+                cb(response); return;
+            }
+            // Actions inherit the entity's require_auth but not ownership semantics
+            auto entity_cfg = auth_config_.getEntityConfig(tenant, entity);
+            if (entity_cfg.require_auth) {
+                bool is_admin = false;
+                const char* admin_tok = std::getenv("DBAL_ADMIN_TOKEN");
+                if (admin_tok && std::strlen(admin_tok) > 0) {
+                    auto auth_hdr = req->getHeader("Authorization");
+                    if (auth_hdr == std::string("Bearer ") + admin_tok) is_admin = true;
+                }
+                if (!is_admin) {
+                    if (jwt_secret_.empty()) {
+                        ::Json::Value body; body["success"] = false;
+                        body["error"] = "Auth not configured (JWT_SECRET_KEY not set)";
+                        auto resp = drogon::HttpResponse::newHttpJsonResponse(body);
+                        resp->setStatusCode(drogon::k503ServiceUnavailable);
+                        cb(resp); return;
+                    }
+                    auto claims = dbal::security::JwtValidator::fromRequest(req, jwt_secret_);
+                    if (!claims) {
+                        ::Json::Value body; body["success"] = false;
+                        body["error"] = "Unauthorized";
+                        auto resp = drogon::HttpResponse::newHttpJsonResponse(body);
+                        resp->setStatusCode(drogon::k401Unauthorized);
+                        cb(resp); return;
+                    }
+                }
             }
             auto entity_handler = std::make_shared<handlers::EntityRouteHandler>(*dbal_client_);
-            entity_handler->handleEntityAction(req, std::move(callback), tenant, package, entity, id, action);
+            entity_handler->handleEntityAction(req, std::move(cb), tenant, package, entity, id, action);
         },
-        {drogon::HttpMethod::Get, drogon::HttpMethod::Post}
+        {drogon::HttpMethod::Get, drogon::HttpMethod::Post, drogon::HttpMethod::Options}
     );
 
 }

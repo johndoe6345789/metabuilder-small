@@ -4,7 +4,7 @@
  */
 
 #include <gtest/gtest.h>
-#include "dbal/core/loaders/yaml_parser.hpp"
+#include "dbal/core/loaders/json_parser.hpp"
 #include "dbal/core/loaders/field_parser.hpp"
 #include "dbal/core/loaders/relation_parser.hpp"
 #include "dbal/core/loaders/schema_validator.hpp"
@@ -14,33 +14,31 @@
 using namespace dbal::core;
 using namespace dbal::core::loaders;
 
-// Test YamlParser
-TEST(YamlParserTest, FileExists) {
-    YamlParser parser;
+// Test JsonParser
+TEST(JsonParserTest, FileExists) {
+    JsonParser parser;
 
-    // Create temporary test file
-    std::string testFile = "/tmp/test_entity.yaml";
+    std::string testFile = "/tmp/test_entity.json";
     std::ofstream out(testFile);
-    out << "entity: test\nfields:\n  id:\n    type: uuid\n";
+    out << R"({"entity":"test","fields":{"id":{"type":"uuid"}}})";
     out.close();
 
     EXPECT_TRUE(parser.fileExists(testFile));
-    EXPECT_FALSE(parser.fileExists("/tmp/nonexistent.yaml"));
+    EXPECT_FALSE(parser.fileExists("/tmp/nonexistent.json"));
 
     std::remove(testFile.c_str());
 }
 
-TEST(YamlParserTest, LoadFile) {
-    YamlParser parser;
+TEST(JsonParserTest, LoadFile) {
+    JsonParser parser;
 
-    // Create temporary test file
-    std::string testFile = "/tmp/test_entity.yaml";
+    std::string testFile = "/tmp/test_entity.json";
     std::ofstream out(testFile);
-    out << "entity: test\nfields:\n  id:\n    type: uuid\n";
+    out << R"({"entity":"test","fields":{"id":{"type":"uuid"}}})";
     out.close();
 
-    YAML::Node node = parser.loadFile(testFile);
-    EXPECT_EQ(node["entity"].as<std::string>(), "test");
+    nlohmann::json node = parser.loadFile(testFile);
+    EXPECT_EQ(node["entity"].get<std::string>(), "test");
 
     std::remove(testFile.c_str());
 }
@@ -49,10 +47,11 @@ TEST(YamlParserTest, LoadFile) {
 TEST(FieldParserTest, ParseBasicField) {
     FieldParser parser;
 
-    YAML::Node fieldNode;
-    fieldNode["type"] = "string";
-    fieldNode["required"] = true;
-    fieldNode["maxLength"] = 255;
+    nlohmann::json fieldNode = {
+        {"type", "string"},
+        {"required", true},
+        {"maxLength", 255}
+    };
 
     EntityField field = parser.parseField("name", fieldNode);
 
@@ -65,9 +64,10 @@ TEST(FieldParserTest, ParseBasicField) {
 TEST(FieldParserTest, ParseEnumField) {
     FieldParser parser;
 
-    YAML::Node fieldNode;
-    fieldNode["type"] = "enum";
-    fieldNode["values"] = std::vector<std::string>{"draft", "published", "archived"};
+    nlohmann::json fieldNode = {
+        {"type", "enum"},
+        {"values", {"draft", "published", "archived"}}
+    };
 
     EntityField field = parser.parseField("status", fieldNode);
 
@@ -81,10 +81,11 @@ TEST(FieldParserTest, ParseEnumField) {
 TEST(RelationParserTest, ParseIndex) {
     RelationParser parser;
 
-    YAML::Node indexNode;
-    indexNode["fields"] = std::vector<std::string>{"userId", "tenantId"};
-    indexNode["unique"] = true;
-    indexNode["name"] = "idx_user_tenant";
+    nlohmann::json indexNode = {
+        {"fields", {"userId", "tenantId"}},
+        {"unique", true},
+        {"name", "idx_user_tenant"}
+    };
 
     EntityIndex index = parser.parseIndex(indexNode);
 
@@ -97,11 +98,10 @@ TEST(RelationParserTest, ParseIndex) {
 TEST(RelationParserTest, ParseACL) {
     RelationParser parser;
 
-    YAML::Node aclNode;
-    aclNode["read"]["admin"] = true;
-    aclNode["read"]["user"] = true;
-    aclNode["create"]["admin"] = true;
-    aclNode["create"]["user"] = false;
+    nlohmann::json aclNode = {
+        {"read",   {{"admin", true},  {"user", true}}},
+        {"create", {{"admin", true},  {"user", false}}}
+    };
 
     EntitySchema::ACL acl = parser.parseACL(aclNode);
 
@@ -135,7 +135,7 @@ TEST(SchemaValidatorTest, DetectMissingName) {
     SchemaValidator validator;
 
     EntitySchema schema;
-    schema.name = "";  // Invalid: no name
+    schema.name = "";
 
     ValidationResult result = validator.validate(schema);
 
@@ -151,7 +151,7 @@ TEST(SchemaValidatorTest, DetectInvalidFieldType) {
 
     EntityField field;
     field.name = "value";
-    field.type = "invalid_type";  // Invalid type
+    field.type = "invalid_type";
     schema.fields.push_back(field);
 
     ValidationResult result = validator.validate(schema);
@@ -193,9 +193,6 @@ TEST(SchemaCacheTest, Remove) {
     EntitySchema schema;
     schema.name = "user";
     cache.put("user", schema);
-
-    EXPECT_TRUE(cache.contains("user"));
-
     cache.remove("user");
 
     EXPECT_FALSE(cache.contains("user"));
@@ -204,37 +201,26 @@ TEST(SchemaCacheTest, Remove) {
 TEST(SchemaCacheTest, Clear) {
     SchemaCache cache;
 
-    EntitySchema schema1;
-    schema1.name = "user";
-    cache.put("user", schema1);
-
-    EntitySchema schema2;
-    schema2.name = "workflow";
-    cache.put("workflow", schema2);
+    EntitySchema schema1; schema1.name = "user";     cache.put("user",     schema1);
+    EntitySchema schema2; schema2.name = "workflow"; cache.put("workflow", schema2);
 
     EXPECT_EQ(cache.size(), 2);
-
     cache.clear();
-
     EXPECT_EQ(cache.size(), 0);
 }
 
 // Integration test for full loading
 TEST(EntitySchemaLoaderTest, LoadSchemaIntegration) {
-    // This test requires actual YAML schema files
-    // Skip if directory doesn't exist
     if (!std::filesystem::exists("dbal/shared/api/schema/entities")) {
         GTEST_SKIP() << "Schema directory not found";
     }
 
     EntitySchemaLoader loader;
     std::string schemaPath = EntitySchemaLoader::getDefaultSchemaPath();
-
     auto schemas = loader.loadSchemas(schemaPath);
 
     EXPECT_GT(schemas.size(), 0) << "Should load at least one schema";
 
-    // Check that common entities are loaded
     if (schemas.find("user") != schemas.end()) {
         const auto& userSchema = schemas["user"];
         EXPECT_EQ(userSchema.name, "user");

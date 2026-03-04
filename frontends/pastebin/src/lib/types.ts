@@ -35,6 +35,8 @@ export interface Namespace {
   name: string
   createdAt: number
   isDefault: boolean
+  userId?: string
+  tenantId?: string
 }
 
 export interface SnippetTemplate {

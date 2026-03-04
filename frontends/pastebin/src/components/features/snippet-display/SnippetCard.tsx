@@ -3,7 +3,9 @@ import { Card, Button, Dialog, DialogHeader, DialogTitle, DialogContent, DialogA
 import { Snippet, Namespace } from '@/lib/types'
 import { appConfig } from '@/lib/config'
 import { useTranslation } from '@/hooks/useTranslation'
-import { getAllNamespaces, moveSnippetToNamespace } from '@/lib/db'
+import { getAllNamespaces } from '@/lib/db'
+import { useAppDispatch } from '@/store/hooks'
+import { moveSnippet } from '@/store/slices/snippetsSlice'
 import { toast } from 'sonner'
 import { SnippetCardHeader } from './SnippetCardHeader'
 import { SnippetCodePreview } from './SnippetCodePreview'
@@ -34,6 +36,7 @@ export function SnippetCard({
   onToggleSelect
 }: SnippetCardProps) {
   const t = useTranslation()
+  const dispatch = useAppDispatch()
   const [isCopied, setIsCopied] = useState(false)
   const [namespaces, setNamespaces] = useState<Namespace[]>([])
   const [isMoving, setIsMoving] = useState(false)
@@ -113,7 +116,7 @@ export function SnippetCard({
 
     setIsMoving(true)
     try {
-      await moveSnippetToNamespace(snippet.id, targetNamespaceId)
+      await dispatch(moveSnippet({ snippetId: snippet.id, targetNamespaceId })).unwrap()
       const targetNamespace = namespaces.find(n => n.id === targetNamespaceId)
       toast.success(t.snippetCard.movedTo.replace('{name}', targetNamespace?.name || 'namespace'))
       if (onMove) {

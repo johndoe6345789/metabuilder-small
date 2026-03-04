@@ -5,7 +5,7 @@ import { useTranslation } from '@/hooks/useTranslation'
 import styles from './settings-card.module.scss'
 
 interface StorageInfoCardProps {
-  storageType?: 'indexeddb' | 'localstorage' | 'none'
+  storageType?: 'indexeddb' | 'localstorage' | 'none' | 'flask'
 }
 
 export function StorageInfoCard({ storageType }: StorageInfoCardProps) {
@@ -29,6 +29,10 @@ export function StorageInfoCard({ storageType }: StorageInfoCardProps) {
             ) : storageType === 'localstorage' ? (
               <>
                 <strong>localStorage</strong> {s.localStorageDesc}
+              </>
+            ) : storageType === 'flask' ? (
+              <>
+                <strong>Flask Backend</strong> {s.flaskDesc}
               </>
             ) : (
               <>{s.noneDesc}</>

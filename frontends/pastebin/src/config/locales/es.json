@@ -327,6 +327,7 @@
       "description": "Cómo se guardan tus datos",
       "indexedDBDesc": "se está utilizando para el almacenamiento. Proporciona mejor rendimiento y mayor capacidad en comparación con localStorage. Tus datos persisten localmente en tu navegador.",
       "localStorageDesc": "se está utilizando para el almacenamiento. IndexedDB no está disponible en tu navegador. Ten en cuenta que localStorage tiene un límite menor (típicamente 5-10MB).",
+      "flaskDesc": "se está utilizando para el almacenamiento. Tus fragmentos se guardan en un servidor Flask y son accesibles desde cualquier dispositivo.",
       "noneDesc": "No se detectó almacenamiento persistente. Tus datos se perderán cuando cierres el navegador."
     },
     "openAI": {

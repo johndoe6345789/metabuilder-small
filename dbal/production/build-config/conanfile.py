@@ -12,7 +12,6 @@ class DBALDaemonConan(ConanFile):
         self.requires("nlohmann_json/3.11.3")
         self.requires("drogon/1.9.7")
         self.requires("cpr/1.14.1")
-        self.requires("yaml-cpp/0.8.0")
         self.requires("inja/3.5.0")
         self.requires("mongo-cxx-driver/3.10.2")
         self.requires("boost/1.83.0", override=True)

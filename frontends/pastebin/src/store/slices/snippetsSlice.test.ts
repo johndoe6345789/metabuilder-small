@@ -251,7 +251,7 @@ describe('snippetsSlice', () => {
     describe('createSnippet', () => {
       it('should create a new snippet', async () => {
         const mockDb = require('@/lib/db')
-        mockDb.createSnippet.mockResolvedValue(undefined)
+        mockDb.createSnippet.mockImplementation(async (s: Snippet) => s)
 
         const newSnippetData = {
           title: 'New Snippet',
@@ -276,7 +276,7 @@ describe('snippetsSlice', () => {
       it('should add new snippet at the beginning', async () => {
         const mockDb = require('@/lib/db')
         mockDb.getAllSnippets.mockResolvedValue(mockSnippets)
-        mockDb.createSnippet.mockResolvedValue(undefined)
+        mockDb.createSnippet.mockImplementation(async (s: Snippet) => s)
 
         await store.dispatch(fetchAllSnippets())
         expect(store.getState().snippets.items.length).toBe(2)
@@ -382,8 +382,10 @@ describe('snippetsSlice', () => {
         )
 
         const state = store.getState().snippets
-        expect(state.items.length).toBe(1)
-        expect(state.items[0].id).toBe('2')
+        // moveSnippet.fulfilled updates namespaceId in-place; it does NOT remove the snippet
+        expect(state.items.length).toBe(2)
+        const moved = state.items.find(s => s.id === '1')
+        expect(moved?.namespaceId).toBe('ns2')
       })
     })
 

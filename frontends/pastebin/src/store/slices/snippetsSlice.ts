@@ -45,12 +45,11 @@ export const createSnippet = createAsyncThunk(
   async (snippetData: Omit<Snippet, 'id' | 'createdAt' | 'updatedAt'>) => {
     const newSnippet: Snippet = {
       ...snippetData,
-      id: Date.now().toString(),
+      id: crypto.randomUUID(),
       createdAt: Date.now(),
       updatedAt: Date.now(),
     }
-    await createSnippetDB(newSnippet)
-    return newSnippet
+    return await createSnippetDB(newSnippet)
   }
 )
 
@@ -141,27 +140,75 @@ const snippetsSlice = createSlice({
         state.loading = false
         state.error = action.error.message || 'Failed to fetch snippets'
       })
+      .addCase(createSnippet.pending, (state) => {
+        state.loading = true
+        state.error = null
+      })
       .addCase(createSnippet.fulfilled, (state, action) => {
+        state.loading = false
         state.items.unshift(action.payload)
       })
+      .addCase(createSnippet.rejected, (state, action) => {
+        state.loading = false
+        state.error = action.error.message || 'Operation failed'
+      })
+      .addCase(updateSnippet.pending, (state) => {
+        state.loading = true
+        state.error = null
+      })
       .addCase(updateSnippet.fulfilled, (state, action) => {
+        state.loading = false
         const index = state.items.findIndex(s => s.id === action.payload.id)
         if (index !== -1) {
           state.items[index] = action.payload
         }
       })
+      .addCase(updateSnippet.rejected, (state, action) => {
+        state.loading = false
+        state.error = action.error.message || 'Operation failed'
+      })
+      .addCase(deleteSnippet.pending, (state) => {
+        state.loading = true
+        state.error = null
+      })
       .addCase(deleteSnippet.fulfilled, (state, action) => {
+        state.loading = false
         state.items = state.items.filter(s => s.id !== action.payload)
       })
+      .addCase(deleteSnippet.rejected, (state, action) => {
+        state.loading = false
+        state.error = action.error.message || 'Operation failed'
+      })
+      .addCase(moveSnippet.pending, (state) => {
+        state.loading = true
+        state.error = null
+      })
       .addCase(moveSnippet.fulfilled, (state, action) => {
-        const { snippetId } = action.payload
-        state.items = state.items.filter(s => s.id !== snippetId)
+        state.loading = false
+        const { snippetId, targetNamespaceId } = action.payload
+        const item = state.items.find(s => s.id === snippetId)
+        if (item) item.namespaceId = targetNamespaceId
+      })
+      .addCase(moveSnippet.rejected, (state, action) => {
+        state.loading = false
+        state.error = action.error.message || 'Operation failed'
+      })
+      .addCase(bulkMoveSnippets.pending, (state) => {
+        state.loading = true
+        state.error = null
       })
       .addCase(bulkMoveSnippets.fulfilled, (state, action) => {
-        const { snippetIds } = action.payload
-        state.items = state.items.filter(s => !snippetIds.includes(s.id))
+        state.loading = false
+        const { snippetIds, targetNamespaceId } = action.payload
+        state.items.forEach(s => {
+          if (snippetIds.includes(s.id)) s.namespaceId = targetNamespaceId
+        })
         state.selectedIds = []
         state.selectionMode = false
+      })
+      .addCase(bulkMoveSnippets.rejected, (state, action) => {
+        state.loading = false
+        state.error = action.error.message || 'Operation failed'
       })
   },
 })

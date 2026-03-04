@@ -9,8 +9,7 @@
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
-#include <sstream>
-#include <yaml-cpp/yaml.h>
+#include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
 
 namespace fs = std::filesystem;
@@ -23,87 +22,34 @@ std::string SeedLoaderAction::getDefaultSeedDir() {
     const char* env = std::getenv("DBAL_SEED_DIR");
     if (env) return env;
 
-    // Check common relative paths
     std::vector<std::string> candidates = {
         "dbal/shared/seeds/database",
         "../shared/seeds/database",
-        "/app/dbal/shared/seeds/database",   // Docker
-        "/app/seeds/database",               // Docker alt
+        "/app/dbal/shared/seeds/database",
+        "/app/seeds/database",
     };
-
     for (const auto& path : candidates) {
-        if (fs::exists(path) && fs::is_directory(path)) {
-            return path;
-        }
+        if (fs::exists(path) && fs::is_directory(path)) return path;
     }
-
     return "dbal/shared/seeds/database";
 }
 
 std::vector<std::string> SeedLoaderAction::getSeedLoadOrder() {
-    // Dependency order: parent entities first, then dependent entities
     return {
-        "users.yaml",
-        "credentials.yaml",
-        "workspaces.yaml",
-        "installed_packages.yaml",
-        "projects.yaml",
-        "workflows.yaml",
-        "products.yaml",
-        "games.yaml",
-        "artists.yaml",
-        "videos.yaml",
-        "forum.yaml",
-        "notifications.yaml",
-        "audit_logs.yaml",
+        "users.json",
+        "credentials.json",
+        "workspaces.json",
+        "installed_packages.json",
+        "projects.json",
+        "workflows.json",
+        "products.json",
+        "games.json",
+        "artists.json",
+        "videos.json",
+        "forum.json",
+        "notifications.json",
+        "audit_logs.json",
     };
-}
-
-nlohmann::json SeedLoaderAction::yamlToJson(const YAML::Node& node) {
-    switch (node.Type()) {
-        case YAML::NodeType::Null:
-            return nullptr;
-        case YAML::NodeType::Scalar: {
-            // Try boolean
-            try {
-                if (node.Tag() == "!" || node.Scalar() == "true" || node.Scalar() == "false") {
-                    return node.as<bool>();
-                }
-            } catch (...) {}
-            // Try integer
-            try {
-                auto str = node.Scalar();
-                // Only try int parsing for pure numeric strings
-                if (!str.empty() && (str[0] == '-' || std::isdigit(static_cast<unsigned char>(str[0])))) {
-                    // Check if it's a float (contains '.')
-                    if (str.find('.') != std::string::npos) {
-                        return node.as<double>();
-                    }
-                    // Try int64 first for timestamps
-                    auto val = node.as<int64_t>();
-                    return val;
-                }
-            } catch (...) {}
-            // Default: string
-            return node.as<std::string>();
-        }
-        case YAML::NodeType::Sequence: {
-            auto arr = nlohmann::json::array();
-            for (const auto& item : node) {
-                arr.push_back(yamlToJson(item));
-            }
-            return arr;
-        }
-        case YAML::NodeType::Map: {
-            auto obj = nlohmann::json::object();
-            for (const auto& kv : node) {
-                obj[kv.first.as<std::string>()] = yamlToJson(kv.second);
-            }
-            return obj;
-        }
-        default:
-            return nullptr;
-    }
 }
 
 void SeedLoaderAction::applyCurrentTimestamps(nlohmann::json& record, const std::string& timestamp_field) {
@@ -113,81 +59,66 @@ void SeedLoaderAction::applyCurrentTimestamps(nlohmann::json& record, const std:
         std::chrono::system_clock::now().time_since_epoch()
     ).count();
 
-    // Replace the specified field if it's 0
-    if (record.contains(timestamp_field) && record[timestamp_field].is_number() && record[timestamp_field] == 0) {
+    if (record.contains(timestamp_field) && record[timestamp_field].is_number() && record[timestamp_field] == 0)
         record[timestamp_field] = now_ms;
-    }
 
-    // Also replace common timestamp fields if they're 0
     static const std::vector<std::string> common_ts_fields = {
         "createdAt", "updatedAt", "publishedAt", "installedAt", "timestamp", "lastSyncAt"
     };
-
     for (const auto& field : common_ts_fields) {
-        if (record.contains(field) && record[field].is_number() && record[field] == 0) {
+        if (record.contains(field) && record[field].is_number() && record[field] == 0)
             record[field] = now_ms;
-        }
     }
 }
 
 std::vector<SeedResult> SeedLoaderAction::loadSeedFile(Client& client, const std::string& file_path, bool force) {
     std::vector<SeedResult> results;
-
     try {
-        // Load all YAML documents from file (supports --- separators)
-        std::vector<YAML::Node> documents = YAML::LoadAllFromFile(file_path);
+        std::ifstream f(file_path);
+        if (!f.is_open()) throw std::runtime_error("Cannot open file: " + file_path);
+        nlohmann::json root = nlohmann::json::parse(f);
+
+        // Support both single-document JSON objects and arrays of documents
+        nlohmann::json documents;
+        if (root.is_array()) documents = root;
+        else if (root.is_object()) documents = nlohmann::json::array({root});
+        else return results;
 
         for (const auto& doc : documents) {
-            if (!doc.IsMap()) continue;
+            if (!doc.is_object()) continue;
 
             SeedResult result;
-
-            // Get entity name
             std::string entity_name;
-            if (doc["entity"]) {
-                entity_name = doc["entity"].as<std::string>();
-            } else if (doc["displayName"]) {
-                entity_name = doc["displayName"].as<std::string>();
-            } else if (doc["name"]) {
-                entity_name = doc["name"].as<std::string>();
-            } else {
-                continue;  // No entity name, skip document
-            }
+            if (doc.contains("entity"))      entity_name = doc["entity"].get<std::string>();
+            else if (doc.contains("displayName")) entity_name = doc["displayName"].get<std::string>();
+            else if (doc.contains("name"))   entity_name = doc["name"].get<std::string>();
+            else continue;
             result.entity = entity_name;
 
-            // Check metadata flags
             bool skip_if_exists = false;
             bool use_current_timestamp = false;
             std::string timestamp_field;
 
-            if (doc["metadata"]) {
-                auto meta = doc["metadata"];
-                if (meta["skipIfExists"]) {
-                    skip_if_exists = meta["skipIfExists"].as<bool>();
-                }
-                if (meta["useCurrentTimestamp"]) {
-                    use_current_timestamp = meta["useCurrentTimestamp"].as<bool>();
-                }
-                if (meta["timestampField"]) {
-                    timestamp_field = meta["timestampField"].as<std::string>();
-                }
+            if (doc.contains("metadata")) {
+                const auto& meta = doc["metadata"];
+                skip_if_exists        = meta.value("skipIfExists",        false);
+                use_current_timestamp = meta.value("useCurrentTimestamp", false);
+                timestamp_field       = meta.value("timestampField",      std::string(""));
             }
 
-            // skipIfExists check: try to list existing records
             if (skip_if_exists && !force) {
                 ListOptions opts;
                 opts.limit = 1;
                 auto existing = client.listEntities(entity_name, opts);
                 if (existing.isOk() && !existing.value().items.empty()) {
                     spdlog::info("Seed: skipping {} (records already exist)", entity_name);
-                    result.skipped = doc["records"] ? static_cast<int>(doc["records"].size()) : 0;
+                    result.skipped = doc.contains("records") ? static_cast<int>(doc["records"].size()) : 0;
                     results.push_back(result);
                     continue;
                 }
             }
 
-            // Process records
-            if (!doc["records"] || !doc["records"].IsSequence()) {
+            if (!doc.contains("records") || !doc["records"].is_array()) {
                 spdlog::warn("Seed: no records array in {} document of {}", entity_name, file_path);
                 results.push_back(result);
                 continue;
@@ -195,16 +126,10 @@ std::vector<SeedResult> SeedLoaderAction::loadSeedFile(Client& client, const std
 
             for (const auto& record_node : doc["records"]) {
                 try {
-                    nlohmann::json record = yamlToJson(record_node);
+                    nlohmann::json record = record_node;
+                    if (use_current_timestamp) applyCurrentTimestamps(record, timestamp_field);
 
-                    // Apply current timestamps if configured
-                    if (use_current_timestamp) {
-                        applyCurrentTimestamps(record, timestamp_field);
-                    }
-
-                    // Insert via generic entity CRUD
                     auto create_result = client.createEntity(entity_name, record);
-
                     if (create_result.isOk()) {
                         result.inserted++;
                     } else {
@@ -227,13 +152,13 @@ std::vector<SeedResult> SeedLoaderAction::loadSeedFile(Client& client, const std
             results.push_back(result);
         }
 
-    } catch (const YAML::Exception& e) {
+    } catch (const nlohmann::json::parse_error& e) {
         SeedResult err_result;
         err_result.entity = fs::path(file_path).filename().string();
-        err_result.errors.push_back(std::string("YAML parse error: ") + e.what());
+        err_result.errors.push_back(std::string("JSON parse error: ") + e.what());
         err_result.failed = 1;
         results.push_back(err_result);
-        spdlog::error("Seed: YAML error in {}: {}", file_path, e.what());
+        spdlog::error("Seed: JSON error in {}: {}", file_path, e.what());
     } catch (const std::exception& e) {
         SeedResult err_result;
         err_result.entity = fs::path(file_path).filename().string();
@@ -242,7 +167,6 @@ std::vector<SeedResult> SeedLoaderAction::loadSeedFile(Client& client, const std
         results.push_back(err_result);
         spdlog::error("Seed: error loading {}: {}", file_path, e.what());
     }
-
     return results;
 }
 
@@ -258,72 +182,42 @@ SeedSummary SeedLoaderAction::loadSeeds(Client& client, const std::string& seed_
 
     spdlog::info("Seed: loading from {}{}", seed_dir, force ? " (force mode)" : "");
 
-    // Get ordered file list
     auto load_order = getSeedLoadOrder();
-
-    // Track which files we've loaded (to avoid duplicates)
     std::set<std::string> loaded_files;
 
-    // Phase 1: Load files in dependency order
     for (const auto& filename : load_order) {
         fs::path file_path = fs::path(seed_dir) / filename;
-        if (!fs::exists(file_path)) {
-            spdlog::debug("Seed: skipping {} (not found)", filename);
-            continue;
-        }
-
+        if (!fs::exists(file_path)) { spdlog::debug("Seed: skipping {} (not found)", filename); continue; }
         loaded_files.insert(filename);
         auto file_results = loadSeedFile(client, file_path.string(), force);
         for (auto& r : file_results) {
             summary.total_inserted += r.inserted;
-            summary.total_skipped += r.skipped;
-            summary.total_failed += r.failed;
-            if (!r.errors.empty()) {
-                summary.success = false;
-                for (const auto& e : r.errors) {
-                    summary.errors.push_back(e);
-                }
-            }
+            summary.total_skipped  += r.skipped;
+            summary.total_failed   += r.failed;
+            if (!r.errors.empty()) { summary.success = false; for (const auto& e : r.errors) summary.errors.push_back(e); }
             summary.results.push_back(std::move(r));
         }
     }
 
-    // Phase 2: Load any remaining YAML files not in the ordered list
     for (const auto& entry : fs::directory_iterator(seed_dir)) {
-        if (!entry.is_regular_file()) continue;
-        if (entry.path().extension() != ".yaml" && entry.path().extension() != ".yml") continue;
-
+        if (!entry.is_regular_file() || entry.path().extension() != ".json") continue;
         std::string filename = entry.path().filename().string();
         if (loaded_files.count(filename)) continue;
-
-        // Skip package_permissions and smtp_credentials (system-only)
-        if (filename == "package_permissions.yaml" || filename == "smtp_credentials.yaml") continue;
-
+        if (filename == "package_permissions.json" || filename == "smtp_credentials.json") continue;
         loaded_files.insert(filename);
         auto file_results = loadSeedFile(client, entry.path().string(), force);
         for (auto& r : file_results) {
             summary.total_inserted += r.inserted;
-            summary.total_skipped += r.skipped;
-            summary.total_failed += r.failed;
-            if (!r.errors.empty()) {
-                for (const auto& e : r.errors) {
-                    summary.errors.push_back(e);
-                }
-            }
+            summary.total_skipped  += r.skipped;
+            summary.total_failed   += r.failed;
+            if (!r.errors.empty()) { for (const auto& e : r.errors) summary.errors.push_back(e); }
             summary.results.push_back(std::move(r));
         }
     }
 
-    // Only mark as failed if there were actual errors (skips are OK)
-    if (summary.total_failed > 0) {
-        summary.success = false;
-    } else {
-        summary.success = true;
-    }
-
+    summary.success = (summary.total_failed == 0);
     spdlog::info("Seed: complete — inserted={}, skipped={}, failed={}",
                  summary.total_inserted, summary.total_skipped, summary.total_failed);
-
     return summary;
 }
 

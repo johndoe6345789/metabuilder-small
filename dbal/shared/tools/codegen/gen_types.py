@@ -5,7 +5,7 @@ Reads YAML entity schemas and generates TypeScript and C++ type definitions
 """
 
 import argparse
-import yaml
+import json
 from pathlib import Path
 from typing import Dict, Any, List
 import sys
@@ -45,15 +45,18 @@ SKIP_TYPES = {'relationship'}
 def load_entity_schemas(schema_dir: Path) -> Dict[str, Any]:
     """Load all entity YAML files (including nested, multi-doc schemas)."""
     entities = {}
-    for yaml_file in (schema_dir / 'entities').rglob('*.yaml'):
-        with open(yaml_file) as f:
-            for entity_data in yaml.safe_load_all(f):
-                if not entity_data:
-                    continue
-                entity_name = entity_data.get('entity')
-                if not entity_name:
-                    continue
-                entities[entity_name] = entity_data
+    for json_file in (schema_dir / 'entities').rglob('*.json'):
+        with open(json_file) as f:
+            raw = json.load(f)
+        # A file may contain a single entity object or an array of entities
+        docs = raw if isinstance(raw, list) else [raw]
+        for entity_data in docs:
+            if not isinstance(entity_data, dict):
+                continue
+            entity_name = entity_data.get('entity')
+            if not entity_name:
+                continue
+            entities[entity_name] = entity_data
     return entities
 
 
@@ -81,7 +84,7 @@ def generate_typescript_interface(entity_name: str, entity_data: Dict[str, Any])
 
 def generate_typescript_types(entities: Dict[str, Any], output_file: Path):
     """Generate TypeScript types file"""
-    lines = ["// Generated types from YAML schemas - DO NOT EDIT MANUALLY\n"]
+    lines = ["// Generated types from JSON schemas - DO NOT EDIT MANUALLY\n"]
     
     for entity_name, entity_data in entities.items():
         lines.append(generate_typescript_interface(entity_name, entity_data))
@@ -112,7 +115,7 @@ def generate_cpp_struct(entity_name: str, entity_data: Dict[str, Any]) -> str:
 def generate_cpp_types(entities: Dict[str, Any], output_file: Path):
     """Generate C++ types header"""
     lines = [
-        "// Generated types from YAML schemas - DO NOT EDIT MANUALLY",
+        "// Generated types from JSON schemas - DO NOT EDIT MANUALLY",
         "#ifndef DBAL_GENERATED_TYPES_HPP",
         "#define DBAL_GENERATED_TYPES_HPP",
         "",

@@ -327,6 +327,7 @@
       "description": "How your data is stored",
       "indexedDBDesc": "is being used for storage. This provides better performance and larger storage capacity compared to localStorage. Your data persists locally in your browser.",
       "localStorageDesc": "is being used for storage. IndexedDB is not available in your browser. Note that localStorage has a smaller storage limit (typically 5-10MB).",
+      "flaskDesc": "is being used for storage. Your snippets are stored on a Flask backend server and are accessible from any device.",
       "noneDesc": "No persistent storage detected. Your data will be lost when you close the browser."
     },
     "openAI": {

@@ -3,12 +3,14 @@ import { RootState } from './index'
 
 export const selectSnippets = (state: RootState) => state.snippets.items
 export const selectSnippetsLoading = (state: RootState) => state.snippets.loading
+export const selectSnippetsError = (state: RootState) => state.snippets.error
 export const selectSelectionMode = (state: RootState) => state.snippets.selectionMode
 export const selectSelectedIds = (state: RootState) => state.snippets.selectedIds
 
 export const selectNamespaces = (state: RootState) => state.namespaces.items
 export const selectSelectedNamespaceId = (state: RootState) => state.namespaces.selectedId
 export const selectNamespacesLoading = (state: RootState) => state.namespaces.loading
+export const selectNamespacesError = (state: RootState) => state.namespaces.error
 
 export const selectSearchQuery = (state: RootState) => state.ui.searchQuery
 export const selectViewerOpen = (state: RootState) => state.ui.viewerOpen
@@ -40,3 +42,8 @@ export const selectSelectedSnippets = createSelector(
   [selectSnippets, selectSelectedIds],
   (snippets, selectedIds) => snippets.filter(s => selectedIds.includes(s.id))
 )
+
+export const selectCurrentUser = (state: RootState) => state.auth.user
+export const selectIsAuthenticated = (state: RootState) => state.auth.isAuthenticated
+export const selectAuthLoading = (state: RootState) => state.auth.loading
+export const selectAuthError = (state: RootState) => state.auth.error

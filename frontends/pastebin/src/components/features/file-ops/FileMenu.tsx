@@ -12,9 +12,10 @@ interface FileMenuProps {
   onDuplicate: () => void
   onDelete: () => void
   onCopyPath: () => void
+  onOpenInNewTab: () => void
 }
 
-export function FileMenu({ anchorRect, canDelete, onClose, onRename, onDuplicate, onDelete, onCopyPath }: FileMenuProps) {
+export function FileMenu({ anchorRect, canDelete, onClose, onRename, onDuplicate, onDelete, onCopyPath, onOpenInNewTab }: FileMenuProps) {
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -45,6 +46,15 @@ export function FileMenu({ anchorRect, canDelete, onClose, onRename, onDuplicate
       style={{ top, left: anchorRect.left }}
       role="menu"
     >
+      <button
+        className={styles.item}
+        role="menuitem"
+        onClick={() => { onOpenInNewTab(); onClose() }}
+      >
+        <MaterialIcon name="open_in_new" size={13} />
+        <span>Open in New Tab</span>
+      </button>
+
       <button
         className={styles.item}
         role="menuitem"

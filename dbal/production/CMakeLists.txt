@@ -7,7 +7,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Find Conan-provided packages
 find_package(Drogon REQUIRED)
 find_package(nlohmann_json REQUIRED)
-find_package(yaml-cpp REQUIRED)
 find_package(spdlog REQUIRED)
 find_package(fmt REQUIRED)
 find_package(SQLite3 REQUIRED)
@@ -54,7 +53,6 @@ target_include_directories(dbal_daemon PRIVATE
 target_link_libraries(dbal_daemon PRIVATE
     Drogon::Drogon
     nlohmann_json::nlohmann_json
-    yaml-cpp::yaml-cpp
     spdlog::spdlog
     fmt::fmt
     SQLite::SQLite3

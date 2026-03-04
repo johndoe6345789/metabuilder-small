@@ -3,16 +3,19 @@ import { type ThunkDispatch, type UnknownAction } from '@reduxjs/toolkit'
 import snippetsReducer from './slices/snippetsSlice'
 import namespacesReducer from './slices/namespacesSlice'
 import uiReducer from './slices/uiSlice'
+import authReducer from './slices/authSlice'
+import { setAuthToken } from '@/lib/authToken'
 
 const { store, persistor } = createPersistedStore({
   reducers: {
     snippets: snippetsReducer,
     namespaces: namespacesReducer,
     ui: uiReducer,
+    auth: authReducer,
   },
   persist: {
     key: 'pastebin',
-    whitelist: ['snippets', 'namespaces', 'ui'],
+    whitelist: ['snippets', 'namespaces', 'ui', 'auth'],
     throttle: 100,
   },
   devTools: {
@@ -21,6 +24,10 @@ const { store, persistor } = createPersistedStore({
     traceLimit: 25,
   },
 })
+
+// Keep the token bridge in sync with Redux auth state.
+// store.subscribe fires on REHYDRATE too, so this handles page-reload token restoration.
+store.subscribe(() => setAuthToken(store.getState().auth.token))
 
 export { store, persistor }
 

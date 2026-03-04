@@ -74,7 +74,7 @@ export function useSnippetManager(templates: SnippetTemplate[]) {
   }, [dispatch, selectedNamespaceId])
 
   const handleEditSnippet = useCallback((snippet: Snippet) => {
-    router.push(`/snippet/${snippet.id}/edit`)
+    router.push(`/snippet/${snippet.id}`)
   }, [router])
 
   const handleDeleteSnippet = useCallback(async (id: string) => {
@@ -96,11 +96,9 @@ export function useSnippetManager(templates: SnippetTemplate[]) {
     router.push(`/snippet/${snippet.id}`)
   }, [router])
 
-  const handleMoveSnippet = useCallback(async () => {
-    if (selectedNamespaceId) {
-      dispatch(fetchSnippetsByNamespace(selectedNamespaceId))
-    }
-  }, [dispatch, selectedNamespaceId])
+  const handleMoveSnippet = useCallback(() => {
+    // SnippetCard dispatches moveSnippet internally via Redux; this is a post-move hook
+  }, [])
 
   const handleCreateNew = useCallback(() => {
     router.push('/snippet/new')

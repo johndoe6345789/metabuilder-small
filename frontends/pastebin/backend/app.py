@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, g
 from flask_cors import CORS
 from datetime import datetime
 import sqlite3
@@ -9,7 +9,14 @@ import uuid
 import time
 import select
 import base64
+import secrets
+import smtplib
+from email.message import EmailMessage
+from functools import wraps
+import jwt
+from werkzeug.security import generate_password_hash, check_password_hash
 import docker as _docker_lib
+import requests as _http
 
 app = Flask(__name__)
 
@@ -30,6 +37,52 @@ else:
 
 DATABASE_PATH = os.environ.get('DATABASE_PATH', '/app/data/snippets.db')
 os.makedirs(os.path.dirname(DATABASE_PATH), exist_ok=True)
+
+JWT_SECRET   = os.environ.get('JWT_SECRET_KEY', 'changeme-in-production')
+SMTP_HOST    = os.environ.get('SMTP_HOST', 'smtp-relay')
+SMTP_PORT    = int(os.environ.get('SMTP_PORT', '2525'))
+MAIL_FROM    = os.environ.get('MAIL_FROM', 'noreply@codesnippet.local')
+APP_BASE_URL = os.environ.get('APP_BASE_URL', 'http://localhost/pastebin')
+
+DBAL_BASE_URL    = os.environ.get('DBAL_BASE_URL', '').rstrip('/')
+DBAL_TENANT_ID   = os.environ.get('DBAL_TENANT_ID', 'pastebin')
+DBAL_ADMIN_TOKEN = os.environ.get('DBAL_ADMIN_TOKEN', '')
+# Seed data (Default + Examples namespaces, 5 snippets) is now handled by the
+# DBAL C++ workflow engine via event_config.yaml → on_user_created.json.
+
+
+def dbal_request(method: str, path: str, json_body=None):
+    """Call DBAL REST API with admin token. Non-fatal on any error."""
+    if not DBAL_BASE_URL:
+        return None
+    headers = {'Content-Type': 'application/json'}
+    if DBAL_ADMIN_TOKEN:
+        headers['Authorization'] = f'Bearer {DBAL_ADMIN_TOKEN}'
+    try:
+        r = _http.request(method, f'{DBAL_BASE_URL}{path}',
+                          json=json_body, headers=headers, timeout=5)
+        return r
+    except Exception as exc:
+        print(f'[dbal] {method} {path} — {exc}', flush=True)
+        return None
+
+
+def auth_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        header = request.headers.get('Authorization', '')
+        if not header.startswith('Bearer '):
+            return jsonify({'error': 'Unauthorized'}), 401
+        token = header[7:]
+        try:
+            payload = jwt.decode(token, JWT_SECRET, algorithms=['HS256'])
+            g.user_id = payload['sub']
+        except jwt.ExpiredSignatureError:
+            return jsonify({'error': 'Token expired'}), 401
+        except jwt.InvalidTokenError:
+            return jsonify({'error': 'Invalid token'}), 401
+        return f(*args, **kwargs)
+    return decorated
 
 # ---------------------------------------------------------------------------
 # Docker-based multi-language runner
@@ -464,337 +517,585 @@ def get_db():
     conn.row_factory = sqlite3.Row
     return conn
 
+
+def _dbal_snippet(data: dict) -> dict:
+    """Normalize a DBAL Snippet record to match the frontend JSON contract."""
+    if data.get('inputParameters') and isinstance(data['inputParameters'], str):
+        try:
+            data['inputParameters'] = json.loads(data['inputParameters'])
+        except Exception:
+            data['inputParameters'] = None
+    if data.get('files') and isinstance(data['files'], str):
+        try:
+            data['files'] = json.loads(data['files'])
+        except Exception:
+            data['files'] = None
+    data['hasPreview'] = bool(data.get('hasPreview', False))
+    data['isTemplate'] = bool(data.get('isTemplate', False))
+    return data
+
+
+def _snippet_body(data: dict, user_id: str, include_id: bool = True, include_created: bool = True) -> dict:
+    """Build a DBAL Snippet body from request data."""
+    body = {
+        'title':           data['title'],
+        'description':     data.get('description', ''),
+        'code':            data['code'],
+        'language':        data['language'],
+        'category':        data.get('category', 'general'),
+        'namespaceId':     data.get('namespaceId'),
+        'hasPreview':      bool(data.get('hasPreview')),
+        'functionName':    data.get('functionName'),
+        'inputParameters': json.dumps(data['inputParameters']) if data.get('inputParameters') else None,
+        'files':           json.dumps(data['files']) if data.get('files') is not None else None,
+        'entryPoint':      data.get('entryPoint'),
+        'isTemplate':      bool(data.get('isTemplate')),
+        'updatedAt':       _ts(data.get('updatedAt')),
+        'userId':          user_id,
+        'tenantId':        DBAL_TENANT_ID,
+    }
+    if include_id:
+        body['id'] = data['id']
+    if include_created:
+        body['createdAt'] = _ts(data.get('createdAt'))
+    return body
+
+
+def _dbal_all_pages(path_with_params: str, limit: int = 500) -> list:
+    """Fetch all pages from a DBAL list endpoint, handling pagination."""
+    results = []
+    page = 1
+    sep = '&' if '?' in path_with_params else '?'
+    while True:
+        r = dbal_request('GET', f'{path_with_params}{sep}limit={limit}&page={page}')
+        if not r or not r.ok:
+            break
+        payload = r.json().get('data', {})
+        batch = payload.get('data', [])
+        results.extend(batch)
+        if len(results) >= payload.get('total', 0):
+            break
+        page += 1
+    return results
+
+
+def _ts(value):
+    """Coerce createdAt/updatedAt to integer milliseconds."""
+    if isinstance(value, str):
+        return int(datetime.fromisoformat(value.replace('Z', '+00:00')).timestamp() * 1000)
+    return value
+
+
 def check_and_migrate_schema():
-    """Check if schema needs migration and perform it if necessary"""
     conn = get_db()
     cursor = conn.cursor()
-    
-    cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='namespaces'")
-    namespaces_exists = cursor.fetchone() is not None
-    
-    cursor.execute("PRAGMA table_info(snippets)")
-    columns = [row[1] for row in cursor.fetchall()]
-    has_namespace_id = 'namespaceId' in columns
-    
-    if not namespaces_exists or not has_namespace_id:
-        print("Schema migration needed - recreating tables with namespace support...")
-        
-        cursor.execute("DROP TABLE IF EXISTS snippets")
-        cursor.execute("DROP TABLE IF EXISTS namespaces")
-        
+
+    # Auth tables — safe to CREATE IF NOT EXISTS
+    cursor.executescript('''
+        CREATE TABLE IF NOT EXISTS user_auth (
+            id TEXT PRIMARY KEY,
+            username TEXT UNIQUE NOT NULL,
+            password_hash TEXT NOT NULL
+        );
+        CREATE TABLE IF NOT EXISTS user_settings (
+            user_id TEXT PRIMARY KEY,
+            settings_json TEXT NOT NULL DEFAULT '{}',
+            updated_at INTEGER
+        );
+        CREATE TABLE IF NOT EXISTS password_reset_tokens (
+            token TEXT PRIMARY KEY,
+            user_id TEXT NOT NULL,
+            expires_at INTEGER NOT NULL
+        );
+    ''')
+
+    # Migrate legacy `users` table → `user_auth` if it still exists
+    cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='users'")
+    if cursor.fetchone():
+        print('[schema] Migrating users → user_auth…', flush=True)
         cursor.execute('''
-            CREATE TABLE namespaces (
-                id TEXT PRIMARY KEY,
-                name TEXT NOT NULL,
-                createdAt INTEGER NOT NULL,
-                isDefault INTEGER DEFAULT 0
-            )
+            INSERT OR IGNORE INTO user_auth (id, username, password_hash)
+            SELECT id, username, password_hash FROM users
         ''')
-        
-        cursor.execute('''
-            CREATE TABLE snippets (
-                id TEXT PRIMARY KEY,
-                title TEXT NOT NULL,
-                description TEXT,
-                code TEXT NOT NULL,
-                language TEXT NOT NULL,
-                category TEXT NOT NULL,
-                namespaceId TEXT,
-                hasPreview INTEGER DEFAULT 0,
-                functionName TEXT,
-                inputParameters TEXT,
-                createdAt INTEGER NOT NULL,
-                updatedAt INTEGER NOT NULL,
-                FOREIGN KEY (namespaceId) REFERENCES namespaces(id)
-            )
-        ''')
-        
-        cursor.execute('''
-            INSERT INTO namespaces (id, name, createdAt, isDefault)
-            VALUES ('default', 'Default', ?, 1)
-        ''', (int(datetime.utcnow().timestamp() * 1000),))
-        
+        cursor.execute('DROP TABLE users')
         conn.commit()
-        print("Schema migration completed")
-    
+        print('[schema] Migration complete.', flush=True)
+
+    # Drop legacy snippets/namespaces SQLite tables — now stored in DBAL
+    cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='snippets'")
+    if cursor.fetchone():
+        cursor.execute("DROP TABLE snippets")
+        print('[schema] Dropped legacy snippets table (now in DBAL)', flush=True)
+    cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='namespaces'")
+    if cursor.fetchone():
+        cursor.execute("DROP TABLE namespaces")
+        print('[schema] Dropped legacy namespaces table (now in DBAL)', flush=True)
+
+    conn.commit()
     conn.close()
+
 
 def init_db():
     conn = get_db()
     cursor = conn.cursor()
-    
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS namespaces (
+    cursor.executescript('''
+        CREATE TABLE IF NOT EXISTS user_auth (
             id TEXT PRIMARY KEY,
-            name TEXT NOT NULL,
-            createdAt INTEGER NOT NULL,
-            isDefault INTEGER DEFAULT 0
-        )
+            username TEXT UNIQUE NOT NULL,
+            password_hash TEXT NOT NULL
+        );
+        CREATE TABLE IF NOT EXISTS user_settings (
+            user_id TEXT PRIMARY KEY,
+            settings_json TEXT NOT NULL DEFAULT '{}',
+            updated_at INTEGER
+        );
+        CREATE TABLE IF NOT EXISTS password_reset_tokens (
+            token TEXT PRIMARY KEY,
+            user_id TEXT NOT NULL,
+            expires_at INTEGER NOT NULL
+        );
     ''')
-    
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS snippets (
-            id TEXT PRIMARY KEY,
-            title TEXT NOT NULL,
-            description TEXT,
-            code TEXT NOT NULL,
-            language TEXT NOT NULL,
-            category TEXT NOT NULL,
-            namespaceId TEXT,
-            hasPreview INTEGER DEFAULT 0,
-            functionName TEXT,
-            inputParameters TEXT,
-            createdAt INTEGER NOT NULL,
-            updatedAt INTEGER NOT NULL,
-            FOREIGN KEY (namespaceId) REFERENCES namespaces(id)
-        )
-    ''')
-    
-    cursor.execute("SELECT COUNT(*) FROM namespaces WHERE isDefault = 1")
-    default_count = cursor.fetchone()[0]
-    
-    if default_count == 0:
-        cursor.execute('''
-            INSERT INTO namespaces (id, name, createdAt, isDefault)
-            VALUES ('default', 'Default', ?, 1)
-        ''', (int(datetime.utcnow().timestamp() * 1000),))
-    
     conn.commit()
     conn.close()
-    
     check_and_migrate_schema()
+
+
+# ---------------------------------------------------------------------------
+# Public endpoints
+# ---------------------------------------------------------------------------
 
 @app.route('/health', methods=['GET'])
 def health():
     return jsonify({'status': 'healthy', 'timestamp': datetime.utcnow().isoformat()})
 
-@app.route('/api/snippets', methods=['GET'])
-def get_snippets():
+
+# ---------------------------------------------------------------------------
+# Auth endpoints
+# ---------------------------------------------------------------------------
+
+@app.route('/api/auth/register', methods=['POST'])
+def register():
+    data = request.json or {}
+    username = data.get('username', '').strip()
+    password = data.get('password', '')
+    if not username or not password:
+        return jsonify({'error': 'Username and password required'}), 400
+    if len(username) < 3:
+        return jsonify({'error': 'Username must be at least 3 characters'}), 400
+    if len(password) < 6:
+        return jsonify({'error': 'Password must be at least 6 characters'}), 400
+
+    user_id = str(uuid.uuid4())
+    now = int(time.time() * 1000)
+    conn = get_db()
+    cursor = conn.cursor()
     try:
+        cursor.execute(
+            'INSERT INTO user_auth (id, username, password_hash) VALUES (?, ?, ?)',
+            (user_id, username, generate_password_hash(password))
+        )
+        conn.commit()
+    except sqlite3.IntegrityError:
+        conn.close()
+        return jsonify({'error': 'Username already taken'}), 409
+    conn.close()
+
+    # Persist user profile to DBAL (non-fatal — auth secrets stay local)
+    dbal_request('POST', f'/{DBAL_TENANT_ID}/core/User', {
+        'id': user_id,
+        'username': username,
+        'email': f'{username}@codesnippet.local',
+        'tenantId': DBAL_TENANT_ID,
+    })
+
+    # Namespaces + seed snippets are created by the DBAL workflow engine
+    # (pastebin.User.created event → on_user_created.json workflow)
+
+    token = jwt.encode(
+        {'sub': user_id, 'exp': int(time.time()) + 7 * 86400},
+        JWT_SECRET, algorithm='HS256'
+    )
+    return jsonify({'token': token, 'user': {'id': user_id, 'username': username}}), 201
+
+
+@app.route('/api/auth/login', methods=['POST'])
+def login():
+    data = request.json or {}
+    username = data.get('username', '').strip()
+    password = data.get('password', '')
+    if not username or not password:
+        return jsonify({'error': 'Username and password required'}), 400
+
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute('SELECT id, username, password_hash FROM user_auth WHERE username = ?', (username,))
+    user = cursor.fetchone()
+    conn.close()
+
+    if not user or not check_password_hash(user['password_hash'], password):
+        return jsonify({'error': 'Invalid credentials'}), 401
+
+    token = jwt.encode(
+        {'sub': user['id'], 'exp': int(time.time()) + 7 * 86400},
+        JWT_SECRET, algorithm='HS256'
+    )
+    return jsonify({'token': token, 'user': {'id': user['id'], 'username': user['username']}})
+
+
+@app.route('/api/auth/me', methods=['GET'])
+@auth_required
+def get_me():
+    # Try DBAL first for the full user profile
+    dbal_resp = dbal_request('GET', f'/{DBAL_TENANT_ID}/core/User/{g.user_id}')
+    if dbal_resp and dbal_resp.status_code == 200:
+        try:
+            profile = dbal_resp.json()
+            return jsonify({'id': profile.get('id', g.user_id), 'username': profile.get('username', '')})
+        except Exception:
+            pass
+
+    # Fall back to local auth table
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute('SELECT id, username FROM user_auth WHERE id = ?', (g.user_id,))
+    user = cursor.fetchone()
+    conn.close()
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+    return jsonify({'id': user['id'], 'username': user['username']})
+
+
+@app.route('/api/auth/settings', methods=['GET'])
+@auth_required
+def get_user_settings():
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute('SELECT settings_json FROM user_settings WHERE user_id = ?', (g.user_id,))
+    row = cursor.fetchone()
+    conn.close()
+    return jsonify(json.loads(row['settings_json']) if row else {})
+
+
+@app.route('/api/auth/settings', methods=['PUT'])
+@auth_required
+def update_user_settings():
+    data = request.json or {}
+    now = int(time.time() * 1000)
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute(
+        'INSERT INTO user_settings (user_id, settings_json, updated_at) VALUES (?, ?, ?) '
+        'ON CONFLICT(user_id) DO UPDATE SET settings_json=excluded.settings_json, updated_at=excluded.updated_at',
+        (g.user_id, json.dumps(data), now)
+    )
+    conn.commit()
+    conn.close()
+    return jsonify(data)
+
+
+@app.route('/api/auth/forgot-password', methods=['POST'])
+def forgot_password():
+    data = request.json or {}
+    username = data.get('username', '').strip()
+    email    = data.get('email', '').strip()
+
+    if username and email:
         conn = get_db()
         cursor = conn.cursor()
-        cursor.execute('SELECT * FROM snippets ORDER BY updatedAt DESC')
-        rows = cursor.fetchall()
+        cursor.execute('SELECT id FROM user_auth WHERE username = ?', (username,))
+        user = cursor.fetchone()
+        if user:
+            cursor.execute('DELETE FROM password_reset_tokens WHERE user_id = ?', (user['id'],))
+            token = secrets.token_urlsafe(32)
+            cursor.execute(
+                'INSERT INTO password_reset_tokens (token, user_id, expires_at) VALUES (?, ?, ?)',
+                (token, user['id'], int(time.time()) + 3600)
+            )
+            conn.commit()
+            reset_url = f'{APP_BASE_URL}/reset-password?token={token}'
+            try:
+                msg = EmailMessage()
+                msg['From']    = MAIL_FROM
+                msg['To']      = email
+                msg['Subject'] = 'Password Reset — CodeSnippet'
+                msg.set_content(
+                    f'Hi {username},\n\n'
+                    f'Reset your password here:\n\n{reset_url}\n\n'
+                    f'This link expires in 1 hour. Ignore this email if you did not request it.'
+                )
+                with smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=10) as s:
+                    s.send_message(msg)
+            except Exception as e:
+                print(f'[forgot_password] SMTP error: {e}', flush=True)
         conn.close()
-        
-        snippets = []
-        for row in rows:
-            snippet = dict(row)
-            if snippet.get('inputParameters'):
-                try:
-                    snippet['inputParameters'] = json.loads(snippet['inputParameters'])
-                except:
-                    snippet['inputParameters'] = None
-            snippet['hasPreview'] = bool(snippet.get('hasPreview', 0))
-            snippets.append(snippet)
-        
-        return jsonify(snippets)
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+    return jsonify({'ok': True})  # always 200 — don't leak usernames
+
+
+@app.route('/api/auth/reset-password', methods=['POST'])
+def reset_password():
+    data = request.json or {}
+    token        = data.get('token', '').strip()
+    new_password = data.get('new_password', '')
+    if not token or not new_password:
+        return jsonify({'error': 'token and new_password required'}), 400
+    if len(new_password) < 6:
+        return jsonify({'error': 'Password must be at least 6 characters'}), 400
+
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute('SELECT user_id, expires_at FROM password_reset_tokens WHERE token = ?', (token,))
+    row = cursor.fetchone()
+    if not row:
+        conn.close()
+        return jsonify({'error': 'Invalid or expired token'}), 400
+    if int(time.time()) > row['expires_at']:
+        cursor.execute('DELETE FROM password_reset_tokens WHERE token = ?', (token,))
+        conn.commit()
+        conn.close()
+        return jsonify({'error': 'Token has expired'}), 400
+
+    cursor.execute('UPDATE user_auth SET password_hash = ? WHERE id = ?',
+                   (generate_password_hash(new_password), row['user_id']))
+    cursor.execute('DELETE FROM password_reset_tokens WHERE token = ?', (token,))
+    conn.commit()
+    conn.close()
+    return jsonify({'ok': True})
+
+
+# ---------------------------------------------------------------------------
+# Snippet endpoints (auth required, user-scoped)
+# ---------------------------------------------------------------------------
+
+def _dbal_path(entity: str) -> str:
+    return f'/{DBAL_TENANT_ID}/pastebin/{entity}'
+
+
+# ---------------------------------------------------------------------------
+# Snippet endpoints — backed by DBAL
+# ---------------------------------------------------------------------------
+
+@app.route('/api/snippets', methods=['GET'])
+@auth_required
+def get_snippets():
+    items = _dbal_all_pages(f'{_dbal_path("Snippet")}?filter.userId={g.user_id}&sort.updatedAt=desc')
+    return jsonify([_dbal_snippet(s) for s in items])
+
 
 @app.route('/api/snippets/<snippet_id>', methods=['GET'])
+@auth_required
 def get_snippet(snippet_id):
-    try:
-        conn = get_db()
-        cursor = conn.cursor()
-        cursor.execute('SELECT * FROM snippets WHERE id = ?', (snippet_id,))
-        row = cursor.fetchone()
-        conn.close()
-        
-        if not row:
-            return jsonify({'error': 'Snippet not found'}), 404
-        
-        snippet = dict(row)
-        if snippet.get('inputParameters'):
-            try:
-                snippet['inputParameters'] = json.loads(snippet['inputParameters'])
-            except:
-                snippet['inputParameters'] = None
-        snippet['hasPreview'] = bool(snippet.get('hasPreview', 0))
-        
-        return jsonify(snippet)
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+    r = dbal_request('GET', f'{_dbal_path("Snippet")}/{snippet_id}')
+    if not r:
+        return jsonify({'error': 'Snippet not found'}), 404
+    if r.status_code == 404:
+        return jsonify({'error': 'Snippet not found'}), 404
+    if not r.ok:
+        return jsonify({'error': 'Failed to fetch snippet'}), 500
+    snippet = r.json().get('data', {})
+    if snippet.get('userId') != g.user_id:
+        return jsonify({'error': 'Snippet not found'}), 404
+    return jsonify(_dbal_snippet(snippet))
+
 
 @app.route('/api/snippets', methods=['POST'])
+@auth_required
 def create_snippet():
-    try:
-        data = request.json
-        conn = get_db()
-        cursor = conn.cursor()
-        
-        input_params_json = json.dumps(data.get('inputParameters')) if data.get('inputParameters') else None
-        
-        created_at = data.get('createdAt')
-        if isinstance(created_at, str):
-            created_at = int(datetime.fromisoformat(created_at.replace('Z', '+00:00')).timestamp() * 1000)
-        
-        updated_at = data.get('updatedAt')
-        if isinstance(updated_at, str):
-            updated_at = int(datetime.fromisoformat(updated_at.replace('Z', '+00:00')).timestamp() * 1000)
-        
-        cursor.execute('''
-            INSERT INTO snippets (id, title, description, code, language, category, namespaceId, hasPreview, functionName, inputParameters, createdAt, updatedAt)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ''', (
-            data['id'],
-            data['title'],
-            data.get('description', ''),
-            data['code'],
-            data['language'],
-            data.get('category', 'general'),
-            data.get('namespaceId'),
-            1 if data.get('hasPreview') else 0,
-            data.get('functionName'),
-            input_params_json,
-            created_at,
-            updated_at
-        ))
-        
-        conn.commit()
-        conn.close()
-        
-        return jsonify(data), 201
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+    data = request.json
+    required = ['title', 'code', 'language', 'category']
+    if not data or any(k not in data or not data[k] for k in required):
+        return jsonify({'error': 'title, code, language, and category are required'}), 400
+    r = dbal_request('POST', _dbal_path('Snippet'), _snippet_body(data, g.user_id))
+    if not r or not r.ok:
+        return jsonify({'error': 'Failed to create snippet'}), 500
+    result = r.json().get('data')
+    if not result:
+        return jsonify({'error': 'Failed to create snippet'}), 500
+    return jsonify(_dbal_snippet(result)), 201
+
 
 @app.route('/api/snippets/<snippet_id>', methods=['PUT'])
+@auth_required
 def update_snippet(snippet_id):
-    try:
-        data = request.json
-        conn = get_db()
-        cursor = conn.cursor()
-        
-        input_params_json = json.dumps(data.get('inputParameters')) if data.get('inputParameters') else None
-        
-        updated_at = data.get('updatedAt')
-        if isinstance(updated_at, str):
-            updated_at = int(datetime.fromisoformat(updated_at.replace('Z', '+00:00')).timestamp() * 1000)
-        
-        cursor.execute('''
-            UPDATE snippets
-            SET title = ?, description = ?, code = ?, language = ?, category = ?, namespaceId = ?, hasPreview = ?, functionName = ?, inputParameters = ?, updatedAt = ?
-            WHERE id = ?
-        ''', (
-            data['title'],
-            data.get('description', ''),
-            data['code'],
-            data['language'],
-            data.get('category', 'general'),
-            data.get('namespaceId'),
-            1 if data.get('hasPreview') else 0,
-            data.get('functionName'),
-            input_params_json,
-            updated_at,
-            snippet_id
-        ))
-        
-        conn.commit()
-        conn.close()
-        
-        if cursor.rowcount == 0:
-            return jsonify({'error': 'Snippet not found'}), 404
-        
-        return jsonify(data)
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+    data = request.json
+    required = ['title', 'code', 'language']
+    if not data or any(k not in data or not data[k] for k in required):
+        return jsonify({'error': 'title, code, and language are required'}), 400
+    # Ownership check
+    check = dbal_request('GET', f'{_dbal_path("Snippet")}/{snippet_id}')
+    if not check or not check.ok:
+        return jsonify({'error': 'Snippet not found'}), 404
+    if check.json().get('data', {}).get('userId') != g.user_id:
+        return jsonify({'error': 'Snippet not found'}), 404
+    body = _snippet_body(data, g.user_id, include_id=False, include_created=False)
+    r = dbal_request('PUT', f'{_dbal_path("Snippet")}/{snippet_id}', body)
+    if not r or not r.ok:
+        return jsonify({'error': 'Failed to update snippet'}), 500
+    return jsonify(_dbal_snippet(r.json().get('data', data)))
+
 
 @app.route('/api/snippets/<snippet_id>', methods=['DELETE'])
+@auth_required
 def delete_snippet(snippet_id):
-    try:
-        conn = get_db()
-        cursor = conn.cursor()
-        cursor.execute('DELETE FROM snippets WHERE id = ?', (snippet_id,))
-        conn.commit()
-        conn.close()
-        
-        if cursor.rowcount == 0:
-            return jsonify({'error': 'Snippet not found'}), 404
-        
-        return jsonify({'success': True})
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+    check = dbal_request('GET', f'{_dbal_path("Snippet")}/{snippet_id}')
+    if not check or not check.ok:
+        return jsonify({'error': 'Snippet not found'}), 404
+    if check.json().get('data', {}).get('userId') != g.user_id:
+        return jsonify({'error': 'Snippet not found'}), 404
+    r = dbal_request('DELETE', f'{_dbal_path("Snippet")}/{snippet_id}')
+    if not r or not r.ok:
+        return jsonify({'error': 'Failed to delete snippet'}), 500
+    return jsonify({'success': True})
+
+
+@app.route('/api/snippets/bulk-move', methods=['POST'])
+@auth_required
+def bulk_move_snippets():
+    data = request.json or {}
+    snippet_ids = data.get('snippetIds', [])
+    target_ns   = data.get('targetNamespaceId')
+    if not snippet_ids or not target_ns:
+        return jsonify({'error': 'snippetIds and targetNamespaceId required'}), 400
+
+    # Verify caller owns the target namespace
+    ns_check = dbal_request('GET', f'{_dbal_path("Namespace")}/{target_ns}')
+    if not ns_check or not ns_check.ok or ns_check.json().get('data', {}).get('userId') != g.user_id:
+        return jsonify({'error': 'Target namespace not found'}), 404
+
+    errors = []
+    for sid in snippet_ids:
+        # Fetch full snippet to verify ownership and build a complete PUT body
+        sr = dbal_request('GET', f'{_dbal_path("Snippet")}/{sid}')
+        if not sr or not sr.ok:
+            errors.append(sid)
+            continue
+        snippet = sr.json().get('data', {})
+        if snippet.get('userId') != g.user_id:
+            errors.append(sid)
+            continue
+        # Update only namespaceId on the raw DBAL record; pass it directly to avoid
+        # double-serializing inputParameters/files (they are already JSON strings).
+        full = dict(snippet)
+        full['namespaceId'] = target_ns
+        r = dbal_request('PUT', f'{_dbal_path("Snippet")}/{sid}', full)
+        if not r or not r.ok:
+            errors.append(sid)
+    if errors:
+        return jsonify({'error': f'Failed to move {len(errors)} snippet(s)'}), 500
+    return jsonify({'success': True})
+
+
+# ---------------------------------------------------------------------------
+# Namespace endpoints — backed by DBAL
+# ---------------------------------------------------------------------------
 
 @app.route('/api/namespaces', methods=['GET'])
+@auth_required
 def get_namespaces():
-    try:
-        conn = get_db()
-        cursor = conn.cursor()
-        cursor.execute('SELECT * FROM namespaces ORDER BY isDefault DESC, name ASC')
-        rows = cursor.fetchall()
-        conn.close()
-        
-        namespaces = []
-        for row in rows:
-            namespace = dict(row)
-            namespace['isDefault'] = bool(namespace.get('isDefault', 0))
-            namespaces.append(namespace)
-        
-        return jsonify(namespaces)
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+    items = _dbal_all_pages(f'{_dbal_path("Namespace")}?filter.userId={g.user_id}&sort.isDefault=desc&sort.name=asc')
+    for ns in items:
+        ns['isDefault'] = bool(ns.get('isDefault', False))
+    return jsonify(items)
+
 
 @app.route('/api/namespaces', methods=['POST'])
+@auth_required
 def create_namespace():
-    try:
-        data = request.json
-        conn = get_db()
-        cursor = conn.cursor()
-        
-        created_at = data.get('createdAt')
-        if isinstance(created_at, str):
-            created_at = int(datetime.fromisoformat(created_at.replace('Z', '+00:00')).timestamp() * 1000)
-        
-        cursor.execute('''
-            INSERT INTO namespaces (id, name, createdAt, isDefault)
-            VALUES (?, ?, ?, ?)
-        ''', (
-            data['id'],
-            data['name'],
-            created_at,
-            1 if data.get('isDefault') else 0
-        ))
-        
-        conn.commit()
-        conn.close()
-        
-        return jsonify(data), 201
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+    data = request.json
+    if not data or not data.get('name') or not str(data.get('name', '')).strip():
+        return jsonify({'error': 'name is required'}), 400
+    body = {
+        'id':        data['id'],
+        'name':      data['name'],
+        'isDefault': bool(data.get('isDefault', False)),
+        'createdAt': _ts(data.get('createdAt')),
+        'userId':    g.user_id,
+        'tenantId':  DBAL_TENANT_ID,
+    }
+    r = dbal_request('POST', _dbal_path('Namespace'), body)
+    if not r or not r.ok:
+        return jsonify({'error': 'Failed to create namespace'}), 500
+    result = r.json().get('data', data)
+    result['isDefault'] = bool(result.get('isDefault', False))
+    return jsonify(result), 201
+
 
 @app.route('/api/namespaces/<namespace_id>', methods=['DELETE'])
+@auth_required
 def delete_namespace(namespace_id):
-    try:
-        conn = get_db()
-        cursor = conn.cursor()
-        
-        cursor.execute('SELECT isDefault FROM namespaces WHERE id = ?', (namespace_id,))
-        row = cursor.fetchone()
-        
-        if not row:
-            conn.close()
-            return jsonify({'error': 'Namespace not found'}), 404
-        
-        if row['isDefault']:
-            conn.close()
-            return jsonify({'error': 'Cannot delete default namespace'}), 400
-        
-        cursor.execute('SELECT id FROM namespaces WHERE isDefault = 1')
-        default_row = cursor.fetchone()
-        default_id = default_row['id'] if default_row else 'default'
-        
-        cursor.execute('UPDATE snippets SET namespaceId = ? WHERE namespaceId = ?', (default_id, namespace_id))
-        
-        cursor.execute('DELETE FROM namespaces WHERE id = ?', (namespace_id,))
-        
-        conn.commit()
-        conn.close()
-        
-        return jsonify({'success': True})
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+    # Fetch the namespace and verify ownership
+    check = dbal_request('GET', f'{_dbal_path("Namespace")}/{namespace_id}')
+    if not check or not check.ok:
+        return jsonify({'error': 'Namespace not found'}), 404
+    ns = check.json().get('data', {})
+    if ns.get('userId') != g.user_id:
+        return jsonify({'error': 'Namespace not found'}), 404
+    if ns.get('isDefault'):
+        return jsonify({'error': 'Cannot delete default namespace'}), 400
+
+    # Find default namespace to re-home orphaned snippets (filter in Python — isDefault is boolean)
+    all_ns = _dbal_all_pages(f'{_dbal_path("Namespace")}?filter.userId={g.user_id}')
+    default_ns_id = next((n['id'] for n in all_ns if n.get('isDefault')), None)
+
+    # Move orphan snippets to default namespace
+    snippets = _dbal_all_pages(f'{_dbal_path("Snippet")}?filter.namespaceId={namespace_id}')
+    for sn in snippets:
+        if sn.get('userId') != g.user_id:
+            continue
+        full = dict(sn)
+        full['namespaceId'] = default_ns_id
+        put = dbal_request('PUT', f'{_dbal_path("Snippet")}/{sn["id"]}', full)
+        if not put or not put.ok:
+            return jsonify({'error': 'Failed to move snippets before deletion'}), 500
+
+    r = dbal_request('DELETE', f'{_dbal_path("Namespace")}/{namespace_id}')
+    if not r or not r.ok:
+        return jsonify({'error': 'Failed to delete namespace'}), 500
+    return jsonify({'success': True})
+
+
+@app.route('/api/namespaces/<namespace_id>', methods=['PUT'])
+@auth_required
+def update_namespace(namespace_id):
+    data = request.json or {}
+    check = dbal_request('GET', f'{_dbal_path("Namespace")}/{namespace_id}')
+    if not check or not check.ok:
+        return jsonify({'error': 'Namespace not found'}), 404
+    ns = check.json().get('data', {})
+    if ns.get('userId') != g.user_id:
+        return jsonify({'error': 'Namespace not found'}), 404
+    body = {
+        'name':      data.get('name', ns['name']),
+        'isDefault': bool(ns.get('isDefault', False)),
+        'userId':    g.user_id,
+        'tenantId':  DBAL_TENANT_ID,
+    }
+    r = dbal_request('PUT', f'{_dbal_path("Namespace")}/{namespace_id}', body)
+    if not r or not r.ok:
+        return jsonify({'error': 'Failed to update namespace'}), 500
+    result = r.json().get('data', {})
+    result['isDefault'] = bool(result.get('isDefault', False))
+    return jsonify(result)
+
+
+@app.route('/api/wipe', methods=['POST'])
+@auth_required
+def wipe_database():
+    # Delete all snippets for this user (all pages)
+    for snippet in _dbal_all_pages(f'{_dbal_path("Snippet")}?filter.userId={g.user_id}'):
+        dbal_request('DELETE', f'{_dbal_path("Snippet")}/{snippet["id"]}')
+    # Delete non-default namespaces (all pages)
+    all_namespaces = _dbal_all_pages(f'{_dbal_path("Namespace")}?filter.userId={g.user_id}')
+    for ns in all_namespaces:
+        if not ns.get('isDefault'):
+            dbal_request('DELETE', f'{_dbal_path("Namespace")}/{ns["id"]}')
+    # Also delete the default namespace so ensureDefaultNamespace recreates exactly one
+    for ns in all_namespaces:
+        if ns.get('isDefault') and ns.get('userId') == g.user_id:
+            dbal_request('DELETE', f'{_dbal_path("Namespace")}/{ns["id"]}')
+    return jsonify({'success': True, 'message': 'User data wiped'})
 
 @app.route('/api/run', methods=['POST'])
+@auth_required
 def run_code():
     data = request.get_json(force=True, silent=True) or {}
     print(f'[run_code] recv: language={data.get("language")!r} files_count={len(data.get("files") or [])} entryPoint={data.get("entryPoint")!r}', flush=True)
@@ -840,6 +1141,7 @@ def run_code():
                 pass
 
 @app.route('/api/run/interactive', methods=['POST'])
+@auth_required
 def run_interactive():
     """Start an interactive session. Returns {session_id}."""
     _reap_sessions()
@@ -861,6 +1163,7 @@ def run_interactive():
 
 
 @app.route('/api/run/interactive/<session_id>/poll', methods=['GET'])
+@auth_required
 def poll_interactive(session_id):
     """Return new output lines since `offset` and current session state."""
     session = _sessions.get(session_id)
@@ -876,6 +1179,7 @@ def poll_interactive(session_id):
 
 
 @app.route('/api/run/interactive/<session_id>/input', methods=['POST'])
+@auth_required
 def send_interactive_input(session_id):
     """Send one line of user input to the running session."""
     session = _sessions.get(session_id)
@@ -889,25 +1193,7 @@ def send_interactive_input(session_id):
     return jsonify({'ok': True})
 
 
-@app.route('/api/wipe', methods=['POST'])
-def wipe_database():
-    """Emergency endpoint to wipe and recreate the database"""
-    try:
-        conn = get_db()
-        cursor = conn.cursor()
-        
-        cursor.execute("DROP TABLE IF EXISTS snippets")
-        cursor.execute("DROP TABLE IF EXISTS namespaces")
-        
-        conn.commit()
-        conn.close()
-        
-        init_db()
-        
-        return jsonify({'success': True, 'message': 'Database wiped and recreated'})
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+init_db()
 
 if __name__ == '__main__':
-    init_db()
     app.run(host='0.0.0.0', port=5000, debug=False)

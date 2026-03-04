@@ -8,8 +8,12 @@
 #include <atomic>
 #include <memory>
 #include <mutex>
+#include <optional>
 #include <string>
 #include "dbal/core/client.hpp"
+#include "auth/auth_config.hpp"
+#include "security/jwt/jwt_validator.hpp"
+#include "workflow/wf_engine.hpp"
 
 // Clang thread safety annotations
 #if defined(__clang__)
@@ -63,6 +67,13 @@ private:
     // Thread-safe client initialization (recursive to allow same-thread re-entry)
     std::recursive_mutex client_mutex_;
     std::unique_ptr<dbal::Client> dbal_client_ GUARDED_BY(client_mutex_);
+
+    // JWT + auth config (set once in registerRoutes, read-only thereafter)
+    std::string jwt_secret_;
+    dbal::auth::AuthConfig auth_config_;
+
+    // Optional workflow engine — initialized from DBAL_EVENT_CONFIG
+    std::optional<dbal::workflow::WfEngine> wf_engine_;
 };
 
 } // namespace daemon

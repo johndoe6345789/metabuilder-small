@@ -1,4 +1,5 @@
 import type { Snippet } from './types'
+import { getAuthToken } from './authToken'
 
 export type StorageBackend = 'indexeddb' | 'flask'
 
@@ -68,6 +69,11 @@ export class FlaskStorageAdapter {
     this.baseUrl = baseUrl.replace(/\/$/, '')
   }
 
+  private authHeader(): Record<string, string> {
+    const t = getAuthToken()
+    return t ? { Authorization: `Bearer ${t}` } : {}
+  }
+
   private isValidUrl(): boolean {
     if (this.baseUrl.startsWith('/')) return true
     try {
@@ -87,7 +93,7 @@ export class FlaskStorageAdapter {
       const healthUrl = `${this.baseUrl}/health`
       const response = await fetch(healthUrl, {
         method: 'GET',
-        signal: AbortSignal.timeout(5000)
+        signal: AbortSignal.timeout(5000),
       })
       return response.ok
     } catch {
@@ -99,7 +105,7 @@ export class FlaskStorageAdapter {
     if (!this.isValidUrl()) {
       throw new Error('Invalid Flask backend URL')
     }
-    const response = await fetch(`${this.baseUrl}/api/snippets`)
+    const response = await fetch(`${this.baseUrl}/api/snippets`, { headers: this.authHeader() })
     if (!response.ok) {
       throw new Error(`Failed to fetch snippets: ${response.statusText}`)
     }
@@ -115,7 +121,7 @@ export class FlaskStorageAdapter {
     if (!this.isValidUrl()) {
       throw new Error('Invalid Flask backend URL')
     }
-    const response = await fetch(`${this.baseUrl}/api/snippets/${id}`)
+    const response = await fetch(`${this.baseUrl}/api/snippets/${id}`, { headers: this.authHeader() })
     if (response.status === 404) {
       return null
     }
@@ -130,13 +136,13 @@ export class FlaskStorageAdapter {
     }
   }
 
-  async createSnippet(snippet: Snippet): Promise<void> {
+  async createSnippet(snippet: Snippet): Promise<Snippet> {
     if (!this.isValidUrl()) {
       throw new Error('Invalid Flask backend URL')
     }
     const response = await fetch(`${this.baseUrl}/api/snippets`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...this.authHeader() },
       body: JSON.stringify({
         ...snippet,
         createdAt: new Date(snippet.createdAt).toISOString(),
@@ -146,6 +152,7 @@ export class FlaskStorageAdapter {
     if (!response.ok) {
       throw new Error(`Failed to create snippet: ${response.statusText}`)
     }
+    return await response.json()
   }
 
   async updateSnippet(snippet: Snippet): Promise<void> {
@@ -154,7 +161,7 @@ export class FlaskStorageAdapter {
     }
     const response = await fetch(`${this.baseUrl}/api/snippets/${snippet.id}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...this.authHeader() },
       body: JSON.stringify({
         ...snippet,
         createdAt: new Date(snippet.createdAt).toISOString(),
@@ -171,7 +178,8 @@ export class FlaskStorageAdapter {
       throw new Error('Invalid Flask backend URL')
     }
     const response = await fetch(`${this.baseUrl}/api/snippets/${id}`, {
-      method: 'DELETE'
+      method: 'DELETE',
+      headers: this.authHeader(),
     })
     if (!response.ok) {
       throw new Error(`Failed to delete snippet: ${response.statusText}`)
@@ -192,25 +200,41 @@ export class FlaskStorageAdapter {
     if (!this.isValidUrl()) {
       throw new Error('Invalid Flask backend URL')
     }
-    const response = await fetch(`${this.baseUrl}/api/namespaces`)
+    const response = await fetch(`${this.baseUrl}/api/namespaces`, { headers: this.authHeader() })
     if (!response.ok) {
       throw new Error(`Failed to fetch namespaces: ${response.statusText}`)
     }
     return await response.json()
   }
 
-  async createNamespace(namespace: import('./types').Namespace): Promise<void> {
+  async createNamespace(namespace: import('./types').Namespace): Promise<import('./types').Namespace> {
     if (!this.isValidUrl()) {
       throw new Error('Invalid Flask backend URL')
     }
     const response = await fetch(`${this.baseUrl}/api/namespaces`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...this.authHeader() },
       body: JSON.stringify(namespace)
     })
     if (!response.ok) {
       throw new Error(`Failed to create namespace: ${response.statusText}`)
     }
+    return await response.json()
+  }
+
+  async updateNamespace(id: string, name: string): Promise<import('./types').Namespace> {
+    if (!this.isValidUrl()) {
+      throw new Error('Invalid Flask backend URL')
+    }
+    const response = await fetch(`${this.baseUrl}/api/namespaces/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', ...this.authHeader() },
+      body: JSON.stringify({ name }),
+    })
+    if (!response.ok) {
+      throw new Error(`Failed to update namespace: ${response.statusText}`)
+    }
+    return await response.json()
   }
 
   async deleteNamespace(id: string): Promise<void> {
@@ -218,7 +242,8 @@ export class FlaskStorageAdapter {
       throw new Error('Invalid Flask backend URL')
     }
     const response = await fetch(`${this.baseUrl}/api/namespaces/${id}`, {
-      method: 'DELETE'
+      method: 'DELETE',
+      headers: this.authHeader(),
     })
     if (!response.ok) {
       throw new Error(`Failed to delete namespace: ${response.statusText}`)
@@ -230,7 +255,8 @@ export class FlaskStorageAdapter {
       throw new Error('Invalid Flask backend URL')
     }
     const response = await fetch(`${this.baseUrl}/api/wipe`, {
-      method: 'POST'
+      method: 'POST',
+      headers: this.authHeader(),
     })
     if (!response.ok) {
       throw new Error(`Failed to wipe database: ${response.statusText}`)
@@ -243,7 +269,7 @@ export class FlaskStorageAdapter {
     }
     const response = await fetch(`${this.baseUrl}/api/snippets/bulk-move`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...this.authHeader() },
       body: JSON.stringify({ snippetIds, targetNamespaceId })
     })
     if (!response.ok) {
@@ -273,7 +299,7 @@ export class FlaskStorageAdapter {
       snippetCount: snippets.length,
       templateCount: templates.length,
       namespaceCount: namespaces.length,
-      storageType: 'indexeddb' as const,
+      storageType: 'flask' as const,
       databaseSize: 0,
     };
   }

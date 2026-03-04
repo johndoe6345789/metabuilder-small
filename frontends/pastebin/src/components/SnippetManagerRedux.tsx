@@ -35,7 +35,9 @@ export function SnippetManagerRedux() {
     handleSearchChange,
   } = useSnippetManager(templates)
 
-  if (loading) {
+  const isInitialLoad = loading && snippets.length === 0
+
+  if (isInitialLoad) {
     return (
       <div className={styles.loadingContainer} data-testid="snippet-manager-loading" role="status" aria-busy="true" aria-label="Loading snippets">
         <p className={styles.loadingText}>Loading snippets...</p>
@@ -43,7 +45,7 @@ export function SnippetManagerRedux() {
     )
   }
 
-  if (snippets.length === 0) {
+  if (!loading && snippets.length === 0) {
     return (
       <>
         <div className={styles.namespaceWrapper} data-testid="empty-state-namespace-selector">
@@ -67,6 +69,7 @@ export function SnippetManagerRedux() {
           selectedNamespaceId={selectedNamespaceId}
           onNamespaceChange={handleNamespaceChange}
         />
+        {loading && <span className={styles.gridLoadingIndicator} role="status" aria-label="Loading snippets">Loading...</span>}
         <SnippetToolbar
           searchQuery={searchQuery}
           onSearchChange={handleSearchChange}
@@ -95,17 +98,19 @@ export function SnippetManagerRedux() {
         </div>
       )}
 
-      <SnippetGrid
-        snippets={filteredSnippets}
-        onView={handleViewSnippet}
-        onEdit={handleEditSnippet}
-        onDelete={handleDeleteSnippet}
-        onCopy={handleCopyCode}
-        onMove={handleMoveSnippet}
-        selectionMode={selectionMode}
-        selectedIds={selectedIds}
-        onToggleSelect={handleToggleSnippetSelection}
-      />
+      <div className={`${styles.gridWrapper}${loading ? ` ${styles.gridFading}` : ''}`} aria-busy={loading}>
+        <SnippetGrid
+          snippets={filteredSnippets}
+          onView={handleViewSnippet}
+          onEdit={handleEditSnippet}
+          onDelete={handleDeleteSnippet}
+          onCopy={handleCopyCode}
+          onMove={handleMoveSnippet}
+          selectionMode={selectionMode}
+          selectedIds={selectedIds}
+          onToggleSelect={handleToggleSnippetSelection}
+        />
+      </div>
 
     </div>
   )

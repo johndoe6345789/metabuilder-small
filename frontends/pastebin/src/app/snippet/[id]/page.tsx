@@ -75,6 +75,7 @@ export default function SnippetViewPage() {
   const [activeFile, setActiveFile] = useState('')
   const [activeTab, setActiveTab] = useState<ActiveTab>('code')
   const [editOpen, setEditOpen] = useState(false)
+  const [openFiles, setOpenFiles] = useState<string[]>([])
   const [localCode, setLocalCode] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -113,6 +114,7 @@ export default function SnippetViewPage() {
     const initial = snippet.entryPoint
       || (snippet.files?.length ? snippet.files[0].name : defaultName)
     setActiveFile(initial)
+    setOpenFiles(prev => prev.length > 0 ? prev : [initial])
   }, [snippet?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Keep localCode in sync when switching files or snippets
@@ -176,10 +178,13 @@ export default function SnippetViewPage() {
   const handleCodeChange = (value: string) => {
     setLocalCode(value)
     if (saveTimer.current) clearTimeout(saveTimer.current)
+    // Capture the file being edited NOW — snippetRef/filesRef are read dynamically
+    // so new files created after this call are still visible to the timer.
+    const fileBeingEdited = activeFileRef.current
     saveTimer.current = setTimeout(async () => {
       // Read from refs — always the latest snapshot regardless of when the timer fires
       const currentSnippet = snippetRef.current
-      const currentActiveFile = activeFileRef.current
+      const currentActiveFile = fileBeingEdited
       const currentFiles = filesRef.current
       if (!currentSnippet) return
       setSaving(true)
@@ -232,6 +237,25 @@ export default function SnippetViewPage() {
     } catch {
       toast.error(t.toast.failedToSaveSnippet)
     }
+  }
+
+  // ── Editor tabs ───────────────────────────────────────────────
+  const openInTab = (name: string) => {
+    setOpenFiles(prev => prev.includes(name) ? prev : [...prev, name])
+    setActiveFile(name)
+    setActiveTab('code')
+  }
+
+  const closeTab = (name: string) => {
+    setOpenFiles(prev => {
+      if (prev.length <= 1) return prev // never close the last tab
+      const next = prev.filter(f => f !== name)
+      if (activeFile === name) {
+        const idx = prev.indexOf(name)
+        setActiveFile(next[Math.max(0, idx - 1)])
+      }
+      return next
+    })
   }
 
   // ── File operations ───────────────────────────────────────────
@@ -523,7 +547,7 @@ export default function SnippetViewPage() {
                         {/* File select button */}
                         <button
                           className={styles.treeFileBtn}
-                          onClick={() => { setActiveFile(f.name); setActiveTab('code') }}
+                          onClick={() => openInTab(f.name)}
                           title={f.name}
                           aria-pressed={f.name === activeFile}
                         >
@@ -579,15 +603,26 @@ export default function SnippetViewPage() {
 
             {/* Tab bar */}
             <div className={styles.editorTabBar} role="tablist">
-              <button
-                className={`${styles.editorTab} ${activeTab === 'code' ? styles.editorTabActive : ''}`}
-                role="tab"
-                aria-selected={activeTab === 'code'}
-                onClick={() => setActiveTab('code')}
-              >
-                <MaterialIcon name="insert_drive_file" size={12} aria-hidden="true" />
-                <span>{activeFile || filename}</span>
-              </button>
+              {openFiles.map(f => (
+                <button
+                  key={f}
+                  className={`${styles.editorTab} ${activeTab === 'code' && activeFile === f ? styles.editorTabActive : ''}`}
+                  role="tab"
+                  aria-selected={activeTab === 'code' && activeFile === f}
+                  onClick={() => { setActiveFile(f); setActiveTab('code') }}
+                >
+                  <MaterialIcon name="insert_drive_file" size={12} aria-hidden="true" />
+                  <span>{f}</span>
+                  {openFiles.length > 1 && (
+                    <span
+                      className={styles.tabClose}
+                      role="button"
+                      aria-label={`Close ${f}`}
+                      onClick={e => { e.stopPropagation(); closeTab(f) }}
+                    >×</span>
+                  )}
+                </button>
+              ))}
               <button
                 className={`${styles.editorTab} ${activeTab === 'terminal' ? styles.editorTabActive : ''}`}
                 role="tab"
@@ -671,6 +706,7 @@ export default function SnippetViewPage() {
             anchorRect={menuRect}
             canDelete={files.length > 1}
             onClose={() => setMenuFile(null)}
+            onOpenInNewTab={() => openInTab(menuFile)}
             onRename={() => handleStartRename(menuFile)}
             onDuplicate={() => handleDuplicateFile(menuFile)}
             onDelete={() => handleDeleteFile(menuFile)}

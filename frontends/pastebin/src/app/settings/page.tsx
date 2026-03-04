@@ -47,7 +47,7 @@ export default function SettingsPage() {
     checkSchemaHealth,
   } = useSettingsState();
 
-  const tabs = (t.settingsPage as any).tabs;
+  const tabs = t.settingsPage.tabs;
 
   return (
     <PageLayout>

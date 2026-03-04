@@ -24,7 +24,7 @@ void SqlAdapter::loadSchemas() {
 
     spdlog::info("Loading entity schemas from: {}", schema_dir);
     auto entities = SchemaLoader::loadFromDirectory(schema_dir);
-    spdlog::info("Loaded {} entity definitions from YAML", entities.size());
+    spdlog::info("Loaded {} entity definitions from JSON", entities.size());
 
     for (const auto& entity : entities) {
         EntitySchema schema;
@@ -75,7 +75,7 @@ void SqlAdapter::createTables() {
     }
     ConnectionGuard guard(pool_, conn);
 
-    // Load all entity definitions from YAML
+    // Load all entity definitions from JSON
     spdlog::info("Loading schemas from: {}", schema_dir);
     auto entities = SchemaLoader::loadFromDirectory(schema_dir);
     spdlog::info("Loaded {} entity definitions", entities.size());

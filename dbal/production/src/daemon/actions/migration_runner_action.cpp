@@ -29,13 +29,13 @@ void MigrationRunnerAction::handle_scan(const std::string& registry_path,
             if (!entry.is_directory()) continue;
 
             const std::string pkg_name = entry.path().filename().string();
-            const fs::path schema_path = entry.path() / "seed" / "schema" / "entities.yaml";
+            const fs::path schema_path = entry.path() / "seed" / "schema" / "entities.json";
 
             if (!fs::exists(schema_path)) continue;
 
             scanned++;
 
-            // Note: Full YAML parsing would require a YAML library
+            // JSON parsing can be done with nlohmann/json
             // For now, just detect that schema exists and queue for review
             // The actual parsing is done by the Next.js API
         }

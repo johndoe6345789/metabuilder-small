@@ -425,10 +425,6 @@ describe('FlaskStorageAdapter', () => {
     })
 
     it('should create snippet', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true
-      } as Response)
-
       const snippet: Snippet = {
         id: '1',
         title: 'Test',
@@ -439,6 +435,10 @@ describe('FlaskStorageAdapter', () => {
         updatedAt: 1234567890,
         description: ''
       }
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => snippet
+      } as unknown as Response)
 
       const adapter = new FlaskStorageAdapter('http://localhost:5000')
       await adapter.createSnippet(snippet)
@@ -748,8 +748,9 @@ describe('FlaskStorageAdapter', () => {
 
     it('should create namespace', async () => {
       mockFetch.mockResolvedValueOnce({
-        ok: true
-      } as Response)
+        ok: true,
+        json: async () => ({ id: 'ns1', name: 'Test Namespace', createdAt: Date.now(), isDefault: false })
+      } as unknown as Response)
 
       const adapter = new FlaskStorageAdapter('http://localhost:5000')
       await adapter.createNamespace({

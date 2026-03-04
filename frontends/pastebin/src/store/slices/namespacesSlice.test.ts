@@ -2,6 +2,7 @@ import { configureStore } from '@reduxjs/toolkit'
 import namespacesReducer, {
   fetchNamespaces,
   createNamespace,
+  updateNamespace,
   deleteNamespace,
   setSelectedNamespace,
 } from './namespacesSlice'
@@ -11,6 +12,7 @@ import { Namespace } from '@/lib/types'
 jest.mock('@/lib/db', () => ({
   getAllNamespaces: jest.fn(),
   createNamespace: jest.fn(),
+  updateNamespace: jest.fn(),
   deleteNamespace: jest.fn(),
   ensureDefaultNamespace: jest.fn(),
 }))
@@ -372,6 +374,108 @@ describe('namespacesSlice', () => {
       // Both namespaces should be created with valid IDs
       expect(state.items[0].id).toBeTruthy()
       expect(state.items[1].id).toBeTruthy()
+    })
+  })
+
+  describe('async thunks - updateNamespace', () => {
+    it('should update namespace name in state on success', async () => {
+      const mockDb = require('@/lib/db')
+      mockDb.ensureDefaultNamespace.mockResolvedValue(undefined)
+      mockDb.getAllNamespaces.mockResolvedValue(mockNamespaces)
+      const updatedNs = { ...mockNamespaces[1], name: 'Personal Renamed' }
+      mockDb.updateNamespace.mockResolvedValue(updatedNs)
+
+      await store.dispatch(fetchNamespaces())
+      await store.dispatch(updateNamespace({ id: 'ns1', name: 'Personal Renamed' }))
+
+      const state = store.getState().namespaces
+      const found = state.items.find(n => n.id === 'ns1')
+      expect(found?.name).toBe('Personal Renamed')
+    })
+
+    it('should keep all other namespaces unchanged after update', async () => {
+      const mockDb = require('@/lib/db')
+      mockDb.ensureDefaultNamespace.mockResolvedValue(undefined)
+      mockDb.getAllNamespaces.mockResolvedValue(mockNamespaces)
+      const updatedNs = { ...mockNamespaces[1], name: 'Personal Renamed' }
+      mockDb.updateNamespace.mockResolvedValue(updatedNs)
+
+      await store.dispatch(fetchNamespaces())
+      await store.dispatch(updateNamespace({ id: 'ns1', name: 'Personal Renamed' }))
+
+      const state = store.getState().namespaces
+      expect(state.items.length).toBe(4)
+      expect(state.items.find(n => n.id === 'default-ns')?.name).toBe('Default')
+      expect(state.items.find(n => n.id === 'ns2')?.name).toBe('Work')
+    })
+
+    it('should set loading=true during pending and loading=false on fulfilled', async () => {
+      const mockDb = require('@/lib/db')
+      const updatedNs = { ...mockNamespaces[1], name: 'Personal Renamed' }
+      let resolveUpdate!: (value: typeof updatedNs) => void
+      mockDb.updateNamespace.mockImplementation(
+        () => new Promise<typeof updatedNs>(resolve => { resolveUpdate = resolve })
+      )
+
+      const dispatchPromise = store.dispatch(updateNamespace({ id: 'ns1', name: 'Personal Renamed' }))
+      expect(store.getState().namespaces.loading).toBe(true)
+
+      resolveUpdate(updatedNs)
+      await dispatchPromise
+      expect(store.getState().namespaces.loading).toBe(false)
+    })
+
+    it('should set error on rejected and set loading=false', async () => {
+      const mockDb = require('@/lib/db')
+      mockDb.updateNamespace.mockRejectedValue(new Error('Update failed'))
+
+      await store.dispatch(updateNamespace({ id: 'ns1', name: 'Fail' }))
+
+      const state = store.getState().namespaces
+      expect(state.loading).toBe(false)
+      expect(state.error).toBe('Update failed')
+    })
+
+    it('should use default error message when error has no message', async () => {
+      const mockDb = require('@/lib/db')
+      mockDb.updateNamespace.mockRejectedValue({})
+
+      await store.dispatch(updateNamespace({ id: 'ns1', name: 'Fail' }))
+
+      const state = store.getState().namespaces
+      expect(state.error).toBe('Failed to update namespace')
+    })
+
+    it('should not update items when the thunk rejects', async () => {
+      const mockDb = require('@/lib/db')
+      mockDb.ensureDefaultNamespace.mockResolvedValue(undefined)
+      mockDb.getAllNamespaces.mockResolvedValue(mockNamespaces)
+      mockDb.updateNamespace.mockRejectedValue(new Error('Update failed'))
+
+      await store.dispatch(fetchNamespaces())
+      const namesBefore = store.getState().namespaces.items.map(n => n.name)
+
+      await store.dispatch(updateNamespace({ id: 'ns1', name: 'Should Not Appear' }))
+
+      const namesAfter = store.getState().namespaces.items.map(n => n.name)
+      expect(namesAfter).toEqual(namesBefore)
+    })
+
+    it('should not update state when id does not match any item', async () => {
+      const mockDb = require('@/lib/db')
+      mockDb.ensureDefaultNamespace.mockResolvedValue(undefined)
+      mockDb.getAllNamespaces.mockResolvedValue(mockNamespaces)
+      const updatedNs = { id: 'nonexistent', name: 'Ghost', createdAt: 9999, isDefault: false }
+      mockDb.updateNamespace.mockResolvedValue(updatedNs)
+
+      await store.dispatch(fetchNamespaces())
+      const countBefore = store.getState().namespaces.items.length
+
+      await store.dispatch(updateNamespace({ id: 'nonexistent', name: 'Ghost' }))
+
+      const state = store.getState().namespaces
+      expect(state.items.length).toBe(countBefore)
+      expect(state.items.find(n => n.id === 'nonexistent')).toBeUndefined()
     })
   })
 

@@ -6,39 +6,67 @@
 #include "entity_route_handler.hpp"
 #include "entity_route_handler_helpers.hpp"
 #include "../rpc_restful_handler.hpp"
+#include "../json_convert.hpp"
+#include "workflow/wf_engine.hpp"
 #include <spdlog/spdlog.h>
+#include <json/json.h>
 
 namespace dbal {
 namespace daemon {
 namespace handlers {
 
-EntityRouteHandler::EntityRouteHandler(dbal::Client& client)
-    : client_(client) {}
+EntityRouteHandler::EntityRouteHandler(dbal::Client& client,
+                                       dbal::workflow::WfEngine* wf_engine)
+    : client_(client), wf_engine_(wf_engine) {}
 
 void EntityRouteHandler::handleEntity(
     const drogon::HttpRequestPtr& request,
     std::function<void(const drogon::HttpResponsePtr&)>&& callback,
     const std::string& tenant,
     const std::string& package,
-    const std::string& entity
+    const std::string& entity,
+    std::optional<AuthContext> auth
 ) {
     try {
         spdlog::trace("Entity handler: /{}/{}/{} method={}",
             tenant, package, entity, request->getMethodString());
 
-        // Create response callbacks
         auto callbacks = createResponseCallbacks(std::move(callback));
-
-        // Parse route
         std::string full_path = "/" + tenant + "/" + package + "/" + entity;
         auto route = rpc::parseRoute(full_path);
-
-        // Parse request
         std::string method = parseHttpMethod(request);
         ::Json::Value body = parseRequestBody(request, method);
         auto query = parseQueryParameters(request);
 
-        // Delegate to RPC handler
+        if (auth) {
+            if (method == "POST" && auth->config.inject_owner) {
+                // Server-authoritative: always overwrite any client-supplied userId/tenantId
+                body["userId"]   = auth->user_id;
+                body["tenantId"] = auth->tenant_id;
+                spdlog::debug("[auth] Injected owner userId={} tenantId={}",
+                              auth->user_id, auth->tenant_id);
+            }
+            if (method == "GET" && auth->config.filter_by_owner) {
+                // Restrict list to the authenticated user's records
+                // ListHandler requires the "filter." prefix to apply as a WHERE clause
+                query["filter.userId"] = auth->user_id;
+                spdlog::debug("[auth] Filtering list by userId={}", auth->user_id);
+            }
+        }
+
+        // Wrap send_success on POST to fire workflow events after the HTTP response
+        if (method == "POST" && wf_engine_) {
+            std::string event_name = tenant + "." + entity + ".created";
+            if (wf_engine_->hasEvent(event_name)) {
+                auto orig_success = callbacks.send_success;
+                auto* engine = wf_engine_;
+                callbacks.send_success = [orig_success, engine, event_name](const ::Json::Value& result) {
+                    orig_success(result);
+                    engine->dispatchAsync(event_name, jsoncpp_to_nlohmann(result));
+                };
+            }
+        }
+
         rpc::handleRestfulRequest(
             client_,
             route,
@@ -60,25 +88,38 @@ void EntityRouteHandler::handleEntityWithId(
     const std::string& tenant,
     const std::string& package,
     const std::string& entity,
-    const std::string& id
+    const std::string& id,
+    std::optional<AuthContext> auth
 ) {
     try {
         spdlog::trace("Entity+ID handler: /{}/{}/{}/{} method={}",
             tenant, package, entity, id, request->getMethodString());
 
-        // Create response callbacks
         auto callbacks = createResponseCallbacks(std::move(callback));
-
-        // Parse route
         std::string full_path = "/" + tenant + "/" + package + "/" + entity + "/" + id;
         auto route = rpc::parseRoute(full_path);
-
-        // Parse request
         std::string method = parseHttpMethod(request);
         ::Json::Value body = parseRequestBody(request, method);
         auto query = parseQueryParameters(request);
 
-        // Delegate to RPC handler
+        // Ownership check: fetch the entity and compare userId before allowing mutation/read
+        // Use route.entity (raw name, e.g. "Snippet") — same as crud_handler.cpp
+        if (auth && auth->config.check_ownership) {
+            auto result = client_.getEntity(route.entity, id);
+            if (!result.isOk()) {
+                callbacks.send_error("Entity not found", 404);
+                return;
+            }
+            auto& stored = result.value();
+            std::string owner = stored.value("userId", std::string{});
+            if (owner != auth->user_id) {
+                spdlog::debug("[auth] Ownership denied: entity.userId={} jwt.sub={}",
+                              owner, auth->user_id);
+                callbacks.send_error("Forbidden", 403);
+                return;
+            }
+        }
+
         rpc::handleRestfulRequest(
             client_,
             route,
@@ -107,19 +148,13 @@ void EntityRouteHandler::handleEntityAction(
         spdlog::trace("Entity action handler: /{}/{}/{}/{}/{} method={}",
             tenant, package, entity, id, action, request->getMethodString());
 
-        // Create response callbacks
         auto callbacks = createResponseCallbacks(std::move(callback));
-
-        // Parse route
         std::string full_path = "/" + tenant + "/" + package + "/" + entity + "/" + id + "/" + action;
         auto route = rpc::parseRoute(full_path);
-
-        // Parse request
         std::string method = parseHttpMethod(request);
         ::Json::Value body = parseRequestBody(request, method);
         auto query = parseQueryParameters(request);
 
-        // Delegate to RPC handler
         rpc::handleRestfulRequest(
             client_,
             route,

@@ -34,12 +34,13 @@ export async function getSnippet(id: string): Promise<Snippet | null> {
   return await IndexedDBStorage.getSnippet(id);
 }
 
-export async function createSnippet(snippet: Snippet): Promise<void> {
+export async function createSnippet(snippet: Snippet): Promise<Snippet> {
   const flask = getActiveStorage();
   if (flask) {
     return await flask.createSnippet(snippet);
   }
-  return await IndexedDBStorage.createSnippet(snippet);
+  await IndexedDBStorage.createSnippet(snippet);
+  return snippet;
 }
 
 export async function updateSnippet(snippet: Snippet): Promise<void> {
@@ -77,6 +78,10 @@ export async function moveSnippetToNamespace(snippetId: string, namespaceId: str
 }
 
 export async function bulkMoveSnippets(snippetIds: string[], namespaceId: string): Promise<void> {
+  const flask = getActiveStorage();
+  if (flask) {
+    return await flask.bulkMoveSnippets(snippetIds, namespaceId);
+  }
   for (const id of snippetIds) {
     await moveSnippetToNamespace(id, namespaceId);
   }
@@ -90,7 +95,7 @@ export async function getAllTemplates(): Promise<Snippet[]> {
 export async function createTemplate(snippet: Omit<Snippet, 'id' | 'createdAt' | 'updatedAt'>): Promise<void> {
   const template: Snippet = {
     ...snippet,
-    id: Date.now().toString(),
+    id: crypto.randomUUID(),
     createdAt: Date.now(),
     updatedAt: Date.now(),
     isTemplate: true,
@@ -128,12 +133,28 @@ export async function getNamespaceById(id: string): Promise<Namespace | null> {
   return await IndexedDBStorage.getNamespace(id);
 }
 
-export async function createNamespace(namespace: Namespace): Promise<void> {
+export async function createNamespace(namespace: Namespace): Promise<Namespace> {
   const flask = getActiveStorage();
   if (flask) {
     return await flask.createNamespace(namespace);
   }
-  return await IndexedDBStorage.createNamespace(namespace);
+  await IndexedDBStorage.createNamespace(namespace);
+  return namespace;
+}
+
+export async function updateNamespace(id: string, name: string): Promise<Namespace> {
+  const flask = getActiveStorage();
+  if (flask) {
+    return await flask.updateNamespace(id, name);
+  }
+  const all = await IndexedDBStorage.getAllNamespaces();
+  const existing = all.find(n => n.id === id);
+  if (!existing) throw new Error('Namespace not found');
+  await IndexedDBStorage.updateNamespace({ ...existing, name });
+  const updated = await IndexedDBStorage.getAllNamespaces();
+  const result = updated.find(n => n.id === id);
+  if (!result) throw new Error('Namespace not found after update');
+  return result;
 }
 
 export async function deleteNamespace(id: string): Promise<void> {
@@ -149,13 +170,13 @@ export async function ensureDefaultNamespace(): Promise<Namespace> {
   let defaultNs = namespaces.find(ns => ns.isDefault);
   
   if (!defaultNs) {
-    defaultNs = {
-      id: 'default',
+    const newDefault: Namespace = {
+      id: crypto.randomUUID(),
       name: 'Default',
       createdAt: Date.now(),
       isDefault: true,
     };
-    await createNamespace(defaultNs);
+    defaultNs = await createNamespace(newDefault);
   }
   
   return defaultNs;

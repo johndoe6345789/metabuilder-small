@@ -1,5 +1,5 @@
 #include "dbal/core/entity_loader.hpp"
-#include "dbal/core/loaders/yaml_parser.hpp"
+#include "dbal/core/loaders/json_parser.hpp"
 #include "dbal/core/loaders/field_parser.hpp"
 #include "dbal/core/loaders/relation_parser.hpp"
 #include "dbal/core/loaders/schema_validator.hpp"
@@ -12,54 +12,57 @@ namespace fs = std::filesystem;
 namespace dbal {
 namespace core {
 
-// Static cache instance
 static loaders::SchemaCache schemaCache;
 
 std::string EntitySchemaLoader::getDefaultSchemaPath() {
-    // Try multiple possible locations relative to different working directories
     std::vector<std::string> possibilities = {
         "dbal/shared/api/schema/entities",
         "../dbal/shared/api/schema/entities",
         "../../dbal/shared/api/schema/entities",
         "../../../dbal/shared/api/schema/entities"
     };
-
     for (const auto& path : possibilities) {
-        if (fs::exists(path) && fs::is_directory(path)) {
-            return path;
-        }
+        if (fs::exists(path) && fs::is_directory(path)) return path;
     }
-
     throw std::runtime_error("Could not find DBAL schema directory. Tried paths: " +
-                           possibilities[0] + ", " + possibilities[1] + ", etc.");
+                             possibilities[0] + ", " + possibilities[1] + ", etc.");
 }
 
 std::map<std::string, EntitySchema> EntitySchemaLoader::loadSchemas(const std::string& schemaPath) {
     std::map<std::string, EntitySchema> schemas;
-
     if (!fs::exists(schemaPath) || !fs::is_directory(schemaPath)) {
         spdlog::error("Schema path does not exist or is not a directory: {}", schemaPath);
         return schemas;
     }
 
-    // Initialize loaders
-    loaders::YamlParser yamlParser;
-    auto yamlFiles = yamlParser.findYamlFiles(schemaPath);
-    spdlog::info("Found {} YAML schema files in {}", yamlFiles.size(), schemaPath);
+    loaders::JsonParser jsonParser;
+    auto jsonFiles = jsonParser.findJsonFiles(schemaPath);
+    spdlog::info("Found {} JSON schema files in {}", jsonFiles.size(), schemaPath);
 
-    // Load each schema file
-    for (const auto& file : yamlFiles) {
+    for (const auto& file : jsonFiles) {
         try {
-            auto schema = loadSchema(file);
-            if (!schema.name.empty()) {
+            loaders::JsonParser jp;
+            nlohmann::json root = jp.loadFile(file);
+            // A file may hold a single entity object or an array of entities
+            nlohmann::json docs = root.is_array() ? root : nlohmann::json::array({root});
+            for (const auto& node : docs) {
+                if (!node.is_object()) continue;
+                EntitySchema schema = parseJson(node);
+                if (schema.name.empty()) { spdlog::warn("Schema has no name in {}", file); continue; }
+
+                loaders::SchemaValidator validator;
+                auto vr = validator.validate(schema);
+                if (!vr.isValid()) {
+                    for (const auto& e : vr.errors) spdlog::error("Schema {} error: {}", file, e);
+                    continue;
+                }
+                for (const auto& w : vr.warnings) spdlog::warn("Schema {}: {}", file, w);
+
                 schemas[schema.name] = schema;
                 schemaCache.put(schema.name, schema);
                 spdlog::debug("Loaded entity schema: {} ({})", schema.name, schema.displayName);
-            } else {
-                spdlog::warn("Schema file has no name field: {}", file);
             }
         } catch (const std::exception& e) {
-            // Log error but continue loading other schemas
             spdlog::error("Failed to load schema from {}: {}", file, e.what());
         }
     }
@@ -73,96 +76,78 @@ EntitySchema EntitySchemaLoader::loadSchema(const std::string& filePath) {
         throw std::runtime_error("Schema file does not exist: " + filePath);
     }
 
-    // Load and parse YAML
-    loaders::YamlParser yamlParser;
-    YAML::Node node = yamlParser.loadFile(filePath);
-    EntitySchema schema = parseYaml(node);
+    loaders::JsonParser jsonParser;
+    nlohmann::json root = jsonParser.loadFile(filePath);
+    // Use first element if file contains an array of entities
+    nlohmann::json node = (root.is_array() && !root.empty()) ? root[0] : root;
+    EntitySchema schema = parseJson(node);
 
-    // Validate schema
     loaders::SchemaValidator validator;
     auto validationResult = validator.validate(schema);
-
     if (!validationResult.isValid()) {
         std::string errorMsg = "Schema validation failed for " + filePath + ":\n";
-        for (const auto& error : validationResult.errors) {
+        for (const auto& error : validationResult.errors)
             errorMsg += "  ERROR: " + error + "\n";
-        }
         throw std::runtime_error(errorMsg);
     }
-
-    // Log warnings
-    for (const auto& warning : validationResult.warnings) {
+    for (const auto& warning : validationResult.warnings)
         spdlog::warn("Schema {}: {}", filePath, warning);
-    }
 
     return schema;
 }
 
-std::vector<std::string> EntitySchemaLoader::findYamlFiles(const std::string& dir) {
-    loaders::YamlParser yamlParser;
-    return yamlParser.findYamlFiles(dir);
+std::vector<std::string> EntitySchemaLoader::findJsonFiles(const std::string& dir) {
+    loaders::JsonParser jsonParser;
+    return jsonParser.findJsonFiles(dir);
 }
 
-EntitySchema EntitySchemaLoader::parseYaml(const YAML::Node& node) {
+EntitySchema EntitySchemaLoader::parseJson(const nlohmann::json& node) {
     EntitySchema schema;
 
-    // Parse basic metadata
-    // YAML uses "entity" for the name field
-    if (node["entity"]) {
-        schema.name = node["entity"].as<std::string>("");
-    } else if (node["name"]) {
-        schema.name = node["name"].as<std::string>("");
-    }
+    if (node.contains("entity"))
+        schema.name = node.value("entity", std::string(""));
+    else if (node.contains("name"))
+        schema.name = node.value("name", std::string(""));
 
-    schema.displayName = node["displayName"].as<std::string>(schema.name);
-    schema.description = node["description"].as<std::string>("");
-    schema.version = node["version"].as<std::string>("1.0");
+    schema.displayName  = node.value("displayName",  schema.name);
+    schema.description  = node.value("description",  std::string(""));
+    schema.version      = node.value("version",      std::string("1.0"));
 
-    // Parse fields using FieldParser
     loaders::FieldParser fieldParser;
-    if (node["fields"]) {
-        const auto& fieldsNode = node["fields"];
-        for (auto it = fieldsNode.begin(); it != fieldsNode.end(); ++it) {
-            std::string fieldName = it->first.as<std::string>();
-            EntityField field = fieldParser.parseField(fieldName, it->second);
-            schema.fields.push_back(field);
+    if (node.contains("fields")) {
+        for (auto& [fieldName, fieldNode] : node["fields"].items()) {
+            schema.fields.push_back(fieldParser.parseField(fieldName, fieldNode));
         }
     }
 
-    // Parse indexes and ACL using RelationParser
     loaders::RelationParser relationParser;
-    if (node["indexes"]) {
-        for (const auto& indexNode : node["indexes"]) {
-            EntityIndex index = relationParser.parseIndex(indexNode);
-            schema.indexes.push_back(index);
-        }
+    if (node.contains("indexes")) {
+        for (const auto& indexNode : node["indexes"])
+            schema.indexes.push_back(relationParser.parseIndex(indexNode));
     }
 
-    if (node["acl"]) {
+    if (node.contains("acl"))
         schema.acl = relationParser.parseACL(node["acl"]);
-    }
 
-    // Parse additional metadata
-    if (node["metadata"]) {
-        for (auto it = node["metadata"].begin(); it != node["metadata"].end(); ++it) {
-            schema.metadata[it->first.as<std::string>()] = it->second.as<std::string>();
-        }
+    if (node.contains("metadata")) {
+        for (auto& [k, v] : node["metadata"].items())
+            schema.metadata[k] = v.is_string() ? v.get<std::string>() : v.dump();
     }
 
     return schema;
 }
 
-EntityField EntitySchemaLoader::parseField(const std::string& fieldName, const YAML::Node& fieldNode) {
+EntityField EntitySchemaLoader::parseField(const std::string& fieldName, const nlohmann::json& fieldNode) {
     loaders::FieldParser fieldParser;
     return fieldParser.parseField(fieldName, fieldNode);
 }
 
-EntityIndex EntitySchemaLoader::parseIndex(const YAML::Node& indexNode) {
+EntityIndex EntitySchemaLoader::parseIndex(const nlohmann::json& indexNode) {
     loaders::RelationParser relationParser;
     return relationParser.parseIndex(indexNode);
 }
 
-EntitySchema::ACL EntitySchemaLoader::parseACL(const YAML::Node& aclNode) {
+EntitySchema::ACL EntitySchemaLoader::parseACL(const nlohmann::json& aclNode) {
     loaders::RelationParser relationParser;
     return relationParser.parseACL(aclNode);
 }
