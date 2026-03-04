@@ -13,6 +13,7 @@
 #include "handlers/schema_route_handler.hpp"
 #include "handlers/admin_route_handler.hpp"
 #include "handlers/seed_route_handler.hpp"
+#include "actions/seed_loader_action.hpp"
 #include "handlers/batch_route_handler.hpp"
 #include "handlers/entity_route_handler_helpers.hpp"
 #include "bulk_handler.hpp"
@@ -115,6 +116,22 @@ void Server::registerRoutes() {
             wf_engine_->loadConfig(event_cfg_path);
         } else {
             spdlog::debug("[workflow] DBAL_EVENT_CONFIG not set — workflow engine disabled");
+        }
+    }
+
+    // Auto-seed on startup if DBAL_SEED_ON_STARTUP=true
+    {
+        const char* seed_on_startup = std::getenv("DBAL_SEED_ON_STARTUP");
+        if (seed_on_startup && std::string(seed_on_startup) == "true") {
+            if (ensureClient()) {
+                std::string seed_dir = actions::SeedLoaderAction::getDefaultSeedDir();
+                spdlog::info("[seed] auto-seeding from {}", seed_dir);
+                auto summary = actions::SeedLoaderAction::loadSeeds(*dbal_client_, seed_dir);
+                spdlog::info("[seed] complete — inserted={}, skipped={}, failed={}",
+                             summary.total_inserted, summary.total_skipped, summary.total_failed);
+            } else {
+                spdlog::warn("[seed] skipping auto-seed — could not acquire DB client");
+            }
         }
     }
 

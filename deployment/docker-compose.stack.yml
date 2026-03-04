@@ -279,6 +279,8 @@ services:
       DBAL_SEARCH_URL: http://elasticsearch:9200?index=metabuilder&refresh=true
       DBAL_SCHEMA_DIR: /app/schemas/entities
       DBAL_TEMPLATE_DIR: /app/templates/sql
+      DBAL_SEED_DIR: /app/seeds/database
+      DBAL_SEED_ON_STARTUP: "true"
       DBAL_BIND_ADDRESS: 0.0.0.0
       DBAL_PORT: 8080
       DBAL_MODE: production

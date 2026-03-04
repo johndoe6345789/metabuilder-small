@@ -1193,7 +1193,47 @@ def send_interactive_input(session_id):
     return jsonify({'ok': True})
 
 
+def seed_test_users():
+    """Seed demo accounts from dbal/shared/seeds/database/pastebin_users.json on first startup."""
+    seed_file = os.path.join(
+        os.path.dirname(__file__),
+        '..', '..', '..', 'dbal', 'shared', 'seeds', 'database', 'pastebin_users.json'
+    )
+    # In Docker the seed file is copied to /app/seeds/database/
+    docker_path = '/app/seeds/database/pastebin_users.json'
+    path = docker_path if os.path.exists(docker_path) else seed_file
+
+    try:
+        with open(path) as f:
+            data = json.load(f)
+    except Exception as e:
+        print(f'[seed] could not load pastebin_users.json: {e}', flush=True)
+        return
+
+    records = data.get('records', [])
+    conn = get_db()
+    cursor = conn.cursor()
+    for record in records:
+        user_id  = record.get('id', '')
+        username = record.get('username', '')
+        pw_hash  = record.get('passwordHash', '')
+        if not (user_id and username and pw_hash):
+            continue
+        cursor.execute('SELECT id FROM user_auth WHERE username = ?', (username,))
+        if cursor.fetchone():
+            continue
+        cursor.execute(
+            'INSERT INTO user_auth (id, username, password_hash) VALUES (?, ?, ?)',
+            (user_id, username, pw_hash)
+        )
+        conn.commit()
+        # User entity + namespaces/snippets are seeded by DBAL seed loader
+        print(f'[seed] registered auth for: {username}', flush=True)
+    conn.close()
+
+
 init_db()
+seed_test_users()
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=False)

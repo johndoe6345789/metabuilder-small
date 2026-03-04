@@ -37,6 +37,7 @@ COPY production/include/ ./include/
 
 # Copy schemas and codegen script, then generate types into the include dir
 COPY shared/api/schema/ ./shared/api/schema/
+COPY shared/seeds/database/ ./shared/seeds/database/
 COPY shared/tools/codegen/gen_types.py ./shared/tools/codegen/gen_types.py
 RUN python3 shared/tools/codegen/gen_types.py \
     --schema-dir ./shared/api/schema \
@@ -70,6 +71,9 @@ COPY --from=builder /dbal/shared/api/schema/auth /app/schemas/auth
 # Embed workflow event config + workflow definitions
 COPY --from=builder /dbal/shared/api/schema/events    /app/schemas/events
 COPY --from=builder /dbal/shared/api/schema/workflows /app/schemas/workflows
+
+# Embed seed data
+COPY --from=builder /dbal/shared/seeds/database /app/seeds/database
 
 # Create data directories
 RUN mkdir -p /app/data/blobs

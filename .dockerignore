@@ -101,6 +101,7 @@ dist
 # Allow specific dbal paths through for app builds
 !dbal/shared/ui
 !dbal/shared/api/schema/entities
+!dbal/shared/seeds/database
 
 # Allow conanfiles through for base image builds (negation overrides above exclusions)
 !dbal/production/build-config/conanfile.py
