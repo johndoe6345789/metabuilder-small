@@ -243,21 +243,21 @@
   max-width: 360px;
   display: flex;
   flex-direction: column;
-  gap: 1.375rem;
+  gap: 1.5rem;
 }
 
 .formTitle {
   font-size: 1.5rem;
   font-weight: 700;
   color: var(--mat-sys-on-surface, #181818);
-  margin: 0 0 0.25rem;
+  margin: 0 0 0.75rem;
   letter-spacing: -0.02em;
 }
 
 .formSub {
   font-size: 0.875rem;
   color: var(--mat-sys-on-surface-variant, #706e6b);
-  margin: -0.5rem 0 0.25rem;
+  margin: 0 0 0.25rem;
 }
 
 // ─── Fields ───────────────────────────────────────────────────────────────────
@@ -333,7 +333,6 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-top: -4px;
 }
 
 .checkbox {
@@ -355,7 +354,8 @@
 
 .btn {
   width: 100%;
-  height: 40px;
+  height: 42px;
+  margin-top: 0.25rem;
   padding: 0 16px;
   background: #0176d3;
   color: #fff;
@@ -452,7 +452,7 @@
 .divider {
   height: 1px;
   background: var(--mat-sys-outline-variant, #e5e5e4);
-  margin: 0.25rem 0;
+  margin: 0.5rem 0;
 }
 
 .switchRow {

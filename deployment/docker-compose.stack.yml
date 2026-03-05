@@ -545,6 +545,7 @@ services:
       NODE_ENV: development
       PORT: 3000
       HOSTNAME: "0.0.0.0"
+      NEXT_PUBLIC_DBAL_API_URL: /api/dbal
       NEXT_PUBLIC_FLASK_BACKEND_URL: /pastebin-api
       NEXT_TELEMETRY_DISABLED: "1"
     volumes:

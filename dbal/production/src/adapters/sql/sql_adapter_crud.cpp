@@ -156,10 +156,14 @@ Result<ListResult<Json>> SqlAdapter::list(const std::string& entityName, const L
     // Build SQL
     const std::string tableName = quoteId(schema.name);
     const std::string fieldList = buildFieldList(schema);
+    // Cast limit/offset placeholders to integer — PQexecParams sends all
+    // values as text and PostgreSQL refuses implicit text→bigint for LIMIT/OFFSET.
+    const std::string limitPh  = placeholder(paramIndex++) + (dialect_ == Dialect::Postgres ? "::integer" : "");
+    const std::string offsetPh = placeholder(paramIndex++) + (dialect_ == Dialect::Postgres ? "::integer" : "");
     const std::string sql = "SELECT " + fieldList +
                             " FROM " + tableName + whereClause +
-                            " ORDER BY " + quoteId(orderField) + " DESC LIMIT " + placeholder(paramIndex++) +
-                            " OFFSET " + placeholder(paramIndex++);
+                            " ORDER BY " + quoteId(orderField) + " DESC LIMIT " + limitPh +
+                            " OFFSET " + offsetPh;
     params.push_back({"limit", std::to_string(limit)});
     params.push_back({"offset", std::to_string(offset)});
 

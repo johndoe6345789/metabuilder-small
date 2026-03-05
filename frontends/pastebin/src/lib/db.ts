@@ -3,17 +3,20 @@
  */
 
 import type { Snippet, Namespace } from './types';
-import { getStorageConfig, FlaskStorageAdapter } from './storage';
+import { getStorageConfig, FlaskStorageAdapter, DBALStorageAdapter } from './storage';
 import * as IndexedDBStorage from './indexeddb-storage';
 
 // Helper to get the active storage backend
 function getActiveStorage() {
   const config = getStorageConfig();
-  
+
+  if (config.backend === 'dbal' && config.dbalUrl) {
+    return new DBALStorageAdapter(config.dbalUrl, config.flaskUrl);
+  }
   if (config.backend === 'flask' && config.flaskUrl) {
     return new FlaskStorageAdapter(config.flaskUrl);
   }
-  
+
   return null; // Use IndexedDB
 }
 

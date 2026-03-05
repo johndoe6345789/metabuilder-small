@@ -6,6 +6,7 @@ import { ThemeApplier } from '@/components/layout/ThemeApplier'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { loginUser, registerUser, clearError } from '@/store/slices/authSlice'
 import { selectIsAuthenticated, selectAuthLoading, selectAuthError } from '@/store/selectors'
+import pkg from '../../../package.json'
 import styles from './login.module.scss'
 
 type Mode = 'signin' | 'register'
@@ -145,7 +146,7 @@ export default function LoginPage() {
             </pre>
           </div>
 
-          <p className={styles.brandBottom}>CodeSnippet · v0.5</p>
+          <p className={styles.brandBottom}>CodeSnippet · v{pkg.version}</p>
         </div>
 
         {/* ── Right: form panel ─────────────────────────────────── */}

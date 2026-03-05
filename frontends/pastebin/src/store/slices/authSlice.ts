@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
+import { createAsyncThunk, createSlice, type Action } from '@reduxjs/toolkit'
 import { setAuthToken } from '@/lib/authToken'
 
 export interface AuthUser {
@@ -108,6 +108,10 @@ const authSlice = createSlice({
       .addCase(registerUser.pending,   onPending)
       .addCase(registerUser.fulfilled, onFulfilled)
       .addCase(registerUser.rejected,  onRejected)
+      .addMatcher(
+        (action: Action) => action.type === 'persist/REHYDRATE',
+        (state) => { state.error = null; state.loading = false },
+      )
   },
 })
 
