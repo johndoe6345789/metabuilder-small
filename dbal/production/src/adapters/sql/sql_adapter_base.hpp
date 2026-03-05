@@ -14,6 +14,7 @@
 #include "sql_adapter_helpers.hpp"
 #include "sql_transaction_manager.hpp"
 #include "../schema_loader.hpp"
+#include "../sql_template_generator.hpp"
 
 namespace dbal {
 namespace adapters {
@@ -91,6 +92,9 @@ protected:
     void loadSchemas();
     void createTables();
     std::optional<EntitySchema> getEntitySchemaInternal(const std::string& entityName) const;
+
+    // Schema migration: adds columns present in entity definition but missing from the table
+    void migrateTable(SqlConnection*, const EntityDefinition&, SqlDialect, SqlTemplateGenerator&);
 
     // Error mapping
     static Error mapSqlError(const SqlError& error);

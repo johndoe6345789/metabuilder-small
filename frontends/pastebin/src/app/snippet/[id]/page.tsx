@@ -17,6 +17,8 @@ import { FileCommandPalette, CommandItem } from '@/components/features/file-ops/
 import { FileMenu } from '@/components/features/file-ops/FileMenu'
 import { SnippetComments } from '@/components/features/comments/SnippetComments'
 import { ShareDialog } from '@/components/features/snippet-viewer/ShareDialog'
+import { ForkDialog } from '@/components/features/snippet-viewer/ForkDialog'
+import { HistoryPanel } from '@/components/features/snippet-viewer/HistoryPanel'
 import styles from './snippet-view-page.module.scss'
 
 const SnippetViewerContent = dynamic(
@@ -78,6 +80,8 @@ export default function SnippetViewPage() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('code')
   const [editOpen, setEditOpen] = useState(false)
   const [shareOpen, setShareOpen] = useState(false)
+  const [forkOpen, setForkOpen] = useState(false)
+  const [historyOpen, setHistoryOpen] = useState(false)
   const [openFiles, setOpenFiles] = useState<string[]>([])
   const [localCode, setLocalCode] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
@@ -451,6 +455,24 @@ export default function SnippetViewPage() {
               <MaterialIcon name="share" size={14} />
               <span>Share</span>
             </button>
+            <button
+              className={styles.toolBtn}
+              onClick={() => setForkOpen(true)}
+              title="Fork snippet into your account"
+              aria-label="Fork snippet"
+            >
+              <MaterialIcon name="call_split" size={14} />
+              <span>Fork</span>
+            </button>
+            <button
+              className={`${styles.toolBtn} ${historyOpen ? styles.toolBtnActive : ''}`}
+              onClick={() => setHistoryOpen(o => !o)}
+              title="Version history"
+              aria-label="Version history"
+            >
+              <MaterialIcon name="history" size={14} />
+              <span>History</span>
+            </button>
           </div>
 
           <div className={styles.toolSep} aria-hidden="true" />
@@ -715,6 +737,18 @@ export default function SnippetViewPage() {
           open={shareOpen}
           onClose={() => setShareOpen(false)}
           snippet={snippet}
+        />
+
+        <ForkDialog
+          open={forkOpen}
+          onClose={() => setForkOpen(false)}
+          snippet={snippet}
+        />
+
+        <HistoryPanel
+          open={historyOpen}
+          onClose={() => setHistoryOpen(false)}
+          snippetId={id}
         />
 
         {/* Edit dialog */}

@@ -23,6 +23,7 @@
     { "$ref": "./pastebin/snippet.json" },
     { "$ref": "./pastebin/snippet_comment.json" },
     { "$ref": "./pastebin/profile_comment.json" },
+    { "$ref": "./pastebin/snippet_revision.json" },
     { "$ref": "./ecommerce/product.json" },
     { "$ref": "./gaming/game.json" },
     { "$ref": "./spotify_clone/artist.json" },

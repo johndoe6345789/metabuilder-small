@@ -244,6 +244,29 @@ public:
         return statements;
     }
 
+    /**
+     * Generate ALTER TABLE ADD COLUMN SQL for a single missing field.
+     * PostgreSQL: uses IF NOT EXISTS natively.
+     * MySQL/MariaDB: no IF NOT EXISTS — caller must verify column is absent first.
+     * SQLite: no IF NOT EXISTS clause — caller must verify column is absent first.
+     */
+    std::string generateAlterAddColumn(const EntityDefinition& entity,
+                                       const FieldDefinition& field,
+                                       SqlDialect dialect) const {
+        std::string col_type = mapFieldType(field, dialect);
+        if (dialect == SqlDialect::PostgreSQL) {
+            return "ALTER TABLE \"" + entity.name + "\" ADD COLUMN IF NOT EXISTS \"" +
+                   field.name + "\" " + col_type;
+        } else if (dialect == SqlDialect::MySQL) {
+            return "ALTER TABLE `" + entity.name + "` ADD COLUMN `" +
+                   field.name + "` " + col_type;
+        } else {
+            // SQLite
+            return "ALTER TABLE \"" + entity.name + "\" ADD COLUMN \"" +
+                   field.name + "\" " + col_type;
+        }
+    }
+
 private:
     /**
      * Fallback inline templates if files don't exist

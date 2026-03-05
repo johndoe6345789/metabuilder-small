@@ -31,6 +31,14 @@ export interface Snippet {
   shareToken?: string
 }
 
+export interface SnippetRevision {
+  id: string
+  snippetId: string
+  code: string
+  files?: SnippetFile[]
+  createdAt: number
+}
+
 export interface Namespace {
   id: string
   name: string

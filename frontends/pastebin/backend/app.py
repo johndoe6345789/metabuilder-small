@@ -930,6 +930,7 @@ def update_snippet(snippet_id):
     r = dbal_request('PUT', f'{_dbal_path("Snippet")}/{snippet_id}', body)
     if not r or not r.ok:
         return jsonify({'error': 'Failed to update snippet'}), 500
+    _maybe_save_revision(snippet_id, data, g.user_id)
     return jsonify(_dbal_snippet(r.json().get('data', data)))
 
 
@@ -988,6 +989,165 @@ def get_shared_snippet(token):
     result = _dbal_snippet(snippet)
     result['authorUsername'] = _get_username(snippet.get('userId', ''))
     return jsonify(result)
+
+
+# ---------------------------------------------------------------------------
+# Revision / history helpers
+# ---------------------------------------------------------------------------
+
+def _maybe_save_revision(snippet_id: str, data: dict, user_id: str) -> None:
+    """Create a SnippetRevision if code/files changed since the last saved revision."""
+    last_r = dbal_request(
+        'GET',
+        f'{_dbal_path("SnippetRevision")}?filter.snippetId={snippet_id}&sort=-createdAt&limit=1',
+    )
+    last_rev = None
+    if last_r and last_r.ok:
+        items = last_r.json().get('data') or []
+        if items:
+            last_rev = items[0]
+
+    new_code  = data.get('code', '')
+    new_files = json.dumps(data.get('files')) if data.get('files') else None
+
+    if last_rev:
+        if last_rev.get('code') == new_code and last_rev.get('files') == new_files:
+            return  # No change — skip duplicate revision
+
+    dbal_request('POST', _dbal_path('SnippetRevision'), {
+        'id':        str(uuid.uuid4()),
+        'snippetId': snippet_id,
+        'code':      new_code,
+        'files':     new_files,
+        'createdAt': int(time.time() * 1000),
+        'userId':    user_id,
+        'tenantId':  DBAL_TENANT_ID,
+    })
+
+
+def _fork_snippet(source: dict, new_title: str, user_id: str):
+    """Copy a snippet into the caller's account. Returns (response_dict, status_code)."""
+    body = {
+        'id':              str(uuid.uuid4()),
+        'title':           new_title,
+        'description':     source.get('description', ''),
+        'code':            source.get('code', ''),
+        'language':        source.get('language', 'plaintext'),
+        'category':        source.get('category', 'general'),
+        'namespaceId':     None,
+        'hasPreview':      bool(source.get('hasPreview')),
+        'functionName':    source.get('functionName'),
+        'inputParameters': source.get('inputParameters') if isinstance(source.get('inputParameters'), str)
+                           else (json.dumps(source['inputParameters']) if source.get('inputParameters') else None),
+        'files':           source.get('files') if isinstance(source.get('files'), str)
+                           else (json.dumps(source['files']) if source.get('files') else None),
+        'entryPoint':      source.get('entryPoint'),
+        'isTemplate':      False,
+        'createdAt':       int(time.time() * 1000),
+        'updatedAt':       int(time.time() * 1000),
+        'userId':          user_id,
+        'tenantId':        DBAL_TENANT_ID,
+    }
+    r = dbal_request('POST', _dbal_path('Snippet'), body)
+    if not r or not r.ok:
+        return {'error': 'Failed to fork snippet'}, 500
+    return _dbal_snippet(r.json().get('data', {})), 201
+
+
+# ---------------------------------------------------------------------------
+# Revision endpoints
+# ---------------------------------------------------------------------------
+
+@app.route('/api/snippets/<snippet_id>/revisions', methods=['GET'])
+@auth_required
+def list_revisions(snippet_id):
+    check = dbal_request('GET', f'{_dbal_path("Snippet")}/{snippet_id}')
+    if not check or not check.ok:
+        return jsonify({'error': 'Snippet not found'}), 404
+    if check.json().get('data', {}).get('userId') != g.user_id:
+        return jsonify({'error': 'Snippet not found'}), 404
+    r = dbal_request(
+        'GET',
+        f'{_dbal_path("SnippetRevision")}?filter.snippetId={snippet_id}&sort=-createdAt&limit=50',
+    )
+    if not r or not r.ok:
+        return jsonify([])
+    items = r.json().get('data', [])
+    # Parse files JSON string back to array if present
+    for rev in items:
+        if rev.get('files') and isinstance(rev['files'], str):
+            try:
+                rev['files'] = json.loads(rev['files'])
+            except Exception:
+                rev['files'] = None
+    return jsonify(items)
+
+
+@app.route('/api/snippets/<snippet_id>/revisions/<rev_id>/revert', methods=['POST'])
+@auth_required
+def revert_to_revision(snippet_id, rev_id):
+    # Ownership check
+    check = dbal_request('GET', f'{_dbal_path("Snippet")}/{snippet_id}')
+    if not check or not check.ok:
+        return jsonify({'error': 'Snippet not found'}), 404
+    snippet = check.json().get('data', {})
+    if snippet.get('userId') != g.user_id:
+        return jsonify({'error': 'Snippet not found'}), 404
+
+    rev_r = dbal_request('GET', f'{_dbal_path("SnippetRevision")}/{rev_id}')
+    if not rev_r or not rev_r.ok:
+        return jsonify({'error': 'Revision not found'}), 404
+    rev = rev_r.json().get('data', {})
+
+    # Patch snippet with revision code/files
+    patch_body = {
+        'code':      rev.get('code', ''),
+        'files':     rev.get('files'),
+        'updatedAt': int(time.time() * 1000),
+    }
+    r = dbal_request('PATCH', f'{_dbal_path("Snippet")}/{snippet_id}', patch_body)
+    if not r or not r.ok:
+        return jsonify({'error': 'Failed to revert snippet'}), 500
+
+    # Record the revert as a new revision
+    _maybe_save_revision(snippet_id, {'code': rev.get('code', ''), 'files': rev.get('files')}, g.user_id)
+
+    return jsonify(_dbal_snippet(r.json().get('data', snippet)))
+
+
+# ---------------------------------------------------------------------------
+# Fork endpoints
+# ---------------------------------------------------------------------------
+
+@app.route('/api/snippets/<snippet_id>/fork', methods=['POST'])
+@auth_required
+def fork_snippet(snippet_id):
+    check = dbal_request('GET', f'{_dbal_path("Snippet")}/{snippet_id}')
+    if not check or not check.ok:
+        return jsonify({'error': 'Snippet not found'}), 404
+    source = check.json().get('data', {})
+    # Allow forking own snippets or publicly shared ones
+    data = request.json or {}
+    new_title = data.get('title') or f"{source.get('title', 'Snippet')} (fork)"
+    result, status = _fork_snippet(source, new_title, g.user_id)
+    return jsonify(result), status
+
+
+@app.route('/api/share/<token>/fork', methods=['POST'])
+@auth_required
+def fork_shared_snippet(token):
+    # Fetch via share token (no ownership required)
+    r = dbal_request('GET', f'{_dbal_path("Snippet")}?filter.shareToken={token}&limit=1')
+    if not r or not r.ok:
+        return jsonify({'error': 'Not found'}), 404
+    items = r.json().get('data', [])
+    if not items:
+        return jsonify({'error': 'Not found'}), 404
+    source = items[0]
+    data = request.json or {}
+    new_title = data.get('title') or f"{source.get('title', 'Snippet')} (fork)"
+    result, status = _fork_snippet(source, new_title, g.user_id)
+    return jsonify(result), status
 
 
 @app.route('/api/snippets/bulk-move', methods=['POST'])

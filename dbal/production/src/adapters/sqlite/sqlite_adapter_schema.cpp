@@ -4,6 +4,7 @@
 #include "../schema_loader.hpp"
 #include "../sql_template_generator.hpp"
 #include "../../config/env_config.hpp"
+#include <set>
 #include <spdlog/spdlog.h>
 
 namespace dbal {
@@ -131,9 +132,43 @@ void SQLiteAdapter::createTables() {
                 throw std::runtime_error(error);
             }
         }
+
+        migrateTable(entity, generator);
     }
 
     spdlog::info("Registered {} entity schemas for CRUD operations", schemas_.size());
+}
+
+void SQLiteAdapter::migrateTable(const EntityDefinition& entity, SqlTemplateGenerator& generator) {
+    // Query existing columns via PRAGMA table_info
+    // Result columns: cid(0), name(1), type(2), notnull(3), dflt_value(4), pk(5)
+    std::set<std::string> existing_cols;
+    std::string pragma = "PRAGMA table_info(\"" + entity.name + "\")";
+    sqlite3_stmt* stmt = nullptr;
+    int rc2 = sqlite3_prepare_v2(db_, pragma.c_str(), -1, &stmt, nullptr);
+    if (rc2 == SQLITE_OK) {
+        while (sqlite3_step(stmt) == SQLITE_ROW) {
+            const char* col_name = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+            if (col_name) existing_cols.insert(col_name);
+        }
+        sqlite3_finalize(stmt);
+    }
+
+    for (const auto& field : entity.fields) {
+        if (existing_cols.count(field.name) == 0) {
+            spdlog::info("Schema migration: adding column {}.{}", entity.name, field.name);
+            std::string alter_sql = generator.generateAlterAddColumn(entity, field, SqlDialect::SQLite);
+            char* err_msg = nullptr;
+            int alter_rc = sqlite3_exec(db_, alter_sql.c_str(), nullptr, nullptr, &err_msg);
+            if (alter_rc == SQLITE_OK) {
+                spdlog::info("Schema migration: column {}.{} added", entity.name, field.name);
+            } else {
+                std::string err = err_msg ? err_msg : "unknown error";
+                spdlog::warn("Schema migration: failed to add {}.{}: {}", entity.name, field.name, err);
+                if (err_msg) sqlite3_free(err_msg);
+            }
+        }
+    }
 }
 
 std::optional<core::EntitySchema> SQLiteAdapter::getEntitySchemaInternal(const std::string& entityName) const {

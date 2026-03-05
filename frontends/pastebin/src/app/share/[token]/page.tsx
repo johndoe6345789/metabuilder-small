@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import { MaterialIcon } from '@metabuilder/components/fakemui'
 import { fetchSharedSnippet, SharedSnippet } from '@/lib/shareApi'
+import { ForkDialog } from '@/components/features/snippet-viewer/ForkDialog'
 import { LANGUAGE_COLORS } from '@/lib/config'
 import styles from './share-page.module.scss'
 
@@ -18,6 +19,7 @@ export default function SharePage() {
   const [snippet, setSnippet] = useState<SharedSnippet | null>(null)
   const [loading, setLoading] = useState(true)
   const [copied, setCopied] = useState(false)
+  const [forkOpen, setForkOpen] = useState(false)
 
   useEffect(() => {
     if (!token) return
@@ -102,6 +104,14 @@ export default function SharePage() {
             <MaterialIcon name={copied ? 'check' : 'content_copy'} size={14} aria-hidden="true" />
             {copied ? 'Copied!' : 'Copy code'}
           </button>
+          <button
+            className={styles.copyBtn}
+            onClick={() => setForkOpen(true)}
+            aria-label="Fork snippet"
+          >
+            <MaterialIcon name="call_split" size={14} aria-hidden="true" />
+            Fork
+          </button>
         </div>
         <MonacoEditor
           value={displayCode}
@@ -119,6 +129,14 @@ export default function SharePage() {
           CodeSnippets — build your own
         </a>
       </div>
+
+      <ForkDialog
+        open={forkOpen}
+        onClose={() => setForkOpen(false)}
+        snippet={snippet}
+        isShared
+        token={token}
+      />
     </div>
   )
 }

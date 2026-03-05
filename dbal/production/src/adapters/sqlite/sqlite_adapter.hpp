@@ -12,6 +12,8 @@
 #include "dbal/errors.hpp"
 #include "sqlite_prepared_statements.hpp"
 #include "sqlite_result_parser.hpp"
+#include "../schema_loader.hpp"
+#include "../sql_template_generator.hpp"
 
 // Forward declarations for helper classes
 namespace dbal {
@@ -85,6 +87,7 @@ private:
 
     void loadSchemas();
     void createTables();
+    void migrateTable(const EntityDefinition&, SqlTemplateGenerator&);
     std::optional<core::EntitySchema> getEntitySchemaInternal(const std::string& entityName) const;
 
     // ===== State =====

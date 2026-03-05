@@ -119,6 +119,9 @@ const snippetsSlice = createSlice({
         state.items[idx] = { ...state.items[idx], ...action.payload.fields }
       }
     },
+    addSnippetLocal: (state, action: { payload: import('@/lib/types').Snippet }) => {
+      state.items.unshift(action.payload)
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -225,6 +228,7 @@ export const {
   clearSelection,
   selectAllSnippets,
   patchSnippetLocal,
+  addSnippetLocal,
 } = snippetsSlice.actions
 
 export default snippetsSlice.reducer

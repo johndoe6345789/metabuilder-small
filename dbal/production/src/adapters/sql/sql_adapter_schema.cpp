@@ -3,6 +3,7 @@
 #include "../schema_loader.hpp"
 #include "../sql_template_generator.hpp"
 #include <algorithm>
+#include <set>
 #include <spdlog/spdlog.h>
 
 namespace dbal {
@@ -111,6 +112,56 @@ void SqlAdapter::createTables() {
                 executeNonQuery(conn, index_sql, {});
             } catch (const SqlError&) {
                 // Index might already exist, ignore error
+            }
+        }
+
+        // Add any columns present in the schema but missing from the live table
+        migrateTable(conn, entity, sql_dialect, generator);
+    }
+}
+
+void SqlAdapter::migrateTable(SqlConnection* conn, const EntityDefinition& entity,
+                               SqlDialect sql_dialect, SqlTemplateGenerator& generator) {
+    std::set<std::string> existing_cols;
+    try {
+        std::vector<SqlRow> rows;
+        if (sql_dialect == SqlDialect::PostgreSQL) {
+            rows = executeQuery(conn,
+                "SELECT column_name FROM information_schema.columns "
+                "WHERE table_schema='public' AND table_name=$1",
+                {{"table_name", entity.name}});
+            for (const auto& row : rows) {
+                auto it = row.columns.find("column_name");
+                if (it != row.columns.end()) existing_cols.insert(it->second);
+            }
+        } else {
+            // MySQL / MariaDB
+            rows = executeQuery(conn,
+                "SELECT COLUMN_NAME FROM information_schema.COLUMNS "
+                "WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME=?",
+                {{"table_name", entity.name}});
+            for (const auto& row : rows) {
+                auto it = row.columns.find("COLUMN_NAME");
+                if (it == row.columns.end()) it = row.columns.find("column_name");
+                if (it != row.columns.end()) existing_cols.insert(it->second);
+            }
+        }
+    } catch (const std::exception& e) {
+        spdlog::warn("Schema migration: could not inspect columns for {}: {}", entity.name, e.what());
+        return;
+    }
+
+    for (const auto& field : entity.fields) {
+        if (existing_cols.count(field.name) == 0) {
+            spdlog::info("Schema migration: adding column {}.{}", entity.name, field.name);
+            std::string alter_sql = generator.generateAlterAddColumn(entity, field, sql_dialect);
+            try {
+                executeNonQuery(conn, alter_sql, {});
+                spdlog::info("Schema migration: column {}.{} added", entity.name, field.name);
+            } catch (const SqlError& err) {
+                spdlog::warn("Schema migration: failed to add {}.{}: {}", entity.name, field.name, err.message);
+            } catch (const std::exception& e) {
+                spdlog::warn("Schema migration: failed to add {}.{}: {}", entity.name, field.name, e.what());
             }
         }
     }
