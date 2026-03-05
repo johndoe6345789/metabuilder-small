@@ -947,6 +947,49 @@ def delete_snippet(snippet_id):
     return jsonify({'success': True})
 
 
+@app.route('/api/snippets/<snippet_id>/share', methods=['POST'])
+@auth_required
+def generate_share_token(snippet_id):
+    check = dbal_request('GET', f'{_dbal_path("Snippet")}/{snippet_id}')
+    if not check or not check.ok:
+        return jsonify({'error': 'Snippet not found'}), 404
+    if check.json().get('data', {}).get('userId') != g.user_id:
+        return jsonify({'error': 'Snippet not found'}), 404
+    token = secrets.token_urlsafe(24)
+    r = dbal_request('PATCH', f'{_dbal_path("Snippet")}/{snippet_id}', {'shareToken': token})
+    if not r or not r.ok:
+        return jsonify({'error': 'Failed to generate share token'}), 500
+    return jsonify({'token': token})
+
+
+@app.route('/api/snippets/<snippet_id>/share', methods=['DELETE'])
+@auth_required
+def revoke_share_token(snippet_id):
+    check = dbal_request('GET', f'{_dbal_path("Snippet")}/{snippet_id}')
+    if not check or not check.ok:
+        return jsonify({'error': 'Snippet not found'}), 404
+    if check.json().get('data', {}).get('userId') != g.user_id:
+        return jsonify({'error': 'Snippet not found'}), 404
+    r = dbal_request('PATCH', f'{_dbal_path("Snippet")}/{snippet_id}', {'shareToken': None})
+    if not r or not r.ok:
+        return jsonify({'error': 'Failed to revoke share token'}), 500
+    return jsonify({'success': True})
+
+
+@app.route('/api/share/<token>', methods=['GET'])
+def get_shared_snippet(token):
+    r = dbal_request('GET', f'{_dbal_path("Snippet")}?filter.shareToken={token}&limit=1')
+    if not r or not r.ok:
+        return jsonify({'error': 'Not found'}), 404
+    items = r.json().get('data', [])
+    if not items:
+        return jsonify({'error': 'Not found'}), 404
+    snippet = items[0]
+    result = _dbal_snippet(snippet)
+    result['authorUsername'] = _get_username(snippet.get('userId', ''))
+    return jsonify(result)
+
+
 @app.route('/api/snippets/bulk-move', methods=['POST'])
 @auth_required
 def bulk_move_snippets():

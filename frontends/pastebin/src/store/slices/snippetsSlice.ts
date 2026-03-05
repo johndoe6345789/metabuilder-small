@@ -113,6 +113,12 @@ const snippetsSlice = createSlice({
     selectAllSnippets: (state) => {
       state.selectedIds = state.items.map(s => s.id)
     },
+    patchSnippetLocal: (state, action: { payload: { id: string; fields: Partial<import('@/lib/types').Snippet> } }) => {
+      const idx = state.items.findIndex(s => s.id === action.payload.id)
+      if (idx !== -1) {
+        state.items[idx] = { ...state.items[idx], ...action.payload.fields }
+      }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -218,6 +224,7 @@ export const {
   toggleSnippetSelection,
   clearSelection,
   selectAllSnippets,
+  patchSnippetLocal,
 } = snippetsSlice.actions
 
 export default snippetsSlice.reducer

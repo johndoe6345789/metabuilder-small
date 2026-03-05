@@ -28,6 +28,7 @@ export interface Snippet {
   entryPoint?: string
   createdAt: number
   updatedAt: number
+  shareToken?: string
 }
 
 export interface Namespace {

@@ -16,6 +16,7 @@ import { toast } from 'sonner'
 import { FileCommandPalette, CommandItem } from '@/components/features/file-ops/FileCommandPalette'
 import { FileMenu } from '@/components/features/file-ops/FileMenu'
 import { SnippetComments } from '@/components/features/comments/SnippetComments'
+import { ShareDialog } from '@/components/features/snippet-viewer/ShareDialog'
 import styles from './snippet-view-page.module.scss'
 
 const SnippetViewerContent = dynamic(
@@ -76,6 +77,7 @@ export default function SnippetViewPage() {
   const [activeFile, setActiveFile] = useState('')
   const [activeTab, setActiveTab] = useState<ActiveTab>('code')
   const [editOpen, setEditOpen] = useState(false)
+  const [shareOpen, setShareOpen] = useState(false)
   const [openFiles, setOpenFiles] = useState<string[]>([])
   const [localCode, setLocalCode] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
@@ -438,6 +440,21 @@ export default function SnippetViewPage() {
 
           <div className={styles.toolSep} aria-hidden="true" />
 
+          {/* Share */}
+          <div className={styles.toolGroup}>
+            <button
+              className={`${styles.toolBtn} ${snippet.shareToken ? styles.toolBtnActive : ''}`}
+              onClick={() => setShareOpen(true)}
+              title={snippet.shareToken ? 'Snippet is shared — manage link' : 'Share snippet'}
+              aria-label="Share snippet"
+            >
+              <MaterialIcon name="share" size={14} />
+              <span>Share</span>
+            </button>
+          </div>
+
+          <div className={styles.toolSep} aria-hidden="true" />
+
           {/* View */}
           <div className={styles.toolGroup}>
             <button
@@ -693,6 +710,12 @@ export default function SnippetViewPage() {
         </div>
 
         <SnippetComments snippetId={id} />
+
+        <ShareDialog
+          open={shareOpen}
+          onClose={() => setShareOpen(false)}
+          snippet={snippet}
+        />
 
         {/* Edit dialog */}
         <SnippetDialog

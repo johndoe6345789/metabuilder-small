@@ -105,6 +105,13 @@
       "type": "string",
       "optional": true,
       "nullable": true
+    },
+    "shareToken": {
+      "type": "string",
+      "optional": true,
+      "nullable": true,
+      "max_length": 64,
+      "description": "Secret share token — set to enable unauthenticated read via /share/<token>"
     }
   },
   "indexes": [
@@ -133,6 +140,12 @@
       "fields": [
         "updatedAt"
       ]
+    },
+    {
+      "fields": [
+        "shareToken"
+      ],
+      "unique": true
     }
   ],
   "relations": {
