@@ -20,20 +20,29 @@ export async function generateShareToken(snippetId: string): Promise<string | nu
     method: 'POST',
     headers: { ...authHeaders() },
   })
-  if (!r.ok) return null
+  if (!r.ok) {
+    console.error('[shareApi] generateShareToken failed', r.status)
+    return null
+  }
   const data = await r.json()
   return data.token ?? null
 }
 
 export async function revokeShareToken(snippetId: string): Promise<void> {
-  await fetch(`${baseUrl()}/api/snippets/${encodeURIComponent(snippetId)}/share`, {
+  const r = await fetch(`${baseUrl()}/api/snippets/${encodeURIComponent(snippetId)}/share`, {
     method: 'DELETE',
     headers: { ...authHeaders() },
   })
+  if (!r.ok) {
+    console.error('[shareApi] revokeShareToken failed', r.status)
+  }
 }
 
 export async function fetchSharedSnippet(token: string): Promise<SharedSnippet | null> {
   const r = await fetch(`${baseUrl()}/api/share/${encodeURIComponent(token)}`)
-  if (!r.ok) return null
+  if (!r.ok) {
+    console.error('[shareApi] fetchSharedSnippet failed', r.status)
+    return null
+  }
   return r.json()
 }

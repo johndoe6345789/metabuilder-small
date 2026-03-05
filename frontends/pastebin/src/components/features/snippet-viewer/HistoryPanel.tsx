@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useTransition } from 'react'
+import { toast } from '@metabuilder/components/fakemui'
 import { MaterialIcon } from '@metabuilder/components/fakemui'
 import { useAppDispatch } from '@/store/hooks'
 import { patchSnippetLocal } from '@/store/slices/snippetsSlice'
@@ -27,6 +28,7 @@ export function HistoryPanel({ open, onClose, snippetId }: HistoryPanelProps) {
   const [revisions, setRevisions] = useState<SnippetRevision[]>([])
   const [loading, setLoading] = useState(false)
   const [revertingId, setRevertingId] = useState<string | null>(null)
+  const [isPending, startTransition] = useTransition()
 
   useEffect(() => {
     if (!open) return
@@ -37,17 +39,23 @@ export function HistoryPanel({ open, onClose, snippetId }: HistoryPanelProps) {
     })
   }, [open, snippetId])
 
-  async function handleRevert(rev: SnippetRevision) {
+  function handleRevert(rev: SnippetRevision) {
     setRevertingId(rev.id)
-    const updated = await revertToRevision(snippetId, rev.id)
-    setRevertingId(null)
-    if (!updated) return
-    dispatch(patchSnippetLocal({
-      id: snippetId,
-      fields: { code: updated.code, files: updated.files },
-    }))
-    // Re-fetch revisions to show the new revert entry
-    fetchRevisions(snippetId).then(setRevisions)
+    startTransition(async () => {
+      const updated = await revertToRevision(snippetId, rev.id)
+      setRevertingId(null)
+      if (!updated) {
+        toast.error('Failed to revert — please try again')
+        return
+      }
+      dispatch(patchSnippetLocal({
+        id: snippetId,
+        fields: { code: updated.code, files: updated.files },
+      }))
+      toast.success('Reverted successfully')
+      // Re-fetch revisions to show the new revert entry
+      fetchRevisions(snippetId).then(setRevisions)
+    })
   }
 
   if (!open) return null
@@ -84,7 +92,7 @@ export function HistoryPanel({ open, onClose, snippetId }: HistoryPanelProps) {
                 <button
                   className={styles.revertBtn}
                   onClick={() => handleRevert(rev)}
-                  disabled={revertingId === rev.id}
+                  disabled={isPending && revertingId === rev.id}
                   aria-label={`Revert to version from ${relativeTime(rev.createdAt)}`}
                 >
                   <MaterialIcon name="restore" size={14} aria-hidden="true" />

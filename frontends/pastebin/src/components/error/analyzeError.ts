@@ -1,4 +1,15 @@
 import { getPlatform } from '@/config/aiPlatforms';
+import { getStorageConfig } from '@/lib/storage';
+import { getAuthToken } from '@/lib/authToken';
+
+function baseUrl(): string {
+  return (getStorageConfig().flaskUrl ?? '').replace(/\/$/, '');
+}
+
+function authHeaders(): Record<string, string> {
+  const token = getAuthToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
 
 export async function analyzeErrorWithAI(
   errorMessage: string,
@@ -9,28 +20,81 @@ export async function analyzeErrorWithAI(
   const platform = getPlatform(platformId);
 
   // Backward compat: fall back to legacy openai_api_key for OpenAI platform
-  const apiKey = (typeof window !== 'undefined' &&
+  const localApiKey = (typeof window !== 'undefined' &&
     (localStorage.getItem(`ai_key_${platformId}`) || (platformId === 'openai' ? localStorage.getItem('openai_api_key') : null))
   ) || '';
 
-  if (platform.keyRequired && !apiKey) {
-    return buildFallback(errorMessage, context, 'Configure your AI platform API key in Settings to enable AI-powered error analysis.');
+  if (platform.keyRequired && !localApiKey) {
+    // Check if user has a key stored on server before failing
+    const serverHasKey = await checkServerKey(platformId);
+    if (!serverHasKey) {
+      return buildFallback(errorMessage, context, 'Configure your AI platform API key in Settings to enable AI-powered error analysis.');
+    }
   }
 
   try {
     const prompt = buildPrompt(errorMessage, context, errorStack);
-    let responseText: string;
+    const flask = baseUrl();
 
-    if (platform.apiFormat === 'anthropic') {
-      responseText = await callAnthropic(platform.endpoint, platform.defaultModel, apiKey, prompt);
-    } else {
-      responseText = await callOpenAICompat(platform.endpoint, platform.defaultModel, apiKey, prompt);
+    if (flask) {
+      // Proxy through Flask backend — key is used server-side
+      const r = await fetch(`${flask}/api/ai/analyze`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...authHeaders(),
+        },
+        body: JSON.stringify({
+          platformId: platform.id,
+          apiFormat: platform.apiFormat,
+          endpoint: platform.endpoint,
+          model: platform.defaultModel,
+          prompt,
+          // Client-provided key as fallback if server has no stored key
+          apiKey: localApiKey,
+        }),
+      });
+
+      if (!r.ok) {
+        const errBody = await r.json().catch(() => ({}));
+        throw new Error(errBody.error ?? `HTTP ${r.status}`);
+      }
+
+      const data = await r.json();
+      return data.result ?? 'Unable to analyze error.';
     }
 
+    // No Flask backend — fall back to direct call (development / no-backend mode)
+    if (platform.keyRequired && !localApiKey) {
+      return buildFallback(errorMessage, context, 'Configure your AI platform API key in Settings to enable AI-powered error analysis.');
+    }
+
+    let responseText: string;
+    if (platform.apiFormat === 'anthropic') {
+      responseText = await callAnthropic(platform.endpoint, platform.defaultModel, localApiKey, prompt);
+    } else {
+      responseText = await callOpenAICompat(platform.endpoint, platform.defaultModel, localApiKey, prompt);
+    }
     return responseText;
   } catch (err) {
     console.error('Error calling AI API:', err);
     return buildFallback(errorMessage, context, `Failed to get AI analysis. ${err instanceof Error ? err.message : 'Unknown error'}`);
+  }
+}
+
+async function checkServerKey(platformId: string): Promise<boolean> {
+  const flask = baseUrl();
+  const token = getAuthToken();
+  if (!flask || !token) return false;
+  try {
+    const r = await fetch(`${flask}/api/ai/settings`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!r.ok) return false;
+    const data = await r.json();
+    return data.platformId === platformId && data.hasKey === true;
+  } catch {
+    return false;
   }
 }
 

@@ -334,6 +334,14 @@
   border-radius: 0.375rem;
 }
 
+.keyServerStatus {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.8125rem;
+  color: var(--mat-sys-tertiary);
+}
+
 .headerIconRow {
   display: flex;
   align-items: center;

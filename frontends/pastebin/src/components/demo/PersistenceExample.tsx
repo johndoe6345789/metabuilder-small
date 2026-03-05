@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Card, CardContent, CardHeader, Button, Input, FormLabel, MaterialIcon } from '@metabuilder/components/fakemui'
 import { useAppDispatch } from '@/store/hooks'
 import { createSnippet } from '@/store/slices/snippetsSlice'
-import { toast } from 'sonner'
+import { toast } from '@metabuilder/components/fakemui'
 import styles from './PersistenceExample.module.scss'
 
 export function PersistenceExample() {

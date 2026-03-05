@@ -11,7 +11,7 @@ import { useTranslation } from '@/hooks/useTranslation'
 import { appConfig } from '@/lib/config'
 import { Snippet } from '@/lib/types'
 import { SnippetDialogTabs } from './SnippetDialogTabs'
-import { toast } from 'sonner'
+import { toast } from '@metabuilder/components/fakemui'
 import styles from './snippet-editor-page.module.scss'
 
 interface SnippetEditorPageProps {

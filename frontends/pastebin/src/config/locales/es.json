@@ -248,7 +248,9 @@
     "button": "Pedir ayuda a la IA",
     "dialogTitle": "Análisis de error con IA",
     "dialogSubtitle": "Te ayudo a entender y solucionar este error",
-    "analysisError": "No se pudo analizar el error. El servicio de IA puede estar temporalmente no disponible."
+    "analysisError": "No se pudo analizar el error. El servicio de IA puede estar temporalmente no disponible.",
+    "regionAriaLabel": "Herramienta de análisis de errores con IA",
+    "buttonAriaLabel": "Pedir ayuda a la IA con este error"
   },
   "loadingAnalysis": {
     "text": "Analizando el error..."

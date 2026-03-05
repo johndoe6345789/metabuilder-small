@@ -30,3 +30,6 @@ export type { LoadingContentProps } from './LoadingContent'
 
 export { Dialog } from './Dialog'
 export type { DialogProps } from './Dialog'
+
+export { toast, Toaster } from './Toast'
+export type { ToasterProps } from './Toast'

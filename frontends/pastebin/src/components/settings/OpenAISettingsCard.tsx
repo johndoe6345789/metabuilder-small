@@ -1,10 +1,21 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, Input, Button, FormLabel, MaterialIcon } from '@metabuilder/components/fakemui';
 import { useTranslation } from '@/hooks/useTranslation';
 import { AI_PLATFORMS, DEFAULT_PLATFORM_ID, getPlatform } from '@/config/aiPlatforms';
+import { getStorageConfig } from '@/lib/storage';
+import { getAuthToken } from '@/lib/authToken';
 import styles from './settings-card.module.scss';
+
+function baseUrl(): string {
+  return (getStorageConfig().flaskUrl ?? '').replace(/\/$/, '');
+}
+
+function authHeaders(): Record<string, string> {
+  const token = getAuthToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
 
 export function OpenAISettingsCard() {
   const t = useTranslation();
@@ -18,8 +29,32 @@ export function OpenAISettingsCard() {
   );
   const [showKey, setShowKey] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [serverKeyStatus, setServerKeyStatus] = useState<'unknown' | 'stored' | 'none'>('unknown');
 
   const platform = getPlatform(platformId);
+
+  // On mount and when platformId changes, check if server has a stored key
+  useEffect(() => {
+    const flask = baseUrl();
+    const token = getAuthToken();
+    if (!flask || !token) {
+      setServerKeyStatus('none');
+      return;
+    }
+    setServerKeyStatus('unknown');
+    fetch(`${flask}/api/ai/settings`, {
+      headers: authHeaders(),
+    })
+      .then(r => (r.ok ? r.json() : null))
+      .then(data => {
+        if (data && data.platformId === platformId && data.hasKey === true) {
+          setServerKeyStatus('stored');
+        } else {
+          setServerKeyStatus('none');
+        }
+      })
+      .catch(() => setServerKeyStatus('none'));
+  }, [platformId]);
 
   const handlePlatformChange = (newId: string) => {
     setPlatformId(newId);
@@ -29,25 +64,73 @@ export function OpenAISettingsCard() {
     setSaved(false);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    // Always save to localStorage for backward compat
     localStorage.setItem('ai_platform', platformId);
     if (apiKey.trim()) {
       localStorage.setItem(`ai_key_${platformId}`, apiKey.trim());
     } else {
       localStorage.removeItem(`ai_key_${platformId}`);
     }
+
+    // Also save to server if authenticated
+    const flask = baseUrl();
+    const token = getAuthToken();
+    if (flask && token) {
+      try {
+        const r = await fetch(`${flask}/api/ai/settings`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...authHeaders(),
+          },
+          body: JSON.stringify({
+            platformId,
+            apiKey: apiKey.trim(),
+          }),
+        });
+        if (r.ok) {
+          setServerKeyStatus(apiKey.trim() ? 'stored' : 'none');
+        } else {
+          console.warn('[OpenAISettingsCard] server save failed, localStorage is fallback');
+        }
+      } catch (e) {
+        console.warn('[OpenAISettingsCard] server save error:', e);
+      }
+    }
+
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
 
-  const handleClear = () => {
+  const handleClear = async () => {
     setApiKey('');
     localStorage.removeItem(`ai_key_${platformId}`);
+
+    // Clear on server too
+    const flask = baseUrl();
+    const token = getAuthToken();
+    if (flask && token) {
+      try {
+        await fetch(`${flask}/api/ai/settings`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...authHeaders(),
+          },
+          body: JSON.stringify({ platformId, apiKey: '' }),
+        });
+        setServerKeyStatus('none');
+      } catch (e) {
+        console.warn('[OpenAISettingsCard] server clear error:', e);
+      }
+    }
+
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
 
-  const isConfigured = !platform.keyRequired || !!apiKey;
+  const isConfigured = !platform.keyRequired || !!apiKey || serverKeyStatus === 'stored';
 
   return (
     <Card data-testid="openai-settings-card" role="region" aria-label="AI platform configuration">
@@ -78,6 +161,14 @@ export function OpenAISettingsCard() {
             </select>
           </div>
 
+          {/* Server-stored key indicator */}
+          {serverKeyStatus === 'stored' && (
+            <div className={styles.keyServerStatus} data-testid="server-key-status" role="status">
+              <MaterialIcon name="cloud_done" size={16} aria-hidden="true" />
+              {' Key saved on server'}
+            </div>
+          )}
+
           {/* API key (hidden for platforms that don't need one) */}
           {platform.keyRequired && (
             <div className={styles.keyFieldWrapper}>
@@ -89,7 +180,7 @@ export function OpenAISettingsCard() {
                     type={showKey ? 'text' : 'password'}
                     value={apiKey}
                     onChange={e => setApiKey(e.target.value)}
-                    placeholder={platform.keyPlaceholder}
+                    placeholder={serverKeyStatus === 'stored' ? '(using server-stored key)' : platform.keyPlaceholder}
                     data-testid="openai-api-key-input"
                     aria-label={`${platform.name} API key`}
                   />
@@ -122,7 +213,7 @@ export function OpenAISettingsCard() {
             >
               {saved ? s.saved : s.saveButton}
             </Button>
-            {apiKey && (
+            {(apiKey || serverKeyStatus === 'stored') && (
               <Button
                 onClick={handleClear}
                 variant="outlined"

@@ -1,5 +1,5 @@
 import { useCallback } from 'react'
-import { toast } from 'sonner'
+import { toast } from '@metabuilder/components/fakemui'
 import { getAllSnippets } from '@/lib/db'
 import {
   saveStorageConfig,

@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { OrganismsSection } from '@/components/organisms/OrganismsSection';
 import type { Snippet } from '@/lib/types';
 import { useCallback } from 'react';
-import { toast } from 'sonner';
+import { toast } from '@metabuilder/components/fakemui';
 import { createSnippet } from '@/lib/db';
 import { PageLayout } from '../PageLayout';
 

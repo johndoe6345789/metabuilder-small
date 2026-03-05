@@ -2,7 +2,7 @@ import { useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { Snippet, SnippetTemplate } from '@/lib/types'
-import { toast } from 'sonner'
+import { toast } from '@metabuilder/components/fakemui'
 import { useTranslation } from '@/hooks/useTranslation'
 import { seedDatabase, syncTemplatesFromJSON } from '@/lib/db'
 import {

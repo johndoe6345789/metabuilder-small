@@ -248,7 +248,9 @@
     "button": "Ask AI for Help",
     "dialogTitle": "AI Error Analysis",
     "dialogSubtitle": "Let me help you understand and fix this error",
-    "analysisError": "Unable to analyze error. The AI service may be temporarily unavailable."
+    "analysisError": "Unable to analyze error. The AI service may be temporarily unavailable.",
+    "regionAriaLabel": "AI error analysis tool",
+    "buttonAriaLabel": "Ask AI for help with this error"
   },
   "loadingAnalysis": {
     "text": "Analyzing error..."

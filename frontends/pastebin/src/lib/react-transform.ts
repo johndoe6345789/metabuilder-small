@@ -12,7 +12,7 @@ import {
   Accordion, AccordionSummary, AccordionDetails,
   FormLabel,
 } from '@metabuilder/components/fakemui'
-import { toast } from 'sonner'
+import { toast } from '@metabuilder/components/fakemui'
 import * as PhosphorIcons from '@phosphor-icons/react'
 
 export function transformReactCode(code: string, functionName?: string): React.ComponentType | null {

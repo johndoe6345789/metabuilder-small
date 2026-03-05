@@ -156,7 +156,10 @@ export {
   ErrorDisplay,
   LoadingContent,
   NotificationContainer,
+  toast,
+  Toaster,
 } from './feedback'
+export type { ToasterProps } from './feedback'
 export type {
   NotificationData,
   NotificationPosition,

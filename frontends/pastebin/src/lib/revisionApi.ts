@@ -15,7 +15,10 @@ export async function fetchRevisions(snippetId: string): Promise<SnippetRevision
   const r = await fetch(`${baseUrl()}/api/snippets/${encodeURIComponent(snippetId)}/revisions`, {
     headers: { ...authHeaders() },
   })
-  if (!r.ok) return []
+  if (!r.ok) {
+    console.error('[revisionApi] fetchRevisions failed', r.status)
+    return []
+  }
   return r.json()
 }
 
@@ -24,7 +27,10 @@ export async function revertToRevision(snippetId: string, revisionId: string): P
     `${baseUrl()}/api/snippets/${encodeURIComponent(snippetId)}/revisions/${encodeURIComponent(revisionId)}/revert`,
     { method: 'POST', headers: { ...authHeaders() } },
   )
-  if (!r.ok) return null
+  if (!r.ok) {
+    console.error('[revisionApi] revertToRevision failed', r.status)
+    return null
+  }
   return r.json()
 }
 
@@ -34,7 +40,10 @@ export async function forkSnippet(snippetId: string, title: string): Promise<Sni
     headers: { 'Content-Type': 'application/json', ...authHeaders() },
     body: JSON.stringify({ title }),
   })
-  if (!r.ok) return null
+  if (!r.ok) {
+    console.error('[revisionApi] forkSnippet failed', r.status)
+    return null
+  }
   return r.json()
 }
 
@@ -44,6 +53,9 @@ export async function forkSharedSnippet(token: string, title: string): Promise<S
     headers: { 'Content-Type': 'application/json', ...authHeaders() },
     body: JSON.stringify({ title }),
   })
-  if (!r.ok) return null
+  if (!r.ok) {
+    console.error('[revisionApi] forkSharedSnippet failed', r.status)
+    return null
+  }
   return r.json()
 }

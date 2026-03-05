@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
+import { toast } from '@metabuilder/components/fakemui'
 import { MaterialIcon } from '@metabuilder/components/fakemui'
 import { useAppDispatch } from '@/store/hooks'
 import { addSnippetLocal } from '@/store/slices/snippetsSlice'
@@ -21,20 +22,23 @@ export function ForkDialog({ open, onClose, snippet, isShared, token }: ForkDial
   const dispatch = useAppDispatch()
   const router = useRouter()
   const [title, setTitle] = useState(`${snippet.title} (fork)`)
-  const [forking, setForking] = useState(false)
+  const [isPending, startTransition] = useTransition()
 
   if (!open) return null
 
-  async function handleFork() {
-    setForking(true)
-    const newSnippet = isShared && token
-      ? await forkSharedSnippet(token, title)
-      : await forkSnippet(snippet.id, title)
-    setForking(false)
-    if (!newSnippet) return
-    dispatch(addSnippetLocal(newSnippet))
-    onClose()
-    router.push(`/snippet/${newSnippet.id}`)
+  function handleFork() {
+    startTransition(async () => {
+      const newSnippet = isShared && token
+        ? await forkSharedSnippet(token, title)
+        : await forkSnippet(snippet.id, title)
+      if (!newSnippet) {
+        toast.error('Failed to fork snippet — please try again')
+        return
+      }
+      dispatch(addSnippetLocal(newSnippet))
+      onClose()
+      router.push(`/snippet/${newSnippet.id}`)
+    })
   }
 
   return (
@@ -74,10 +78,10 @@ export function ForkDialog({ open, onClose, snippet, isShared, token }: ForkDial
           <button
             className={styles.forkBtn}
             onClick={handleFork}
-            disabled={forking || !title.trim()}
+            disabled={isPending || !title.trim()}
           >
             <MaterialIcon name="call_split" size={16} aria-hidden="true" />
-            {forking ? 'Forking…' : 'Fork'}
+            {isPending ? 'Forking…' : 'Fork'}
           </button>
         </div>
       </div>

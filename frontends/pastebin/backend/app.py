@@ -1518,6 +1518,117 @@ def create_profile_comment(user_id):
     return jsonify(comment), 201
 
 
+# ---------------------------------------------------------------------------
+# AI proxy endpoints — server-side key storage and proxied inference calls
+# ---------------------------------------------------------------------------
+
+@app.route('/api/ai/settings', methods=['GET'])
+@auth_required
+def get_ai_settings():
+    r = dbal_request('GET', f'/{DBAL_TENANT_ID}/core/User/{g.user_id}')
+    if not r or not r.ok:
+        return jsonify({'error': 'User not found'}), 404
+    user = r.json().get('data', {})
+    return jsonify({
+        'platformId': user.get('aiPlatform'),
+        'hasKey': bool(user.get('aiKey')),
+    })
+
+
+@app.route('/api/ai/settings', methods=['POST'])
+@auth_required
+def save_ai_settings():
+    data = request.json or {}
+    platform_id = data.get('platformId')
+    api_key = data.get('apiKey', '')
+
+    patch = {'aiPlatform': platform_id}
+    if api_key:
+        # Store key encoded (base64 obfuscation — avoids plaintext in logs)
+        patch['aiKey'] = base64.b64encode(api_key.encode()).decode()
+
+    r = dbal_request('PATCH', f'/{DBAL_TENANT_ID}/core/User/{g.user_id}', patch)
+    if not r or not r.ok:
+        return jsonify({'error': 'Failed to save settings'}), 500
+    return jsonify({'success': True})
+
+
+@app.route('/api/ai/analyze', methods=['POST'])
+@auth_required
+def ai_analyze():
+    data = request.json or {}
+
+    platform_id = data.get('platformId')
+    api_format = data.get('apiFormat')  # 'openai' or 'anthropic'
+    endpoint = data.get('endpoint')
+    model = data.get('model')
+    prompt = data.get('prompt', '')
+
+    if not platform_id or not prompt:
+        return jsonify({'error': 'platformId and prompt required'}), 400
+
+    # Try to get stored API key first
+    api_key = None
+    user_r = dbal_request('GET', f'/{DBAL_TENANT_ID}/core/User/{g.user_id}')
+    if user_r and user_r.ok:
+        user = user_r.json().get('data', {})
+        stored_key = user.get('aiKey', '')
+        if stored_key and user.get('aiPlatform') == platform_id:
+            try:
+                api_key = base64.b64decode(stored_key.encode()).decode()
+            except Exception:
+                pass
+
+    # Fall back to client-provided key (for platforms without stored key)
+    if not api_key:
+        api_key = data.get('apiKey', '')
+
+    if not api_key:
+        return jsonify({'error': 'No API key configured'}), 400
+
+    try:
+        if api_format == 'anthropic':
+            resp = _http.post(
+                endpoint,
+                headers={
+                    'x-api-key': api_key,
+                    'anthropic-version': '2023-06-01',
+                    'Content-Type': 'application/json',
+                },
+                json={
+                    'model': model,
+                    'max_tokens': 1024,
+                    'messages': [{'role': 'user', 'content': prompt}],
+                },
+                timeout=30,
+            )
+            resp.raise_for_status()
+            result = resp.json()
+            text = result['content'][0]['text']
+        else:
+            # OpenAI-compatible
+            resp = _http.post(
+                endpoint,
+                headers={
+                    'Authorization': f'Bearer {api_key}',
+                    'Content-Type': 'application/json',
+                },
+                json={
+                    'model': model,
+                    'messages': [{'role': 'user', 'content': prompt}],
+                    'max_tokens': 1024,
+                },
+                timeout=30,
+            )
+            resp.raise_for_status()
+            result = resp.json()
+            text = result['choices'][0]['message']['content']
+
+        return jsonify({'result': text})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 502
+
+
 def seed_test_users():
     """Seed demo accounts from dbal/shared/seeds/database/pastebin_users.json on first startup."""
     seed_file = os.path.join(

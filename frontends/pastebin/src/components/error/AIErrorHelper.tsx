@@ -49,14 +49,14 @@ export function AIErrorHelper({ error, context, className }: AIErrorHelperProps)
         className={className}
         data-testid="ai-error-helper"
         role="region"
-        aria-label="AI error analysis tool"
+        aria-label={t.aiErrorHelper.regionAriaLabel}
       >
         <Button
           onClick={analyzeError}
           variant="outlined"
           size="sm"
           data-testid="ai-helper-btn"
-          aria-label="Ask AI for help with this error"
+          aria-label={t.aiErrorHelper.buttonAriaLabel}
         >
           <motion.div
             animate={{ rotate: [0, 10, -10, 10, 0] }}

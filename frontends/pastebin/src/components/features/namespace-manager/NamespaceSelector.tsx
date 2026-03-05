@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef } from 'react'
 import { MaterialIcon } from '@metabuilder/components/fakemui'
-import { toast } from 'sonner'
+import { toast } from '@metabuilder/components/fakemui'
 import { Namespace } from '@/lib/types'
 import {
   getSnippetsByNamespace,
