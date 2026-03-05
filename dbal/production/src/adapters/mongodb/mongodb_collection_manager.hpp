@@ -3,9 +3,11 @@
 
 #include <mongocxx/collection.hpp>
 #include <mongocxx/database.hpp>
+#include <mongocxx/options/index.hpp>
 #include <string>
 #include <unordered_map>
 #include "dbal/adapters/adapter.hpp"
+#include "../schema_loader.hpp"
 
 namespace dbal {
 namespace adapters {
@@ -60,6 +62,7 @@ public:
 
 private:
     void loadSchemas(const std::string& schema_path);
+    void ensureIndexes(const EntityDefinition& entity, mongocxx::collection& coll);
 
     mongocxx::database& database_;
     std::map<std::string, EntitySchema> schemas_;

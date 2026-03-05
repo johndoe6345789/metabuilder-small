@@ -5,6 +5,7 @@
 
 #include "entity_route_handler.hpp"
 #include "entity_route_handler_helpers.hpp"
+#include "entity_validator.hpp"
 #include "../rpc_restful_handler.hpp"
 #include "../json_convert.hpp"
 #include "workflow/wf_engine.hpp"
@@ -51,6 +52,33 @@ void EntityRouteHandler::handleEntity(
                 // ListHandler requires the "filter." prefix to apply as a WHERE clause
                 query["filter.userId"] = auth->user_id;
                 spdlog::debug("[auth] Filtering list by userId={}", auth->user_id);
+            }
+        }
+
+        // Logic validation (POST = create, PATCH/PUT = update)
+        if (method == "POST" || method == "PATCH" || method == "PUT") {
+            auto schema_result = client_.adapter().getEntitySchema(route.entity);
+            if (schema_result.isOk()) {
+                auto errs = validateEntityData(
+                    schema_result.value(),
+                    jsoncpp_to_nlohmann(body),
+                    method == "POST"
+                );
+                if (!errs.empty()) {
+                    ::Json::Value err_body(::Json::objectValue);
+                    err_body["success"] = false;
+                    err_body["error"] = "Validation failed";
+                    ::Json::Value fields(::Json::arrayValue);
+                    for (const auto& e : errs) {
+                        ::Json::Value entry(::Json::objectValue);
+                        entry["field"]   = e.field;
+                        entry["message"] = e.message;
+                        fields.append(entry);
+                    }
+                    err_body["fields"] = fields;
+                    callbacks.send_error(err_body.toStyledString(), 422);
+                    return;
+                }
             }
         }
 
