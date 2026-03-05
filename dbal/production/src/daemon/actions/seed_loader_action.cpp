@@ -132,6 +132,11 @@ std::vector<SeedResult> SeedLoaderAction::loadSeedFile(Client& client, const std
                     auto create_result = client.createEntity(entity_name, record);
                     if (create_result.isOk()) {
                         result.inserted++;
+                    } else if (create_result.error().code() == ErrorCode::Conflict) {
+                        // Record already exists (duplicate primary key) — idempotent, skip silently
+                        result.skipped++;
+                        std::string id_str = record.contains("id") ? record["id"].dump() : "unknown";
+                        spdlog::debug("Seed: {} id={} already exists, skipping", entity_name, id_str);
                     } else {
                         result.failed++;
                         std::string id_str = record.contains("id") ? record["id"].dump() : "unknown";

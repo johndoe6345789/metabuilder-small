@@ -41,8 +41,15 @@ std::string SqlAdapter::buildInsertSql(const EntitySchema& schema, const Json& d
     int paramIndex = 1;
 
     for (const auto& field : schema.fields) {
-        if (field.name == "id" || field.name == "createdAt") {
-            // Skip auto-generated fields
+        if (field.name == "createdAt") {
+            continue; // Always DB-generated
+        }
+        if (field.name == "id") {
+            // Use caller-supplied id if present; otherwise let DB generate via DEFAULT
+            if (data.contains("id") && data["id"].is_string() && !data["id"].get<std::string>().empty()) {
+                fields.push_back(quoteId("id"));
+                placeholders.push_back(placeholder(paramIndex++));
+            }
             continue;
         }
         if (data.contains(field.name)) {
@@ -121,8 +128,17 @@ std::vector<SqlParam> SqlAdapter::jsonToParams(const EntitySchema& schema, const
     }
 
     for (const auto& field : schema.fields) {
-        if (field.name == "id" || field.name == "createdAt") {
-            continue; // Skip auto-generated
+        if (field.name == "createdAt") {
+            continue; // Always skip
+        }
+        if (field.name == "id") {
+            // For CREATE (prependId empty): include caller-supplied id if present
+            // For UPDATE (prependId non-empty): id already prepended above
+            if (prependId.empty() && data.contains("id") && data["id"].is_string() &&
+                !data["id"].get<std::string>().empty()) {
+                params.push_back({"id", data["id"].get<std::string>()});
+            }
+            continue;
         }
         if (data.contains(field.name)) {
             params.push_back({field.name, jsonValueToString(data[field.name])});

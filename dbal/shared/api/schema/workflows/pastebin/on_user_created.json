@@ -21,7 +21,7 @@
           "name": "Default",
           "isDefault": true,
           "createdAt": "${now}",
-          "userId": "${event.userId}",
+          "userId": "${event.id}",
           "tenantId": "${event.tenantId}"
         }
       }
@@ -37,7 +37,7 @@
           "name": "Examples",
           "isDefault": false,
           "createdAt": "${now}",
-          "userId": "${event.userId}",
+          "userId": "${event.id}",
           "tenantId": "${event.tenantId}"
         }
       }
@@ -62,7 +62,7 @@
           "isTemplate": false,
           "namespaceId": "${ns_examples_id}",
           "createdAt": "${now}",
-          "userId": "${event.userId}",
+          "userId": "${event.id}",
           "tenantId": "${event.tenantId}"
         }
       }
@@ -87,7 +87,7 @@
           "isTemplate": false,
           "namespaceId": "${ns_examples_id}",
           "createdAt": "${now}",
-          "userId": "${event.userId}",
+          "userId": "${event.id}",
           "tenantId": "${event.tenantId}"
         }
       }
@@ -110,7 +110,7 @@
           "isTemplate": false,
           "namespaceId": "${ns_examples_id}",
           "createdAt": "${now}",
-          "userId": "${event.userId}",
+          "userId": "${event.id}",
           "tenantId": "${event.tenantId}"
         }
       }
@@ -133,7 +133,7 @@
           "isTemplate": false,
           "namespaceId": "${ns_examples_id}",
           "createdAt": "${now}",
-          "userId": "${event.userId}",
+          "userId": "${event.id}",
           "tenantId": "${event.tenantId}"
         }
       }
@@ -156,7 +156,7 @@
           "isTemplate": true,
           "namespaceId": "${ns_examples_id}",
           "createdAt": "${now}",
-          "userId": "${event.userId}",
+          "userId": "${event.id}",
           "tenantId": "${event.tenantId}"
         }
       }
@@ -165,7 +165,7 @@
     {
       "id": "done",
       "type": "dbal.log",
-      "parameters": { "message": "Seed complete for user ${event.userId}" }
+      "parameters": { "message": "Seed complete for user ${event.id}" }
     }
   ]
 }
