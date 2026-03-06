@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-const BASE_URL = 'http://localhost:3000';
+const BASE_URL = 'http://localhost/workflowui';
 
 test.describe('WorkflowUI - Authentication Pages', () => {
   test('login page displays correctly', async ({ page }) => {
