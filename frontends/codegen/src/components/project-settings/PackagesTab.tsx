@@ -46,7 +46,7 @@ export function PackagesTab({
           onChange={(e) =>
             onNpmSettingsChange((current) => ({
               ...current,
-              packageManager: e.target.value,
+              packageManager: e.target.value as 'npm' | 'yarn' | 'pnpm',
             }))
           }
         >

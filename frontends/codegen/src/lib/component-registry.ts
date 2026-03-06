@@ -32,7 +32,7 @@ const config = componentRegistryConfig as RegistryConfig
 // TSX components use next/dynamic with proper import() for code splitting
 const tsxDynamicMap: Record<string, any> = {
   ProjectDashboard: dynamic(
-    () => import('@/components/ProjectDashboard').then(mod => mod.default ?? mod.ProjectDashboard ?? Object.values(mod).find(v => typeof v === 'function')),
+    () => import('@/components/ProjectDashboard').then(mod => ({ default: (mod as any).default ?? (mod as any).ProjectDashboard ?? Object.values(mod).find(v => typeof v === 'function') })),
     { ssr: true }
   ),
 }

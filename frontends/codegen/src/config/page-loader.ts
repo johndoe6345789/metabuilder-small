@@ -1,6 +1,10 @@
-import pagesConfig from './pages.json'
+import _pagesConfig from './pages.json'
 import { PageSchema } from '@/types/json-ui'
 import { FeatureToggles } from '@/types/project'
+
+// Cast JSON to avoid literal type narrowing issues (type: "json" vs type: string)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const pagesConfig = _pagesConfig as any
 
 export interface PropConfig {
   /**
@@ -69,8 +73,7 @@ export interface PagesConfig {
 }
 
 export function getPageConfig(): PagesConfig {
-  const config = pagesConfig as PagesConfig
-  return config
+  return pagesConfig as PagesConfig
 }
 
 export function getPageById(id: string): PageConfig | undefined {

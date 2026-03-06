@@ -1,4 +1,5 @@
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux'
+import type { ThunkDispatch, UnknownAction } from '@reduxjs/toolkit'
 import { createPersistedStore } from '@metabuilder/redux-persist'
 import projectReducer from './slices/projectSlice'
 import filesReducer from './slices/filesSlice'
@@ -40,7 +41,7 @@ const { store, persistor } = createPersistedStore({
   },
   persist: {
     key: 'codeforge',
-    whitelist: ['files', 'models', 'components', 'componentTrees', 'workflows', 'lambdas', 'theme', 'settings', 'project', 'tests', 'config', 'uiState', 'translations'],
+    whitelist: ['files', 'models', 'components', 'componentTrees', 'workflows', 'lambdas', 'theme', 'settings', 'project', 'tests', 'config', 'uiState', 'translations', 'ui'],
     throttle: 300,
   },
   middleware: (base) =>
@@ -52,7 +53,7 @@ const { store, persistor } = createPersistedStore({
 export { store, persistor }
 
 export type RootState = ReturnType<typeof store.getState>
-export type AppDispatch = typeof store.dispatch
+export type AppDispatch = ThunkDispatch<RootState, unknown, UnknownAction>
 
 export const useAppDispatch = () => useDispatch<AppDispatch>()
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector

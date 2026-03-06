@@ -1,5 +1,6 @@
 import type { ComponentProps } from 'react'
 
 export interface SpacerProps extends ComponentProps<'div'> {
-  // Component-specific props
+  size?: string | number
+  axis?: 'horizontal' | 'vertical' | string
 }

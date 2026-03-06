@@ -1,5 +1,7 @@
-import type { ComponentProps } from 'react'
+import type { ComponentProps, ReactNode } from 'react'
 
 export interface InfoPanelProps extends ComponentProps<'div'> {
-  // Component-specific props
+  variant?: string
+  title?: string
+  icon?: ReactNode
 }

@@ -3,7 +3,7 @@ import type { ComponentDefinition } from '@/lib/component-definition-types'
 
 export const componentDefinitions = (componentDefinitionsData as ComponentDefinition[]).map(
   (definition) => {
-    if (definition.type !== 'Breadcrumb') {
+    if ((definition.type as string) !== 'Breadcrumb') {
       return definition
     }
 

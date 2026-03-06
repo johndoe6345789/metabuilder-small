@@ -60,7 +60,7 @@ export function useProjectManagerDropdown() {
   )
 
   const currentName = projectState.nextjsConfig.appName || 'Untitled Project'
-  const currentId = (currentProject as Record<string, unknown>).id as string | undefined
+  const currentId = (currentProject as unknown as Record<string, unknown>)?.id as string | undefined
 
   /** Load project data into Redux state */
   const loadIntoState = useCallback(

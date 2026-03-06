@@ -1,8 +1,8 @@
 import { ReactNode } from 'react'
 
 export interface AlertProps {
-  variant?: 'info' | 'warning' | 'success' | 'error'
+  variant?: 'info' | 'warning' | 'success' | 'error' | string
   title?: string
-  children: ReactNode
+  children?: ReactNode
   className?: string
 }

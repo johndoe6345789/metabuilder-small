@@ -1,5 +1,7 @@
-import type { ComponentProps } from 'react'
+import type { ComponentProps, ReactNode } from 'react'
 
 export interface DataListProps extends ComponentProps<'div'> {
-  // Component-specific props
+  items?: any[]
+  emptyMessage?: string | ReactNode
+  renderItem?: (item: any, index: number) => ReactNode
 }

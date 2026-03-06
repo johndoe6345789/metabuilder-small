@@ -20,6 +20,8 @@ interface AppMainPanelProps {
   onExport: () => void
   onPreview: () => void
   onShowErrors: () => void
+  stateContext?: any
+  actionContext?: any
   children?: React.ReactNode
 }
 
@@ -37,6 +39,8 @@ export default function AppMainPanel({
   onExport,
   onPreview,
   onShowErrors,
+  stateContext: _stateContext,
+  actionContext: _actionContext,
   children,
 }: AppMainPanelProps) {
   return (

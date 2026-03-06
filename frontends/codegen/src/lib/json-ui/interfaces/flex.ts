@@ -1,5 +1,9 @@
 import type { ComponentProps } from 'react'
 
 export interface FlexProps extends ComponentProps<'div'> {
-  // Component-specific props
+  gap?: string | number
+  align?: string
+  justify?: string
+  wrap?: string | boolean
+  direction?: string
 }

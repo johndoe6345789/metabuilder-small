@@ -5,7 +5,7 @@ export interface SchemaEditorConfig {
     id: string
     name: string
     layout: {
-      type: string
+      type: 'single' | 'split' | 'tabs' | 'grid'
     }
   }
   export: {

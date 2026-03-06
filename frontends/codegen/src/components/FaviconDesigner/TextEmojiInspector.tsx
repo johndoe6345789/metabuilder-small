@@ -35,7 +35,7 @@ export const TextEmojiInspector = ({ element, onUpdateElement }: TextEmojiInspec
     )}
 
     <div>
-      <Label>{formatCopy(copy.inspector.fontSize, { value: element.fontSize })}</Label>
+      <Label>{formatCopy(copy.inspector.fontSize, { value: element.fontSize ?? 32 })}</Label>
       <Slider
         value={[element.fontSize || 32]}
         onValueChange={([value]) => onUpdateElement({ fontSize: value })}

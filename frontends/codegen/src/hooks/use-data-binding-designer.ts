@@ -7,7 +7,7 @@ export function useDataBindingDesigner() {
     dataBindingCopy.seed.dataSources as DataSource[],
   )
 
-  const [mockComponents] = useState<UIComponent[]>(dataBindingCopy.seed.components)
+  const [mockComponents] = useState<UIComponent[]>(dataBindingCopy.seed.components as unknown as UIComponent[])
 
   const [selectedComponent, setSelectedComponent] = useState<UIComponent | null>(null)
   const [bindingDialogOpen, setBindingDialogOpen] = useState(false)

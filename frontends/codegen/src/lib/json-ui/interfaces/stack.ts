@@ -1,5 +1,8 @@
 import type { ComponentProps } from 'react'
 
 export interface StackProps extends ComponentProps<'div'> {
-  // Component-specific props
+  direction?: 'horizontal' | 'vertical' | 'row' | 'column'
+  spacing?: string | number
+  align?: string
+  wrap?: boolean
 }

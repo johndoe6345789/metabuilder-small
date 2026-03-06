@@ -1,6 +1,8 @@
 export const APP_CONFIG = {
   logLevel: 'info' as 'debug' | 'info' | 'warn' | 'error',
 
+  useRouter: false,
+
   features: {
     preloadCriticalComponents: true,
     bundleMetrics: true,

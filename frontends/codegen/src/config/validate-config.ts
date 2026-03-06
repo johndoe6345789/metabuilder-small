@@ -1,5 +1,8 @@
-import pagesConfig from './pages.json'
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+import _pagesConfig from './pages.json'
 import { PageConfig } from './page-loader'
+
+const pagesConfig = _pagesConfig as any
 
 export interface ValidationError {
   page: string

@@ -13,12 +13,46 @@ import {
 } from '@/lib/json-ui/json-components'
 import { Toaster } from '@/components/ui/sonner'
 import pkg from '../../../package.json'
+import { useAppDispatch, useAppSelector } from '@/store'
+import { updateSettings } from '@/store/slices/settingsSlice'
+import { setLocale, fetchTranslations } from '@/store/slices/translationsSlice'
+import { setTheme } from '@metabuilder/redux-slices/uiSlice'
+import { fetchFromDBAL } from '@/store/middleware/dbalSync'
+import { supportedLocales, localeNames } from '@metabuilder/translations'
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   const { theme, sidebarOpen, setSidebar, toggleTheme } = useUI()
   const { isMobile } = useResponsiveSidebar(sidebarOpen, setSidebar)
   const pathname = usePathname()
   const router = useRouter()
+  const dispatch = useAppDispatch()
+  const locale = useAppSelector((state) => state.translations.locale)
+
+  // Restore theme + locale from DBAL on mount (cross-device persistence)
+  useEffect(() => {
+    fetchFromDBAL('settings', 'app').then((data) => {
+      if (!data) return
+      if (data.theme) dispatch(setTheme(data.theme))
+      if (data.locale) {
+        dispatch(setLocale(data.locale))
+        dispatch(fetchTranslations(data.locale) as any)
+      }
+    })
+  }, [dispatch])
+
+  const handleToggleTheme = () => {
+    const nextTheme = theme === 'light' ? 'dark' : 'light'
+    toggleTheme()
+    dispatch(updateSettings({ theme: nextTheme }))
+  }
+
+  const handleCycleLocale = () => {
+    const idx = supportedLocales.indexOf(locale)
+    const nextLocale = supportedLocales[(idx + 1) % supportedLocales.length]
+    dispatch(setLocale(nextLocale))
+    dispatch(updateSettings({ locale: nextLocale }))
+    dispatch(fetchTranslations(nextLocale) as any)
+  }
 
   const handleNavigate = (page: string) => {
     const routeMap: Record<string, string> = {
@@ -122,7 +156,18 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
           />
           <IconButton
             color="inherit"
-            onClick={toggleTheme}
+            onClick={handleCycleLocale}
+            aria-label={`Language: ${(localeNames as Record<string, string>)[locale] ?? locale}`}
+            data-testid="toggle-language"
+            title={(localeNames as Record<string, string>)[locale] ?? locale}
+          >
+            <span style={{ fontSize: '12px', fontWeight: 700, lineHeight: 1 }} aria-hidden="true">
+              {locale.toUpperCase()}
+            </span>
+          </IconButton>
+          <IconButton
+            color="inherit"
+            onClick={handleToggleTheme}
             aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
             data-testid="toggle-theme"
           >

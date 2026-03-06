@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { unifiedStorage } from '@/lib/unified-storage'
+import type { StorageBackendKey } from '@/components/storage/storageSettingsConfig'
 
 export function useUnifiedStorage<T>(
   key: string,
@@ -20,10 +21,6 @@ export function useUnifiedStorage<T>(
         console.error(`Failed to load ${key}:`, error)
         if (mounted) {
           setValue(defaultValue)
-        }
-      } finally {
-        if (mounted) {
-          setIsLoading(false)
         }
       }
     }
@@ -66,7 +63,7 @@ export function useUnifiedStorage<T>(
 }
 
 export function useStorageBackend() {
-  const [backend, setBackend] = useState<string | null>(null)
+  const [backend, setBackend] = useState<StorageBackendKey | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
@@ -76,7 +73,7 @@ export function useStorageBackend() {
       try {
         const currentBackend = await unifiedStorage.getBackend()
         if (mounted) {
-          setBackend(currentBackend)
+          setBackend(currentBackend as StorageBackendKey | null)
         }
       } catch (error) {
         console.error('Failed to detect storage backend:', error)

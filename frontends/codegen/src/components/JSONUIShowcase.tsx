@@ -14,7 +14,9 @@ const exampleIcons = {
   Gear,
 }
 
-const configContext = require.context('@/config/ui-examples', false, /\.json$/)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const webpackRequire = require as any
+const configContext = webpackRequire.context('@/config/ui-examples', false, /\.json$/) as __WebpackModuleApi.RequireContext
 const configModules: Record<string, unknown> = {}
 for (const key of configContext.keys()) {
   configModules[`/src/config/ui-examples${key.slice(1)}`] = configContext(key)

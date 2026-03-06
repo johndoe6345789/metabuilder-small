@@ -169,9 +169,7 @@ export function JSONUIRenderer({
         const propName = getEventPropName(handler.event)
         props[propName] = (event?: any) => {
           if (handler.condition) {
-            const conditionMet = typeof handler.condition === 'function'
-              ? handler.condition({ ...dataMap, ...renderContext })
-              : evaluateConditionExpression(handler.condition, { ...dataMap, ...renderContext }, { label: 'event handler condition' })
+            const conditionMet = evaluateConditionExpression(handler.condition, { ...dataMap, ...renderContext }, { label: 'event handler condition' })
             if (!conditionMet) return
           }
           const eventPayload = typeof event === 'object' && event !== null
@@ -187,7 +185,7 @@ export function JSONUIRenderer({
     const props: Record<string, any> = { ...component.props }
 
     if (component.bindings) {
-      Object.entries(component.bindings).forEach(([propName, binding]) => {
+      Object.entries(component.bindings as Record<string, any>).forEach(([propName, binding]) => {
         props[propName] = resolveDataBinding(binding, dataMap, renderContext)
       })
     }
@@ -390,7 +388,7 @@ export function JSONUIRenderer({
         ...(component.loop!.indexVar ? { [component.loop!.indexVar]: index } : {}),
       }
 
-      let content = renderChildren(component.children, loopContext)
+      let content: React.ReactNode = renderChildren(component.children, loopContext)
 
       if (component.conditional) {
         const conditionMet = evaluateConditionExpression(component.conditional.if, { ...dataMap, ...loopContext }, { label: `loop conditional (${component.id})` })

@@ -8,6 +8,7 @@ export interface Settings {
   dbalApiUrl: string
   useIndexedDB: boolean
   theme: 'light' | 'dark' | 'system'
+  locale: string
 }
 
 interface SettingsState {
@@ -24,6 +25,7 @@ const initialState: SettingsState = {
     dbalApiUrl: 'http://localhost:8080',
     useIndexedDB: true,
     theme: 'dark',
+    locale: 'en',
   },
   loading: false,
   error: null,

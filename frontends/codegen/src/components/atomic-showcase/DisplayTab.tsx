@@ -82,7 +82,7 @@ export function DisplayTab({ ratingValue, selectedColor, onRatingChange, onColor
         <Stack spacing="md">
           <Heading level={2}>{displayCopy.timelineTitle}</Heading>
           <Divider />
-          <Timeline items={displayCopy.timelineItems} />
+          <Timeline items={displayCopy.timelineItems as any} />
         </Stack>
       </Card>
       <Card variant="bordered" padding="lg">

@@ -8,7 +8,7 @@ const componentNodeSchema: z.ZodType<ComponentNode> = z.lazy(() => z.object({
   id: z.string(),
   type: z.string(),
   name: z.string(),
-  props: z.record(z.any()),
+  props: z.record(z.string(), z.any()),
   children: z.array(componentNodeSchema)
 }))
 

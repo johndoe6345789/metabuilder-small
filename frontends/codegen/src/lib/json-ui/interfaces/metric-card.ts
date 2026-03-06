@@ -1,5 +1,8 @@
-import type { ComponentProps } from 'react'
+import type { ComponentProps, ReactNode } from 'react'
 
 export interface MetricCardProps extends ComponentProps<'div'> {
-  // Component-specific props
+  label?: string
+  value?: string | number
+  icon?: ReactNode
+  trend?: { value: number; direction: string }
 }

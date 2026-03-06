@@ -65,7 +65,7 @@ export function ComponentTreeNodes({
             {hasChildren && isExpanded && comp.children && (
               <div>
                 <ComponentTreeNodes
-                  components={comp.children}
+                  components={comp.children as UIComponent[]}
                   depth={depth + 1}
                   expandedIds={expandedIds}
                   selectedId={selectedId}

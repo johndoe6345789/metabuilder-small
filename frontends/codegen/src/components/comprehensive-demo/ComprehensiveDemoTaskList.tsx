@@ -22,10 +22,9 @@ export function ComprehensiveDemoTaskList({
   onToggle,
   onDelete,
 }: ComprehensiveDemoTaskListProps) {
-  const { query, setQuery, filtered } = useSearch({
-    items: todos,
-    searchFields: ['text' as keyof Todo],
-  })
+  const { query, setQuery, results: filtered } = useSearch(todos, (todo, q) =>
+    todo.text.toLowerCase().includes(q.toLowerCase())
+  )
 
   return (
     <Card>

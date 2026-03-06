@@ -262,10 +262,12 @@ const componentTreeSubComponents: UIComponentRegistry = {
 
 // Lazy contexts — each file becomes its own async chunk, loaded on demand.
 // If one module has a bug, only that component fails (easier to debug).
-const atomContext = require.context('@/components/atoms', false, /\.tsx$/)
-const moleculeContext = require.context('@/components/molecules', false, /\.tsx$/)
-const organismContext = require.context('@/components/organisms', false, /\.tsx$/)
-const explicitContext = require.context('@/components', true, /\.tsx$/)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const webpackRequire = require as any
+const atomContext = webpackRequire.context('@/components/atoms', false, /\.tsx$/) as __WebpackModuleApi.RequireContext
+const moleculeContext = webpackRequire.context('@/components/molecules', false, /\.tsx$/) as __WebpackModuleApi.RequireContext
+const organismContext = webpackRequire.context('@/components/organisms', false, /\.tsx$/) as __WebpackModuleApi.RequireContext
+const explicitContext = webpackRequire.context('@/components', true, /\.tsx$/) as __WebpackModuleApi.RequireContext
 
 const normalizeLoadPath = (loadPath: string): string => {
   // Convert @/components/Foo to ./Foo.tsx (require.context key format)

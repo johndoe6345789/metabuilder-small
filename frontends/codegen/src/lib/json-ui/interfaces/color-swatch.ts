@@ -1,5 +1,8 @@
 import type { ComponentProps } from 'react'
 
 export interface ColorSwatchProps extends ComponentProps<'div'> {
-  // Component-specific props
+  color?: string
+  label?: string
+  selected?: boolean
+  onClick?: () => void
 }

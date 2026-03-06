@@ -1,5 +1,5 @@
-import type { ComponentProps } from 'react'
+import type { ComponentProps, ReactNode } from 'react'
 
 export interface EmptyStateIconProps extends ComponentProps<'div'> {
-  // Component-specific props
+  icon?: ReactNode
 }

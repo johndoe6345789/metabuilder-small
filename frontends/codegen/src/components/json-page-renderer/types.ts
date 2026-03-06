@@ -25,7 +25,7 @@ export interface LegacyPageSchema {
 }
 
 export interface ComponentRendererProps {
-  config?: Record<string, any>
+  config?: LegacyPageSchema | Record<string, any>
   schema?: LegacyPageSchema
   data?: Record<string, any>
   functions?: Record<string, (...args: any[]) => any>

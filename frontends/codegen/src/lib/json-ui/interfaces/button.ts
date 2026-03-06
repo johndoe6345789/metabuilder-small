@@ -8,7 +8,7 @@ export interface ButtonProps {
   fullWidth?: boolean
   disabled?: boolean
   className?: string
-  variant?: 'default' | 'secondary' | 'destructive' | 'outline' | 'ghost' | 'link'
+  variant?: 'default' | 'secondary' | 'destructive' | 'outline' | 'ghost' | 'link' | string
   size?: 'default' | 'sm' | 'lg' | 'icon'
   onClick?: () => void
   type?: 'button' | 'submit' | 'reset'

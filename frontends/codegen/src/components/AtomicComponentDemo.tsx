@@ -31,7 +31,7 @@ export function AtomicComponentDemo() {
     searchFields: ['title'],
   })
 
-  const showCompleted = useToggle({ initial: true })
+  const showCompleted = useToggle(true)
   const addDialog = useDialog()
 
   const displayedTasks = showCompleted.value

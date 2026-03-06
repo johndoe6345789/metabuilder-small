@@ -1,3 +1,4 @@
+import React from 'react'
 import {
   CircleNotch,
   Square,
@@ -7,6 +8,7 @@ import {
   Polygon,
   TextT,
   Image as ImageIcon,
+  Pencil,
 } from '@metabuilder/fakemui/icons'
 import presets from '../../data/favicon-designer-presets.json'
 import { FaviconDesign, FaviconElement } from './types'
@@ -16,7 +18,7 @@ type ElementTypePreset = {
   label: string
 }
 
-type IconComponent = typeof CircleNotch
+type IconComponent = React.ComponentType<{ size?: number | string; weight?: string | number; className?: string }>
 
 type ElementTypeValue = ElementTypePreset['value']
 
@@ -29,6 +31,7 @@ const ELEMENT_TYPE_ICONS: Record<ElementTypeValue, IconComponent> = {
   polygon: Polygon,
   text: TextT,
   emoji: ImageIcon,
+  freehand: Pencil,
 }
 
 const elementTypePresets = presets.elementTypes as ElementTypePreset[]

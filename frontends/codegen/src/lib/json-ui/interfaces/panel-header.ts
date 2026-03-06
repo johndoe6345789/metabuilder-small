@@ -1,5 +1,8 @@
-import type { ComponentProps } from 'react'
+import type { ComponentProps, ReactNode } from 'react'
 
 export interface PanelHeaderProps extends ComponentProps<'div'> {
-  // Component-specific props
+  title?: string
+  subtitle?: ReactNode
+  icon?: ReactNode
+  actions?: ReactNode
 }

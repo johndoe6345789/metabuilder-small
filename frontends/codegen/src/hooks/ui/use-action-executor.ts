@@ -54,7 +54,7 @@ export function useActionExecutor(context: JSONUIContext) {
       const resolveDialogTarget = () => {
         const defaultSourceId = 'uiState'
         const hasExplicitTarget = Boolean(action.target && action.path)
-        const sourceId = hasExplicitTarget ? action.target : defaultSourceId
+        const sourceId = (hasExplicitTarget ? action.target : defaultSourceId) ?? defaultSourceId
         const dialogId = action.path ?? action.target
 
         if (!dialogId) return null

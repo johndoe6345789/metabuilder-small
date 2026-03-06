@@ -53,7 +53,7 @@ export function NotificationsSection({ permission, onToggle, copy }: Notificatio
           </div>
           <Switch
             checked={permission === 'granted'}
-            onChange={onToggle}
+            onChange={(e) => onToggle(e.target.checked)}
             disabled={permission === 'denied' || permission === 'unsupported'}
           />
         </div>

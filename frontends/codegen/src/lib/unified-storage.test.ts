@@ -10,9 +10,9 @@ const {
   MockSQLiteAdapter,
 } = vi.hoisted(() => {
   const callOrder: string[] = []
-  const mockFlaskGet = vi.fn<[], Promise<unknown>>()
-  const mockIndexedGet = vi.fn<[], Promise<unknown>>()
-  const mockSQLiteGet = vi.fn<[], Promise<unknown>>()
+  const mockFlaskGet = vi.fn()
+  const mockIndexedGet = vi.fn()
+  const mockSQLiteGet = vi.fn()
 
   class MockFlaskBackendAdapter {
     constructor() {

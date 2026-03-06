@@ -1,6 +1,6 @@
 import pageRendererCopy from '@/config/json-page-renderer.json'
 import { PageSectionRenderer } from '@/components/json-page-renderer/SectionRenderer'
-import { ComponentRendererProps } from '@/components/json-page-renderer/types'
+import { ComponentRendererProps, LegacyPageSchema } from '@/components/json-page-renderer/types'
 
 export function JSONPageRenderer({
   config,
@@ -8,7 +8,7 @@ export function JSONPageRenderer({
   data = {},
   functions = {},
 }: ComponentRendererProps) {
-  const pageSchema = config || schema
+  const pageSchema = (config || schema) as LegacyPageSchema | undefined
   if (!pageSchema) {
     return <div>{pageRendererCopy.fallbackText}</div>
   }
