@@ -9,7 +9,7 @@ import { getAuthToken } from '@/lib/authToken';
 import styles from './settings-card.module.scss';
 
 function baseUrl(): string {
-  return (getStorageConfig().flaskUrl ?? '').replace(/\/$/, '');
+  return (getStorageConfig().dbalUrl ?? '').replace(/\/$/, '');
 }
 
 function authHeaders(): Record<string, string> {

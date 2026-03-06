@@ -38,7 +38,6 @@ describe('db - Unified Storage Interface', () => {
     jest.clearAllMocks();
     mockStorageModule.getStorageConfig.mockReturnValue({
       backend: 'indexeddb',
-      flaskUrl: '',
     });
   });
 
@@ -46,7 +45,6 @@ describe('db - Unified Storage Interface', () => {
     beforeEach(() => {
       mockStorageModule.getStorageConfig.mockReturnValue({
         backend: 'indexeddb',
-        flaskUrl: '',
       });
     });
 
@@ -112,55 +110,6 @@ describe('db - Unified Storage Interface', () => {
 
       expect(result).toEqual(snippets);
       expect(mockIndexedDBModule.getSnippetsByNamespace).toHaveBeenCalledWith('test-ns');
-    });
-  });
-
-  describe('Snippet operations - Flask backend', () => {
-    let mockFlaskAdapter: any;
-
-    beforeEach(() => {
-      mockFlaskAdapter = {
-        getAllSnippets: jest.fn(),
-        getSnippet: jest.fn(),
-        createSnippet: jest.fn(),
-        updateSnippet: jest.fn(),
-        deleteSnippet: jest.fn(),
-        getSnippetsByNamespace: jest.fn(),
-        getAllNamespaces: jest.fn(),
-        getNamespace: jest.fn(),
-        createNamespace: jest.fn(),
-        deleteNamespace: jest.fn(),
-        testConnection: jest.fn(),
-        clearDatabase: jest.fn(),
-        getStats: jest.fn(),
-        exportDatabase: jest.fn(),
-        importDatabase: jest.fn(),
-      };
-
-      mockStorageModule.getStorageConfig.mockReturnValue({
-        backend: 'flask',
-        flaskUrl: 'http://localhost:5000',
-      });
-      mockStorageModule.FlaskStorageAdapter = jest.fn(() => mockFlaskAdapter) as any;
-    });
-
-    it('should route snippet operations to Flask backend', async () => {
-      const snippet = createTestSnippet();
-      mockFlaskAdapter.getAllSnippets.mockResolvedValue([snippet]);
-
-      const result = await db.getAllSnippets();
-
-      expect(result).toEqual([snippet]);
-      expect(mockFlaskAdapter.getAllSnippets).toHaveBeenCalled();
-    });
-
-    it('should create snippet via Flask backend', async () => {
-      const snippet = createTestSnippet();
-      mockFlaskAdapter.createSnippet.mockResolvedValue(undefined);
-
-      await db.createSnippet(snippet);
-
-      expect(mockFlaskAdapter.createSnippet).toHaveBeenCalledWith(snippet);
     });
   });
 
@@ -376,17 +325,17 @@ describe('db - Unified Storage Interface', () => {
       expect(mockIndexedDBModule.getAllNamespaces).toHaveBeenCalled();
     });
 
-    it('should throw error if Flask connection fails', async () => {
+    it('should throw error if DBAL connection fails', async () => {
       mockStorageModule.getStorageConfig.mockReturnValue({
-        backend: 'flask',
-        flaskUrl: 'http://localhost:5000',
+        backend: 'dbal',
+        dbalUrl: 'http://localhost:8080',
       });
-      const mockFlask = {
+      const mockDbal = {
         testConnection: jest.fn().mockResolvedValue(false),
       };
-      mockStorageModule.FlaskStorageAdapter = jest.fn(() => mockFlask) as any;
+      mockStorageModule.DBALStorageAdapter = jest.fn(() => mockDbal) as any;
 
-      await expect(db.initDB()).rejects.toThrow('Failed to connect to Flask backend');
+      await expect(db.initDB()).rejects.toThrow('Failed to connect to DBAL backend');
     });
 
     it('should clear database', async () => {

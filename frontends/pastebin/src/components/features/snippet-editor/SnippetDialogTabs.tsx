@@ -20,6 +20,7 @@ function DialogTabBar({ tabs, activeTab, onTabChange }: {
           key={label}
           role="tab"
           id={`snippet-tab-${i}-btn`}
+          data-testid={`snippet-tab-${i}-btn`}
           aria-selected={activeTab === i}
           aria-controls={`snippet-tab-${i}-panel`}
           onClick={() => onTabChange(i)}

@@ -24,7 +24,7 @@ if (typeof document !== 'undefined') {
 export function BackendIndicator() {
   const t = useTranslation()
   const { backend } = getStorageConfig()
-  const isEnvConfigured = Boolean(process.env.NEXT_PUBLIC_FLASK_BACKEND_URL)
+  const isEnvConfigured = Boolean(process.env.NEXT_PUBLIC_DBAL_API_URL)
 
   // Determine status based on backend type
   const status = backend === 'indexeddb' ? 'disconnected' : 'connected'

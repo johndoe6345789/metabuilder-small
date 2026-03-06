@@ -43,6 +43,32 @@
           "type": "array",
           "items": { "$ref": "#/definitions/step" },
           "minItems": 1
+        },
+        "beforeEach": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/step" },
+          "description": "Steps run before the test (wraps the test in a describe block with hooks)"
+        },
+        "afterEach": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/step" },
+          "description": "Steps run after the test (cleanup)"
+        },
+        "parameterize": {
+          "type": "object",
+          "description": "Run the test once per data row, substituting ${varName} tokens in step fields",
+          "required": ["data"],
+          "properties": {
+            "data": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "description": "Key-value pairs; values are substituted into step fields via ${key}",
+                "additionalProperties": { "type": "string" }
+              },
+              "minItems": 1
+            }
+          }
         }
       }
     },
@@ -60,6 +86,7 @@
             "dblclick",
             "fill",
             "type",
+            "pageType",
             "select",
             "check",
             "uncheck",
@@ -71,6 +98,7 @@
             "scroll",
             "wait",
             "waitForSelector",
+            "waitForHidden",
             "waitForURL",
             "waitForNavigation",
             "waitForLoadState",
@@ -79,7 +107,8 @@
             "expect",
             "reload",
             "goBack",
-            "goForward"
+            "goForward",
+            "apiRequest"
           ]
         },
         "url": {
@@ -97,8 +126,30 @@
         },
         "state": {
           "type": "string",
-          "enum": ["load", "domcontentloaded", "networkidle"],
-          "description": "Load state for waitForLoadState"
+          "enum": ["load", "domcontentloaded", "networkidle", "attached", "detached", "visible", "hidden"],
+          "description": "Load state for waitForLoadState, or element state for waitForSelector/waitForHidden"
+        },
+        "nth": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Zero-based index when multiple elements match the locator (e.g. 0 = first). Avoids strict mode errors."
+        },
+        "method": {
+          "type": "string",
+          "enum": ["GET", "POST", "PUT", "PATCH", "DELETE"],
+          "description": "HTTP method for apiRequest action"
+        },
+        "body": {
+          "description": "Request body for apiRequest POST/PUT/PATCH"
+        },
+        "skipIf": {
+          "type": "object",
+          "description": "Skip this step if condition is met (e.g. element is hidden)",
+          "required": ["selector", "state"],
+          "properties": {
+            "selector": { "type": "string" },
+            "state": { "type": "string", "enum": ["hidden", "visible", "enabled", "disabled"] }
+          }
         },
         "selector": { "type": "string", "description": "CSS selector" },
         "testId": { "type": "string", "description": "data-testid attribute value — preferred locator strategy" },

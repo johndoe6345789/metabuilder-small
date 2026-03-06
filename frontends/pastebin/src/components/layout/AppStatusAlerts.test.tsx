@@ -59,10 +59,10 @@ describe('AppStatusAlerts', () => {
     });
   });
 
-  describe('Flask backend mode', () => {
+  describe('DBAL backend mode', () => {
     beforeEach(() => {
       (storageModule.getStorageConfig as jest.Mock).mockReturnValue({
-        backend: 'flask',
+        backend: 'dbal',
       });
     });
 
@@ -71,7 +71,7 @@ describe('AppStatusAlerts', () => {
       expect(screen.getByTestId('alert-success')).toBeInTheDocument();
     });
 
-    test('does not render error alert in Flask mode', () => {
+    test('does not render error alert in DBAL mode', () => {
       render(<AppStatusAlerts />);
       const errorAlert = screen.queryByTestId('alert-error');
       expect(errorAlert).not.toBeInTheDocument();
@@ -87,7 +87,7 @@ describe('AppStatusAlerts', () => {
       expect(screen.getByText(/Live sync is enabled/i)).toBeInTheDocument();
     });
 
-    test('renders only one alert in Flask mode', () => {
+    test('renders only one alert in DBAL mode', () => {
       render(<AppStatusAlerts />);
       const alerts = screen.getAllByRole('alert');
       expect(alerts.length).toBe(1);
@@ -147,9 +147,9 @@ describe('AppStatusAlerts', () => {
       expect(screen.getByText(/local-first mode/i)).toBeInTheDocument();
     });
 
-    test('handles flask backend correctly', () => {
+    test('handles dbal backend correctly', () => {
       (storageModule.getStorageConfig as jest.Mock).mockReturnValue({
-        backend: 'flask',
+        backend: 'dbal',
       });
       render(<AppStatusAlerts />);
       expect(screen.getByText(/Connected to your configured backend/i)).toBeInTheDocument();

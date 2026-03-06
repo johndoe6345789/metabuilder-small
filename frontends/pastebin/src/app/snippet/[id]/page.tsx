@@ -510,6 +510,8 @@ export default function SnippetViewPage() {
               onClick={handleRun}
               disabled={terminal.isRunning}
               title="Run code"
+              data-testid="run-code-btn"
+              aria-label={terminal.isRunning ? 'Running code' : 'Run code'}
             >
               <MaterialIcon name="play_arrow" size={14} />
               <span>{terminal.isRunning ? 'Running…' : 'Run'}</span>
@@ -519,6 +521,8 @@ export default function SnippetViewPage() {
               onClick={terminal.handleStop}
               disabled={!terminal.isRunning}
               title="Stop execution"
+              data-testid="stop-code-btn"
+              aria-label="Stop execution"
             >
               <MaterialIcon name="stop" size={14} />
               <span>Stop</span>

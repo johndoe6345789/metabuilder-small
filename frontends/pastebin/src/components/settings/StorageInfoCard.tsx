@@ -5,7 +5,7 @@ import { useTranslation } from '@/hooks/useTranslation'
 import styles from './settings-card.module.scss'
 
 interface StorageInfoCardProps {
-  storageType?: 'indexeddb' | 'localstorage' | 'none' | 'flask'
+  storageType?: 'indexeddb' | 'localstorage' | 'none' | 'dbal'
 }
 
 export function StorageInfoCard({ storageType }: StorageInfoCardProps) {
@@ -13,12 +13,10 @@ export function StorageInfoCard({ storageType }: StorageInfoCardProps) {
   const s = t.settingsCards.storageInfo
   return (
     <Card data-testid="storage-info-card">
-      <CardHeader>
-        <h3 className={styles.cardTitle}>{s.title}</h3>
-        <p className={styles.cardDescription}>
-          {s.description}
-        </p>
-      </CardHeader>
+      <CardHeader
+        title={<h3 className={styles.cardTitle}>{s.title}</h3>}
+        subheader={<p className={styles.cardDescription}>{s.description}</p>}
+      />
       <CardContent>
         <Alert severity="info" role="status" aria-label="Storage type information">
           <AlertDescription data-testid="storage-type-description">
@@ -30,9 +28,9 @@ export function StorageInfoCard({ storageType }: StorageInfoCardProps) {
               <>
                 <strong>localStorage</strong> {s.localStorageDesc}
               </>
-            ) : storageType === 'flask' ? (
+            ) : storageType === 'dbal' ? (
               <>
-                <strong>Flask Backend</strong> {s.flaskDesc}
+                <strong>DBAL Backend</strong> {s.dbalDesc ?? s.flaskDesc}
               </>
             ) : (
               <>{s.noneDesc}</>

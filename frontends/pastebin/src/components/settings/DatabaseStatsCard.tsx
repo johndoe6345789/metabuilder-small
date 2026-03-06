@@ -9,7 +9,7 @@ interface DatabaseStatsCardProps {
   stats: {
     snippetCount: number
     templateCount: number
-    storageType: 'indexeddb' | 'localstorage' | 'none' | 'flask'
+    storageType: 'indexeddb' | 'localstorage' | 'none' | 'dbal'
     databaseSize: number
   } | null
   formatBytes: (bytes: number) => string

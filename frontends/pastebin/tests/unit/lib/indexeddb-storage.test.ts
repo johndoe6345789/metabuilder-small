@@ -4,7 +4,6 @@
  */
 
 import type { Snippet, Namespace } from '@/lib/types';
-import * as idbStorage from '@/lib/indexeddb-storage';
 
 // Mock IndexedDB
 class MockIDBDatabase {
@@ -45,15 +44,17 @@ class MockIDBRequest {
 describe('IndexedDB Storage', () => {
   let mockDB: MockIDBDatabase;
   let mockRequest: MockIDBRequest;
+  let idbStorage: typeof import('@/lib/indexeddb-storage');
 
-  beforeEach(() => {
+  beforeEach(async () => {
     jest.clearAllMocks();
+    jest.resetModules();
     mockDB = new MockIDBDatabase();
     mockRequest = new MockIDBRequest();
 
-    // Mock indexedDB
+    // Mock indexedDB — default: fires onsuccess after a tick
     global.indexedDB = {
-      open: jest.fn((dbName, version) => {
+      open: jest.fn((_dbName, _version) => {
         mockRequest.result = mockDB;
         setTimeout(() => {
           if (mockRequest.onsuccess) {
@@ -63,6 +64,9 @@ describe('IndexedDB Storage', () => {
         return mockRequest as any;
       }),
     } as any;
+
+    // Re-import after resetModules so dbInstance is fresh each test
+    idbStorage = await import('@/lib/indexeddb-storage');
   });
 
   describe('openDB', () => {
@@ -78,33 +82,35 @@ describe('IndexedDB Storage', () => {
     });
 
     it('should handle database open error', async () => {
-      mockRequest.error = new Error('Database error');
-      mockRequest.onerror = jest.fn();
+      // Override: fire onerror instead of onsuccess
+      (global.indexedDB.open as jest.Mock).mockImplementationOnce((_dbName: string, _version: number) => {
+        mockRequest.result = null;
+        mockRequest.error = new Error('Database error');
+        setTimeout(() => {
+          if (mockRequest.onerror) {
+            mockRequest.onerror(new Event('error'));
+          }
+        }, 0);
+        return mockRequest as any;
+      });
 
       const promise = idbStorage.openDB();
-      await new Promise(resolve => setTimeout(resolve, 10));
-
-      if (mockRequest.onerror) {
-        mockRequest.onerror(new Event('error'));
-      }
-
       await expect(promise).rejects.toThrow();
     });
 
     it('should create snippets store on upgrade', async () => {
-      mockDB.objectStoreNames.contains = jest.fn(name => false) as any;
+      mockDB.objectStoreNames.contains = jest.fn(() => false) as any;
 
       const promise = idbStorage.openDB();
-      await new Promise(resolve => setTimeout(resolve, 10));
+      // Let the open call register handlers
+      await new Promise(resolve => setTimeout(resolve, 0));
 
       if (mockRequest.onupgradeneeded) {
-        mockRequest.onupgradeneeded(
-          new Event('upgradeneeded') as any
-        );
-      }
-
-      if (mockRequest.onsuccess) {
-        mockRequest.onsuccess(new Event('success'));
+        // Supply event.target so the handler can read .result
+        // (Event.target is read-only, must use defineProperty)
+        const upgradeEvent = new Event('upgradeneeded');
+        Object.defineProperty(upgradeEvent, 'target', { value: mockRequest, writable: false });
+        mockRequest.onupgradeneeded(upgradeEvent as any);
       }
 
       await promise;
@@ -112,19 +118,15 @@ describe('IndexedDB Storage', () => {
     });
 
     it('should create namespaces store on upgrade', async () => {
-      mockDB.objectStoreNames.contains = jest.fn(name => false) as any;
+      mockDB.objectStoreNames.contains = jest.fn(() => false) as any;
 
       const promise = idbStorage.openDB();
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 0));
 
       if (mockRequest.onupgradeneeded) {
-        mockRequest.onupgradeneeded(
-          new Event('upgradeneeded') as any
-        );
-      }
-
-      if (mockRequest.onsuccess) {
-        mockRequest.onsuccess(new Event('success'));
+        const upgradeEvent = new Event('upgradeneeded');
+        Object.defineProperty(upgradeEvent, 'target', { value: mockRequest, writable: false });
+        mockRequest.onupgradeneeded(upgradeEvent as any);
       }
 
       await promise;
@@ -132,20 +134,16 @@ describe('IndexedDB Storage', () => {
     });
 
     it('should skip store creation if already exists', async () => {
-      mockDB.objectStoreNames.contains = jest.fn(name => true) as any;
+      mockDB.objectStoreNames.contains = jest.fn(() => true) as any;
       const createObjectStoreSpy = jest.spyOn(mockDB, 'createObjectStore');
 
       const promise = idbStorage.openDB();
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 0));
 
       if (mockRequest.onupgradeneeded) {
-        mockRequest.onupgradeneeded(
-          new Event('upgradeneeded') as any
-        );
-      }
-
-      if (mockRequest.onsuccess) {
-        mockRequest.onsuccess(new Event('success'));
+        const upgradeEvent = new Event('upgradeneeded');
+        Object.defineProperty(upgradeEvent, 'target', { value: mockRequest, writable: false });
+        mockRequest.onupgradeneeded(upgradeEvent as any);
       }
 
       await promise;
@@ -186,18 +184,17 @@ describe('IndexedDB Storage', () => {
           },
         ];
 
-        mockObjectStore.getAll = jest.fn(() => ({
-          onerror: null,
-          onsuccess: null,
-          result: snippets,
-        })) as any;
+        let getAllRequest: any;
+        mockObjectStore.getAll = jest.fn(() => {
+          getAllRequest = { onerror: null, onsuccess: null, result: snippets };
+          return getAllRequest;
+        }) as any;
 
         const promise = idbStorage.getAllSnippets();
         await new Promise(resolve => setTimeout(resolve, 10));
 
-        const request = mockObjectStore.getAll() as any;
-        if (request.onsuccess) {
-          request.onsuccess(new Event('success'));
+        if (getAllRequest?.onsuccess) {
+          getAllRequest.onsuccess(new Event('success'));
         }
 
         const result = await promise;
@@ -205,18 +202,17 @@ describe('IndexedDB Storage', () => {
       });
 
       it('should return empty array when no snippets', async () => {
-        mockObjectStore.getAll = jest.fn(() => ({
-          result: [],
-          onsuccess: null,
-          onerror: null,
-        })) as any;
+        let getAllRequest: any;
+        mockObjectStore.getAll = jest.fn(() => {
+          getAllRequest = { result: [], onsuccess: null, onerror: null };
+          return getAllRequest;
+        }) as any;
 
         const promise = idbStorage.getAllSnippets();
         await new Promise(resolve => setTimeout(resolve, 10));
 
-        const request = mockObjectStore.getAll() as any;
-        if (request.onsuccess) {
-          request.onsuccess(new Event('success'));
+        if (getAllRequest?.onsuccess) {
+          getAllRequest.onsuccess(new Event('success'));
         }
 
         const result = await promise;
@@ -224,18 +220,17 @@ describe('IndexedDB Storage', () => {
       });
 
       it('should handle read errors', async () => {
-        mockObjectStore.getAll = jest.fn(() => ({
-          onerror: null,
-          onsuccess: null,
-          error: new Error('Read error'),
-        })) as any;
+        let getAllRequest: any;
+        mockObjectStore.getAll = jest.fn(() => {
+          getAllRequest = { onerror: null, onsuccess: null, error: new Error('Read error') };
+          return getAllRequest;
+        }) as any;
 
         const promise = idbStorage.getAllSnippets();
         await new Promise(resolve => setTimeout(resolve, 10));
 
-        const request = mockObjectStore.getAll() as any;
-        if (request.onerror) {
-          request.onerror(new Event('error'));
+        if (getAllRequest?.onerror) {
+          getAllRequest.onerror(new Event('error'));
         }
 
         await expect(promise).rejects.toThrow();
@@ -258,18 +253,17 @@ describe('IndexedDB Storage', () => {
           isTemplate: false,
         };
 
-        mockObjectStore.get = jest.fn(() => ({
-          result: snippet,
-          onsuccess: null,
-          onerror: null,
-        })) as any;
+        let getRequest: any;
+        mockObjectStore.get = jest.fn(() => {
+          getRequest = { result: snippet, onsuccess: null, onerror: null };
+          return getRequest;
+        }) as any;
 
         const promise = idbStorage.getSnippet('1');
         await new Promise(resolve => setTimeout(resolve, 10));
 
-        const request = mockObjectStore.get() as any;
-        if (request.onsuccess) {
-          request.onsuccess(new Event('success'));
+        if (getRequest?.onsuccess) {
+          getRequest.onsuccess(new Event('success'));
         }
 
         const result = await promise;
@@ -277,18 +271,17 @@ describe('IndexedDB Storage', () => {
       });
 
       it('should return null when snippet not found', async () => {
-        mockObjectStore.get = jest.fn(() => ({
-          result: undefined,
-          onsuccess: null,
-          onerror: null,
-        })) as any;
+        let getRequest: any;
+        mockObjectStore.get = jest.fn(() => {
+          getRequest = { result: undefined, onsuccess: null, onerror: null };
+          return getRequest;
+        }) as any;
 
         const promise = idbStorage.getSnippet('nonexistent');
         await new Promise(resolve => setTimeout(resolve, 10));
 
-        const request = mockObjectStore.get() as any;
-        if (request.onsuccess) {
-          request.onsuccess(new Event('success'));
+        if (getRequest?.onsuccess) {
+          getRequest.onsuccess(new Event('success'));
         }
 
         const result = await promise;
@@ -312,17 +305,17 @@ describe('IndexedDB Storage', () => {
           isTemplate: false,
         };
 
-        mockObjectStore.add = jest.fn(() => ({
-          onsuccess: null,
-          onerror: null,
-        })) as any;
+        let addRequest: any;
+        mockObjectStore.add = jest.fn(() => {
+          addRequest = { onsuccess: null, onerror: null };
+          return addRequest;
+        }) as any;
 
         const promise = idbStorage.createSnippet(snippet);
         await new Promise(resolve => setTimeout(resolve, 10));
 
-        const request = mockObjectStore.add() as any;
-        if (request.onsuccess) {
-          request.onsuccess(new Event('success'));
+        if (addRequest?.onsuccess) {
+          addRequest.onsuccess(new Event('success'));
         }
 
         await expect(promise).resolves.not.toThrow();
@@ -332,18 +325,17 @@ describe('IndexedDB Storage', () => {
       it('should handle duplicate key error', async () => {
         const snippet = { id: '1' } as Snippet;
 
-        mockObjectStore.add = jest.fn(() => ({
-          onerror: null,
-          onsuccess: null,
-          error: new Error('Duplicate key'),
-        })) as any;
+        let addRequest: any;
+        mockObjectStore.add = jest.fn(() => {
+          addRequest = { onerror: null, onsuccess: null, error: new Error('Duplicate key') };
+          return addRequest;
+        }) as any;
 
         const promise = idbStorage.createSnippet(snippet);
         await new Promise(resolve => setTimeout(resolve, 10));
 
-        const request = mockObjectStore.add() as any;
-        if (request.onerror) {
-          request.onerror(new Event('error'));
+        if (addRequest?.onerror) {
+          addRequest.onerror(new Event('error'));
         }
 
         await expect(promise).rejects.toThrow();
@@ -366,17 +358,17 @@ describe('IndexedDB Storage', () => {
           isTemplate: false,
         };
 
-        mockObjectStore.put = jest.fn(() => ({
-          onsuccess: null,
-          onerror: null,
-        })) as any;
+        let putRequest: any;
+        mockObjectStore.put = jest.fn(() => {
+          putRequest = { onsuccess: null, onerror: null };
+          return putRequest;
+        }) as any;
 
         const promise = idbStorage.updateSnippet(snippet);
         await new Promise(resolve => setTimeout(resolve, 10));
 
-        const request = mockObjectStore.put() as any;
-        if (request.onsuccess) {
-          request.onsuccess(new Event('success'));
+        if (putRequest?.onsuccess) {
+          putRequest.onsuccess(new Event('success'));
         }
 
         await expect(promise).resolves.not.toThrow();
@@ -386,17 +378,17 @@ describe('IndexedDB Storage', () => {
 
     describe('deleteSnippet', () => {
       it('should delete snippet successfully', async () => {
-        mockObjectStore.delete = jest.fn(() => ({
-          onsuccess: null,
-          onerror: null,
-        })) as any;
+        let deleteRequest: any;
+        mockObjectStore.delete = jest.fn(() => {
+          deleteRequest = { onsuccess: null, onerror: null };
+          return deleteRequest;
+        }) as any;
 
         const promise = idbStorage.deleteSnippet('1');
         await new Promise(resolve => setTimeout(resolve, 10));
 
-        const request = mockObjectStore.delete() as any;
-        if (request.onsuccess) {
-          request.onsuccess(new Event('success'));
+        if (deleteRequest?.onsuccess) {
+          deleteRequest.onsuccess(new Event('success'));
         }
 
         await expect(promise).resolves.not.toThrow();
@@ -404,18 +396,17 @@ describe('IndexedDB Storage', () => {
       });
 
       it('should handle delete errors gracefully', async () => {
-        mockObjectStore.delete = jest.fn(() => ({
-          onerror: null,
-          onsuccess: null,
-          error: new Error('Delete failed'),
-        })) as any;
+        let deleteRequest: any;
+        mockObjectStore.delete = jest.fn(() => {
+          deleteRequest = { onerror: null, onsuccess: null, error: new Error('Delete failed') };
+          return deleteRequest;
+        }) as any;
 
         const promise = idbStorage.deleteSnippet('1');
         await new Promise(resolve => setTimeout(resolve, 10));
 
-        const request = mockObjectStore.delete() as any;
-        if (request.onerror) {
-          request.onerror(new Event('error'));
+        if (deleteRequest?.onerror) {
+          deleteRequest.onerror(new Event('error'));
         }
 
         await expect(promise).rejects.toThrow();
@@ -440,18 +431,17 @@ describe('IndexedDB Storage', () => {
           },
         ];
 
-        mockObjectStore.getAll = jest.fn(() => ({
-          result: snippets,
-          onsuccess: null,
-          onerror: null,
-        })) as any;
+        let getAllRequest: any;
+        mockObjectStore.getAll = jest.fn(() => {
+          getAllRequest = { result: snippets, onsuccess: null, onerror: null };
+          return getAllRequest;
+        }) as any;
 
         const promise = idbStorage.getSnippetsByNamespace('ns1');
         await new Promise(resolve => setTimeout(resolve, 10));
 
-        const request = mockObjectStore.getAll() as any;
-        if (request.onsuccess) {
-          request.onsuccess(new Event('success'));
+        if (getAllRequest?.onsuccess) {
+          getAllRequest.onsuccess(new Event('success'));
         }
 
         const result = await promise;
@@ -459,18 +449,17 @@ describe('IndexedDB Storage', () => {
       });
 
       it('should return empty array when no snippets in namespace', async () => {
-        mockObjectStore.getAll = jest.fn(() => ({
-          result: [],
-          onsuccess: null,
-          onerror: null,
-        })) as any;
+        let getAllRequest: any;
+        mockObjectStore.getAll = jest.fn(() => {
+          getAllRequest = { result: [], onsuccess: null, onerror: null };
+          return getAllRequest;
+        }) as any;
 
         const promise = idbStorage.getSnippetsByNamespace('empty-ns');
         await new Promise(resolve => setTimeout(resolve, 10));
 
-        const request = mockObjectStore.getAll() as any;
-        if (request.onsuccess) {
-          request.onsuccess(new Event('success'));
+        if (getAllRequest?.onsuccess) {
+          getAllRequest.onsuccess(new Event('success'));
         }
 
         const result = await promise;
@@ -497,18 +486,17 @@ describe('IndexedDB Storage', () => {
           { id: '1', name: 'Default', createdAt: Date.now(), isDefault: true },
         ];
 
-        mockObjectStore.getAll = jest.fn(() => ({
-          result: namespaces,
-          onsuccess: null,
-          onerror: null,
-        })) as any;
+        let getAllRequest: any;
+        mockObjectStore.getAll = jest.fn(() => {
+          getAllRequest = { result: namespaces, onsuccess: null, onerror: null };
+          return getAllRequest;
+        }) as any;
 
         const promise = idbStorage.getAllNamespaces();
         await new Promise(resolve => setTimeout(resolve, 10));
 
-        const request = mockObjectStore.getAll() as any;
-        if (request.onsuccess) {
-          request.onsuccess(new Event('success'));
+        if (getAllRequest?.onsuccess) {
+          getAllRequest.onsuccess(new Event('success'));
         }
 
         const result = await promise;
@@ -525,18 +513,17 @@ describe('IndexedDB Storage', () => {
           isDefault: false,
         };
 
-        mockObjectStore.get = jest.fn(() => ({
-          result: namespace,
-          onsuccess: null,
-          onerror: null,
-        })) as any;
+        let getRequest: any;
+        mockObjectStore.get = jest.fn(() => {
+          getRequest = { result: namespace, onsuccess: null, onerror: null };
+          return getRequest;
+        }) as any;
 
         const promise = idbStorage.getNamespace('1');
         await new Promise(resolve => setTimeout(resolve, 10));
 
-        const request = mockObjectStore.get() as any;
-        if (request.onsuccess) {
-          request.onsuccess(new Event('success'));
+        if (getRequest?.onsuccess) {
+          getRequest.onsuccess(new Event('success'));
         }
 
         const result = await promise;
@@ -544,18 +531,17 @@ describe('IndexedDB Storage', () => {
       });
 
       it('should return null when namespace not found', async () => {
-        mockObjectStore.get = jest.fn(() => ({
-          result: undefined,
-          onsuccess: null,
-          onerror: null,
-        })) as any;
+        let getRequest: any;
+        mockObjectStore.get = jest.fn(() => {
+          getRequest = { result: undefined, onsuccess: null, onerror: null };
+          return getRequest;
+        }) as any;
 
         const promise = idbStorage.getNamespace('nonexistent');
         await new Promise(resolve => setTimeout(resolve, 10));
 
-        const request = mockObjectStore.get() as any;
-        if (request.onsuccess) {
-          request.onsuccess(new Event('success'));
+        if (getRequest?.onsuccess) {
+          getRequest.onsuccess(new Event('success'));
         }
 
         const result = await promise;
@@ -572,17 +558,17 @@ describe('IndexedDB Storage', () => {
           isDefault: false,
         };
 
-        mockObjectStore.add = jest.fn(() => ({
-          onsuccess: null,
-          onerror: null,
-        })) as any;
+        let addRequest: any;
+        mockObjectStore.add = jest.fn(() => {
+          addRequest = { onsuccess: null, onerror: null };
+          return addRequest;
+        }) as any;
 
         const promise = idbStorage.createNamespace(namespace);
         await new Promise(resolve => setTimeout(resolve, 10));
 
-        const request = mockObjectStore.add() as any;
-        if (request.onsuccess) {
-          request.onsuccess(new Event('success'));
+        if (addRequest?.onsuccess) {
+          addRequest.onsuccess(new Event('success'));
         }
 
         await expect(promise).resolves.not.toThrow();
@@ -598,17 +584,17 @@ describe('IndexedDB Storage', () => {
           isDefault: false,
         };
 
-        mockObjectStore.put = jest.fn(() => ({
-          onsuccess: null,
-          onerror: null,
-        })) as any;
+        let putRequest: any;
+        mockObjectStore.put = jest.fn(() => {
+          putRequest = { onsuccess: null, onerror: null };
+          return putRequest;
+        }) as any;
 
         const promise = idbStorage.updateNamespace(namespace);
         await new Promise(resolve => setTimeout(resolve, 10));
 
-        const request = mockObjectStore.put() as any;
-        if (request.onsuccess) {
-          request.onsuccess(new Event('success'));
+        if (putRequest?.onsuccess) {
+          putRequest.onsuccess(new Event('success'));
         }
 
         await expect(promise).resolves.not.toThrow();
@@ -617,17 +603,17 @@ describe('IndexedDB Storage', () => {
 
     describe('deleteNamespace', () => {
       it('should delete namespace successfully', async () => {
-        mockObjectStore.delete = jest.fn(() => ({
-          onsuccess: null,
-          onerror: null,
-        })) as any;
+        let deleteRequest: any;
+        mockObjectStore.delete = jest.fn(() => {
+          deleteRequest = { onsuccess: null, onerror: null };
+          return deleteRequest;
+        }) as any;
 
         const promise = idbStorage.deleteNamespace('1');
         await new Promise(resolve => setTimeout(resolve, 10));
 
-        const request = mockObjectStore.delete() as any;
-        if (request.onsuccess) {
-          request.onsuccess(new Event('success'));
+        if (deleteRequest?.onsuccess) {
+          deleteRequest.onsuccess(new Event('success'));
         }
 
         await expect(promise).resolves.not.toThrow();
@@ -706,20 +692,28 @@ describe('IndexedDB Storage', () => {
           },
         ];
 
-        mockObjectStore.getAll = jest.fn(() => ({
-          result: snippets,
-          onsuccess: null,
-          onerror: null,
-        })) as any;
+        // getDatabaseStats calls getAllSnippets then getAllNamespaces sequentially.
+        // Each call creates its own transaction + store, so we capture requests per call.
+        const requests: any[] = [];
+        mockObjectStore.getAll = jest.fn(() => {
+          const req = { result: snippets, onsuccess: null as any, onerror: null as any };
+          requests.push(req);
+          return req;
+        }) as any;
 
         const promise = idbStorage.getDatabaseStats();
-        await new Promise(resolve => setTimeout(resolve, 20));
+        // Give the first openDB + first getAll time to register
+        await new Promise(resolve => setTimeout(resolve, 10));
 
-        const requests = mockObjectStore.getAll();
-        for (let i = 0; i < 2; i++) {
-          if (requests.onsuccess) {
-            requests.onsuccess(new Event('success'));
-          }
+        // Resolve each pending getAll request
+        for (const req of requests) {
+          if (req.onsuccess) req.onsuccess(new Event('success'));
+          // Let subsequent async steps proceed
+          await new Promise(resolve => setTimeout(resolve, 5));
+        }
+        // Pick up any late-registered requests
+        for (const req of requests) {
+          if (req.onsuccess) req.onsuccess(new Event('success'));
         }
 
         const stats = await promise;
@@ -731,21 +725,22 @@ describe('IndexedDB Storage', () => {
 
     describe('exportDatabase', () => {
       it('should export database successfully', async () => {
-        const snippets: Snippet[] = [];
-        const namespaces: Namespace[] = [];
-
-        mockObjectStore.getAll = jest.fn(() => ({
-          result: snippets,
-          onsuccess: null,
-          onerror: null,
-        })) as any;
+        const requests: any[] = [];
+        mockObjectStore.getAll = jest.fn(() => {
+          const req = { result: [], onsuccess: null as any, onerror: null as any };
+          requests.push(req);
+          return req;
+        }) as any;
 
         const promise = idbStorage.exportDatabase();
-        await new Promise(resolve => setTimeout(resolve, 20));
+        await new Promise(resolve => setTimeout(resolve, 10));
 
-        const requests = mockObjectStore.getAll();
-        if (requests.onsuccess) {
-          requests.onsuccess(new Event('success'));
+        for (const req of requests) {
+          if (req.onsuccess) req.onsuccess(new Event('success'));
+          await new Promise(resolve => setTimeout(resolve, 5));
+        }
+        for (const req of requests) {
+          if (req.onsuccess) req.onsuccess(new Event('success'));
         }
 
         const result = await promise;
@@ -768,13 +763,20 @@ describe('IndexedDB Storage', () => {
           namespaces: [] as Namespace[],
         };
 
+        // importDatabase calls clearDatabase first (needs oncomplete), then creates
+        // a second transaction for the actual import (also needs oncomplete).
+        // We fire oncomplete for each transaction created.
+        mockDB.transaction = jest.fn(() => {
+          const tx = new MockIDBTransaction();
+          tx.objectStore = jest.fn(() => mockObjectStore);
+          // Auto-complete after a tick so both clearDatabase and importDatabase resolve
+          setTimeout(() => {
+            if (tx.oncomplete) tx.oncomplete(new Event('complete'));
+          }, 5);
+          return tx;
+        });
+
         const promise = idbStorage.importDatabase(data);
-        await new Promise(resolve => setTimeout(resolve, 20));
-
-        if (mockTransaction.oncomplete) {
-          mockTransaction.oncomplete(new Event('complete'));
-        }
-
         await expect(promise).resolves.not.toThrow();
       });
 
@@ -786,14 +788,27 @@ describe('IndexedDB Storage', () => {
           namespaces: [] as Namespace[],
         };
 
+        let callCount = 0;
+        mockDB.transaction = jest.fn(() => {
+          const tx = new MockIDBTransaction();
+          tx.objectStore = jest.fn(() => mockObjectStore);
+          callCount++;
+          if (callCount === 1) {
+            // First transaction (clearDatabase) succeeds
+            setTimeout(() => {
+              if (tx.oncomplete) tx.oncomplete(new Event('complete'));
+            }, 5);
+          } else {
+            // Second transaction (importDatabase) errors
+            tx.error = new Error('Import failed');
+            setTimeout(() => {
+              if (tx.onerror) tx.onerror(new Event('error'));
+            }, 5);
+          }
+          return tx;
+        });
+
         const promise = idbStorage.importDatabase(data);
-        await new Promise(resolve => setTimeout(resolve, 10));
-
-        mockTransaction.error = new Error('Import failed');
-        if (mockTransaction.onerror) {
-          mockTransaction.onerror(new Event('error'));
-        }
-
         await expect(promise).rejects.toThrow();
       });
     });

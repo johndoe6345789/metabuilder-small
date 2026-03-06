@@ -25,12 +25,13 @@ export function SnippetFormFields({
 }: SnippetFormFieldsProps) {
   const t = useTranslation()
   return (
-    <div className={styles.formRoot}>
+    <div className={styles.formRoot} data-testid="snippet-form-fields" role="form" aria-label="Snippet details form">
       <div className={styles.titleRow}>
         <div className={styles.titleField}>
           <FormLabel htmlFor="title">{t.snippetDialog.fields.title.label} *</FormLabel>
           <Input
             id="title"
+            type="text"
             placeholder={t.snippetDialog.fields.title.placeholder}
             value={title}
             onChange={(e) => onTitleChange(e.target.value)}
@@ -55,10 +56,9 @@ export function SnippetFormFields({
             onChange={(e: SelectChangeEvent) => onLanguageChange(e.target.value as string)}
             inputProps={{
               id: 'language',
-              'data-testid': 'snippet-language-select',
-              'aria-label': 'Select programming language',
             }}
-            data-testid="snippet-language-options"
+            data-testid="snippet-language-select"
+            aria-label="Select programming language"
           >
             {LANGUAGES.map((lang) => (
               <MenuItem key={lang} value={lang} data-testid={`language-option-${lang}`}>
@@ -76,7 +76,7 @@ export function SnippetFormFields({
           placeholder={t.snippetDialog.fields.description.placeholder}
           value={description}
           onChange={(e) => onDescriptionChange(e.target.value)}
-          rows={3}
+          rows={2}
           className={styles.textarea}
           data-testid="snippet-description-textarea"
           aria-label="Snippet description"

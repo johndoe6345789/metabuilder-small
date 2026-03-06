@@ -1,9 +1,9 @@
 /**
- * Unified storage interface - routes to IndexedDB or Flask based on configuration
+ * Unified storage interface - routes to IndexedDB or DBAL based on configuration
  */
 
 import type { Snippet, Namespace } from './types';
-import { getStorageConfig, FlaskStorageAdapter, DBALStorageAdapter } from './storage';
+import { getStorageConfig, DBALStorageAdapter } from './storage';
 import * as IndexedDBStorage from './indexeddb-storage';
 
 // Helper to get the active storage backend
@@ -11,10 +11,7 @@ function getActiveStorage() {
   const config = getStorageConfig();
 
   if (config.backend === 'dbal' && config.dbalUrl) {
-    return new DBALStorageAdapter(config.dbalUrl, config.flaskUrl);
-  }
-  if (config.backend === 'flask' && config.flaskUrl) {
-    return new FlaskStorageAdapter(config.flaskUrl);
+    return new DBALStorageAdapter(config.dbalUrl);
   }
 
   return null; // Use IndexedDB
@@ -22,50 +19,50 @@ function getActiveStorage() {
 
 // Snippet operations
 export async function getAllSnippets(): Promise<Snippet[]> {
-  const flask = getActiveStorage();
-  if (flask) {
-    return await flask.getAllSnippets();
+  const adapter = getActiveStorage();
+  if (adapter) {
+    return await adapter.getAllSnippets();
   }
   return await IndexedDBStorage.getAllSnippets();
 }
 
 export async function getSnippet(id: string): Promise<Snippet | null> {
-  const flask = getActiveStorage();
-  if (flask) {
-    return await flask.getSnippet(id);
+  const adapter = getActiveStorage();
+  if (adapter) {
+    return await adapter.getSnippet(id);
   }
   return await IndexedDBStorage.getSnippet(id);
 }
 
 export async function createSnippet(snippet: Snippet): Promise<Snippet> {
-  const flask = getActiveStorage();
-  if (flask) {
-    return await flask.createSnippet(snippet);
+  const adapter = getActiveStorage();
+  if (adapter) {
+    return await adapter.createSnippet(snippet);
   }
   await IndexedDBStorage.createSnippet(snippet);
   return snippet;
 }
 
 export async function updateSnippet(snippet: Snippet): Promise<void> {
-  const flask = getActiveStorage();
-  if (flask) {
-    return await flask.updateSnippet(snippet);
+  const adapter = getActiveStorage();
+  if (adapter) {
+    return await adapter.updateSnippet(snippet);
   }
   return await IndexedDBStorage.updateSnippet(snippet);
 }
 
 export async function deleteSnippet(id: string): Promise<void> {
-  const flask = getActiveStorage();
-  if (flask) {
-    return await flask.deleteSnippet(id);
+  const adapter = getActiveStorage();
+  if (adapter) {
+    return await adapter.deleteSnippet(id);
   }
   return await IndexedDBStorage.deleteSnippet(id);
 }
 
 export async function getSnippetsByNamespace(namespaceId: string): Promise<Snippet[]> {
-  const flask = getActiveStorage();
-  if (flask) {
-    return await flask.getSnippetsByNamespace(namespaceId);
+  const adapter = getActiveStorage();
+  if (adapter) {
+    return await adapter.getSnippetsByNamespace(namespaceId);
   }
   return await IndexedDBStorage.getSnippetsByNamespace(namespaceId);
 }
@@ -81,9 +78,9 @@ export async function moveSnippetToNamespace(snippetId: string, namespaceId: str
 }
 
 export async function bulkMoveSnippets(snippetIds: string[], namespaceId: string): Promise<void> {
-  const flask = getActiveStorage();
-  if (flask) {
-    return await flask.bulkMoveSnippets(snippetIds, namespaceId);
+  const adapter = getActiveStorage();
+  if (adapter) {
+    return await adapter.bulkMoveSnippets(snippetIds, namespaceId);
   }
   for (const id of snippetIds) {
     await moveSnippetToNamespace(id, namespaceId);
@@ -121,34 +118,34 @@ export async function seedDatabase(): Promise<void> {
 
 // Namespace operations
 export async function getAllNamespaces(): Promise<Namespace[]> {
-  const flask = getActiveStorage();
-  if (flask) {
-    return await flask.getAllNamespaces();
+  const adapter = getActiveStorage();
+  if (adapter) {
+    return await adapter.getAllNamespaces();
   }
   return await IndexedDBStorage.getAllNamespaces();
 }
 
 export async function getNamespaceById(id: string): Promise<Namespace | null> {
-  const flask = getActiveStorage();
-  if (flask) {
-    return await flask.getNamespace(id);
+  const adapter = getActiveStorage();
+  if (adapter) {
+    return await adapter.getNamespace(id);
   }
   return await IndexedDBStorage.getNamespace(id);
 }
 
 export async function createNamespace(namespace: Namespace): Promise<Namespace> {
-  const flask = getActiveStorage();
-  if (flask) {
-    return await flask.createNamespace(namespace);
+  const adapter = getActiveStorage();
+  if (adapter) {
+    return await adapter.createNamespace(namespace);
   }
   await IndexedDBStorage.createNamespace(namespace);
   return namespace;
 }
 
 export async function updateNamespace(id: string, name: string): Promise<Namespace> {
-  const flask = getActiveStorage();
-  if (flask) {
-    return await flask.updateNamespace(id, name);
+  const adapter = getActiveStorage();
+  if (adapter) {
+    return await adapter.updateNamespace(id, name);
   }
   const all = await IndexedDBStorage.getAllNamespaces();
   const existing = all.find(n => n.id === id);
@@ -161,9 +158,9 @@ export async function updateNamespace(id: string, name: string): Promise<Namespa
 }
 
 export async function deleteNamespace(id: string): Promise<void> {
-  const flask = getActiveStorage();
-  if (flask) {
-    return await flask.deleteNamespace(id);
+  const adapter = getActiveStorage();
+  if (adapter) {
+    return await adapter.deleteNamespace(id);
   }
   return await IndexedDBStorage.deleteNamespace(id);
 }
@@ -171,58 +168,58 @@ export async function deleteNamespace(id: string): Promise<void> {
 export async function ensureDefaultNamespace(): Promise<Namespace> {
   const namespaces = await getAllNamespaces();
   let defaultNs = namespaces.find(ns => ns.isDefault);
-  
+
   if (!defaultNs) {
     const newDefault: Namespace = {
-      id: crypto.randomUUID(),
+      id: 'default',
       name: 'Default',
       createdAt: Date.now(),
       isDefault: true,
     };
     defaultNs = await createNamespace(newDefault);
   }
-  
+
   return defaultNs;
 }
 
 // Database operations
 export async function initDB(): Promise<void> {
-  // Initialize IndexedDB or verify Flask connection
-  const flask = getActiveStorage();
-  if (flask) {
-    const connected = await flask.testConnection();
+  // Initialize IndexedDB or verify DBAL connection
+  const adapter = getActiveStorage();
+  if (adapter) {
+    const connected = await adapter.testConnection();
     if (!connected) {
-      throw new Error('Failed to connect to Flask backend');
+      throw new Error('Failed to connect to DBAL backend');
     }
   } else {
     // Initialize IndexedDB
     await IndexedDBStorage.openDB();
   }
-  
+
   // Ensure default namespace exists
   await ensureDefaultNamespace();
 }
 
 export async function clearDatabase(): Promise<void> {
-  const flask = getActiveStorage();
-  if (flask) {
-    return await flask.clearDatabase();
+  const adapter = getActiveStorage();
+  if (adapter) {
+    return await adapter.clearDatabase();
   }
   return await IndexedDBStorage.clearDatabase();
 }
 
 export async function getDatabaseStats() {
-  const flask = getActiveStorage();
-  if (flask) {
-    return await flask.getStats();
+  const adapter = getActiveStorage();
+  if (adapter) {
+    return await adapter.getStats();
   }
   return await IndexedDBStorage.getDatabaseStats();
 }
 
 export async function exportDatabase(): Promise<string> {
-  const flask = getActiveStorage();
-  if (flask) {
-    const data = await flask.exportDatabase();
+  const adapter = getActiveStorage();
+  if (adapter) {
+    const data = await adapter.exportDatabase();
     return JSON.stringify(data, null, 2);
   }
   const data = await IndexedDBStorage.exportDatabase();
@@ -231,9 +228,9 @@ export async function exportDatabase(): Promise<string> {
 
 export async function importDatabase(jsonData: string): Promise<void> {
   const data = JSON.parse(jsonData);
-  const flask = getActiveStorage();
-  if (flask) {
-    return await flask.importDatabase(data);
+  const adapter = getActiveStorage();
+  if (adapter) {
+    return await adapter.importDatabase(data);
   }
   await IndexedDBStorage.importDatabase(data);
 }

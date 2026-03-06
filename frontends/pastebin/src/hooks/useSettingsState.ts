@@ -21,21 +21,12 @@ export function useSettingsState() {
   const {
     storageBackend,
     setStorageBackend,
-    flaskUrl,
-    setFlaskUrl,
-    flaskConnectionStatus,
-    setFlaskConnectionStatus,
-    testingConnection,
     envVarSet,
     loadConfig,
-    handleTestConnection,
     handleSaveStorageConfig: saveConfig,
   } = useStorageConfig()
 
-  const {
-    handleMigrateToFlask: migrateToFlask,
-    handleMigrateToIndexedDB,
-  } = useStorageMigration()
+  useStorageMigration()
 
   useEffect(() => {
     loadStats()
@@ -47,24 +38,11 @@ export function useSettingsState() {
     await saveConfig(loadStats)
   }
 
-  const handleMigrateToFlask = async () => {
-    await migrateToFlask(flaskUrl, loadStats)
-  }
-
-  const handleMigrateToIndexedDBWrapper = async () => {
-    await handleMigrateToIndexedDB(flaskUrl)
-  }
-
   return {
     stats,
     loading,
     storageBackend,
     setStorageBackend,
-    flaskUrl,
-    setFlaskUrl,
-    flaskConnectionStatus,
-    setFlaskConnectionStatus,
-    testingConnection,
     envVarSet,
     schemaHealth,
     checkingSchema,
@@ -73,11 +51,7 @@ export function useSettingsState() {
     handleClear,
     handleSeed,
     formatBytes,
-    handleTestConnection,
     handleSaveStorageConfig,
-    handleMigrateToFlask,
-    handleMigrateToIndexedDB: handleMigrateToIndexedDBWrapper,
     checkSchemaHealth,
   }
 }
-

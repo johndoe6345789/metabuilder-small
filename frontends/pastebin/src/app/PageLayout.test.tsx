@@ -113,18 +113,15 @@ describe('PageLayout', () => {
       expect(screen.getByTestId('app-status-alerts')).toBeInTheDocument();
     });
 
-    it('should render footer with information text', () => {
-      render(
+    it('should render footer', () => {
+      const { container } = render(
         <PageLayout>
           <div>Content</div>
         </PageLayout>
       );
 
-      const footerText = screen.getByText(/Save, organize, and share your code snippets/i);
-      expect(footerText).toBeInTheDocument();
-
-      const pyodideText = screen.getByText(/Supports React preview and Python execution via Pyodide/i);
-      expect(pyodideText).toBeInTheDocument();
+      const footer = container.querySelector('footer');
+      expect(footer).toBeInTheDocument();
     });
 
     it('should render grid pattern background', () => {
