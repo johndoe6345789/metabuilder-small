@@ -1,4 +1,5 @@
 import { type SnippetFile } from '@/lib/types'
+import { getAuthToken } from '@/lib/authToken'
 
 export interface RunResult {
   output: string
@@ -35,6 +36,11 @@ function requireUrl(): string {
   return url
 }
 
+function authHeaders(): Record<string, string> {
+  const token = getAuthToken()
+  return token ? { Authorization: `Bearer ${token}` } : {}
+}
+
 // ---------------------------------------------------------------------------
 // Non-interactive run
 // ---------------------------------------------------------------------------
@@ -43,7 +49,7 @@ export async function runCodeViaFlask(opts: RunOptions): Promise<RunResult> {
   const base = requireUrl()
   const response = await fetch(`${base}/api/run`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
     body: JSON.stringify({
       language: opts.language,
       files: opts.files,
@@ -77,7 +83,7 @@ export async function startInteractiveSession(opts: RunOptions): Promise<string>
   const base = requireUrl()
   const response = await fetch(`${base}/api/run/interactive`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
     body: JSON.stringify({
       language: opts.language,
       files: opts.files,
@@ -97,7 +103,7 @@ export async function pollSession(sessionId: string, offset: number): Promise<Po
   const base = requireUrl()
   const response = await fetch(
     `${base}/api/run/interactive/${sessionId}/poll?offset=${offset}`,
-    { signal: AbortSignal.timeout(5000) }
+    { headers: authHeaders(), signal: AbortSignal.timeout(5000) }
   )
   if (!response.ok) throw new Error(`Poll failed: ${response.statusText}`)
   return response.json()
@@ -107,7 +113,7 @@ export async function sendSessionInput(sessionId: string, value: string): Promis
   const base = requireUrl()
   const response = await fetch(`${base}/api/run/interactive/${sessionId}/input`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
     body: JSON.stringify({ value }),
     signal: AbortSignal.timeout(5000),
   })
