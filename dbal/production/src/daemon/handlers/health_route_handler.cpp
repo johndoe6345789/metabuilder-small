@@ -51,7 +51,7 @@ void HealthRouteHandler::handleVersion(
     }
 
     ::Json::Value body;
-    body["version"] = "1.0.0";
+    body["version"] = "1.2.1";
     body["service"] = "DBAL Daemon";
     callback(build_json_response(body));
 }

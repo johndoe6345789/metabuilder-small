@@ -50,7 +50,7 @@ void DaemonInit::setupLogging() {
 
 void DaemonInit::printBanner() {
     spdlog::info("╔════════════════════════════════════════════╗");
-    spdlog::info("║         DBAL Daemon v1.0.0                 ║");
+    spdlog::info("║         DBAL Daemon v1.2.1                 ║");
     spdlog::info("║   Database Abstraction Layer Server       ║");
     spdlog::info("║   Copyright (c) 2024 MetaBuilder           ║");
     spdlog::info("╚════════════════════════════════════════════╝");
