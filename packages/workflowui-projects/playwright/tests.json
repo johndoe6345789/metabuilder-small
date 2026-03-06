@@ -6,13 +6,16 @@
   "tests": [
     {
       "name": "should load project canvas page",
-      "tags": ["@projects", "@critical"],
+      "tags": [
+        "@projects",
+        "@critical"
+      ],
       "timeout": 15000,
       "steps": [
         {
           "description": "Navigate to test project",
           "action": "navigate",
-          "url": "/project/test-project-001"
+          "url": "project/test-project-001"
         },
         {
           "action": "waitForLoadState",
@@ -30,11 +33,14 @@
     },
     {
       "name": "should display canvas area",
-      "tags": ["@projects", "@canvas"],
+      "tags": [
+        "@projects",
+        "@canvas"
+      ],
       "steps": [
         {
           "action": "navigate",
-          "url": "/project/test-project-001"
+          "url": "project/test-project-001"
         },
         {
           "action": "waitForLoadState",
@@ -52,11 +58,14 @@
     },
     {
       "name": "should have project tools or toolbar",
-      "tags": ["@projects", "@toolbar"],
+      "tags": [
+        "@projects",
+        "@toolbar"
+      ],
       "steps": [
         {
           "action": "navigate",
-          "url": "/project/test-project-001"
+          "url": "project/test-project-001"
         },
         {
           "action": "waitForLoadState",

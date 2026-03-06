@@ -2,170 +2,58 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://metabuilder.dev/schemas/package-playwright.schema.json",
   "title": "Package Playwright Test Configuration",
-  "description": "Playwright E2E test configuration for MetaBuilder packages - defines test scenarios, assertions, and page interactions",
+  "description": "Playwright E2E test configuration for MetaBuilder packages.\n\nCRITICAL — URL rules:\n- baseURL in playwright.config.ts is 'http://localhost/workflowui/' (trailing slash)\n- navigate urls must be RELATIVE WITHOUT leading slash: 'login' not '/login'\n- A leading slash makes Playwright resolve to http://localhost/login (bypasses sub-path!)\n\nRun tests: SKIP_WEBSERVER=true npx playwright test e2e/tests.spec.ts e2e/workflowui-tests.spec.ts --config e2e/playwright.config.ts",
   "type": "object",
   "required": ["$schema", "tests"],
   "properties": {
     "$schema": {
       "type": "string",
-      "description": "JSON Schema reference",
       "const": "https://metabuilder.dev/schemas/package-playwright.schema.json"
     },
     "package": {
       "type": "string",
-      "description": "Package identifier",
-      "pattern": "^[a-z0-9_]+$"
+      "description": "Package identifier (lowercase letters, numbers, hyphens, underscores)",
+      "pattern": "^[a-z0-9_-]+$"
     },
-    "version": {
-      "type": "string",
-      "description": "Schema version",
-      "default": "1.0.0"
-    },
-    "description": {
-      "type": "string",
-      "description": "Test suite description"
-    },
-    "baseURL": {
-      "type": "string",
-      "description": "Base URL for tests (defaults to playwright config)",
-      "format": "uri"
-    },
-    "setup": {
-      "type": "object",
-      "description": "Global test setup configuration",
-      "properties": {
-        "beforeAll": {
-          "type": "array",
-          "description": "Steps to run once before all tests",
-          "items": { "$ref": "#/definitions/setupStep" }
-        },
-        "beforeEach": {
-          "type": "array",
-          "description": "Steps to run before each test",
-          "items": { "$ref": "#/definitions/setupStep" }
-        },
-        "afterEach": {
-          "type": "array",
-          "description": "Steps to run after each test",
-          "items": { "$ref": "#/definitions/setupStep" }
-        },
-        "afterAll": {
-          "type": "array",
-          "description": "Steps to run once after all tests",
-          "items": { "$ref": "#/definitions/setupStep" }
-        }
-      }
-    },
-    "fixtures": {
-      "type": "object",
-      "description": "Test fixtures - reusable test data",
-      "additionalProperties": {
-        "type": "object",
-        "description": "Fixture data"
-      }
-    },
+    "version": { "type": "string", "default": "1.0.0" },
+    "description": { "type": "string" },
     "tests": {
       "type": "array",
       "description": "Test definitions",
-      "items": { "$ref": "#/definitions/test" }
+      "items": { "$ref": "#/definitions/test" },
+      "minItems": 1
     }
   },
   "definitions": {
-    "setupStep": {
-      "type": "object",
-      "required": ["action"],
-      "properties": {
-        "action": {
-          "type": "string",
-          "description": "Action to perform",
-          "enum": ["navigate", "click", "fill", "select", "wait", "eval", "mock", "seed", "custom"]
-        },
-        "url": {
-          "type": "string",
-          "description": "URL for navigate action"
-        },
-        "selector": {
-          "type": "string",
-          "description": "Element selector"
-        },
-        "value": {
-          "description": "Value for fill/select actions"
-        },
-        "script": {
-          "type": "string",
-          "description": "JavaScript code to evaluate"
-        },
-        "timeout": {
-          "type": "number",
-          "description": "Timeout in milliseconds",
-          "minimum": 0
-        }
-      }
-    },
     "test": {
       "type": "object",
       "required": ["name", "steps"],
       "properties": {
-        "name": {
-          "type": "string",
-          "description": "Test name",
-          "minLength": 1
-        },
-        "description": {
-          "type": "string",
-          "description": "Detailed test description"
-        },
-        "skip": {
-          "type": "boolean",
-          "description": "Skip this test",
-          "default": false
-        },
-        "only": {
-          "type": "boolean",
-          "description": "Run only this test",
-          "default": false
-        },
-        "timeout": {
-          "type": "number",
-          "description": "Test timeout in milliseconds",
-          "minimum": 0
-        },
-        "retries": {
-          "type": "number",
-          "description": "Number of retries on failure",
-          "minimum": 0,
-          "maximum": 5
-        },
+        "name": { "type": "string", "minLength": 1 },
+        "description": { "type": "string" },
+        "skip": { "type": "boolean", "default": false, "description": "Skip this test — do NOT use; all tests must run" },
+        "only": { "type": "boolean", "default": false },
+        "timeout": { "type": "number", "minimum": 0 },
         "tags": {
           "type": "array",
-          "description": "Test tags for filtering",
           "items": { "type": "string" },
-          "examples": [["@smoke", "@critical", "@slow"]]
-        },
-        "fixtures": {
-          "type": "object",
-          "description": "Test-specific fixture overrides",
-          "additionalProperties": true
+          "examples": [["@smoke", "@critical"]]
         },
         "steps": {
           "type": "array",
-          "description": "Test steps to execute",
-          "items": { "$ref": "#/definitions/testStep" },
+          "items": { "$ref": "#/definitions/step" },
           "minItems": 1
         }
       }
     },
-    "testStep": {
+    "step": {
       "type": "object",
       "required": ["action"],
+      "description": "A single Playwright action. Locator strategies: testId > role+text > label > placeholder > text > selector",
       "properties": {
-        "description": {
-          "type": "string",
-          "description": "Human-readable step description"
-        },
+        "description": { "type": "string" },
         "action": {
           "type": "string",
-          "description": "Action to perform",
           "enum": [
             "navigate",
             "click",
@@ -177,84 +65,80 @@
             "uncheck",
             "hover",
             "focus",
+            "blur",
             "press",
+            "keyboard",
+            "scroll",
             "wait",
             "waitForSelector",
+            "waitForURL",
             "waitForNavigation",
             "waitForLoadState",
             "screenshot",
             "evaluate",
             "expect",
-            "custom"
+            "reload",
+            "goBack",
+            "goForward"
           ]
         },
         "url": {
           "type": "string",
-          "description": "URL for navigate action"
+          "description": "URL for navigate/waitForURL. MUST be relative without leading slash: 'login' not '/login'. Leading slash bypasses workflowui baseURL sub-path."
         },
-        "selector": {
+        "urlPattern": {
           "type": "string",
-          "description": "CSS selector or role-based selector"
+          "description": "URL substring pattern for waitForURL/waitForRequest/waitForResponse"
         },
-        "role": {
+        "waitUntil": {
           "type": "string",
-          "description": "ARIA role for getByRole selector",
-          "enum": ["button", "link", "textbox", "heading", "img", "navigation", "main", "article", "section"]
-        },
-        "text": {
-          "type": "string",
-          "description": "Text content or pattern for getByText selector"
-        },
-        "label": {
-          "type": "string",
-          "description": "Label for getByLabel selector"
-        },
-        "placeholder": {
-          "type": "string",
-          "description": "Placeholder for getByPlaceholder selector"
-        },
-        "testId": {
-          "type": "string",
-          "description": "Test ID for getByTestId selector"
-        },
-        "value": {
-          "description": "Value to fill, type, or select"
-        },
-        "key": {
-          "type": "string",
-          "description": "Key to press (e.g., 'Enter', 'Escape')"
-        },
-        "timeout": {
-          "type": "number",
-          "description": "Step timeout in milliseconds",
-          "minimum": 0
-        },
-        "assertion": {
-          "$ref": "#/definitions/assertion",
-          "description": "Assertion to make for expect actions"
+          "enum": ["load", "domcontentloaded", "networkidle", "commit"],
+          "description": "Navigation wait condition for navigate action"
         },
         "state": {
           "type": "string",
-          "description": "Load state for waitForLoadState",
-          "enum": ["load", "domcontentloaded", "networkidle"]
+          "enum": ["load", "domcontentloaded", "networkidle"],
+          "description": "Load state for waitForLoadState"
         },
-        "path": {
+        "selector": { "type": "string", "description": "CSS selector" },
+        "testId": { "type": "string", "description": "data-testid attribute value — preferred locator strategy" },
+        "role": {
           "type": "string",
-          "description": "File path for screenshot"
+          "description": "ARIA role for getByRole",
+          "enum": [
+            "alert", "button", "checkbox", "cell", "columnheader", "combobox",
+            "dialog", "figure", "form", "generic", "group", "heading",
+            "img", "link", "list", "listbox", "listitem", "main",
+            "menu", "menuitem", "navigation", "option", "presentation",
+            "progressbar", "radio", "row", "rowheader", "searchbox",
+            "separator", "slider", "spinbutton", "switch", "tab",
+            "tabpanel", "textbox", "tree", "treeitem"
+          ]
         },
-        "fullPage": {
-          "type": "boolean",
-          "description": "Capture full page screenshot",
-          "default": false
+        "text": { "type": "string", "description": "Text for getByText or getByRole name filter" },
+        "label": { "type": "string", "description": "Label text for getByLabel" },
+        "placeholder": { "type": "string", "description": "Placeholder for getByPlaceholder" },
+        "alt": { "type": "string", "description": "Alt text for getByAltText" },
+        "title": { "type": "string", "description": "Title attribute for getByTitle" },
+        "value": { "description": "Value for fill/select/type actions" },
+        "key": { "type": "string", "description": "Key for press action (e.g. 'Enter', 'Escape', 'Tab')" },
+        "keys": {
+          "oneOf": [
+            { "type": "string" },
+            { "type": "array", "items": { "type": "string" } }
+          ],
+          "description": "Key(s) for keyboard action"
         },
-        "script": {
-          "type": "string",
-          "description": "JavaScript code for evaluate action"
-        },
-        "condition": {
-          "type": "string",
-          "description": "Conditional expression for conditional steps"
-        }
+        "script": { "type": "string", "description": "JavaScript code for evaluate action" },
+        "timeout": { "type": "number", "minimum": 0, "description": "Step timeout in milliseconds" },
+        "filename": { "type": "string", "description": "Filename for screenshot action" },
+        "fullPage": { "type": "boolean", "default": false },
+        "button": { "type": "string", "enum": ["left", "right", "middle"] },
+        "clickCount": { "type": "number", "minimum": 1 },
+        "delay": { "type": "number", "minimum": 0 },
+        "x": { "type": "number", "description": "X coordinate for scroll" },
+        "y": { "type": "number", "description": "Y coordinate for scroll" },
+        "assertion": { "$ref": "#/definitions/assertion" }
       }
     },
     "assertion": {
@@ -263,17 +147,16 @@
       "properties": {
         "matcher": {
           "type": "string",
-          "description": "Playwright assertion matcher",
           "enum": [
             "toBeVisible",
             "toBeHidden",
             "toBeEnabled",
             "toBeDisabled",
             "toBeChecked",
-            "toBeFocused",
+            "toBeEditable",
             "toBeEmpty",
-            "toHaveText",
             "toContainText",
+            "toHaveText",
             "toHaveValue",
             "toHaveCount",
             "toHaveAttribute",
@@ -281,97 +164,52 @@
             "toHaveCSS",
             "toHaveURL",
             "toHaveTitle",
-            "toBeTruthy",
-            "toBeFalsy",
-            "toEqual",
-            "toContain",
-            "toBeGreaterThan",
-            "toBeLessThan"
+            "toBeInViewport",
+            "toHaveScreenshot",
+            "custom"
           ]
         },
-        "expected": {
-          "description": "Expected value for matcher"
-        },
-        "not": {
-          "type": "boolean",
-          "description": "Negate the assertion",
-          "default": false
-        },
-        "timeout": {
-          "type": "number",
-          "description": "Assertion timeout in milliseconds",
-          "minimum": 0
-        }
+        "text": { "description": "Expected text (alias for expected, used with toContainText/toHaveText)" },
+        "expected": { "description": "Expected value" },
+        "value": { "description": "Expected value (alias, used with toHaveAttribute/toHaveCSS/toHaveValue)" },
+        "name": { "type": "string", "description": "Attribute name for toHaveAttribute" },
+        "property": { "type": "string", "description": "CSS property name for toHaveCSS" },
+        "className": { "description": "Class name or regex for toHaveClass" },
+        "count": { "type": "number", "description": "Expected count for toHaveCount" },
+        "url": { "type": "string", "description": "Expected URL pattern for toHaveURL" },
+        "title": { "type": "string", "description": "Expected title for toHaveTitle" },
+        "script": { "type": "string", "description": "JavaScript for custom assertion" },
+        "not": { "type": "boolean", "default": false, "description": "Negate the assertion" },
+        "timeout": { "type": "number", "minimum": 0 }
       }
     }
   },
   "examples": [
     {
       "$schema": "https://metabuilder.dev/schemas/package-playwright.schema.json",
-      "package": "ui_home",
-      "description": "E2E tests for home page components",
+      "package": "workflowui-core",
+      "description": "Core WorkflowUI E2E tests",
       "tests": [
         {
-          "name": "should display home page with hero section",
-          "tags": ["@smoke", "@critical"],
+          "name": "login page displays correctly",
+          "tags": ["@smoke", "@auth"],
           "steps": [
             {
-              "description": "Navigate to home page",
               "action": "navigate",
-              "url": "/"
+              "url": "login",
+              "description": "Navigate to login — relative URL, no leading slash!"
             },
-            {
-              "description": "Wait for page to load",
-              "action": "waitForLoadState",
-              "state": "domcontentloaded"
-            },
-            {
-              "description": "Verify hero title is visible",
-              "action": "expect",
-              "text": "Build Anything, Visually",
-              "assertion": {
-                "matcher": "toBeVisible"
-              }
-            },
-            {
-              "description": "Verify Get Started button exists",
-              "action": "expect",
-              "role": "button",
-              "text": "Get Started",
-              "assertion": {
-                "matcher": "toBeVisible"
-              }
-            }
+            { "action": "waitForLoadState", "state": "domcontentloaded" },
+            { "action": "expect", "testId": "auth-layout", "assertion": { "matcher": "toBeVisible" } },
+            { "action": "expect", "testId": "email-input", "assertion": { "matcher": "toBeVisible" } }
           ]
         },
         {
-          "name": "should display six feature cards",
+          "name": "home page loads",
           "steps": [
-            {
-              "action": "navigate",
-              "url": "/"
-            },
-            {
-              "action": "waitForLoadState",
-              "state": "networkidle"
-            },
-            {
-              "description": "Check feature grid container exists",
-              "action": "expect",
-              "selector": ".features-grid",
-              "assertion": {
-                "matcher": "toBeVisible"
-              }
-            },
-            {
-              "description": "Verify 6 feature cards are rendered",
-              "action": "expect",
-              "selector": ".feature-card",
-              "assertion": {
-                "matcher": "toHaveCount",
-                "expected": 6
-              }
-            }
+            { "action": "navigate", "url": "", "description": "Empty string = workflowui home" },
+            { "action": "waitForLoadState", "state": "domcontentloaded" },
+            { "action": "expect", "testId": "header-actions", "assertion": { "matcher": "toBeVisible" } }
           ]
         }
       ]

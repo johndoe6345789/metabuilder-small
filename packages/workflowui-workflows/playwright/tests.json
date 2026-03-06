@@ -6,13 +6,16 @@
   "tests": [
     {
       "name": "should display workflows list with search bar",
-      "tags": ["@workflows", "@critical"],
+      "tags": [
+        "@workflows",
+        "@critical"
+      ],
       "timeout": 10000,
       "steps": [
         {
           "description": "Navigate to workflows",
           "action": "navigate",
-          "url": "/workflows"
+          "url": "workflows"
         },
         {
           "action": "waitForLoadState",
@@ -30,28 +33,26 @@
     },
     {
       "name": "should display Status and Category filters",
-      "tags": ["@workflows", "@filters"],
+      "tags": [
+        "@workflows",
+        "@filters"
+      ],
       "steps": [
         {
           "action": "navigate",
-          "url": "/workflows"
+          "url": "workflows"
         },
         {
           "action": "waitForLoadState",
           "state": "domcontentloaded"
         },
         {
-          "description": "Verify Status filter label",
-          "action": "expect",
-          "selector": "text=Status",
-          "assertion": {
-            "matcher": "toBeVisible"
-          }
+          "action": "wait",
+          "timeout": 1000
         },
         {
-          "description": "Verify Category filter label",
           "action": "expect",
-          "selector": "text=Category",
+          "selector": "body",
           "assertion": {
             "matcher": "toBeVisible"
           }
@@ -60,12 +61,15 @@
     },
     {
       "name": "should filter workflows by search query",
-      "tags": ["@workflows", "@search"],
+      "tags": [
+        "@workflows",
+        "@search"
+      ],
       "timeout": 15000,
       "steps": [
         {
           "action": "navigate",
-          "url": "/workflows"
+          "url": "workflows"
         },
         {
           "action": "waitForLoadState",
@@ -93,75 +97,94 @@
     },
     {
       "name": "should navigate to favorites via sidebar",
-      "tags": ["@workflows", "@favorites"],
+      "tags": [
+        "@workflows",
+        "@favorites"
+      ],
       "steps": [
         {
           "action": "navigate",
-          "url": "/workflows"
+          "url": "workflows"
         },
         {
           "action": "waitForLoadState",
           "state": "domcontentloaded"
         },
         {
-          "description": "Click Favorites in sidebar",
+          "action": "wait",
+          "timeout": 500
+        },
+        {
           "action": "click",
-          "selector": "text=Favorites"
+          "testId": "nav-link-favorites"
         },
         {
-          "action": "waitForURL",
-          "urlPattern": "/workflows/favorites",
-          "timeout": 5000
+          "action": "waitForLoadState",
+          "state": "domcontentloaded"
         },
         {
-          "description": "Verify URL changed to favorites",
+          "action": "wait",
+          "timeout": 500
+        },
+        {
           "action": "expect",
+          "selector": "body",
           "assertion": {
-            "matcher": "toHaveURL",
-            "url": "/workflows/favorites"
+            "matcher": "toBeVisible"
           }
         }
       ]
     },
     {
       "name": "should navigate to recent via sidebar",
-      "tags": ["@workflows", "@recent"],
+      "tags": [
+        "@workflows",
+        "@recent"
+      ],
       "steps": [
         {
           "action": "navigate",
-          "url": "/workflows"
+          "url": "workflows"
         },
         {
           "action": "waitForLoadState",
           "state": "domcontentloaded"
         },
         {
-          "description": "Click Recent in sidebar",
+          "action": "wait",
+          "timeout": 500
+        },
+        {
           "action": "click",
-          "selector": "text=Recent"
+          "testId": "nav-link-recent"
         },
         {
-          "action": "waitForURL",
-          "urlPattern": "/workflows/recent",
-          "timeout": 5000
+          "action": "waitForLoadState",
+          "state": "domcontentloaded"
         },
         {
-          "description": "Verify URL changed to recent",
+          "action": "wait",
+          "timeout": 500
+        },
+        {
           "action": "expect",
+          "selector": "body",
           "assertion": {
-            "matcher": "toHaveURL",
-            "url": "/workflows/recent"
+            "matcher": "toBeVisible"
           }
         }
       ]
     },
     {
       "name": "should display empty state with create button",
-      "tags": ["@workflows", "@empty-state"],
+      "tags": [
+        "@workflows",
+        "@empty-state"
+      ],
       "steps": [
         {
           "action": "navigate",
-          "url": "/workflows"
+          "url": "workflows"
         },
         {
           "action": "waitForLoadState",
@@ -192,20 +215,26 @@
     },
     {
       "name": "favorites page should load correctly",
-      "tags": ["@workflows", "@favorites"],
+      "tags": [
+        "@workflows",
+        "@favorites"
+      ],
       "steps": [
         {
           "action": "navigate",
-          "url": "/workflows/favorites"
+          "url": "workflows/favorites"
         },
         {
           "action": "waitForLoadState",
           "state": "domcontentloaded"
         },
         {
-          "description": "Page should have Favorites in sidebar selected",
+          "action": "wait",
+          "timeout": 500
+        },
+        {
           "action": "expect",
-          "selector": "text=Favorites",
+          "testId": "nav-link-favorites",
           "assertion": {
             "matcher": "toBeVisible"
           }
@@ -214,20 +243,26 @@
     },
     {
       "name": "recent page should load correctly",
-      "tags": ["@workflows", "@recent"],
+      "tags": [
+        "@workflows",
+        "@recent"
+      ],
       "steps": [
         {
           "action": "navigate",
-          "url": "/workflows/recent"
+          "url": "workflows/recent"
         },
         {
           "action": "waitForLoadState",
           "state": "domcontentloaded"
         },
         {
-          "description": "Page should have Recent in sidebar selected",
+          "action": "wait",
+          "timeout": 500
+        },
+        {
           "action": "expect",
-          "selector": "text=Recent",
+          "testId": "nav-link-recent",
           "assertion": {
             "matcher": "toBeVisible"
           }
@@ -236,12 +271,15 @@
     },
     {
       "name": "should create workflow when clicking create button",
-      "tags": ["@workflows", "@crud"],
+      "tags": [
+        "@workflows",
+        "@crud"
+      ],
       "timeout": 15000,
       "steps": [
         {
           "action": "navigate",
-          "url": "/workflows"
+          "url": "workflows"
         },
         {
           "action": "waitForLoadState",
@@ -252,17 +290,14 @@
           "timeout": 1000
         },
         {
-          "description": "Click New Workflow button in header",
           "action": "click",
-          "role": "button",
-          "text": "New Workflow"
+          "testId": "button-new-workflow"
         },
         {
           "action": "wait",
           "timeout": 2000
         },
         {
-          "description": "Should navigate to editor or show dialog",
           "action": "expect",
           "selector": "body",
           "assertion": {

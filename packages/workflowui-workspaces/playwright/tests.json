@@ -6,13 +6,16 @@
   "tests": [
     {
       "name": "should load workspace detail page",
-      "tags": ["@workspaces", "@critical"],
+      "tags": [
+        "@workspaces",
+        "@critical"
+      ],
       "timeout": 15000,
       "steps": [
         {
           "description": "Navigate to test workspace",
           "action": "navigate",
-          "url": "/workspace/test-workspace-001"
+          "url": "workspace/test-workspace-001"
         },
         {
           "action": "waitForLoadState",
@@ -30,11 +33,14 @@
     },
     {
       "name": "should display workspace info",
-      "tags": ["@workspaces", "@content"],
+      "tags": [
+        "@workspaces",
+        "@content"
+      ],
       "steps": [
         {
           "action": "navigate",
-          "url": "/workspace/test-workspace-001"
+          "url": "workspace/test-workspace-001"
         },
         {
           "action": "waitForLoadState",
@@ -52,11 +58,14 @@
     },
     {
       "name": "should have workspace UI elements",
-      "tags": ["@workspaces", "@ui"],
+      "tags": [
+        "@workspaces",
+        "@ui"
+      ],
       "steps": [
         {
           "action": "navigate",
-          "url": "/workspace/test-workspace-001"
+          "url": "workspace/test-workspace-001"
         },
         {
           "action": "waitForLoadState",

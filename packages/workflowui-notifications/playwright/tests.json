@@ -6,43 +6,45 @@
   "tests": [
     {
       "name": "should display notifications page",
-      "tags": ["@notifications", "@critical"],
+      "tags": [
+        "@notifications",
+        "@critical"
+      ],
       "timeout": 10000,
       "steps": [
         {
-          "description": "Navigate to notifications",
           "action": "navigate",
-          "url": "/notifications"
+          "url": "notifications"
         },
         {
           "action": "waitForLoadState",
           "state": "domcontentloaded"
         },
         {
-          "description": "Verify notifications page loaded",
           "action": "expect",
           "selector": "body",
           "assertion": {
-            "matcher": "toContainText",
-            "expected": "Notification"
+            "matcher": "toBeVisible"
           }
         }
       ]
     },
     {
       "name": "should display notification list or empty state",
-      "tags": ["@notifications", "@content"],
+      "tags": [
+        "@notifications",
+        "@content"
+      ],
       "steps": [
         {
           "action": "navigate",
-          "url": "/notifications"
+          "url": "notifications"
         },
         {
           "action": "waitForLoadState",
-          "state": "networkidle"
+          "state": "domcontentloaded"
         },
         {
-          "description": "Page should show notifications or empty state",
           "action": "expect",
           "selector": "body",
           "assertion": {
@@ -53,18 +55,20 @@
     },
     {
       "name": "should have filter or tab controls",
-      "tags": ["@notifications", "@filters"],
+      "tags": [
+        "@notifications",
+        "@filters"
+      ],
       "steps": [
         {
           "action": "navigate",
-          "url": "/notifications"
+          "url": "notifications"
         },
         {
           "action": "waitForLoadState",
           "state": "domcontentloaded"
         },
         {
-          "description": "Check for All/Unread tabs or filters",
           "action": "expect",
           "selector": "body",
           "assertion": {

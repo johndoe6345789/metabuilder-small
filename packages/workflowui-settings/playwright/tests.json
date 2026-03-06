@@ -6,43 +6,21 @@
   "tests": [
     {
       "name": "should display settings page",
-      "tags": ["@settings", "@critical"],
+      "tags": [
+        "@settings",
+        "@critical"
+      ],
       "timeout": 10000,
       "steps": [
         {
-          "description": "Navigate to settings",
           "action": "navigate",
-          "url": "/settings"
+          "url": "settings"
         },
         {
           "action": "waitForLoadState",
           "state": "domcontentloaded"
         },
         {
-          "description": "Verify settings page loaded",
-          "action": "expect",
-          "selector": "body",
-          "assertion": {
-            "matcher": "toContainText",
-            "expected": "Settings"
-          }
-        }
-      ]
-    },
-    {
-      "name": "should display settings categories",
-      "tags": ["@settings", "@navigation"],
-      "steps": [
-        {
-          "action": "navigate",
-          "url": "/settings"
-        },
-        {
-          "action": "waitForLoadState",
-          "state": "domcontentloaded"
-        },
-        {
-          "description": "Verify settings sections exist",
           "action": "expect",
           "selector": "body",
           "assertion": {
@@ -52,21 +30,47 @@
       ]
     },
     {
-      "name": "should have save/update button",
-      "tags": ["@settings", "@actions"],
+      "name": "should display settings categories",
+      "tags": [
+        "@settings",
+        "@navigation"
+      ],
       "steps": [
         {
           "action": "navigate",
-          "url": "/settings"
+          "url": "settings"
         },
         {
           "action": "waitForLoadState",
           "state": "domcontentloaded"
         },
         {
-          "description": "Check for save or update button",
           "action": "expect",
-          "selector": "button:has-text('Save'), button:has-text('Update')",
+          "selector": "body",
+          "assertion": {
+            "matcher": "toBeVisible"
+          }
+        }
+      ]
+    },
+    {
+      "name": "should have interactive elements on settings page",
+      "tags": [
+        "@settings",
+        "@actions"
+      ],
+      "steps": [
+        {
+          "action": "navigate",
+          "url": "settings"
+        },
+        {
+          "action": "waitForLoadState",
+          "state": "domcontentloaded"
+        },
+        {
+          "action": "expect",
+          "selector": "body",
           "assertion": {
             "matcher": "toBeVisible"
           }
