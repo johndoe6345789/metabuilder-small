@@ -27,8 +27,13 @@ struct EntityField {
     std::string type{};         // "string", "number", "boolean", "timestamp", "json"
     bool required{false};
     bool unique{false};
+    bool nullable{false};
     std::optional<std::string> defaultValue{};
     std::optional<std::string> references{};  // FK to other entity
+    std::optional<int> minLength{};
+    std::optional<int> maxLength{};
+    std::optional<std::string> pattern{};
+    std::optional<std::vector<std::string>> enumValues{};
 };
 
 // Entity schema metadata
