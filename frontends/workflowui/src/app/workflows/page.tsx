@@ -44,8 +44,7 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 export default function WorkflowsPage() {
-  const { isLoading, error, listWorkflows, deleteWorkflow } = useWorkflows();
-  const [workflows, setWorkflows] = useState<Workflow[]>([]);
+  const { workflows, isLoading, error, listWorkflows, deleteWorkflow } = useWorkflows();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
@@ -59,8 +58,7 @@ export default function WorkflowsPage() {
     if (statusFilter !== 'all') options.status = statusFilter;
     if (categoryFilter !== 'all') options.category = categoryFilter;
 
-    const data = await listWorkflows(options);
-    setWorkflows(data);
+    await listWorkflows(options);
   };
 
   const handleDelete = async (id: string) => {
@@ -72,12 +70,12 @@ export default function WorkflowsPage() {
     }
   };
 
-  const filteredWorkflows = workflows.filter(workflow =>
+  const filteredWorkflows = (workflows || []).filter(workflow =>
     workflow.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     (workflow.description && workflow.description.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
-  if (isLoading && workflows.length === 0) {
+  if (isLoading && (!workflows || workflows.length === 0)) {
     return (
       <div className={styles.loading}>
         <CircularProgress />

@@ -34,8 +34,7 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default function FavoriteWorkflowsPage() {
-  const { isLoading, listWorkflows, deleteWorkflow } = useWorkflows();
-  const [workflows, setWorkflows] = useState<Workflow[]>([]);
+  const { workflows, isLoading, listWorkflows, deleteWorkflow } = useWorkflows();
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'name' | 'updatedAt'>('updatedAt');
 
@@ -44,8 +43,7 @@ export default function FavoriteWorkflowsPage() {
   }, []);
 
   const loadWorkflows = async () => {
-    const data = await listWorkflows();
-    setWorkflows(data);
+    await listWorkflows();
   };
 
   const handleDelete = async (id: string) => {
@@ -57,7 +55,7 @@ export default function FavoriteWorkflowsPage() {
     }
   };
 
-  const filteredWorkflows = workflows
+  const filteredWorkflows = (workflows || [])
     .filter(
       (w) =>
         w.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -85,7 +83,7 @@ export default function FavoriteWorkflowsPage() {
     return date.toLocaleDateString();
   };
 
-  if (isLoading && workflows.length === 0) {
+  if (isLoading && (!workflows || workflows.length === 0)) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
         <CircularProgress />

@@ -9,6 +9,7 @@
 
 import {
   workflowSlice,
+  workflowsSlice,
   canvasItemsSlice,
   collaborationSlice,
   authSlice,
@@ -33,6 +34,7 @@ import { createPersistedStore } from '@metabuilder/redux-persist';
 const { store, persistor } = createPersistedStore({
   reducers: {
     workflow: workflowSlice.reducer,
+    workflows: workflowsSlice.reducer,
     editor: editorSlice.reducer,
     nodes: nodesSlice.reducer,
     connection: connectionSlice.reducer,

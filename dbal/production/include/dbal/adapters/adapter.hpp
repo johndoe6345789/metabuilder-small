@@ -31,10 +31,10 @@ struct EntityField {
     std::optional<std::string> defaultValue{};
     std::optional<std::string> references{};  // FK to other entity
     // Constraint validation (from JSON schema)
-    std::vector<std::string> enumValues{};
     std::optional<int> minLength{};
     std::optional<int> maxLength{};
     std::optional<std::string> pattern{};
+    std::optional<std::vector<std::string>> enumValues{};
 };
 
 // Relation metadata (from entity JSON "relations" section)

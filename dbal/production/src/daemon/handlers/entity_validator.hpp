@@ -18,7 +18,7 @@ namespace dbal {
 namespace daemon {
 namespace handlers {
 
-struct FieldError {
+struct ValidationError {
     std::string field;
     std::string message;
 };
@@ -28,15 +28,15 @@ struct FieldError {
  *
  * @param schema    Entity schema (from getEntitySchema).
  * @param data      Payload being written (nlohmann::json object).
- * @param is_create true for POST (required fields enforced); false for PATCH/PUT.
+ * @param isCreate  true for POST (required fields enforced); false for PATCH/PUT.
  * @return Vector of errors, empty when valid.
  */
-inline std::vector<FieldError> validateEntityData(
-    const dbal::adapters::EntitySchema& schema,
+inline std::vector<ValidationError> validateEntityData(
+    const adapters::EntitySchema& schema,
     const nlohmann::json& data,
-    bool is_create)
+    bool isCreate)
 {
-    std::vector<FieldError> errors;
+    std::vector<ValidationError> errors;
 
     for (const auto& field : schema.fields) {
         // Primary keys are server-managed; skip
@@ -45,62 +45,60 @@ inline std::vector<FieldError> validateEntityData(
         bool present = data.contains(field.name) && !data[field.name].is_null();
 
         // Required field check (CREATE only — PATCH may omit fields)
-        if (field.required && is_create && !present) {
+        if (isCreate && field.required && !present) {
             errors.push_back({field.name, "Field is required"});
             continue;
         }
 
         if (!present) continue; // Optional / not supplied on update
 
-        const auto& val = data[field.name];
-
-        // Enum constraint
-        if (!field.enumValues.empty() && val.is_string()) {
-            const std::string s = val.get<std::string>();
-            bool found = false;
-            for (const auto& e : field.enumValues)
-                if (s == e) { found = true; break; }
-            if (!found) {
-                std::string allowed;
-                for (const auto& e : field.enumValues) {
-                    if (!allowed.empty()) allowed += ", ";
-                    allowed += "'" + e + "'";
-                }
-                errors.push_back({field.name, "Must be one of: " + allowed});
+        // Type checks for string fields
+        if (field.type == "string" || field.type == "email" || field.type == "text" ||
+            field.type == "uuid" || field.type == "cuid" || field.type == "enum") {
+            if (!data[field.name].is_string()) {
+                errors.push_back({field.name, "Expected string value"});
+                continue;
             }
-        }
+            const auto& val = data[field.name].get_ref<const std::string&>();
 
-        // Length constraints (string / text fields)
-        if (val.is_string()) {
-            const std::string s = val.get<std::string>();
-            const int len = static_cast<int>(s.size());
-            if (field.minLength && len < *field.minLength)
+            if (field.minLength.has_value() && static_cast<int>(val.size()) < *field.minLength) {
                 errors.push_back({field.name,
                     "Minimum length is " + std::to_string(*field.minLength)});
-            if (field.maxLength && len > *field.maxLength)
+            }
+            if (field.maxLength.has_value() && static_cast<int>(val.size()) > *field.maxLength) {
                 errors.push_back({field.name,
                     "Maximum length is " + std::to_string(*field.maxLength)});
-
+            }
+            if (field.enumValues.has_value()) {
+                const auto& allowed = *field.enumValues;
+                if (std::find(allowed.begin(), allowed.end(), val) == allowed.end()) {
+                    errors.push_back({field.name, "Invalid enum value"});
+                }
+            }
             // Pattern constraint
             if (field.pattern && !field.pattern->empty()) {
                 try {
                     std::regex re(*field.pattern);
-                    if (!std::regex_search(s, re))
+                    if (!std::regex_search(val, re))
                         errors.push_back({field.name, "Does not match required pattern"});
                 } catch (...) {}   // Silently ignore bad regex in schema
             }
         }
 
-        // Numeric type check
-        const bool is_numeric_type = (field.type == "number" || field.type == "bigint" ||
-                                      field.type == "integer" || field.type == "int");
-        if (is_numeric_type && !val.is_number() && !val.is_string()) {
-            errors.push_back({field.name, "Expected a numeric value"});
+        // Type checks for numeric fields
+        if (field.type == "number" || field.type == "bigint" ||
+            field.type == "integer" || field.type == "int") {
+            if (!data[field.name].is_number()) {
+                errors.push_back({field.name, "Expected a numeric value"});
+            }
         }
 
-        // Boolean type check
-        if (field.type == "boolean" && !val.is_boolean() && !val.is_number() && !val.is_string()) {
-            errors.push_back({field.name, "Expected a boolean value"});
+        // Type checks for boolean fields
+        if (field.type == "boolean") {
+            if (!data[field.name].is_boolean() && !data[field.name].is_number() &&
+                !data[field.name].is_string()) {
+                errors.push_back({field.name, "Expected a boolean value"});
+            }
         }
     }
 
