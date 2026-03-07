@@ -46,7 +46,8 @@
       "steps": [
         { "action": "navigate", "url": "" },
         { "action": "waitForLoadState", "state": "domcontentloaded" },
-        { "action": "expect", "testId": "nav-sidebar", "assertion": { "matcher": "toBeVisible" } }
+        { "action": "click", "testId": "navigation-toggle-btn" },
+        { "action": "expect", "testId": "navigation-sidebar", "assertion": { "matcher": "toBeVisible" } }
       ]
     },
     {
@@ -55,8 +56,8 @@
       "steps": [
         { "action": "navigate", "url": "settings" },
         { "action": "waitForLoadState", "state": "domcontentloaded" },
-        { "action": "expect", "selector": "header", "assertion": { "matcher": "toBeVisible" } },
-        { "action": "expect", "selector": "main", "assertion": { "matcher": "toBeVisible" } }
+        { "action": "expect", "testId": "page-header", "assertion": { "matcher": "toBeVisible" } },
+        { "action": "expect", "testId": "main-content", "assertion": { "matcher": "toBeVisible" } }
       ]
     },
     {
@@ -64,11 +65,7 @@
       "steps": [
         { "action": "navigate", "url": "settings" },
         { "action": "waitForLoadState", "state": "domcontentloaded" },
-        {
-          "action": "expect",
-          "selector": "main",
-          "assertion": { "matcher": "toBeVisible" }
-        }
+        { "action": "expect", "testId": "main-content", "assertion": { "matcher": "toBeVisible" } }
       ]
     },
     {
@@ -443,7 +440,7 @@
         { "action": "navigate", "url": "snippet/new" },
         { "action": "waitForLoadState", "state": "domcontentloaded" },
         { "action": "click", "testId": "snippet-tab-1-btn" },
-        { "action": "expect", "testId": "code-editor-section", "assertion": { "matcher": "toBeVisible" } }
+        { "action": "expect", "testId": "code-editor-container", "assertion": { "matcher": "toBeVisible" } }
       ]
     },
 
@@ -761,10 +758,9 @@
         { "action": "navigate", "url": "snippet/new" },
         { "action": "waitForLoadState", "state": "domcontentloaded" },
         { "action": "expect", "testId": "snippet-language-select", "assertion": { "matcher": "toBeVisible" } },
-        {
-          "action": "evaluate",
-          "script": "(function(){ var sel = document.querySelector('[data-testid=\"snippet-language-select\"]'); if (!sel) throw new Error('language select not found'); var opts = sel.querySelectorAll('option'); return opts.length > 0 ? true : (function(){ throw new Error('No language options found') })(); })()"
-        }
+        { "action": "click", "testId": "snippet-language-select" },
+        { "action": "expect", "selector": "[role='listbox']", "assertion": { "matcher": "toBeVisible" } },
+        { "action": "keyboard", "keys": "Escape" }
       ]
     },
 
@@ -916,7 +912,8 @@
         { "action": "navigate", "url": "snippet/new" },
         { "action": "waitForLoadState", "state": "domcontentloaded" },
         { "action": "click", "testId": "snippet-tab-0-btn" },
-        { "action": "select", "selector": "[data-testid='snippet-language-select'] select, [data-testid='snippet-language-select']", "value": "Python" },
+        { "action": "click", "testId": "snippet-language-select" },
+        { "action": "click", "testId": "language-option-Python" },
         { "action": "click", "testId": "snippet-tab-1-btn" },
         { "action": "check", "testId": "enable-preview-checkbox" },
         {
@@ -1295,19 +1292,25 @@
     {
       "name": "login page loads",
       "tags": ["@smoke", "@auth"],
+      "beforeEach": [
+        { "action": "evaluate", "script": "new Promise(function(r){var req=indexedDB.open('metabuilder-persist',1);req.onsuccess=function(e){var db=e.target.result;var tx=db.transaction('redux-state','readwrite');tx.objectStore('redux-state').delete('pastebin');tx.oncomplete=function(){r(true);};tx.onerror=function(){r(false);};};req.onerror=function(){r(false);};})" }
+      ],
       "steps": [
         { "action": "navigate", "url": "login" },
-        { "action": "waitForLoadState", "state": "domcontentloaded" },
-        { "action": "expect", "selector": "main", "assertion": { "matcher": "toBeVisible" } }
+        { "action": "waitForSelector", "selector": "input#username", "timeout": 8000 },
+        { "action": "expect", "selector": "input#username", "assertion": { "matcher": "toBeVisible" } }
       ]
     },
 
     {
       "name": "login page has username and password fields",
       "tags": ["@auth"],
+      "beforeEach": [
+        { "action": "evaluate", "script": "new Promise(function(r){var req=indexedDB.open('metabuilder-persist',1);req.onsuccess=function(e){var db=e.target.result;var tx=db.transaction('redux-state','readwrite');tx.objectStore('redux-state').delete('pastebin');tx.oncomplete=function(){r(true);};tx.onerror=function(){r(false);};};req.onerror=function(){r(false);};})" }
+      ],
       "steps": [
         { "action": "navigate", "url": "login" },
-        { "action": "waitForLoadState", "state": "domcontentloaded" },
+        { "action": "waitForSelector", "selector": "input#username", "timeout": 8000 },
         { "action": "expect", "label": "Username", "assertion": { "matcher": "toBeVisible" } },
         { "action": "expect", "label": "Password", "assertion": { "matcher": "toBeVisible" } }
       ]
@@ -1316,9 +1319,12 @@
     {
       "name": "login page password field has visibility toggle",
       "tags": ["@auth"],
+      "beforeEach": [
+        { "action": "evaluate", "script": "new Promise(function(r){var req=indexedDB.open('metabuilder-persist',1);req.onsuccess=function(e){var db=e.target.result;var tx=db.transaction('redux-state','readwrite');tx.objectStore('redux-state').delete('pastebin');tx.oncomplete=function(){r(true);};tx.onerror=function(){r(false);};};req.onerror=function(){r(false);};})" }
+      ],
       "steps": [
         { "action": "navigate", "url": "login" },
-        { "action": "waitForLoadState", "state": "domcontentloaded" },
+        { "action": "waitForSelector", "selector": "input#username", "timeout": 8000 },
         { "action": "expect", "selector": "[aria-label='Toggle password']", "assertion": { "matcher": "toBeVisible" } }
       ]
     },
@@ -1326,20 +1332,26 @@
     {
       "name": "login page can switch to register form",
       "tags": ["@auth"],
+      "beforeEach": [
+        { "action": "evaluate", "script": "new Promise(function(r){var req=indexedDB.open('metabuilder-persist',1);req.onsuccess=function(e){var db=e.target.result;var tx=db.transaction('redux-state','readwrite');tx.objectStore('redux-state').delete('pastebin');tx.oncomplete=function(){r(true);};tx.onerror=function(){r(false);};};req.onerror=function(){r(false);};})" }
+      ],
       "steps": [
         { "action": "navigate", "url": "login" },
-        { "action": "waitForLoadState", "state": "domcontentloaded" },
-        { "action": "click", "selector": "[role='tab'][aria-controls]", "skipIf": { "selector": "[role='tab'][aria-controls]", "state": "hidden" } },
-        { "action": "expect", "selector": "main", "assertion": { "matcher": "toBeVisible" } }
+        { "action": "waitForSelector", "selector": "input#username", "timeout": 8000 },
+        { "action": "click", "text": "Create one." },
+        { "action": "expect", "selector": "input#reg-u", "assertion": { "matcher": "toBeVisible" } }
       ]
     },
 
     {
       "name": "login form fields accept text",
       "tags": ["@auth"],
+      "beforeEach": [
+        { "action": "evaluate", "script": "new Promise(function(r){var req=indexedDB.open('metabuilder-persist',1);req.onsuccess=function(e){var db=e.target.result;var tx=db.transaction('redux-state','readwrite');tx.objectStore('redux-state').delete('pastebin');tx.oncomplete=function(){r(true);};tx.onerror=function(){r(false);};};req.onerror=function(){r(false);};})" }
+      ],
       "steps": [
         { "action": "navigate", "url": "login" },
-        { "action": "waitForLoadState", "state": "domcontentloaded" },
+        { "action": "waitForSelector", "selector": "input#username", "timeout": 8000 },
         { "action": "fill", "label": "Username", "value": "testuser" },
         { "action": "expect", "label": "Username", "assertion": { "matcher": "toHaveValue", "value": "testuser" } }
       ]
@@ -1434,7 +1446,7 @@
         { "action": "waitForLoadState", "state": "domcontentloaded" },
         { "action": "click", "testId": "snippet-tab-1-btn" },
         { "action": "waitForSelector", "selector": "[data-testid='monaco-editor-container'], [data-testid='monaco-editor-skeleton']", "timeout": 8000 },
-        { "action": "expect", "testId": "code-editor-section", "assertion": { "matcher": "toBeVisible" } }
+        { "action": "expect", "testId": "code-editor-container", "assertion": { "matcher": "toBeVisible" } }
       ]
     },
 
@@ -1517,7 +1529,7 @@
       "steps": [
         { "action": "navigate", "url": "snippet/new" },
         { "action": "waitForLoadState", "state": "domcontentloaded" },
-        { "action": "expect", "testId": "snippet-language-select", "assertion": { "matcher": "toHaveValue", "value": "JavaScript" } }
+        { "action": "expect", "testId": "snippet-language-select", "assertion": { "matcher": "toContainText", "text": "JavaScript" } }
       ]
     },
 
@@ -1527,10 +1539,12 @@
       "steps": [
         { "action": "navigate", "url": "snippet/new" },
         { "action": "waitForLoadState", "state": "domcontentloaded" },
+        { "action": "click", "testId": "snippet-language-select" },
         {
           "action": "evaluate",
-          "script": "(function(){ var sel = document.querySelector('[data-testid=\"snippet-language-select\"] select') || document.querySelector('[data-testid=\"snippet-language-select\"]'); if (!sel) throw new Error('select not found'); var count = sel.querySelectorAll('option').length; if (count < 27) throw new Error('Expected 27+ languages, got ' + count); return true; })()"
-        }
+          "script": "(function(){ var opts = document.querySelectorAll('[data-testid^=\"language-option-\"]'); if (opts.length < 27) throw new Error('Expected 27+ languages, got ' + opts.length); return true; })()"
+        },
+        { "action": "keyboard", "keys": "Escape" }
       ]
     },
 
@@ -1579,7 +1593,8 @@
       "steps": [
         { "action": "navigate", "url": "snippet/new" },
         { "action": "waitForLoadState", "state": "domcontentloaded" },
-        { "action": "select", "selector": "[data-testid='snippet-language-select'] select, [data-testid='snippet-language-select']", "value": "${lang}" },
+        { "action": "click", "testId": "snippet-language-select" },
+        { "action": "click", "testId": "language-option-${lang}" },
         { "action": "click", "testId": "snippet-tab-1-btn" },
         { "action": "expect", "testId": "enable-preview-checkbox", "assertion": { "matcher": "toBeVisible" } }
       ]
@@ -1603,8 +1618,8 @@
         { "action": "expect", "testId": "snippet-title-input", "assertion": { "matcher": "toHaveValue", "value": "E2E Flow Test Snippet" } },
         { "action": "fill", "testId": "snippet-description-textarea", "value": "Created by E2E test" },
         { "action": "click", "testId": "snippet-tab-1-btn" },
-        { "action": "waitForSelector", "selector": "[data-testid='code-editor-section']", "timeout": 5000 },
-        { "action": "expect", "testId": "code-editor-section", "assertion": { "matcher": "toBeVisible" } },
+        { "action": "waitForSelector", "selector": "[data-testid='code-editor-container']", "timeout": 5000 },
+        { "action": "expect", "testId": "code-editor-container", "assertion": { "matcher": "toBeVisible" } },
         { "action": "expect", "testId": "editor-save-btn", "assertion": { "matcher": "toBeVisible" } }
       ]
     },
@@ -1687,7 +1702,7 @@
         { "action": "waitForLoadState", "state": "domcontentloaded" },
         { "action": "click", "testId": "snippet-tab-1-btn" },
         { "action": "waitForSelector", "selector": "[data-testid='monaco-editor-container']", "timeout": 8000 },
-        { "action": "expect", "testId": "code-editor-section", "assertion": { "matcher": "toBeVisible" } }
+        { "action": "expect", "testId": "code-editor-container", "assertion": { "matcher": "toBeVisible" } }
       ]
     },
 
@@ -1702,7 +1717,7 @@
         { "action": "click", "testId": "snippet-tab-0-btn" },
         { "action": "expect", "testId": "snippet-form-fields", "assertion": { "matcher": "toBeVisible" } },
         { "action": "click", "testId": "snippet-tab-1-btn" },
-        { "action": "expect", "testId": "code-editor-section", "assertion": { "matcher": "toBeVisible" } }
+        { "action": "expect", "testId": "code-editor-container", "assertion": { "matcher": "toBeVisible" } }
       ]
     },
 
@@ -1817,7 +1832,7 @@
       "steps": [
         { "action": "navigate", "url": "" },
         { "action": "waitForLoadState", "state": "domcontentloaded" },
-        { "action": "expect", "testId": "status-badge", "assertion": { "matcher": "toBeVisible" } }
+        { "action": "expect", "testId": "alerts-bell", "assertion": { "matcher": "toBeVisible" } }
       ]
     },
 
@@ -1889,7 +1904,8 @@
         { "action": "navigate", "url": "snippet/new" },
         { "action": "waitForLoadState", "state": "domcontentloaded" },
         { "action": "fill", "testId": "snippet-title-input", "value": "E2E Python Hello World" },
-        { "action": "select", "selector": "[data-testid='snippet-language-select'] select, [data-testid='snippet-language-select']", "value": "Python" },
+        { "action": "click", "testId": "snippet-language-select" },
+        { "action": "click", "testId": "language-option-Python" },
         { "action": "click", "testId": "snippet-tab-1-btn" },
         { "action": "waitForSelector", "selector": "[data-testid='monaco-editor-container']", "timeout": 10000 },
         { "action": "click", "selector": ".monaco-editor .inputarea" },
@@ -1926,7 +1942,8 @@
         { "action": "navigate", "url": "snippet/new" },
         { "action": "waitForLoadState", "state": "domcontentloaded" },
         { "action": "fill", "testId": "snippet-title-input", "value": "Run Test Python" },
-        { "action": "select", "selector": "[data-testid='snippet-language-select'] select, [data-testid='snippet-language-select']", "value": "Python" },
+        { "action": "click", "testId": "snippet-language-select" },
+        { "action": "click", "testId": "language-option-Python" },
         { "action": "click", "testId": "snippet-tab-1-btn" },
         { "action": "waitForSelector", "selector": "[data-testid='monaco-editor-container']", "timeout": 10000 },
         { "action": "click", "selector": ".monaco-editor .inputarea" },
@@ -2072,7 +2089,8 @@
         { "action": "click", "selector": ".monaco-editor .inputarea" },
         { "action": "keyboard", "keys": ["ctrl+a"] },
         { "action": "pageType", "text": "print('hi')" },
-        { "action": "select", "selector": "[data-testid='snippet-language-select'] select, [data-testid='snippet-language-select']", "value": "Python" },
+        { "action": "click", "testId": "snippet-language-select" },
+        { "action": "click", "testId": "language-option-Python" },
         { "action": "click", "testId": "editor-save-btn" },
         { "action": "waitForURL", "urlPattern": "**/", "timeout": 8000 },
         {

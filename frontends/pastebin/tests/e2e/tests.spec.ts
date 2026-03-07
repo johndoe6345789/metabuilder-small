@@ -347,10 +347,30 @@ if (!existsSync(testJsonPath)) {
 
 const testDef = JSON.parse(readFileSync(testJsonPath, 'utf-8')) as TestDefinition
 
+// ---------------------------------------------------------------------------
+// Auth credentials for Playwright test user
+// ---------------------------------------------------------------------------
+const PW_USERNAME = 'playwright'
+const PW_PASSWORD = 'pw-test-2024'
+
+async function loginUser(page: Page): Promise<void> {
+  await page.goto('login')
+  await page.waitForSelector('input#username', { timeout: 10000 })
+  await page.fill('input#username', PW_USERNAME)
+  await page.fill('input#password', PW_PASSWORD)
+  await page.click('button[type="submit"]')
+  await page.waitForURL(url => !url.href.includes('/login'), { timeout: 15000 })
+}
+
 test.describe(`pastebin`, () => {
   if (!Array.isArray(testDef.tests)) {
     throw new Error('tests.json must have a "tests" array')
   }
+
+  // Global auth: login before every test so AuthGuard doesn't redirect
+  test.beforeEach(async ({ page }) => {
+    await loginUser(page)
+  })
 
   for (const testCase of testDef.tests) {
     // ------------------------------------------------------------------
