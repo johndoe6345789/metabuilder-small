@@ -1,0 +1,51 @@
+{
+  "$schema": "../../../schemas/package-schemas/playwright.schema.json",
+  "package": "pastebin",
+  "version": "1.0.0",
+  "description": "Dialog visual checks for snippet creation flow and close behavior",
+  "suite": "Dialog Visual Checks",
+  "tests": [
+    {
+      "name": "snippet dialog opens and is visible",
+      "steps": [
+        { "action": "navigate", "url": "" },
+        { "action": "waitForSelector", "selector": "[data-testid='namespace-selector'],[data-testid='snippet-manager-loading']", "timeout": 15000 },
+        { "action": "click", "selector": "[data-testid='empty-state-create-menu'],[data-testid='new-snippet-btn']", "skipIf": { "selector": "[data-testid='empty-state-create-menu'],[data-testid='new-snippet-btn']", "state": "hidden" } },
+        { "action": "waitForSelector", "selector": "[data-testid='snippet-dialog']", "timeout": 5000 },
+        { "action": "expect", "testId": "snippet-dialog", "assertion": { "matcher": "toBeVisible" } }
+      ]
+    },
+    {
+      "name": "snippet dialog has title input",
+      "steps": [
+        { "action": "navigate", "url": "" },
+        { "action": "waitForSelector", "selector": "[data-testid='namespace-selector'],[data-testid='snippet-manager-loading']", "timeout": 15000 },
+        { "action": "click", "selector": "[data-testid='empty-state-create-menu'],[data-testid='new-snippet-btn']", "skipIf": { "selector": "[data-testid='empty-state-create-menu'],[data-testid='new-snippet-btn']", "state": "hidden" } },
+        { "action": "waitForSelector", "selector": "[data-testid='snippet-dialog']", "timeout": 5000 },
+        { "action": "expect", "testId": "snippet-title-input", "assertion": { "matcher": "toBeVisible" } }
+      ]
+    },
+    {
+      "name": "snippet dialog screenshot",
+      "steps": [
+        { "action": "navigate", "url": "" },
+        { "action": "waitForSelector", "selector": "[data-testid='namespace-selector'],[data-testid='snippet-manager-loading']", "timeout": 15000 },
+        { "action": "click", "selector": "[data-testid='empty-state-create-menu'],[data-testid='new-snippet-btn']", "skipIf": { "selector": "[data-testid='empty-state-create-menu'],[data-testid='new-snippet-btn']", "state": "hidden" } },
+        { "action": "waitForSelector", "selector": "[data-testid='snippet-dialog']", "timeout": 5000 },
+        { "action": "store", "name": "getBoundingBox", "args": { "testId": "snippet-dialog" }, "as": "dialogBox" },
+        { "action": "screenshot", "filename": "screenshots/snippet-dialog.png", "clipFrom": "dialogBox" }
+      ]
+    },
+    {
+      "name": "dialog closes on cancel",
+      "steps": [
+        { "action": "navigate", "url": "" },
+        { "action": "waitForSelector", "selector": "[data-testid='namespace-selector'],[data-testid='snippet-manager-loading']", "timeout": 15000 },
+        { "action": "click", "selector": "[data-testid='empty-state-create-menu'],[data-testid='new-snippet-btn']", "skipIf": { "selector": "[data-testid='empty-state-create-menu'],[data-testid='new-snippet-btn']", "state": "hidden" } },
+        { "action": "waitForSelector", "selector": "[data-testid='snippet-dialog']", "timeout": 5000, "skipIf": { "selector": "[data-testid='snippet-dialog']", "state": "hidden" } },
+        { "action": "click", "testId": "snippet-dialog-cancel-btn", "skipIf": { "selector": "[data-testid='snippet-dialog-cancel-btn']", "state": "hidden" } },
+        { "action": "press", "key": "Escape", "selector": "body", "skipIf": { "selector": "[data-testid='snippet-dialog']", "state": "hidden" } }
+      ]
+    }
+  ]
+}
