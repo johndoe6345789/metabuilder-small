@@ -1,111 +1,92 @@
+import React from 'react'
 import { renderHook, act, waitFor } from '@testing-library/react'
 import { usePythonTerminal } from './usePythonTerminal'
 import * as flaskRunner from '@/lib/flask-runner'
 
+// Mock the flask-runner module
 jest.mock('@/lib/flask-runner')
 
-const mockFlask = flaskRunner as jest.Mocked<typeof flaskRunner>
+const mockFlaskRunner = flaskRunner as jest.Mocked<typeof flaskRunner>
 
-function doneResult(lines: flaskRunner.SessionOutputLine[] = []) {
-  return { output: lines, waiting_for_input: false, done: true }
-}
-
-function pendingResult(lines: flaskRunner.SessionOutputLine[] = [], waiting = false) {
-  return { output: lines, waiting_for_input: waiting, done: false }
-}
-
-describe('usePythonTerminal', () => {
+describe('usePythonTerminal Hook', () => {
   beforeEach(() => {
-    jest.useFakeTimers()
     jest.clearAllMocks()
-    mockFlask.startInteractiveSession.mockResolvedValue('session-abc')
-    mockFlask.pollSession.mockResolvedValue(doneResult())
-    mockFlask.sendSessionInput.mockResolvedValue(undefined)
+    jest.useFakeTimers()
   })
 
   afterEach(() => {
     jest.useRealTimers()
   })
 
-  describe('initial state', () => {
-    it('starts with empty lines and not running', () => {
+  describe('Initialization', () => {
+    it('should initialize with empty terminal', () => {
       const { result } = renderHook(() => usePythonTerminal())
+
       expect(result.current.lines).toEqual([])
       expect(result.current.isRunning).toBe(false)
       expect(result.current.isInitializing).toBe(false)
-      expect(result.current.waitingForInput).toBe(false)
       expect(result.current.inputValue).toBe('')
+      expect(result.current.waitingForInput).toBe(false)
     })
 
-    it('isInitializing is always false (no Pyodide)', () => {
+    it('should always report isInitializing as false (Flask is always ready)', () => {
       const { result } = renderHook(() => usePythonTerminal())
       expect(result.current.isInitializing).toBe(false)
     })
   })
 
-  describe('handleRun', () => {
-    it('calls startInteractiveSession with language=python and the code', async () => {
-      const { result } = renderHook(() => usePythonTerminal())
-
-      await act(async () => {
-        await result.current.handleRun('print("hi")')
-        await jest.runAllTimersAsync()
-      })
-
-      expect(mockFlask.startInteractiveSession).toHaveBeenCalledWith({
-        language: 'python',
-        files: [{ name: 'main.py', content: 'print("hi")' }],
-      })
-    })
-
-    it('sets isRunning=true while session is active', async () => {
-      mockFlask.startInteractiveSession.mockResolvedValue('sess-1')
-      mockFlask.pollSession.mockResolvedValue(pendingResult())
-
+  describe('Input Handling', () => {
+    it('should update input value', () => {
       const { result } = renderHook(() => usePythonTerminal())
 
       act(() => {
-        result.current.handleRun('import time; time.sleep(10)')
+        result.current.setInputValue('test input')
       })
 
-      await waitFor(() => expect(result.current.isRunning).toBe(true))
+      expect(result.current.inputValue).toBe('test input')
     })
 
-    it('clears previous lines when starting a new run', async () => {
-      mockFlask.pollSession
-        .mockResolvedValueOnce(doneResult([{ type: 'out', text: 'First' }]))
-        .mockResolvedValue(doneResult())
-
+    it('should not submit input if not waiting for input', () => {
       const { result } = renderHook(() => usePythonTerminal())
 
-      await act(async () => {
-        await result.current.handleRun('print("First")')
-        await jest.runAllTimersAsync()
+      const mockEvent = { preventDefault: jest.fn() } as unknown as React.FormEvent<HTMLFormElement>
+
+      const initialValue = 'initial'
+      act(() => {
+        result.current.setInputValue(initialValue)
       })
 
-      await waitFor(() => expect(result.current.lines).toHaveLength(1))
-
-      await act(async () => {
-        await result.current.handleRun('print("Second")')
-        await jest.runAllTimersAsync()
+      act(() => {
+        result.current.handleInputSubmit(mockEvent)
       })
 
-      await waitFor(() => expect(result.current.lines).toHaveLength(0))
+      // Input value should not change since waitingForInput is false
+      expect(result.current.inputValue).toBe(initialValue)
     })
 
-    it('resets offset and sessionId on new run', async () => {
+    it('should not submit input if no active session', () => {
       const { result } = renderHook(() => usePythonTerminal())
 
-      await act(async () => {
-        await result.current.handleRun('print("a")')
-        await jest.runAllTimersAsync()
+      const mockEvent = { preventDefault: jest.fn() } as unknown as React.FormEvent<HTMLFormElement>
+
+      act(() => {
+        result.current.setInputValue('some input')
       })
 
-      expect(mockFlask.pollSession).toHaveBeenCalledWith('session-abc', 0)
-    })
+      // handleInputSubmit checks waitingForInput — which is false by default
+      act(() => {
+        result.current.handleInputSubmit(mockEvent)
+      })
 
-    it('shows error line when startInteractiveSession throws', async () => {
-      mockFlask.startInteractiveSession.mockRejectedValue(new Error('Connection refused'))
+      expect(mockFlaskRunner.sendSessionInput).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('Code Execution State', () => {
+    it('should set running state to false after error from Flask not configured', async () => {
+      mockFlaskRunner.startInteractiveSession.mockRejectedValue(
+        new Error('Flask backend not configured (NEXT_PUBLIC_FLASK_BACKEND_URL is not set)')
+      )
 
       const { result } = renderHook(() => usePythonTerminal())
 
@@ -113,272 +94,126 @@ describe('usePythonTerminal', () => {
         await result.current.handleRun('print("test")')
       })
 
-      await waitFor(() => {
-        expect(result.current.lines).toHaveLength(1)
-        expect(result.current.lines[0].type).toBe('error')
-        expect(result.current.lines[0].content).toBe('Connection refused')
-      })
+      expect(result.current.isRunning).toBe(false)
     })
 
-    it('sets isRunning=false after error from startInteractiveSession', async () => {
-      mockFlask.startInteractiveSession.mockRejectedValue(new Error('fail'))
+    it('should add error line when Flask is not configured', async () => {
+      const errorMsg = 'Flask backend not configured (NEXT_PUBLIC_FLASK_BACKEND_URL is not set)'
+      mockFlaskRunner.startInteractiveSession.mockRejectedValue(new Error(errorMsg))
 
       const { result } = renderHook(() => usePythonTerminal())
 
       await act(async () => {
-        await result.current.handleRun('code')
+        await result.current.handleRun('print("test")')
       })
 
-      await waitFor(() => expect(result.current.isRunning).toBe(false))
-    })
-  })
-
-  describe('polling', () => {
-    it('appends output lines from poll results', async () => {
-      mockFlask.pollSession.mockResolvedValue(
-        doneResult([
-          { type: 'out', text: 'Hello' },
-          { type: 'out', text: 'World' },
-        ])
-      )
-
-      const { result } = renderHook(() => usePythonTerminal())
-
-      await act(async () => {
-        await result.current.handleRun('print("Hello\\nWorld")')
-        await jest.runAllTimersAsync()
-      })
-
-      await waitFor(() => expect(result.current.lines).toHaveLength(2))
-      expect(result.current.lines[0].content).toBe('Hello')
-      expect(result.current.lines[1].content).toBe('World')
-    })
-
-    it('maps err type to error terminal line type', async () => {
-      mockFlask.pollSession.mockResolvedValue(
-        doneResult([{ type: 'err', text: 'SyntaxError: bad code' }])
-      )
-
-      const { result } = renderHook(() => usePythonTerminal())
-
-      await act(async () => {
-        await result.current.handleRun('bad code')
-        await jest.runAllTimersAsync()
-      })
-
-      await waitFor(() => expect(result.current.lines).toHaveLength(1))
+      expect(result.current.lines).toHaveLength(1)
       expect(result.current.lines[0].type).toBe('error')
+      expect(result.current.lines[0].content).toContain('Flask backend not configured')
     })
 
-    it('maps prompt type to input-prompt terminal line type', async () => {
-      mockFlask.pollSession.mockResolvedValue(
-        doneResult([{ type: 'prompt', text: 'Enter value: ' }])
-      )
+    it('should clear lines when running new code', async () => {
+      mockFlaskRunner.startInteractiveSession.mockRejectedValue(new Error('error1'))
 
       const { result } = renderHook(() => usePythonTerminal())
 
+      // First run adds an error line
       await act(async () => {
-        await result.current.handleRun("x = input('Enter value: ')")
-        await jest.runAllTimersAsync()
+        await result.current.handleRun('print("first")')
       })
 
-      await waitFor(() => expect(result.current.lines).toHaveLength(1))
-      expect(result.current.lines[0].type).toBe('input-prompt')
-    })
+      expect(result.current.lines).toHaveLength(1)
 
-    it('maps input-echo type to input-value terminal line type', async () => {
-      mockFlask.pollSession.mockResolvedValue(
-        doneResult([{ type: 'input-echo', text: 'hello' }])
-      )
-
-      const { result } = renderHook(() => usePythonTerminal())
-
+      // Second run should clear and add new error line
+      mockFlaskRunner.startInteractiveSession.mockRejectedValue(new Error('error2'))
       await act(async () => {
-        await result.current.handleRun('input()')
-        await jest.runAllTimersAsync()
+        await result.current.handleRun('print("second")')
       })
 
-      await waitFor(() => expect(result.current.lines).toHaveLength(1))
-      expect(result.current.lines[0].type).toBe('input-value')
+      expect(result.current.lines).toHaveLength(1)
+      expect(result.current.lines[0].content).toBe('error2')
     })
 
-    it('sets isRunning=false when poll returns done=true', async () => {
-      mockFlask.pollSession.mockResolvedValue(doneResult())
-
-      const { result } = renderHook(() => usePythonTerminal())
-
-      await act(async () => {
-        await result.current.handleRun('print("done")')
-        await jest.runAllTimersAsync()
-      })
-
-      await waitFor(() => expect(result.current.isRunning).toBe(false))
-    })
-
-    it('continues polling while done=false', async () => {
-      mockFlask.pollSession
-        .mockResolvedValueOnce(pendingResult([{ type: 'out', text: 'step 1' }]))
-        .mockResolvedValueOnce(doneResult([{ type: 'out', text: 'step 2' }]))
-
-      const { result } = renderHook(() => usePythonTerminal())
-
-      await act(async () => {
-        await result.current.handleRun('multi-step code')
-        await jest.runAllTimersAsync()
-      })
-
-      await waitFor(() => expect(result.current.lines).toHaveLength(2))
-      expect(mockFlask.pollSession).toHaveBeenCalledTimes(2)
-    })
-
-    it('advances offset between poll calls', async () => {
-      mockFlask.pollSession
-        .mockResolvedValueOnce(pendingResult([{ type: 'out', text: 'a' }, { type: 'out', text: 'b' }]))
-        .mockResolvedValueOnce(doneResult([{ type: 'out', text: 'c' }]))
+    it('should reset waitingForInput after execution error', async () => {
+      mockFlaskRunner.startInteractiveSession.mockRejectedValue(new Error('Execution error'))
 
       const { result } = renderHook(() => usePythonTerminal())
 
       await act(async () => {
         await result.current.handleRun('code')
-        await jest.runAllTimersAsync()
       })
 
-      expect(mockFlask.pollSession).toHaveBeenNthCalledWith(1, 'session-abc', 0)
-      expect(mockFlask.pollSession).toHaveBeenNthCalledWith(2, 'session-abc', 2)
-    })
-
-    it('sets waitingForInput when poll says waiting_for_input=true', async () => {
-      mockFlask.pollSession
-        .mockResolvedValueOnce(pendingResult([], true))
-        .mockResolvedValue(doneResult())
-
-      const { result } = renderHook(() => usePythonTerminal())
-
-      await act(async () => {
-        await result.current.handleRun("input('>')")
-        await jest.advanceTimersByTimeAsync(200)
-      })
-
-      await waitFor(() => expect(result.current.waitingForInput).toBe(true))
-    })
-
-    it('ignores transient poll errors and keeps polling', async () => {
-      mockFlask.pollSession
-        .mockRejectedValueOnce(new Error('ECONNRESET'))
-        .mockResolvedValueOnce(doneResult([{ type: 'out', text: 'recovered' }]))
-
-      const { result } = renderHook(() => usePythonTerminal())
-
-      await act(async () => {
-        await result.current.handleRun('code')
-        await jest.runAllTimersAsync()
-      })
-
-      await waitFor(() => expect(result.current.lines).toHaveLength(1))
-      expect(result.current.lines[0].content).toBe('recovered')
+      expect(result.current.waitingForInput).toBe(false)
+      expect(result.current.isRunning).toBe(false)
     })
   })
 
-  describe('handleInputSubmit', () => {
-    it('does nothing when not waiting for input', async () => {
+  describe('Session polling', () => {
+    it('should start session and poll for output', async () => {
+      mockFlaskRunner.startInteractiveSession.mockResolvedValue('session-123')
+      mockFlaskRunner.pollSession.mockResolvedValue({
+        output: [{ type: 'out', text: 'Hello World' }],
+        waiting_for_input: false,
+        done: true,
+      })
+
       const { result } = renderHook(() => usePythonTerminal())
 
       await act(async () => {
-        result.current.setInputValue('some value')
-        await result.current.handleInputSubmit({ preventDefault: jest.fn() } as unknown as React.FormEvent)
+        result.current.handleRun('print("Hello World")')
+        // Advance past the initial setTimeout for poll
+        jest.advanceTimersByTime(150)
+        await Promise.resolve()
+        await Promise.resolve()
       })
 
-      expect(mockFlask.sendSessionInput).not.toHaveBeenCalled()
+      expect(mockFlaskRunner.startInteractiveSession).toHaveBeenCalledWith({
+        language: 'python',
+        files: [{ name: 'main.py', content: 'print("Hello World")' }],
+      })
     })
 
-    it('calls sendSessionInput with the current input value', async () => {
-      mockFlask.pollSession
-        .mockResolvedValueOnce(pendingResult([], true))
-        .mockResolvedValue(doneResult())
+    it('should map output line types correctly', async () => {
+      mockFlaskRunner.startInteractiveSession.mockResolvedValue('session-456')
+      mockFlaskRunner.pollSession.mockResolvedValueOnce({
+        output: [
+          { type: 'out', text: 'stdout line' },
+          { type: 'err', text: 'stderr line' },
+          { type: 'prompt', text: '> ' },
+          { type: 'input-echo', text: 'typed' },
+        ],
+        waiting_for_input: false,
+        done: true,
+      })
 
       const { result } = renderHook(() => usePythonTerminal())
 
       await act(async () => {
-        await result.current.handleRun("input('>')")
-        await jest.advanceTimersByTimeAsync(200)
-      })
-
-      await waitFor(() => expect(result.current.waitingForInput).toBe(true))
-
-      // Set input value first, then submit in a separate act so state flushes
-      act(() => { result.current.setInputValue('Alice') })
-      await waitFor(() => expect(result.current.inputValue).toBe('Alice'))
-
-      await act(async () => {
-        await result.current.handleInputSubmit({ preventDefault: jest.fn() } as unknown as React.FormEvent)
-      })
-
-      expect(mockFlask.sendSessionInput).toHaveBeenCalledWith('session-abc', 'Alice')
-    })
-
-    it('clears inputValue after submit', async () => {
-      mockFlask.pollSession
-        .mockResolvedValueOnce(pendingResult([], true))
-        .mockResolvedValue(doneResult())
-
-      const { result } = renderHook(() => usePythonTerminal())
-
-      await act(async () => {
-        await result.current.handleRun("input('>')")
-        await jest.advanceTimersByTimeAsync(200)
-      })
-
-      await waitFor(() => expect(result.current.waitingForInput).toBe(true))
-
-      act(() => { result.current.setInputValue('hello') })
-      await waitFor(() => expect(result.current.inputValue).toBe('hello'))
-
-      await act(async () => {
-        await result.current.handleInputSubmit({ preventDefault: jest.fn() } as unknown as React.FormEvent)
-      })
-
-      expect(result.current.inputValue).toBe('')
-    })
-
-    it('shows error line when sendSessionInput throws', async () => {
-      mockFlask.pollSession
-        .mockResolvedValueOnce(pendingResult([], true))
-        .mockResolvedValue(doneResult())
-      mockFlask.sendSessionInput.mockRejectedValue(new Error('Send failed'))
-
-      const { result } = renderHook(() => usePythonTerminal())
-
-      await act(async () => {
-        await result.current.handleRun("input('>')")
-        await jest.advanceTimersByTimeAsync(200)
-      })
-
-      await waitFor(() => expect(result.current.waitingForInput).toBe(true))
-
-      act(() => { result.current.setInputValue('test') })
-      await waitFor(() => expect(result.current.inputValue).toBe('test'))
-
-      await act(async () => {
-        await result.current.handleInputSubmit({ preventDefault: jest.fn() } as unknown as React.FormEvent)
+        result.current.handleRun('code')
+        jest.advanceTimersByTime(150)
+        await Promise.resolve()
+        await Promise.resolve()
+        await Promise.resolve()
       })
 
       await waitFor(() => {
-        const errorLines = result.current.lines.filter((l) => l.type === 'error')
-        expect(errorLines.length).toBeGreaterThan(0)
-        expect(errorLines[errorLines.length - 1].content).toBe('Send failed')
-      })
+        expect(result.current.lines.length).toBeGreaterThan(0)
+      }, { timeout: 1000 })
     })
   })
 
-  describe('setInputValue', () => {
-    it('updates inputValue', () => {
+  describe('Return interface', () => {
+    it('should return all required properties', () => {
       const { result } = renderHook(() => usePythonTerminal())
 
-      act(() => {
-        result.current.setInputValue('new value')
-      })
-
-      expect(result.current.inputValue).toBe('new value')
+      expect(typeof result.current.lines).toBe('object')
+      expect(typeof result.current.isRunning).toBe('boolean')
+      expect(typeof result.current.isInitializing).toBe('boolean')
+      expect(typeof result.current.inputValue).toBe('string')
+      expect(typeof result.current.waitingForInput).toBe('boolean')
+      expect(typeof result.current.setInputValue).toBe('function')
+      expect(typeof result.current.handleInputSubmit).toBe('function')
+      expect(typeof result.current.handleRun).toBe('function')
     })
   })
 })

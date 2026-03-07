@@ -11,12 +11,6 @@ jest.mock('framer-motion', () => ({
   },
 }));
 
-jest.mock('next/navigation', () => ({
-  useSearchParams: () => ({
-    get: () => null,
-  }),
-}));
-
 jest.mock('@/components/demo/PersistenceSettings', () => ({
   PersistenceSettings: () => <div data-testid="persistence-settings">Persistence</div>,
 }));
@@ -49,15 +43,16 @@ jest.mock('@/components/settings/OpenAISettingsCard', () => ({
   OpenAISettingsCard: () => <div data-testid="openai-settings">OpenAI</div>,
 }));
 
-jest.mock('@/components/settings/ProfileSettingsCard', () => ({
-  ProfileSettingsCard: () => <div data-testid="profile-settings">Profile</div>,
-}));
-
 const mockSettingsState = {
   stats: null,
   loading: false,
   storageBackend: 'indexeddb' as const,
   setStorageBackend: jest.fn(),
+  flaskUrl: '',
+  setFlaskUrl: jest.fn(),
+  flaskConnectionStatus: 'unknown' as const,
+  setFlaskConnectionStatus: jest.fn(),
+  testingConnection: false,
   envVarSet: false,
   schemaHealth: null,
   checkingSchema: false,
@@ -66,10 +61,14 @@ const mockSettingsState = {
   handleClear: jest.fn(),
   handleSeed: jest.fn(),
   formatBytes: (bytes: number) => `${bytes} B`,
+  handleTestConnection: jest.fn(),
   handleSaveStorageConfig: jest.fn(),
+  handleMigrateToFlask: jest.fn(),
+  handleMigrateToIndexedDB: jest.fn(),
   checkSchemaHealth: jest.fn(),
 };
 
+// Mock useSettingsState hook
 jest.mock('@/hooks/useSettingsState', () => ({
   useSettingsState: jest.fn(() => mockSettingsState),
 }));
@@ -86,29 +85,51 @@ describe('SettingsPage', () => {
 
   test('renders Settings heading', () => {
     render(<SettingsPage />);
-    expect(screen.getByRole('heading', { level: 2 })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Settings');
   });
 
-  test('renders tab navigation', () => {
+  test('renders description text', () => {
     render(<SettingsPage />);
-    expect(screen.getByRole('tablist')).toBeInTheDocument();
+    expect(screen.getByText(/Manage your database and application settings/i)).toBeInTheDocument();
   });
 
-  test('renders tab buttons', () => {
+  test('renders all settings cards', () => {
     render(<SettingsPage />);
-    const tabs = screen.getAllByRole('tab');
-    expect(tabs.length).toBeGreaterThan(0);
-  });
-
-  test('renders AI tab content by default', () => {
-    render(<SettingsPage />);
-    // Default tab is 'ai'
     expect(screen.getByTestId('openai-settings')).toBeInTheDocument();
+    expect(screen.getByTestId('persistence-settings')).toBeInTheDocument();
+    expect(screen.getByTestId('schema-health-card')).toBeInTheDocument();
+    expect(screen.getByTestId('backend-auto-config')).toBeInTheDocument();
+    expect(screen.getByTestId('storage-backend')).toBeInTheDocument();
+    expect(screen.getByTestId('database-stats')).toBeInTheDocument();
+    expect(screen.getByTestId('storage-info')).toBeInTheDocument();
+    expect(screen.getByTestId('database-actions')).toBeInTheDocument();
   });
 
-  test('renders motion div', () => {
+  test('heading has correct styling', () => {
+    render(<SettingsPage />);
+    const heading = screen.getByText('Settings');
+    expect(heading).toHaveClass('text-3xl', 'font-bold');
+  });
+
+  test('description has muted foreground color', () => {
+    render(<SettingsPage />);
+    const description = screen.getByText(/Manage your database/i);
+    expect(description).toHaveClass('text-muted-foreground');
+  });
+
+  test('motion div is rendered', () => {
     render(<SettingsPage />);
     expect(screen.getByTestId('motion-div')).toBeInTheDocument();
+  });
+
+  test('uses settings state hook', () => {
+    render(<SettingsPage />);
+    expect(screen.getByTestId('persistence-settings')).toBeInTheDocument();
+  });
+
+  test('renders settings in grid layout', () => {
+    render(<SettingsPage />);
+    expect(screen.getByTestId('persistence-settings')).toBeInTheDocument();
   });
 
   test('component renders without crashing', () => {
@@ -120,5 +141,22 @@ describe('SettingsPage', () => {
     render(<SettingsPage />);
     const layout = screen.getByTestId('page-layout');
     expect(layout).toBeInTheDocument();
+  });
+
+  test('all cards are accessible', () => {
+    render(<SettingsPage />);
+    const cards = [
+      'openai-settings',
+      'persistence-settings',
+      'schema-health-card',
+      'backend-auto-config',
+      'storage-backend',
+      'database-stats',
+      'storage-info',
+      'database-actions',
+    ];
+    cards.forEach((card) => {
+      expect(screen.getByTestId(card)).toBeInTheDocument();
+    });
   });
 });

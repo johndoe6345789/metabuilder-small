@@ -72,9 +72,18 @@ public:
     static std::vector<std::string> buildFindParams(const Json& filter);
 
     /**
+     * Build parameter vector for COUNT operations (same as list but without LIMIT/OFFSET)
+     */
+    static std::vector<std::string> buildCountParams(const ListOptions& options);
+
+    /**
      * Build parameter vector for LIST operations
      */
     static std::vector<std::string> buildListParams(const ListOptions& options);
+
+private:
+    static void appendConditionValues(const FilterCondition& cond,
+                                      std::vector<std::string>& out);
 };
 
 } // namespace sqlite

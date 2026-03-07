@@ -34,13 +34,36 @@ void SqlAdapter::loadSchemas() {
 
         for (const auto& field : entity.fields) {
             EntityField ef;
-            ef.name = field.name;
-            ef.type = field.type;
+            ef.name     = field.name;
+            ef.type     = field.type;
             ef.required = field.required || field.primary;
-            ef.unique = field.unique || field.primary;
+            ef.unique   = field.unique   || field.primary;
+            ef.nullable = field.nullable || field.optional;
             ef.defaultValue = field.default_value;
+            ef.enumValues   = field.enum_values;
+            ef.minLength    = field.min_length;
+            ef.maxLength    = field.max_length;
+            ef.pattern      = field.pattern;
             schema.fields.push_back(ef);
         }
+
+        // Propagate relations
+        for (const auto& rel : entity.relations) {
+            RelationDef rd;
+            rd.name           = rel.name;
+            rd.type           = rel.type;
+            rd.target_entity  = rel.entity;
+            rd.foreign_key    = rel.foreign_key;
+            rd.cascade_delete = rel.cascade_delete;
+            schema.relations.push_back(rd);
+        }
+
+        // Propagate query config
+        schema.query_config.allowed_operators = entity.query_config.allowed_operators;
+        schema.query_config.allowed_group_by  = entity.query_config.allowed_group_by;
+        schema.query_config.allowed_includes  = entity.query_config.allowed_includes;
+        schema.query_config.max_results       = entity.query_config.max_results;
+        schema.query_config.timeout_ms        = entity.query_config.timeout_ms;
 
         // Register under PascalCase name
         schemas_[entity.name] = schema;

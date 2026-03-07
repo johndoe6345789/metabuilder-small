@@ -108,6 +108,27 @@ Result<ListResult<Json>> SQLiteAdapter::list(const std::string& entityName, cons
     }
     const auto& schema = *schemaResult;
 
+    // Run COUNT query first to get total (for pagination metadata)
+    const std::string countSql = SQLiteQueryBuilder::buildCountQuery(schema, options);
+    const auto countParams = SQLiteTypeConverter::buildCountParams(options);
+    int totalCount = 0;
+    {
+        auto cntResult = prepared_stmts_->executeSelect(countSql, countParams);
+        if (cntResult.hasValue()) {
+            sqlite3_stmt* stmt = cntResult.value();
+            if (sqlite3_step(stmt) == SQLITE_ROW) {
+                if (options.group_by.empty()) {
+                    totalCount = static_cast<int>(sqlite3_column_int64(stmt, 0));
+                } else {
+                    // GROUP BY: count rows in result set
+                    totalCount = 1;
+                    while (sqlite3_step(stmt) == SQLITE_ROW) ++totalCount;
+                }
+            }
+            sqlite3_finalize(stmt);
+        }
+    }
+
     const std::string sql = SQLiteQueryBuilder::buildListQuery(schema, options);
     const auto params = SQLiteTypeConverter::buildListParams(options);
 
@@ -122,12 +143,13 @@ Result<ListResult<Json>> SQLiteAdapter::list(const std::string& entityName, cons
     }
 
     const auto& items = rowsResult.value();
+    const int limit = options.limit > 0 ? options.limit : 50;
 
     ListResult<Json> listResult;
     listResult.items = items;
-    listResult.total = static_cast<int>(items.size());
+    listResult.total = totalCount > 0 ? totalCount : static_cast<int>(items.size());
     listResult.page = options.page;
-    listResult.limit = options.limit > 0 ? options.limit : 50;
+    listResult.limit = limit;
 
     return Result<ListResult<Json>>(listResult);
 }

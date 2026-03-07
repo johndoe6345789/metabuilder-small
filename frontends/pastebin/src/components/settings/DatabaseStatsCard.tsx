@@ -20,15 +20,15 @@ export function DatabaseStatsCard({ loading, stats, formatBytes }: DatabaseStats
   const s = t.settingsCards.stats
   return (
     <Card data-testid="database-stats-card">
-      <CardHeader>
-        <h3 className={styles.cardTitleWithIcon}>
-          <MaterialIcon name="storage" size={24} aria-hidden="true" />
-          {s.title}
-        </h3>
-        <p className={styles.cardDescription}>
-          {s.description}
-        </p>
-      </CardHeader>
+      <CardHeader
+        title={
+          <h3 className={styles.cardTitleWithIcon}>
+            <MaterialIcon name="storage" size={24} aria-hidden="true" />
+            {s.title}
+          </h3>
+        }
+        subheader={<p className={styles.cardDescription}>{s.description}</p>}
+      />
       <CardContent>
         {loading ? (
           <p className={styles.textMuted} data-testid="stats-loading" role="status" aria-busy="true">{s.loading}</p>

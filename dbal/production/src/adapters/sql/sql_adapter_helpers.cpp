@@ -113,9 +113,36 @@ std::string SqlAdapter::buildDeleteSql(const EntitySchema& schema, const std::st
 std::string SqlAdapter::buildFieldList(const EntitySchema& schema) const {
     std::vector<std::string> fields;
     for (const auto& field : schema.fields) {
-        fields.push_back(quoteId(field.name));
+        // Wrap nullable fields that have a schema default with COALESCE so
+        // the DB returns the default instead of NULL.  The AS alias ensures
+        // rowToJson can still look up the column by field name.
+        if (field.nullable && !field.required && field.defaultValue) {
+            std::string def = coalesceDefault(field.type, *field.defaultValue);
+            fields.push_back(
+                "COALESCE(" + quoteId(field.name) + ", " + def + ") AS " + quoteId(field.name)
+            );
+        } else {
+            fields.push_back(quoteId(field.name));
+        }
     }
     return joinFragments(fields, ", ");
+}
+
+std::string SqlAdapter::coalesceDefault(const std::string& type, const std::string& val) const {
+    if (type == "boolean") {
+        // boolean literals are dialect-dependent; use 0/1 (universally valid)
+        return (val == "true" || val == "1") ? "true" : "false";
+    }
+    if (type == "number" || type == "bigint" || type == "integer" || type == "int") {
+        return val.empty() ? "0" : val;
+    }
+    // string / text / uuid / other: wrap in single quotes (safe — value is from schema file)
+    std::string escaped;
+    for (char c : val) {
+        if (c == '\'') escaped += "''";
+        else escaped += c;
+    }
+    return "'" + escaped + "'";
 }
 
 // ===== Data Conversion =====
@@ -162,8 +189,15 @@ Json SqlAdapter::rowToJson(const EntitySchema& schema, const SqlRow& row) const 
                 result[field.name] = nullptr;
             }
         } else {
-            if (value.empty() && !field.required) {
-                result[field.name] = nullptr;
+            if (value.empty()) {
+                if (field.nullable && field.defaultValue) {
+                    // COALESCE applied in SELECT; interpret empty return as default
+                    result[field.name] = *field.defaultValue;
+                } else if (!field.required) {
+                    result[field.name] = nullptr;
+                } else {
+                    result[field.name] = value;
+                }
             } else {
                 result[field.name] = value;
             }
@@ -218,18 +252,6 @@ std::string SqlAdapter::joinFragments(const std::vector<std::string>& fragments,
         out << fragments[i];
     }
     return out.str();
-}
-
-std::string SqlAdapter::toLowerSnakeCase(const std::string& pascalCase) {
-    std::string result;
-    for (size_t i = 0; i < pascalCase.size(); ++i) {
-        char c = pascalCase[i];
-        if (i > 0 && std::isupper(static_cast<unsigned char>(c))) {
-            result += '_';
-        }
-        result += static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
-    }
-    return result;
 }
 
 std::string SqlAdapter::placeholder(size_t index) const {

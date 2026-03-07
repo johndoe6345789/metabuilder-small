@@ -1,5 +1,5 @@
 import { Page, Locator, expect } from "@playwright/test"
-import schema from "./md3-schema.json"
+import schema from "./md3-schema.json" with { type: "json" }
 
 type ComponentName = keyof typeof schema.components
 type Component = (typeof schema.components)[ComponentName]

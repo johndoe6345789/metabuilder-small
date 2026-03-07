@@ -31,6 +31,11 @@ export default function SettingsPage() {
     loading,
     storageBackend,
     setStorageBackend,
+    flaskUrl,
+    setFlaskUrl,
+    flaskConnectionStatus,
+    setFlaskConnectionStatus,
+    testingConnection,
     envVarSet,
     schemaHealth,
     checkingSchema,
@@ -39,7 +44,10 @@ export default function SettingsPage() {
     handleClear,
     handleSeed,
     formatBytes,
+    handleTestConnection,
     handleSaveStorageConfig,
+    handleMigrateToFlask,
+    handleMigrateToIndexedDB,
     checkSchemaHealth,
   } = useSettingsState();
 
@@ -91,12 +99,26 @@ export default function SettingsPage() {
             <>
               <BackendAutoConfigCard
                 envVarSet={envVarSet}
+                flaskUrl={flaskUrl}
+                flaskConnectionStatus={flaskConnectionStatus}
+                testingConnection={testingConnection}
+                onTestConnection={handleTestConnection}
               />
               <StorageBackendCard
                 storageBackend={storageBackend}
+                flaskUrl={flaskUrl}
+                flaskConnectionStatus={flaskConnectionStatus}
+                testingConnection={testingConnection}
                 envVarSet={envVarSet}
                 onStorageBackendChange={setStorageBackend}
+                onFlaskUrlChange={(url) => {
+                  setFlaskUrl(url);
+                  setFlaskConnectionStatus('unknown');
+                }}
+                onTestConnection={handleTestConnection}
                 onSaveConfig={handleSaveStorageConfig}
+                onMigrateToFlask={handleMigrateToFlask}
+                onMigrateToIndexedDB={handleMigrateToIndexedDB}
               />
               <StorageInfoCard storageType={stats?.storageType} />
               <PersistenceSettings />

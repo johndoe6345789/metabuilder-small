@@ -5,12 +5,32 @@
 
 import { renderHook, act } from '@testing-library/react';
 import { useSnippetManager } from '@/hooks/useSnippetManager';
-import { toast } from 'sonner';
 import type { SnippetTemplate } from '@/lib/types';
 import * as db from '@/lib/db';
 
-jest.mock('sonner');
+jest.mock('@metabuilder/components/fakemui', () => ({
+  toast: {
+    success: jest.fn(),
+    error: jest.fn(),
+    info: jest.fn(),
+  },
+}));
 jest.mock('@/lib/db');
+
+// Mock useTranslation to return English strings directly
+jest.mock('@/hooks/useTranslation', () => ({
+  useTranslation: () => ({
+    toast: {
+      failedToLoadData: 'Failed to load data',
+      snippetDeleted: 'Snippet deleted',
+      failedToDeleteSnippet: 'Failed to delete snippet',
+      codeCopied: 'Code copied to clipboard',
+      noSnippetsSelected: 'No snippets selected',
+      failedToMoveSnippets: 'Failed to move snippets',
+      movedSnippets: 'Moved {count} snippet(s) to {namespace}',
+    },
+  }),
+}));
 
 // Mock next/navigation router
 const mockPush = jest.fn();
@@ -25,6 +45,9 @@ jest.mock('@/store/hooks', () => ({
 
 // We need to mock the Redux hooks properly
 import * as reduxHooks from '@/store/hooks';
+
+// Get the mocked toast for assertions
+import { toast } from '@metabuilder/components/fakemui';
 
 describe('useSnippetManager Hook', () => {
   const mockTemplates: SnippetTemplate[] = [
@@ -119,7 +142,8 @@ describe('useSnippetManager Hook', () => {
         result.current.handleEditSnippet(snippet);
       });
 
-      expect(mockPush).toHaveBeenCalledWith('/snippet/snippet-1/edit');
+      // handleEditSnippet navigates to the snippet view page
+      expect(mockPush).toHaveBeenCalledWith('/snippet/snippet-1');
     });
 
     it('should handle delete snippet', async () => {
@@ -184,7 +208,8 @@ describe('useSnippetManager Hook', () => {
         result.current.handleViewSnippet(snippet);
       });
 
-      expect(mockDispatch).toHaveBeenCalled();
+      // handleViewSnippet navigates to the snippet page
+      expect(mockPush).toHaveBeenCalledWith('/snippet/1');
     });
   });
 

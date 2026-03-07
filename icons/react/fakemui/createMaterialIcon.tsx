@@ -5,7 +5,7 @@ export interface IconProps extends Omit<MaterialIconProps, 'name' | 'weight'> {
   /** Icon size - maps to fontSize */
   size?: number | string
   /** Legacy weight prop - maps to font weight */
-  weight?: 'thin' | 'light' | 'regular' | 'bold' | number
+  weight?: 'thin' | 'light' | 'regular' | 'bold' | 'duotone' | 'fill' | number
 }
 
 const weightMap: Record<string, number> = {

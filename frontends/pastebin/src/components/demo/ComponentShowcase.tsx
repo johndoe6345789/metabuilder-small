@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Card, Button, MaterialIcon } from '@metabuilder/components/fakemui'
+import { FloppyDisk } from '@phosphor-icons/react'
+import { Card, Button } from '@metabuilder/components/fakemui'
 import { Snippet } from '@/lib/types'
 import { SnippetDialog } from '@/components/features/snippet-editor/SnippetDialog'
 
@@ -50,16 +51,25 @@ export function ComponentShowcase({
 
   return (
     <>
-      <Card style={{ position: 'relative' }} data-testid={`showcase-${category}-${title.toLowerCase().replace(/\s+/g, '-')}`}>
-        <div style={{ position: 'absolute', top: '16px', right: '16px', zIndex: 10 }} data-testid="showcase-save-btn-container">
+      <Card
+        className="relative group rounded-lg"
+        style={{ position: 'relative' }}
+        data-testid={`showcase-${category}-${title.toLowerCase().replace(/\s+/g, '-')}`}
+      >
+        <div
+          className="opacity-0 group-hover:opacity-100 transition-opacity"
+          style={{ position: 'absolute', top: '16px', right: '16px', zIndex: 10 }}
+          data-testid="showcase-save-btn-container"
+        >
           <Button
             variant="secondary"
             size="sm"
             onClick={handleSaveClick}
+            className="gap-2 shadow-lg"
             data-testid="showcase-save-btn"
-            aria-label={`Save ${title} as snippet`}
+            aria-label="Save as snippet"
           >
-            <MaterialIcon name="save" aria-hidden="true" />
+            <FloppyDisk size={16} aria-hidden="true" />
             Save as Snippet
           </Button>
         </div>

@@ -3,7 +3,7 @@ import { getAuthToken } from './authToken'
 import type { Snippet } from './types'
 
 function baseUrl(): string {
-  return (getStorageConfig().dbalUrl ?? '').replace(/\/$/, '')
+  return (getStorageConfig().flaskUrl ?? '').replace(/\/$/, '')
 }
 
 function authHeaders(): Record<string, string> {

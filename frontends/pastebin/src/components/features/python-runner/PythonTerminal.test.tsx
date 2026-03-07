@@ -7,6 +7,36 @@ import * as usePythonTerminalModule from '@/hooks/usePythonTerminal'
 // Mock the usePythonTerminal hook
 jest.mock('@/hooks/usePythonTerminal')
 
+// Mock useTranslation to avoid Redux Provider requirement
+jest.mock('@/hooks/useTranslation', () => ({
+  useTranslation: () => ({
+    pythonTerminal: {
+      title: 'Python Terminal',
+      runButton: 'Run',
+      runningButton: 'Running...',
+      initializingButton: 'Initializing...',
+      inputPlaceholder: 'Enter input...',
+      inputAria: 'Terminal input',
+      emptyState: 'Click "Run" to execute the Python code',
+    },
+  }),
+}))
+
+// Mock framer-motion so motion.* components render as plain HTML elements
+jest.mock('framer-motion', () => {
+  const makeMotion = (tag: string) =>
+    React.forwardRef(({ children, ...props }: React.HTMLAttributes<HTMLElement> & { ref?: React.Ref<unknown> }, ref) =>
+      React.createElement(tag, { ...props, ref }, children)
+    )
+  return {
+    motion: new Proxy({}, {
+      get: (_target, tag: string) => makeMotion(tag),
+    }),
+    AnimatePresence: ({ children }: { children: React.ReactNode }) =>
+      React.createElement(React.Fragment, null, children),
+  }
+})
+
 // Mock scrollIntoView
 Element.prototype.scrollIntoView = jest.fn()
 
@@ -227,16 +257,18 @@ describe('PythonTerminal', () => {
   })
 
   describe('Styling and Layout', () => {
-    it('should have correct flex layout classes', () => {
+    it('should have correct layout via SCSS module class', () => {
       render(<PythonTerminal code="print('hello')" />)
       const terminal = screen.getByTestId('python-terminal')
-      expect(terminal).toHaveClass('flex', 'flex-col', 'h-full', 'bg-card')
+      // Component uses SCSS module — class name is the module key 'terminal'
+      expect(terminal).toHaveClass('terminal')
     })
 
-    it('should have correct output area styling', () => {
+    it('should have correct output area via SCSS module class', () => {
       render(<PythonTerminal code="print('hello')" />)
       const outputArea = screen.getByTestId('terminal-output-area')
-      expect(outputArea).toHaveClass('flex-1', 'overflow-auto', 'p-4', 'font-mono', 'text-sm')
+      // Component uses SCSS module — class name is the module key 'outputArea'
+      expect(outputArea).toHaveClass('outputArea')
     })
   })
 

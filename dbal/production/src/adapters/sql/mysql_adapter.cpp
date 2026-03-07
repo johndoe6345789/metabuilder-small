@@ -168,14 +168,12 @@ Result<Json> MySQLAdapter::create(const std::string& entityName, const Json& dat
     std::vector<SqlParam> params;
 
     for (const auto& field : schema.fields) {
-        if (field.name == "id" || field.name == "createdAt") {
-            continue; // Auto-generated
+        if (!data.contains(field.name)) {
+            continue; // Let DB defaults apply for missing fields
         }
-        if (data.contains(field.name)) {
-            fieldNames.push_back("`" + field.name + "`");
-            placeholders.push_back("?");
-            params.push_back({field.name, jsonValueToString(data[field.name])});
-        }
+        fieldNames.push_back("`" + field.name + "`");
+        placeholders.push_back("?");
+        params.push_back({field.name, jsonValueToString(data[field.name])});
     }
 
     std::string sql = "INSERT INTO `" + schema.name + "` (" +
@@ -185,12 +183,18 @@ Result<Json> MySQLAdapter::create(const std::string& entityName, const Json& dat
     try {
         executeNonQuery(conn, sql, params);
 
-        // MySQL: fetch the inserted row by its auto-generated id
-        // For UUID PKs, MySQL generates them via DEFAULT so we use LAST_INSERT_ID()
-        // But UUID DEFAULT doesn't set LAST_INSERT_ID. We need a SELECT with ORDER BY.
-        const std::string selectSql = "SELECT * FROM `" + schema.name +
-                                      "` ORDER BY `createdAt` DESC LIMIT 1";
-        const auto rows = executeQuery(conn, selectSql, {});
+        // Read back the inserted row. If id was supplied by caller (UUID PK), select by it
+        // directly to avoid the ORDER BY race condition under concurrent inserts.
+        std::string selectSql;
+        std::vector<SqlParam> selectParams;
+        if (data.contains("id")) {
+            selectSql = "SELECT * FROM `" + schema.name + "` WHERE `id` = ?";
+            selectParams.push_back({"id", jsonValueToString(data["id"])});
+        } else {
+            selectSql = "SELECT * FROM `" + schema.name +
+                        "` ORDER BY `createdAt` DESC LIMIT 1";
+        }
+        const auto rows = executeQuery(conn, selectSql, selectParams);
         if (rows.empty()) {
             return Error::internal("MySQL insert succeeded but could not read back row");
         }
@@ -259,6 +263,22 @@ Result<Json> MySQLAdapter::update(const std::string& entityName, const std::stri
     } catch (const SqlError& err) {
         return mapSqlError(err);
     }
+}
+
+Result<int> MySQLAdapter::createMany(const std::string& entityName, const std::vector<Json>& records) {
+    if (records.empty()) {
+        return Result<int>(0);
+    }
+    // Delegate per-record insert to create() which handles MySQL's no-RETURNING constraint.
+    int inserted = 0;
+    for (const auto& record : records) {
+        auto result = create(entityName, record);
+        if (!result.isOk()) {
+            return Error::internal("createMany aborted: " + std::string(result.error().what()));
+        }
+        ++inserted;
+    }
+    return Result<int>(inserted);
 }
 
 }

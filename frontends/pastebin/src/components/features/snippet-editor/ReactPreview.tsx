@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import * as React from 'react'
-import { Alert, AlertDescription, MaterialIcon } from '@metabuilder/components/fakemui'
+import { Warning } from '@phosphor-icons/react'
+import { Alert, AlertDescription } from '@metabuilder/components/fakemui'
 import { AIErrorHelper } from '@/components/error/AIErrorHelper'
 import { InputParameter } from '@/lib/types'
 import { transformReactCode } from '@/lib/react-transform'
@@ -34,13 +35,13 @@ export function ReactPreview({ code, language, functionName, inputParameters }: 
   if (!['JSX', 'TSX', 'JavaScript', 'TypeScript'].includes(language)) {
     return (
       <div
-        className={styles.unsupportedPane}
+        className={`${styles.unsupportedPane} bg-muted`}
         data-testid="preview-unsupported"
         role="status"
         aria-label="Preview not available for this language"
       >
         <div className={styles.unsupportedCenter}>
-          <MaterialIcon name="error" className={styles.unsupportedIcon} aria-hidden="true" />
+          <Warning size={48} className={styles.unsupportedIcon} aria-hidden="true" />
           <p className={styles.unsupportedText}>Preview not available for {language}</p>
           <p className={styles.unsupportedSub}>Use JSX, TSX, JavaScript, or TypeScript</p>
         </div>
@@ -58,8 +59,11 @@ export function ReactPreview({ code, language, functionName, inputParameters }: 
         aria-atomic="true"
       >
         <Alert severity="error" className={styles.errorAlert} data-testid="preview-error-alert">
-          <MaterialIcon name="error" size={16} aria-hidden="true" />
-          <AlertDescription className={styles.errorDescription} data-testid="preview-error-message">
+          <Warning size={16} aria-hidden="true" />
+          <AlertDescription
+            className={`${styles.errorDescription} font-mono whitespace-pre-wrap`}
+            data-testid="preview-error-message"
+          >
             {error}
           </AlertDescription>
         </Alert>
@@ -88,7 +92,7 @@ export function ReactPreview({ code, language, functionName, inputParameters }: 
   }
 
   return (
-    <div className={styles.previewRoot} data-testid="react-preview-container" role="region" aria-label="React component preview">
+    <div className={`${styles.previewRoot} overflow-auto`} data-testid="react-preview-container" role="region" aria-label="React component preview">
       <div className={styles.previewContent}>
         <Component {...props} />
       </div>

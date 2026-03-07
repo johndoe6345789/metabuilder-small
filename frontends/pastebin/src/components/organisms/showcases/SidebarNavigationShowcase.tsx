@@ -4,7 +4,7 @@ const fullWidthStart: React.CSSProperties = { width: '100%', justifyContent: 'fl
 
 export function SidebarNavigationShowcase() {
   return (
-    <section style={{ display: 'flex', flexDirection: 'column', gap: '24px' }} data-testid="sidebar-navigation-showcase" role="region" aria-label="Sidebar navigation showcase">
+    <section className="space-y-6" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }} data-testid="sidebar-navigation-showcase" role="region" aria-label="Sidebar navigation showcase">
       <div>
         <h2 style={{ fontSize: '1.875rem', lineHeight: '2.25rem', fontWeight: 700, marginBottom: '8px' }}>Sidebar Navigation</h2>
         <p style={{ color: 'var(--mat-sys-on-surface-variant)' }}>
@@ -13,9 +13,9 @@ export function SidebarNavigationShowcase() {
       </div>
 
       <Card style={{ overflow: 'hidden' }}>
-        <div style={{ display: 'flex' }}>
-          <aside style={{ width: '256px', borderRight: '1px solid var(--mat-sys-outline-variant)', backgroundColor: 'color-mix(in srgb, var(--mat-sys-surface-container) 50%, transparent)', padding: '16px' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        <div className="flex" style={{ display: 'flex' }}>
+          <aside className="w-64 border-r" style={{ width: '256px', borderRight: '1px solid var(--mat-sys-outline-variant)', backgroundColor: 'color-mix(in srgb, var(--mat-sys-surface-container) 50%, transparent)', padding: '16px' }}>
+            <div className="space-y-6" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', paddingInline: '8px' }}>
                 <div style={{ height: '32px', width: '32px', borderRadius: '8px', backgroundColor: 'var(--mat-sys-secondary-container)' }} />
                 <span style={{ fontWeight: 700 }}>Dashboard</span>
@@ -47,7 +47,7 @@ export function SidebarNavigationShowcase() {
                   <MaterialIcon name="settings" style={{ marginRight: '8px' }} aria-hidden="true" />
                   Settings
                 </Button>
-                <Button variant="ghost" style={{ ...fullWidthStart, color: 'var(--mat-sys-error)' }}>
+                <Button variant="ghost" className="text-destructive" style={{ ...fullWidthStart, color: 'var(--mat-sys-error)' }}>
                   <MaterialIcon name="logout" style={{ marginRight: '8px' }} aria-hidden="true" />
                   Sign Out
                 </Button>

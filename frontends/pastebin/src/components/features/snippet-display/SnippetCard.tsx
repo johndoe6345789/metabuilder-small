@@ -132,7 +132,7 @@ export function SnippetCard({
 
   if (!snippet) {
     return (
-      <Card>
+      <Card role="article">
         <p className={styles.errorText}>{t.snippetCard.errorMessage}</p>
       </Card>
     )
@@ -142,7 +142,7 @@ export function SnippetCard({
 
   return (
     <Card
-      className={isSelected ? styles.cardSelected : undefined}
+      className={`group transition-all cursor-pointer${isSelected ? ` border-accent ${styles.cardSelected}` : ''}`}
       onClick={handleView}
       data-testid={`snippet-card-${snippet.id}`}
       role="article"

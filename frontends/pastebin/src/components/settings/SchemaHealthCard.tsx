@@ -25,15 +25,15 @@ export function SchemaHealthCard({
   if (schemaHealth === 'corrupted') {
     return (
       <Card data-testid="schema-corrupted-card" role="alert" aria-label="Database schema corruption alert">
-        <CardHeader>
-          <h3 className={styles.cardTitleDestructive}>
-            <MaterialIcon name="warning" size={24} aria-hidden="true" />
-            {s.corruptedTitle}
-          </h3>
-          <p className={styles.cardDescription}>
-            {s.corruptedDesc}
-          </p>
-        </CardHeader>
+        <CardHeader
+          title={
+            <h3 className={styles.cardTitleDestructive}>
+              <MaterialIcon name="warning" size={24} aria-hidden="true" />
+              {s.corruptedTitle}
+            </h3>
+          }
+          subheader={<p className={styles.cardDescription}>{s.corruptedDesc}</p>}
+        />
         <CardContent>
           <div className={styles.contentStackSm}>
             <Alert severity="info" role="alert" data-testid="schema-error-details">
@@ -58,15 +58,15 @@ export function SchemaHealthCard({
 
   return (
     <Card data-testid="schema-healthy-card" role="status" aria-label="Database schema health check passed">
-      <CardHeader>
-        <h3 className={styles.cardTitleGreen}>
-          <MaterialIcon name="check_circle" size={24} aria-hidden="true" />
-          {s.healthyTitle}
-        </h3>
-        <p className={styles.cardDescription}>
-          {s.healthyDesc}
-        </p>
-      </CardHeader>
+      <CardHeader
+        title={
+          <h3 className={styles.cardTitleGreen}>
+            <MaterialIcon name="check_circle" size={24} aria-hidden="true" />
+            {s.healthyTitle}
+          </h3>
+        }
+        subheader={<p className={styles.cardDescription}>{s.healthyDesc}</p>}
+      />
     </Card>
   )
 }

@@ -69,22 +69,122 @@ std::string SQLiteQueryBuilder::buildDeleteQuery(const core::EntitySchema& schem
     return "DELETE FROM " + tableName + " WHERE \"id\" = ?";
 }
 
+std::string SQLiteQueryBuilder::buildCountQuery(const core::EntitySchema& schema,
+                                               const ListOptions& options) {
+    const std::string tableName = quoteId(schema.name);
+    std::string sql = "SELECT COUNT(*) FROM " + tableName;
+
+    std::vector<std::string> whereFragments;
+    for (const auto& [key, _] : options.filter) {
+        whereFragments.push_back(quoteId(key) + " = ?");
+    }
+    for (const auto& cond : options.conditions) {
+        whereFragments.push_back(conditionToSql(cond));
+    }
+    for (const auto& group : options.filter_groups) {
+        if (group.conditions.empty()) continue;
+        std::vector<std::string> gf;
+        for (const auto& cond : group.conditions) { gf.push_back(conditionToSql(cond)); }
+        whereFragments.push_back("(" + joinFragments(gf, " OR ") + ")");
+    }
+    if (!whereFragments.empty()) {
+        sql += " WHERE " + joinFragments(whereFragments, " AND ");
+    }
+    if (!options.group_by.empty()) {
+        std::vector<std::string> gbFrags;
+        for (const auto& gb : options.group_by) { gbFrags.push_back(quoteId(gb)); }
+        sql += " GROUP BY " + joinFragments(gbFrags, ", ");
+    }
+    return sql;
+}
+
+std::string SQLiteQueryBuilder::conditionToSql(const FilterCondition& cond) {
+    const std::string field = quoteId(cond.field);
+    switch (cond.op) {
+        case FilterOp::Eq:       return field + " = ?";
+        case FilterOp::Ne:       return field + " != ?";
+        case FilterOp::Lt:       return field + " < ?";
+        case FilterOp::Lte:      return field + " <= ?";
+        case FilterOp::Gt:       return field + " > ?";
+        case FilterOp::Gte:      return field + " >= ?";
+        case FilterOp::Like:     return field + " LIKE ?";
+        case FilterOp::ILike:    return "LOWER(" + field + ") LIKE LOWER(?)";
+        case FilterOp::IsNull:   return field + " IS NULL";
+        case FilterOp::IsNotNull: return field + " IS NOT NULL";
+        case FilterOp::In: {
+            std::vector<std::string> ph(cond.values.size(), "?");
+            return field + " IN (" + joinFragments(ph, ", ") + ")";
+        }
+        case FilterOp::NotIn: {
+            std::vector<std::string> ph(cond.values.size(), "?");
+            return field + " NOT IN (" + joinFragments(ph, ", ") + ")";
+        }
+        case FilterOp::Between:  return field + " BETWEEN ? AND ?";
+    }
+    return field + " = ?";
+}
+
 std::string SQLiteQueryBuilder::buildListQuery(const core::EntitySchema& schema,
                                               const ListOptions& options) {
     const std::string tableName = quoteId(schema.name);
-    const std::string fieldList = buildFieldList(schema);
-    std::string sql = "SELECT " + fieldList + " FROM " + tableName;
 
-    // Build WHERE clause from all filters
-    if (!options.filter.empty()) {
-        std::vector<std::string> whereFragments;
-        for (const auto& [key, _] : options.filter) {
-            whereFragments.push_back(quoteId(key) + " = ?");
+    // Build SELECT clause — aggregates override normal field list
+    std::string sql;
+    if (!options.aggregates.empty()) {
+        std::vector<std::string> selectFrags;
+        for (const auto& gb : options.group_by) {
+            selectFrags.push_back(quoteId(gb));
         }
+        for (const auto& agg : options.aggregates) {
+            std::string func;
+            switch (agg.func) {
+                case AggFunc::Count: func = "COUNT"; break;
+                case AggFunc::Sum:   func = "SUM";   break;
+                case AggFunc::Avg:   func = "AVG";   break;
+                case AggFunc::Min:   func = "MIN";   break;
+                case AggFunc::Max:   func = "MAX";   break;
+            }
+            selectFrags.push_back(func + "(" + quoteId(agg.field) + ") AS " + quoteId(agg.alias));
+        }
+        sql = "SELECT " + joinFragments(selectFrags, ", ") + " FROM " + tableName;
+    } else {
+        const std::string fieldList = buildFieldList(schema);
+        sql = "SELECT " + fieldList + " FROM " + tableName;
+    }
+
+    // Build WHERE clause combining all filter types
+    std::vector<std::string> whereFragments;
+    // Legacy equality filters
+    for (const auto& [key, _] : options.filter) {
+        whereFragments.push_back(quoteId(key) + " = ?");
+    }
+    // Typed AND conditions
+    for (const auto& cond : options.conditions) {
+        whereFragments.push_back(conditionToSql(cond));
+    }
+    // OR groups: each group's conditions are OR'd; the group as a whole is AND'd
+    for (const auto& group : options.filter_groups) {
+        if (group.conditions.empty()) continue;
+        std::vector<std::string> groupFragments;
+        for (const auto& cond : group.conditions) {
+            groupFragments.push_back(conditionToSql(cond));
+        }
+        whereFragments.push_back("(" + joinFragments(groupFragments, " OR ") + ")");
+    }
+    if (!whereFragments.empty()) {
         sql += " WHERE " + joinFragments(whereFragments, " AND ");
     }
 
-    // Add ORDER BY if sort is specified, otherwise use a sensible default
+    // GROUP BY
+    if (!options.group_by.empty()) {
+        std::vector<std::string> gbFrags;
+        for (const auto& gb : options.group_by) {
+            gbFrags.push_back(quoteId(gb));
+        }
+        sql += " GROUP BY " + joinFragments(gbFrags, ", ");
+    }
+
+    // Add ORDER BY if sort is specified
     if (!options.sort.empty()) {
         std::vector<std::string> orderFragments;
         for (const auto& [field, dir] : options.sort) {

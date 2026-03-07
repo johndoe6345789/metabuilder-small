@@ -14,6 +14,13 @@ const config: Config = {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
     '^@styles/(.*)$': '<rootDir>/src/styles/$1',
+    // nanoid is ESM-only; redirect to CJS build so Jest can consume it
+    '^nanoid$': '<rootDir>/../../node_modules/nanoid/index.cjs',
+    // @metabuilder/components sub-paths use ESM-only exports; map to TS source files
+    '^@metabuilder/components/fakemui$': '<rootDir>/../../node_modules/@metabuilder/components/fakemui/index.ts',
+    '^@metabuilder/components/fakemui/(.*)$': '<rootDir>/../../node_modules/@metabuilder/components/fakemui/$1',
+    '^@metabuilder/components$': '<rootDir>/../../node_modules/@metabuilder/components/index.tsx',
+    '^@metabuilder/fakemui$': '<rootDir>/../../node_modules/@metabuilder/fakemui/src/index.ts',
   },
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
   collectCoverageFrom: [

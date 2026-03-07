@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic';
 import { PageLayout } from './PageLayout';
 import { useTranslation } from '@/hooks/useTranslation';
 
-// Dynamically import SnippetManagerRedux to avoid SSR issues with Monaco editor
+// Dynamically import SnippetManagerRedux to avoid SSR issues with Pyodide
 const SnippetManagerRedux = dynamic(
   () => import('@/components/SnippetManagerRedux').then(mod => ({ default: mod.SnippetManagerRedux })),
   { ssr: false }

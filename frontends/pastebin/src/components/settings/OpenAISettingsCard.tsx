@@ -9,7 +9,7 @@ import { getAuthToken } from '@/lib/authToken';
 import styles from './settings-card.module.scss';
 
 function baseUrl(): string {
-  return (getStorageConfig().dbalUrl ?? '').replace(/\/$/, '');
+  return (getStorageConfig().flaskUrl ?? '').replace(/\/$/, '');
 }
 
 function authHeaders(): Record<string, string> {
@@ -134,13 +134,15 @@ export function OpenAISettingsCard() {
 
   return (
     <Card data-testid="openai-settings-card" role="region" aria-label="AI platform configuration">
-      <CardHeader>
-        <div className={styles.headerIconRow}>
-          <MaterialIcon name="key" className={styles.iconPrimary} size={20} aria-hidden="true" />
-          <h3 className={styles.cardTitle}>{s.title}</h3>
-        </div>
-        <p className={styles.cardDescription}>{s.description}</p>
-      </CardHeader>
+      <CardHeader
+        title={
+          <div className={styles.headerIconRow}>
+            <MaterialIcon name="key" className={styles.iconPrimary} size={20} aria-hidden="true" />
+            <h3 className={styles.cardTitle}>{s.title}</h3>
+          </div>
+        }
+        subheader={<p className={styles.cardDescription}>{s.description}</p>}
+      />
       <CardContent>
         <div className={styles.contentStackSm}>
 

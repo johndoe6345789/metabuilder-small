@@ -24,12 +24,10 @@ export function DatabaseActionsCard({
 
   return (
     <Card data-testid="database-actions-card">
-      <CardHeader>
-        <h3 className={styles.cardTitle}>{s.title}</h3>
-        <p className={styles.cardDescription}>
-          {s.description}
-        </p>
-      </CardHeader>
+      <CardHeader
+        title={<h3 className={styles.cardTitle}>{s.title}</h3>}
+        subheader={<p className={styles.cardDescription}>{s.description}</p>}
+      />
       <CardContent>
         <div className={styles.contentStackSm}>
           <div data-testid="export-section">

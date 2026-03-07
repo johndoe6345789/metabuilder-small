@@ -14,9 +14,10 @@ class MySQLAdapter : public SqlAdapter {
 public:
     explicit MySQLAdapter(const SqlConnectionConfig& config);
 
-    // Override create/update because MySQL doesn't support RETURNING
+    // Override create/update/createMany because MySQL doesn't support RETURNING
     Result<Json> create(const std::string& entityName, const Json& data) override;
     Result<Json> update(const std::string& entityName, const std::string& id, const Json& data) override;
+    Result<int>  createMany(const std::string& entityName, const std::vector<Json>& records) override;
 
 protected:
     std::vector<SqlRow> runQuery(SqlConnection*, const std::string& sql,

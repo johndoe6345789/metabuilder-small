@@ -43,6 +43,8 @@ export interface SliderProps extends Omit<React.InputHTMLAttributes<HTMLInputEle
   onChange?: (event: React.ChangeEvent<HTMLInputElement>, value: number) => void
   /** Change committed handler (on mouse up) */
   onChangeCommitted?: (event: React.SyntheticEvent, value: number) => void
+  /** Radix-style value change handler */
+  onValueChange?: (value: number[]) => void
   /** Accessible label */
   'aria-label'?: string
   /** ID of element that labels this slider */
@@ -83,6 +85,7 @@ export const Slider = forwardRef<HTMLInputElement, SliderProps>(
       disabled = false,
       onChange,
       onChangeCommitted,
+      onValueChange,
       className = '',
       'aria-label': ariaLabel,
       'aria-labelledby': ariaLabelledBy,
@@ -109,6 +112,7 @@ export const Slider = forwardRef<HTMLInputElement, SliderProps>(
           setInternalValue(newValue)
         }
         onChange?.(e, newValue)
+        onValueChange?.([newValue])
       },
       [controlledValue, onChange]
     )

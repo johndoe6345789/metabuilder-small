@@ -7,6 +7,19 @@ namespace dbal {
 namespace adapters {
 namespace supabase {
 
+// ---------------------------------------------------------------------------
+// Testing constructor: injects mock HTTP client, skips network init.
+// ---------------------------------------------------------------------------
+SupabaseAdapter::SupabaseAdapter(std::unique_ptr<ISupabaseHttpClient> mock_client,
+                                 std::map<std::string, core::EntitySchema> schemas)
+    : useRestApi_(true),
+      schemas_(std::move(schemas)),
+      http_client_(std::move(mock_client)) {
+}
+
+// ---------------------------------------------------------------------------
+// Production constructor
+// ---------------------------------------------------------------------------
 SupabaseAdapter::SupabaseAdapter(const SupabaseConfig& config)
     : useRestApi_(config.useRestApi) {
 
@@ -29,7 +42,11 @@ SupabaseAdapter::SupabaseAdapter(const SupabaseConfig& config)
 
     // Initialize helpers for REST API mode
     if (useRestApi_) {
+#ifndef DBAL_NO_REAL_HTTP_CLIENT
         http_client_ = std::make_unique<SupabaseHttpClient>(config.url, config.apiKey, config.timeout);
+#else
+        throw std::logic_error("SupabaseAdapter: real HTTP client not available in test build. Use the testing constructor.");
+#endif
         auth_manager_ = std::make_unique<SupabaseAuthManager>(config.url, config.apiKey);
         rls_manager_ = std::make_unique<SupabaseRlsManager>();
         spdlog::info("Initialized Supabase REST API adapter");
@@ -101,20 +118,26 @@ Result<Json> SupabaseAdapter::create(const std::string& entityName, const Json& 
     }
 
     auto result = http_client_->post(entityName, data);
+    if (result.isError()) {
+        return Error(result.error().code(), result.error().what());
+    }
+
+    // Supabase returns an array with Prefer: return=representation — normalise to object.
+    Json created = result.value();
+    if (created.is_array() && !created.empty()) {
+        created = created[0];
+    }
 
     // Record operation for compensating transaction (REST API mode only)
-    if (result.isOk() && compensating_tx_ && compensating_tx_->isActive()) {
-        Json created = result.value();
+    if (compensating_tx_ && compensating_tx_->isActive()) {
         std::string id;
-        if (created.is_array() && !created.empty() && created[0].contains("id")) {
-            id = created[0]["id"].get<std::string>();
-        } else if (created.contains("id")) {
+        if (created.contains("id")) {
             id = created["id"].get<std::string>();
         }
         compensating_tx_->recordCreate(entityName, id);
     }
 
-    return result;
+    return created;
 }
 
 Result<Json> SupabaseAdapter::read(const std::string& entityName, const std::string& id) {
@@ -188,17 +211,19 @@ Result<ListResult<Json>> SupabaseAdapter::list(const std::string& entityName, co
     }
 
     const auto query = SupabaseQueryBuilder::buildListQuery(entityName, options);
-    auto result = http_client_->get(query);
+    auto result = http_client_->getList(query);
     if (result.isError()) {
         return Error(result.error().code(), result.error().what());
     }
 
+    const auto& listResp = result.value();
     ListResult<Json> listResult;
-    auto json = result.value();
 
-    if (json.is_array()) {
-        listResult.items = json.get<std::vector<Json>>();
-        listResult.total = static_cast<int>(json.size());
+    if (listResp.items.is_array()) {
+        listResult.items = listResp.items.get<std::vector<Json>>();
+        // Prefer server-reported total (Content-Range); fall back to page size.
+        listResult.total = (listResp.total >= 0) ? listResp.total
+                                                 : static_cast<int>(listResult.items.size());
     } else {
         listResult.total = 0;
     }
@@ -260,6 +285,21 @@ Result<int> SupabaseAdapter::deleteMany(const std::string& entityName, const Jso
         return postgresAdapter_->deleteMany(entityName, filter);
     }
 
+    // Count matching rows before deletion (PostgREST DELETE doesn't return count).
+    ListOptions countOpts;
+    countOpts.limit = 10000;
+    countOpts.page  = 1;
+    for (auto it = filter.begin(); it != filter.end(); ++it) {
+        countOpts.filter[it.key()] = it.value().is_string()
+            ? it.value().get<std::string>()
+            : it.value().dump();
+    }
+    int count = 0;
+    auto countResult = list(entityName, countOpts);
+    if (countResult.isOk()) {
+        count = countResult.value().total;
+    }
+
     std::string query = entityName;
     if (!filter.empty()) {
         query += "?" + SupabaseQueryBuilder::buildFilterQuery(filter);
@@ -270,7 +310,7 @@ Result<int> SupabaseAdapter::deleteMany(const std::string& entityName, const Jso
         return Error(result.error().code(), result.error().what());
     }
 
-    return 1;  // Supabase doesn't return count by default
+    return count;
 }
 
 Result<Json> SupabaseAdapter::findFirst(const std::string& entityName, const Json& filter) {
@@ -280,7 +320,13 @@ Result<Json> SupabaseAdapter::findFirst(const std::string& entityName, const Jso
 
     ListOptions options;
     options.limit = 1;
-    options.page = 1;
+    options.page  = 1;
+    // Copy caller's filter into the list options.
+    for (auto it = filter.begin(); it != filter.end(); ++it) {
+        options.filter[it.key()] = it.value().is_string()
+            ? it.value().get<std::string>()
+            : it.value().dump();
+    }
 
     auto result = list(entityName, options);
     if (result.isError()) {

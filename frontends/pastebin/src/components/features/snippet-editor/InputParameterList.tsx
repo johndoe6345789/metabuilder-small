@@ -21,26 +21,31 @@ export function InputParameterList({
   onUpdateParameter,
 }: InputParameterListProps) {
   return (
-    <Card className={styles.cardRoot} data-testid="input-parameters-card">
-      <CardHeader>
-        <h3
-          className={styles.configTitle}
-          data-testid="preview-config-title"
-        >
-          <span>Preview Configuration</span>
+    <div className="space-y-16">
+    <Card className={`${styles.cardRoot} bg-muted/30`} data-testid="input-parameters-card">
+      <CardHeader
+        title={
+          <h3
+            className={styles.configTitle}
+            data-testid="preview-config-title"
+          >
+            Preview Configuration
+          </h3>
+        }
+        action={
           <Button
             variant="outlined"
             size="sm"
             onClick={onAddParameter}
-            className={styles.addParamBtn}
+            className={`${styles.addParamBtn} gap-2`}
             data-testid="add-parameter-btn"
-            aria-label={`Add new parameter. Current parameters: ${inputParameters.length}`}
+            aria-label="Add new parameter"
           >
             <MaterialIcon name="add" className={styles.addParamIcon} aria-hidden="true" />
             Add Parameter
           </Button>
-        </h3>
-      </CardHeader>
+        }
+      />
       <CardContent>
         <div className={styles.cardContent}>
           <div className={styles.functionNameField}>
@@ -52,6 +57,7 @@ export function InputParameterList({
               placeholder="e.g., MyComponent"
               value={functionName}
               onChange={(e) => onFunctionNameChange(e.target.value)}
+              className="bg-background"
               data-testid="function-name-input"
               aria-label="Function or component name"
               aria-describedby="function-name-help"
@@ -89,5 +95,6 @@ export function InputParameterList({
         </div>
       </CardContent>
     </Card>
+    </div>
   )
 }

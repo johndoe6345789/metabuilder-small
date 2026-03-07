@@ -97,6 +97,18 @@ public:
     static std::string buildWhereClause(const Json& filter);
 
     /**
+     * Build SELECT COUNT(*) query using the same WHERE/GROUP BY as buildListQuery.
+     * Returns total matching rows for pagination.
+     */
+    static std::string buildCountQuery(const core::EntitySchema& schema,
+                                       const ListOptions& options);
+
+    /**
+     * Convert a typed FilterCondition to a SQL fragment with ? placeholders
+     */
+    static std::string conditionToSql(const FilterCondition& cond);
+
+    /**
      * Convert PascalCase to lower_snake_case
      */
     static std::string toLowerSnakeCase(const std::string& pascalCase);

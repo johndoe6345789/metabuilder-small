@@ -27,8 +27,32 @@ struct EntityField {
     std::string type{};         // "string", "number", "boolean", "timestamp", "json"
     bool required{false};
     bool unique{false};
+    bool nullable{false};
     std::optional<std::string> defaultValue{};
     std::optional<std::string> references{};  // FK to other entity
+    // Constraint validation (from JSON schema)
+    std::vector<std::string> enumValues{};
+    std::optional<int> minLength{};
+    std::optional<int> maxLength{};
+    std::optional<std::string> pattern{};
+};
+
+// Relation metadata (from entity JSON "relations" section)
+struct RelationDef {
+    std::string name;                // e.g. "namespace"
+    std::string type;                // "has-many" | "belongs-to"
+    std::string target_entity;       // e.g. "Namespace"
+    std::string foreign_key;         // field on this or target entity
+    bool cascade_delete = false;
+};
+
+// Per-entity BI query configuration (from entity JSON "query" section)
+struct QueryConfig {
+    std::vector<std::string> allowed_operators;   // e.g. ["eq","gt","like","in"]
+    std::vector<std::string> allowed_group_by;    // allowed GROUP BY fields
+    std::vector<std::string> allowed_includes;    // allowed relation includes
+    int max_results = 1000;
+    int timeout_ms = 0;                           // 0 = global default
 };
 
 // Entity schema metadata
@@ -38,6 +62,8 @@ struct EntitySchema {
     std::vector<EntityField> fields{};
     std::vector<std::string> indexes{};
     std::map<std::string, std::string> metadata{};
+    std::vector<RelationDef> relations{};         // parsed from "relations" section
+    QueryConfig query_config{};                   // parsed from "query" section
 };
 
 /**

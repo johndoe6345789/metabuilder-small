@@ -3,7 +3,7 @@ import styles from './FormsShowcase.module.scss'
 
 export function FormsShowcase() {
   return (
-    <section style={{ display: 'flex', flexDirection: 'column', gap: '24px' }} data-testid="forms-showcase" role="region" aria-label="Forms showcase">
+    <section className="space-y-6" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }} data-testid="forms-showcase" role="region" aria-label="Forms showcase">
       <div>
         <h2 style={{ fontSize: '1.875rem', lineHeight: '2.25rem', fontWeight: 700, marginBottom: '8px' }}>Forms</h2>
         <p style={{ color: 'var(--mat-sys-on-surface-variant)' }}>

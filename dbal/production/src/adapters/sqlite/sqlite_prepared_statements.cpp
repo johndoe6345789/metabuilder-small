@@ -30,11 +30,19 @@ Result<sqlite3_stmt*> SQLitePreparedStatements::prepareLocked(const std::string&
     return Result<sqlite3_stmt*>(stmt);
 }
 
+// Must match kSqlNullSentinel in sqlite_type_converter.cpp
+static const std::string kSqlNullSentinel = "\x01NULL\x01";
+
 Result<bool> SQLitePreparedStatements::bindParameters(sqlite3_stmt* stmt,
                                                        const std::vector<std::string>& values) {
     for (size_t i = 0; i < values.size(); ++i) {
-        const int rc = sqlite3_bind_text(stmt, static_cast<int>(i + 1),
-                                        values[i].c_str(), -1, SQLITE_TRANSIENT);
+        int rc;
+        if (values[i] == kSqlNullSentinel) {
+            rc = sqlite3_bind_null(stmt, static_cast<int>(i + 1));
+        } else {
+            rc = sqlite3_bind_text(stmt, static_cast<int>(i + 1),
+                                   values[i].c_str(), -1, SQLITE_TRANSIENT);
+        }
         if (rc != SQLITE_OK) {
             return mapSqliteError(rc, "Failed to bind parameter");
         }

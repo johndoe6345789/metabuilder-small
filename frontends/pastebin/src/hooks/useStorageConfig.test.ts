@@ -5,17 +5,28 @@ import * as storageModule from '@/lib/storage'
 // Mock the storage module
 jest.mock('@/lib/storage')
 
-// Mock useTranslation to avoid Redux dependency
+// Mock fakemui toast
+jest.mock('@metabuilder/components/fakemui', () => ({
+  toast: {
+    success: jest.fn(),
+    error: jest.fn(),
+  },
+}))
+
+// Mock useTranslation
 jest.mock('@/hooks/useTranslation', () => ({
   useTranslation: () => ({
     settings: { storage: { backendUpdated: 'Storage backend updated successfully' } },
   }),
 }))
 
+import { toast } from '@metabuilder/components/fakemui'
+
 // Mock process.env
 const originalEnv = process.env
 
 const mockStorage = storageModule as jest.Mocked<typeof storageModule>
+const mockToast = toast as jest.Mocked<typeof toast>
 
 describe('useStorageConfig Hook', () => {
   beforeEach(() => {
@@ -30,10 +41,6 @@ describe('useStorageConfig Hook', () => {
 
   describe('initialization', () => {
     it('should initialize with default state', () => {
-      mockStorage.loadStorageConfig.mockReturnValueOnce({
-        backend: 'indexeddb',
-      })
-
       const { result } = renderHook(() => useStorageConfig())
 
       expect(result.current.storageBackend).toBe('indexeddb')
@@ -43,30 +50,22 @@ describe('useStorageConfig Hook', () => {
 
   describe('setStorageBackend', () => {
     it('should update storage backend state', () => {
-      mockStorage.loadStorageConfig.mockReturnValueOnce({
-        backend: 'indexeddb',
-      })
-
       const { result } = renderHook(() => useStorageConfig())
 
       act(() => {
-        result.current.setStorageBackend('dbal')
+        result.current.setStorageBackend('flask')
       })
 
-      expect(result.current.storageBackend).toBe('dbal')
+      expect(result.current.storageBackend).toBe('flask')
     })
 
     it('should support toggling between backends', () => {
-      mockStorage.loadStorageConfig.mockReturnValueOnce({
-        backend: 'indexeddb',
-      })
-
       const { result } = renderHook(() => useStorageConfig())
 
       act(() => {
-        result.current.setStorageBackend('dbal')
+        result.current.setStorageBackend('flask')
       })
-      expect(result.current.storageBackend).toBe('dbal')
+      expect(result.current.storageBackend).toBe('flask')
 
       act(() => {
         result.current.setStorageBackend('indexeddb')
@@ -78,7 +77,7 @@ describe('useStorageConfig Hook', () => {
   describe('loadConfig', () => {
     it('should load config from storage and update state', () => {
       mockStorage.loadStorageConfig.mockReturnValue({
-        backend: 'indexeddb',
+        backend: 'flask',
       })
 
       const { result } = renderHook(() => useStorageConfig())
@@ -87,15 +86,14 @@ describe('useStorageConfig Hook', () => {
         result.current.loadConfig()
       })
 
-      expect(result.current.storageBackend).toBe('indexeddb')
+      expect(result.current.storageBackend).toBe('flask')
     })
 
-    it('should set envVarSet when NEXT_PUBLIC_DBAL_API_URL is set', () => {
-      process.env.NEXT_PUBLIC_DBAL_API_URL = 'http://localhost:8080'
+    it('should use environment variable to set envVarSet', () => {
+      process.env.NEXT_PUBLIC_DBAL_API_URL = 'http://env.example.com:5000'
 
       mockStorage.loadStorageConfig.mockReturnValue({
-        backend: 'dbal',
-        dbalUrl: 'http://localhost:8080',
+        backend: 'indexeddb',
       })
 
       const { result } = renderHook(() => useStorageConfig())
@@ -107,7 +105,7 @@ describe('useStorageConfig Hook', () => {
       expect(result.current.envVarSet).toBe(true)
     })
 
-    it('should not set envVarSet when no env var is configured', () => {
+    it('should default envVarSet to false if no env var', () => {
       mockStorage.loadStorageConfig.mockReturnValue({
         backend: 'indexeddb',
       })
@@ -123,7 +121,7 @@ describe('useStorageConfig Hook', () => {
   })
 
   describe('handleSaveStorageConfig', () => {
-    it('should save indexeddb config', async () => {
+    it('should save indexeddb config without connection test', async () => {
       mockStorage.loadStorageConfig.mockReturnValueOnce({
         backend: 'indexeddb',
       })
@@ -141,8 +139,7 @@ describe('useStorageConfig Hook', () => {
       expect(mockStorage.saveStorageConfig).toHaveBeenCalledWith({
         backend: 'indexeddb',
       })
-      // verify save was called (toast is tested separately)
-      expect(mockStorage.saveStorageConfig).toHaveBeenCalled()
+      expect(mockToast.success).toHaveBeenCalledWith('Storage backend updated successfully')
     })
 
     it('should call onSuccess callback after saving', async () => {
@@ -162,26 +159,6 @@ describe('useStorageConfig Hook', () => {
       })
 
       expect(onSuccess).toHaveBeenCalledTimes(1)
-    })
-
-    it('should save dbal config', async () => {
-      mockStorage.loadStorageConfig.mockReturnValueOnce({
-        backend: 'indexeddb',
-      })
-
-      const { result } = renderHook(() => useStorageConfig())
-
-      act(() => {
-        result.current.setStorageBackend('dbal')
-      })
-
-      await act(async () => {
-        await result.current.handleSaveStorageConfig()
-      })
-
-      expect(mockStorage.saveStorageConfig).toHaveBeenCalledWith({
-        backend: 'dbal',
-      })
     })
   })
 })

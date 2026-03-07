@@ -518,6 +518,73 @@ def get_db():
     return conn
 
 
+def _dbal_snippet(data: dict) -> dict:
+    """Normalize a DBAL Snippet record to match the frontend JSON contract."""
+    if data.get('inputParameters') and isinstance(data['inputParameters'], str):
+        try:
+            data['inputParameters'] = json.loads(data['inputParameters'])
+        except Exception:
+            data['inputParameters'] = None
+    if data.get('files') and isinstance(data['files'], str):
+        try:
+            data['files'] = json.loads(data['files'])
+        except Exception:
+            data['files'] = None
+    data['hasPreview'] = bool(data.get('hasPreview', False))
+    data['isTemplate'] = bool(data.get('isTemplate', False))
+    return data
+
+
+def _snippet_body(data: dict, user_id: str, include_id: bool = True, include_created: bool = True) -> dict:
+    """Build a DBAL Snippet body from request data."""
+    body = {
+        'title':           data['title'],
+        'description':     data.get('description', ''),
+        'code':            data['code'],
+        'language':        data['language'],
+        'category':        data.get('category', 'general'),
+        'namespaceId':     data.get('namespaceId'),
+        'hasPreview':      bool(data.get('hasPreview')),
+        'functionName':    data.get('functionName'),
+        'inputParameters': json.dumps(data['inputParameters']) if data.get('inputParameters') else None,
+        'files':           json.dumps(data['files']) if data.get('files') is not None else None,
+        'entryPoint':      data.get('entryPoint'),
+        'isTemplate':      bool(data.get('isTemplate')),
+        'updatedAt':       _ts(data.get('updatedAt')),
+        'userId':          user_id,
+        'tenantId':        DBAL_TENANT_ID,
+    }
+    if include_id:
+        body['id'] = data['id']
+    if include_created:
+        body['createdAt'] = _ts(data.get('createdAt'))
+    return body
+
+
+def _dbal_all_pages(path_with_params: str, limit: int = 500) -> list:
+    """Fetch all pages from a DBAL list endpoint, handling pagination."""
+    results = []
+    page = 1
+    sep = '&' if '?' in path_with_params else '?'
+    while True:
+        r = dbal_request('GET', f'{path_with_params}{sep}limit={limit}&page={page}')
+        if not r or not r.ok:
+            break
+        payload = r.json().get('data', {})
+        batch = payload.get('data', [])
+        results.extend(batch)
+        if len(results) >= payload.get('total', 0):
+            break
+        page += 1
+    return results
+
+
+def _ts(value):
+    """Coerce createdAt/updatedAt to integer milliseconds."""
+    if isinstance(value, str):
+        return int(datetime.fromisoformat(value.replace('Z', '+00:00')).timestamp() * 1000)
+    return value
+
 
 def check_and_migrate_schema():
     conn = get_db()
@@ -796,11 +863,439 @@ def reset_password():
 
 
 # ---------------------------------------------------------------------------
-# DBAL path helper — used by comments routes
+# Snippet endpoints (auth required, user-scoped)
 # ---------------------------------------------------------------------------
 
 def _dbal_path(entity: str) -> str:
     return f'/{DBAL_TENANT_ID}/pastebin/{entity}'
+
+
+# ---------------------------------------------------------------------------
+# Snippet endpoints — backed by DBAL
+# ---------------------------------------------------------------------------
+
+@app.route('/api/snippets', methods=['GET'])
+@auth_required
+def get_snippets():
+    items = _dbal_all_pages(f'{_dbal_path("Snippet")}?filter.userId={g.user_id}&sort.updatedAt=desc')
+    return jsonify([_dbal_snippet(s) for s in items])
+
+
+@app.route('/api/snippets/<snippet_id>', methods=['GET'])
+@auth_required
+def get_snippet(snippet_id):
+    r = dbal_request('GET', f'{_dbal_path("Snippet")}/{snippet_id}')
+    if not r:
+        return jsonify({'error': 'Snippet not found'}), 404
+    if r.status_code == 404:
+        return jsonify({'error': 'Snippet not found'}), 404
+    if not r.ok:
+        return jsonify({'error': 'Failed to fetch snippet'}), 500
+    snippet = r.json().get('data', {})
+    if snippet.get('userId') != g.user_id:
+        return jsonify({'error': 'Snippet not found'}), 404
+    return jsonify(_dbal_snippet(snippet))
+
+
+@app.route('/api/snippets', methods=['POST'])
+@auth_required
+def create_snippet():
+    data = request.json
+    required = ['title', 'code', 'language', 'category']
+    if not data or any(k not in data or not data[k] for k in required):
+        return jsonify({'error': 'title, code, language, and category are required'}), 400
+    r = dbal_request('POST', _dbal_path('Snippet'), _snippet_body(data, g.user_id))
+    if not r or not r.ok:
+        return jsonify({'error': 'Failed to create snippet'}), 500
+    result = r.json().get('data')
+    if not result:
+        return jsonify({'error': 'Failed to create snippet'}), 500
+    return jsonify(_dbal_snippet(result)), 201
+
+
+@app.route('/api/snippets/<snippet_id>', methods=['PUT'])
+@auth_required
+def update_snippet(snippet_id):
+    data = request.json
+    required = ['title', 'code', 'language']
+    if not data or any(k not in data or not data[k] for k in required):
+        return jsonify({'error': 'title, code, and language are required'}), 400
+    # Ownership check
+    check = dbal_request('GET', f'{_dbal_path("Snippet")}/{snippet_id}')
+    if not check or not check.ok:
+        return jsonify({'error': 'Snippet not found'}), 404
+    if check.json().get('data', {}).get('userId') != g.user_id:
+        return jsonify({'error': 'Snippet not found'}), 404
+    body = _snippet_body(data, g.user_id, include_id=False, include_created=False)
+    r = dbal_request('PUT', f'{_dbal_path("Snippet")}/{snippet_id}', body)
+    if not r or not r.ok:
+        return jsonify({'error': 'Failed to update snippet'}), 500
+    _maybe_save_revision(snippet_id, data, g.user_id)
+    return jsonify(_dbal_snippet(r.json().get('data', data)))
+
+
+@app.route('/api/snippets/<snippet_id>', methods=['DELETE'])
+@auth_required
+def delete_snippet(snippet_id):
+    check = dbal_request('GET', f'{_dbal_path("Snippet")}/{snippet_id}')
+    if not check or not check.ok:
+        return jsonify({'error': 'Snippet not found'}), 404
+    if check.json().get('data', {}).get('userId') != g.user_id:
+        return jsonify({'error': 'Snippet not found'}), 404
+    r = dbal_request('DELETE', f'{_dbal_path("Snippet")}/{snippet_id}')
+    if not r or not r.ok:
+        return jsonify({'error': 'Failed to delete snippet'}), 500
+    return jsonify({'success': True})
+
+
+@app.route('/api/snippets/<snippet_id>/share', methods=['POST'])
+@auth_required
+def generate_share_token(snippet_id):
+    check = dbal_request('GET', f'{_dbal_path("Snippet")}/{snippet_id}')
+    if not check or not check.ok:
+        return jsonify({'error': 'Snippet not found'}), 404
+    if check.json().get('data', {}).get('userId') != g.user_id:
+        return jsonify({'error': 'Snippet not found'}), 404
+    token = secrets.token_urlsafe(24)
+    r = dbal_request('PATCH', f'{_dbal_path("Snippet")}/{snippet_id}', {'shareToken': token})
+    if not r or not r.ok:
+        return jsonify({'error': 'Failed to generate share token'}), 500
+    return jsonify({'token': token})
+
+
+@app.route('/api/snippets/<snippet_id>/share', methods=['DELETE'])
+@auth_required
+def revoke_share_token(snippet_id):
+    check = dbal_request('GET', f'{_dbal_path("Snippet")}/{snippet_id}')
+    if not check or not check.ok:
+        return jsonify({'error': 'Snippet not found'}), 404
+    if check.json().get('data', {}).get('userId') != g.user_id:
+        return jsonify({'error': 'Snippet not found'}), 404
+    r = dbal_request('PATCH', f'{_dbal_path("Snippet")}/{snippet_id}', {'shareToken': None})
+    if not r or not r.ok:
+        return jsonify({'error': 'Failed to revoke share token'}), 500
+    return jsonify({'success': True})
+
+
+@app.route('/api/share/<token>', methods=['GET'])
+def get_shared_snippet(token):
+    r = dbal_request('GET', f'{_dbal_path("Snippet")}?filter.shareToken={token}&limit=1')
+    if not r or not r.ok:
+        return jsonify({'error': 'Not found'}), 404
+    items = r.json().get('data', [])
+    if not items:
+        return jsonify({'error': 'Not found'}), 404
+    snippet = items[0]
+    result = _dbal_snippet(snippet)
+    result['authorUsername'] = _get_username(snippet.get('userId', ''))
+    return jsonify(result)
+
+
+# ---------------------------------------------------------------------------
+# Revision / history helpers
+# ---------------------------------------------------------------------------
+
+def _maybe_save_revision(snippet_id: str, data: dict, user_id: str) -> None:
+    """Create a SnippetRevision if code/files changed since the last saved revision."""
+    last_r = dbal_request(
+        'GET',
+        f'{_dbal_path("SnippetRevision")}?filter.snippetId={snippet_id}&sort=-createdAt&limit=1',
+    )
+    last_rev = None
+    if last_r and last_r.ok:
+        items = last_r.json().get('data') or []
+        if items:
+            last_rev = items[0]
+
+    new_code  = data.get('code', '')
+    new_files = json.dumps(data.get('files')) if data.get('files') else None
+
+    if last_rev:
+        if last_rev.get('code') == new_code and last_rev.get('files') == new_files:
+            return  # No change — skip duplicate revision
+
+    dbal_request('POST', _dbal_path('SnippetRevision'), {
+        'id':        str(uuid.uuid4()),
+        'snippetId': snippet_id,
+        'code':      new_code,
+        'files':     new_files,
+        'createdAt': int(time.time() * 1000),
+        'userId':    user_id,
+        'tenantId':  DBAL_TENANT_ID,
+    })
+
+
+def _fork_snippet(source: dict, new_title: str, user_id: str):
+    """Copy a snippet into the caller's account. Returns (response_dict, status_code)."""
+    body = {
+        'id':              str(uuid.uuid4()),
+        'title':           new_title,
+        'description':     source.get('description', ''),
+        'code':            source.get('code', ''),
+        'language':        source.get('language', 'plaintext'),
+        'category':        source.get('category', 'general'),
+        'namespaceId':     None,
+        'hasPreview':      bool(source.get('hasPreview')),
+        'functionName':    source.get('functionName'),
+        'inputParameters': source.get('inputParameters') if isinstance(source.get('inputParameters'), str)
+                           else (json.dumps(source['inputParameters']) if source.get('inputParameters') else None),
+        'files':           source.get('files') if isinstance(source.get('files'), str)
+                           else (json.dumps(source['files']) if source.get('files') else None),
+        'entryPoint':      source.get('entryPoint'),
+        'isTemplate':      False,
+        'createdAt':       int(time.time() * 1000),
+        'updatedAt':       int(time.time() * 1000),
+        'userId':          user_id,
+        'tenantId':        DBAL_TENANT_ID,
+    }
+    r = dbal_request('POST', _dbal_path('Snippet'), body)
+    if not r or not r.ok:
+        return {'error': 'Failed to fork snippet'}, 500
+    return _dbal_snippet(r.json().get('data', {})), 201
+
+
+# ---------------------------------------------------------------------------
+# Revision endpoints
+# ---------------------------------------------------------------------------
+
+@app.route('/api/snippets/<snippet_id>/revisions', methods=['GET'])
+@auth_required
+def list_revisions(snippet_id):
+    check = dbal_request('GET', f'{_dbal_path("Snippet")}/{snippet_id}')
+    if not check or not check.ok:
+        return jsonify({'error': 'Snippet not found'}), 404
+    if check.json().get('data', {}).get('userId') != g.user_id:
+        return jsonify({'error': 'Snippet not found'}), 404
+    r = dbal_request(
+        'GET',
+        f'{_dbal_path("SnippetRevision")}?filter.snippetId={snippet_id}&sort=-createdAt&limit=50',
+    )
+    if not r or not r.ok:
+        return jsonify([])
+    items = r.json().get('data', [])
+    # Parse files JSON string back to array if present
+    for rev in items:
+        if rev.get('files') and isinstance(rev['files'], str):
+            try:
+                rev['files'] = json.loads(rev['files'])
+            except Exception:
+                rev['files'] = None
+    return jsonify(items)
+
+
+@app.route('/api/snippets/<snippet_id>/revisions/<rev_id>/revert', methods=['POST'])
+@auth_required
+def revert_to_revision(snippet_id, rev_id):
+    # Ownership check
+    check = dbal_request('GET', f'{_dbal_path("Snippet")}/{snippet_id}')
+    if not check or not check.ok:
+        return jsonify({'error': 'Snippet not found'}), 404
+    snippet = check.json().get('data', {})
+    if snippet.get('userId') != g.user_id:
+        return jsonify({'error': 'Snippet not found'}), 404
+
+    rev_r = dbal_request('GET', f'{_dbal_path("SnippetRevision")}/{rev_id}')
+    if not rev_r or not rev_r.ok:
+        return jsonify({'error': 'Revision not found'}), 404
+    rev = rev_r.json().get('data', {})
+
+    # Patch snippet with revision code/files
+    patch_body = {
+        'code':      rev.get('code', ''),
+        'files':     rev.get('files'),
+        'updatedAt': int(time.time() * 1000),
+    }
+    r = dbal_request('PATCH', f'{_dbal_path("Snippet")}/{snippet_id}', patch_body)
+    if not r or not r.ok:
+        return jsonify({'error': 'Failed to revert snippet'}), 500
+
+    # Record the revert as a new revision
+    _maybe_save_revision(snippet_id, {'code': rev.get('code', ''), 'files': rev.get('files')}, g.user_id)
+
+    return jsonify(_dbal_snippet(r.json().get('data', snippet)))
+
+
+# ---------------------------------------------------------------------------
+# Fork endpoints
+# ---------------------------------------------------------------------------
+
+@app.route('/api/snippets/<snippet_id>/fork', methods=['POST'])
+@auth_required
+def fork_snippet(snippet_id):
+    check = dbal_request('GET', f'{_dbal_path("Snippet")}/{snippet_id}')
+    if not check or not check.ok:
+        return jsonify({'error': 'Snippet not found'}), 404
+    source = check.json().get('data', {})
+    # Allow forking own snippets or publicly shared ones
+    data = request.json or {}
+    new_title = data.get('title') or f"{source.get('title', 'Snippet')} (fork)"
+    result, status = _fork_snippet(source, new_title, g.user_id)
+    return jsonify(result), status
+
+
+@app.route('/api/share/<token>/fork', methods=['POST'])
+@auth_required
+def fork_shared_snippet(token):
+    # Fetch via share token (no ownership required)
+    r = dbal_request('GET', f'{_dbal_path("Snippet")}?filter.shareToken={token}&limit=1')
+    if not r or not r.ok:
+        return jsonify({'error': 'Not found'}), 404
+    items = r.json().get('data', [])
+    if not items:
+        return jsonify({'error': 'Not found'}), 404
+    source = items[0]
+    data = request.json or {}
+    new_title = data.get('title') or f"{source.get('title', 'Snippet')} (fork)"
+    result, status = _fork_snippet(source, new_title, g.user_id)
+    return jsonify(result), status
+
+
+@app.route('/api/snippets/bulk-move', methods=['POST'])
+@auth_required
+def bulk_move_snippets():
+    data = request.json or {}
+    snippet_ids = data.get('snippetIds', [])
+    target_ns   = data.get('targetNamespaceId')
+    if not snippet_ids or not target_ns:
+        return jsonify({'error': 'snippetIds and targetNamespaceId required'}), 400
+
+    # Verify caller owns the target namespace
+    ns_check = dbal_request('GET', f'{_dbal_path("Namespace")}/{target_ns}')
+    if not ns_check or not ns_check.ok or ns_check.json().get('data', {}).get('userId') != g.user_id:
+        return jsonify({'error': 'Target namespace not found'}), 404
+
+    errors = []
+    for sid in snippet_ids:
+        # Fetch full snippet to verify ownership and build a complete PUT body
+        sr = dbal_request('GET', f'{_dbal_path("Snippet")}/{sid}')
+        if not sr or not sr.ok:
+            errors.append(sid)
+            continue
+        snippet = sr.json().get('data', {})
+        if snippet.get('userId') != g.user_id:
+            errors.append(sid)
+            continue
+        # Update only namespaceId on the raw DBAL record; pass it directly to avoid
+        # double-serializing inputParameters/files (they are already JSON strings).
+        full = dict(snippet)
+        full['namespaceId'] = target_ns
+        r = dbal_request('PUT', f'{_dbal_path("Snippet")}/{sid}', full)
+        if not r or not r.ok:
+            errors.append(sid)
+    if errors:
+        return jsonify({'error': f'Failed to move {len(errors)} snippet(s)'}), 500
+    return jsonify({'success': True})
+
+
+# ---------------------------------------------------------------------------
+# Namespace endpoints — backed by DBAL
+# ---------------------------------------------------------------------------
+
+@app.route('/api/namespaces', methods=['GET'])
+@auth_required
+def get_namespaces():
+    items = _dbal_all_pages(f'{_dbal_path("Namespace")}?filter.userId={g.user_id}&sort.isDefault=desc&sort.name=asc')
+    for ns in items:
+        ns['isDefault'] = bool(ns.get('isDefault', False))
+    return jsonify(items)
+
+
+@app.route('/api/namespaces', methods=['POST'])
+@auth_required
+def create_namespace():
+    data = request.json
+    if not data or not data.get('name') or not str(data.get('name', '')).strip():
+        return jsonify({'error': 'name is required'}), 400
+    body = {
+        'id':        data['id'],
+        'name':      data['name'],
+        'isDefault': bool(data.get('isDefault', False)),
+        'createdAt': _ts(data.get('createdAt')),
+        'userId':    g.user_id,
+        'tenantId':  DBAL_TENANT_ID,
+    }
+    r = dbal_request('POST', _dbal_path('Namespace'), body)
+    if not r or not r.ok:
+        return jsonify({'error': 'Failed to create namespace'}), 500
+    result = r.json().get('data', data)
+    result['isDefault'] = bool(result.get('isDefault', False))
+    return jsonify(result), 201
+
+
+@app.route('/api/namespaces/<namespace_id>', methods=['DELETE'])
+@auth_required
+def delete_namespace(namespace_id):
+    # Fetch the namespace and verify ownership
+    check = dbal_request('GET', f'{_dbal_path("Namespace")}/{namespace_id}')
+    if not check or not check.ok:
+        return jsonify({'error': 'Namespace not found'}), 404
+    ns = check.json().get('data', {})
+    if ns.get('userId') != g.user_id:
+        return jsonify({'error': 'Namespace not found'}), 404
+    if ns.get('isDefault'):
+        return jsonify({'error': 'Cannot delete default namespace'}), 400
+
+    # Find default namespace to re-home orphaned snippets (filter in Python — isDefault is boolean)
+    all_ns = _dbal_all_pages(f'{_dbal_path("Namespace")}?filter.userId={g.user_id}')
+    default_ns_id = next((n['id'] for n in all_ns if n.get('isDefault')), None)
+
+    # Move orphan snippets to default namespace
+    snippets = _dbal_all_pages(f'{_dbal_path("Snippet")}?filter.namespaceId={namespace_id}')
+    for sn in snippets:
+        if sn.get('userId') != g.user_id:
+            continue
+        full = dict(sn)
+        full['namespaceId'] = default_ns_id
+        put = dbal_request('PUT', f'{_dbal_path("Snippet")}/{sn["id"]}', full)
+        if not put or not put.ok:
+            return jsonify({'error': 'Failed to move snippets before deletion'}), 500
+
+    r = dbal_request('DELETE', f'{_dbal_path("Namespace")}/{namespace_id}')
+    if not r or not r.ok:
+        return jsonify({'error': 'Failed to delete namespace'}), 500
+    return jsonify({'success': True})
+
+
+@app.route('/api/namespaces/<namespace_id>', methods=['PUT'])
+@auth_required
+def update_namespace(namespace_id):
+    data = request.json or {}
+    check = dbal_request('GET', f'{_dbal_path("Namespace")}/{namespace_id}')
+    if not check or not check.ok:
+        return jsonify({'error': 'Namespace not found'}), 404
+    ns = check.json().get('data', {})
+    if ns.get('userId') != g.user_id:
+        return jsonify({'error': 'Namespace not found'}), 404
+    body = {
+        'name':      data.get('name', ns['name']),
+        'isDefault': bool(ns.get('isDefault', False)),
+        'userId':    g.user_id,
+        'tenantId':  DBAL_TENANT_ID,
+    }
+    r = dbal_request('PUT', f'{_dbal_path("Namespace")}/{namespace_id}', body)
+    if not r or not r.ok:
+        return jsonify({'error': 'Failed to update namespace'}), 500
+    result = r.json().get('data', {})
+    result['isDefault'] = bool(result.get('isDefault', False))
+    return jsonify(result)
+
+
+@app.route('/api/wipe', methods=['POST'])
+@auth_required
+def wipe_database():
+    # Delete all snippets for this user (all pages)
+    for snippet in _dbal_all_pages(f'{_dbal_path("Snippet")}?filter.userId={g.user_id}'):
+        dbal_request('DELETE', f'{_dbal_path("Snippet")}/{snippet["id"]}')
+    # Delete non-default namespaces (all pages)
+    all_namespaces = _dbal_all_pages(f'{_dbal_path("Namespace")}?filter.userId={g.user_id}')
+    for ns in all_namespaces:
+        if not ns.get('isDefault'):
+            dbal_request('DELETE', f'{_dbal_path("Namespace")}/{ns["id"]}')
+    # Also delete the default namespace so ensureDefaultNamespace recreates exactly one
+    for ns in all_namespaces:
+        if ns.get('isDefault') and ns.get('userId') == g.user_id:
+            dbal_request('DELETE', f'{_dbal_path("Namespace")}/{ns["id"]}')
+    return jsonify({'success': True, 'message': 'User data wiped'})
 
 @app.route('/api/run', methods=['POST'])
 @auth_required

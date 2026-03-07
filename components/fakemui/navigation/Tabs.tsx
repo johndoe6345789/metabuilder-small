@@ -98,7 +98,7 @@ Tab.displayName = 'Tab'
 export interface TabPanelProps extends React.HTMLAttributes<HTMLDivElement> {
   children?: React.ReactNode
   value?: any
-  index?: number
+  index?: number | string
   hidden?: boolean
 }
 

@@ -8,15 +8,18 @@ jest.mock('@/components/error/AIErrorHelper', () => ({
   AIErrorHelper: () => <div data-testid="ai-error-helper">AI Error Helper</div>,
 }));
 
-// Mock window.location.reload
-delete (window as any).location;
-window.location = { reload: jest.fn() } as any;
-
 describe('ErrorFallback', () => {
   const testError = new Error('Test error message');
+  let reloadMock: jest.Mock;
 
   beforeEach(() => {
     jest.clearAllMocks();
+    // Set up window.location.reload mock fresh each test
+    reloadMock = jest.fn();
+    Object.defineProperty(window, 'location', {
+      configurable: true,
+      value: { ...window.location, reload: reloadMock },
+    });
   });
 
   describe('rendering', () => {
@@ -60,13 +63,15 @@ describe('ErrorFallback', () => {
     it('renders container with proper background', () => {
       render(<ErrorFallback error={testError} />);
       const fallbackDiv = screen.getByTestId('error-fallback');
-      expect(fallbackDiv).toHaveClass('bg-background');
+      // Component uses SCSS module — class name is the module key 'root'
+      expect(fallbackDiv).toHaveClass('root');
     });
 
     it('renders padding on mobile', () => {
       render(<ErrorFallback error={testError} />);
       const fallbackDiv = screen.getByTestId('error-fallback');
-      expect(fallbackDiv).toHaveClass('p-4');
+      // Component uses SCSS module — padding is applied via 'root' class
+      expect(fallbackDiv).toHaveClass('root');
     });
   });
 
@@ -97,7 +102,8 @@ describe('ErrorFallback', () => {
     it('error message has background styling', () => {
       render(<ErrorFallback error={testError} />);
       const codeElement = screen.getByTestId('error-message');
-      expect(codeElement).toHaveClass('bg-destructive/20');
+      // Component uses SCSS module — class name is 'errorCode'
+      expect(codeElement).toHaveClass('errorCode');
     });
 
     it('error message text breaks properly on long text', () => {
@@ -105,7 +111,8 @@ describe('ErrorFallback', () => {
       render(<ErrorFallback error={longError} />);
 
       const codeElement = screen.getByTestId('error-message');
-      expect(codeElement).toHaveClass('break-all');
+      // Component uses SCSS module — word-break is applied via 'errorCode' class
+      expect(codeElement).toHaveClass('errorCode');
     });
 
     it('shows error message and stack trace details', () => {
@@ -131,7 +138,7 @@ describe('ErrorFallback', () => {
       const reloadButton = screen.getByRole('button', { name: /try reloading/i });
       await user.click(reloadButton);
 
-      expect(window.location.reload).toHaveBeenCalled();
+      expect(reloadMock).toHaveBeenCalled();
     });
 
     it('reload button has refresh icon', () => {

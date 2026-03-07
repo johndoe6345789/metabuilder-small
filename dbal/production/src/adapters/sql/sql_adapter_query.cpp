@@ -19,17 +19,24 @@ Result<Json> SqlAdapter::findFirst(const std::string& entityName, const Json& fi
     }
     ConnectionGuard guard(pool_, conn);
 
-    const std::string tableName = toLowerSnakeCase(schema.name);
+    const std::string tableName = quoteId(schema.name);
     const std::string fieldList = buildFieldList(schema);
     std::string sql = "SELECT " + fieldList + " FROM " + tableName;
 
     std::vector<SqlParam> params;
     int paramIndex = 1;
 
-    // Build WHERE clause
+    // Build WHERE clause — validate field names against schema to prevent SQL injection
     std::vector<std::string> whereFragments;
     for (const auto& [key, value] : filter.items()) {
-        whereFragments.push_back(key + " = " + placeholder(paramIndex++));
+        bool field_found = false;
+        for (const auto& field : schema.fields) {
+            if (field.name == key) { field_found = true; break; }
+        }
+        if (!field_found) {
+            return Error::validationError("Unknown field in filter: " + key);
+        }
+        whereFragments.push_back(quoteId(key) + " = " + placeholder(paramIndex++));
         params.push_back({key, jsonValueToString(value)});
     }
 

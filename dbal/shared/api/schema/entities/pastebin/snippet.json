@@ -156,6 +156,13 @@
       "on_delete": "set_null"
     }
   },
+  "query": {
+    "allowed_operators": ["eq", "ne", "lt", "lte", "gt", "gte", "like", "ilike", "in", "notin", "isnull", "isnotnull"],
+    "allowed_group_by": ["language", "category", "userId", "namespaceId", "isTemplate"],
+    "allowed_includes": ["namespace"],
+    "max_results": 500,
+    "timeout_ms": 5000
+  },
   "acl": {
     "create": {
       "user": true,

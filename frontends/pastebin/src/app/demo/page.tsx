@@ -10,7 +10,7 @@ import { PageLayout } from '../PageLayout';
 
 export const dynamicParams = true
 
-// Dynamically import SplitScreenEditor to avoid SSR issues with Monaco editor
+// Dynamically import SplitScreenEditor to avoid SSR issues with Pyodide
 const SplitScreenEditor = dynamic(
   () => import('@/components/features/snippet-editor/SplitScreenEditor').then(mod => ({ default: mod.SplitScreenEditor })),
   { ssr: false }

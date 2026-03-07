@@ -2,7 +2,7 @@ import React from 'react'
 
 export interface IconProps extends React.SVGAttributes<SVGElement> {
   size?: number | string
-  weight?: 'thin' | 'light' | 'regular' | 'bold'
+  weight?: 'thin' | 'light' | 'regular' | 'bold' | 'duotone' | 'fill'
 }
 
 export const Icon = ({

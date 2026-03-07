@@ -54,7 +54,7 @@ export function CodeEditorSection({
   onFileRename,
   onFileUpload,
 }: CodeEditorSectionProps) {
-  const isPreviewSupported = appConfig.previewEnabledLanguages.includes(language)
+  const isPreviewSupported = appConfig.previewEnabledLanguages.includes(language) && language !== 'Python'
   const activeFileContent = files.find((f) => f.name === activeFile)?.content ?? code
 
   const handleEditorChange = (value: string) => {
@@ -78,13 +78,13 @@ export function CodeEditorSection({
               data-testid="enable-preview-checkbox"
               aria-label="Enable live preview"
             />
-            Live preview
+            Enable live preview
           </label>
         )}
       </div>
 
       <div
-        className={`${styles.editorWrapper}${errors.code ? ` ${styles.editorWrapperError}` : ''}`}
+        className={`${styles.editorWrapper}${errors.code ? ` ${styles.editorWrapperError} border-destructive ring-2` : ''}`}
         data-testid="code-editor-container"
         role="region"
         aria-label="Code editor"
@@ -104,20 +104,25 @@ export function CodeEditorSection({
 
           <div className={styles.monacoWrapper}>
             {hasPreview && isPreviewSupported ? (
-              <SplitScreenEditor
-                value={activeFileContent}
-                onChange={handleEditorChange}
-                language={language}
-                height={height ?? '340px'}
-                functionName={functionName}
-                inputParameters={inputParameters}
-              />
+              <div
+                className={`${errors.code ? 'ring-2' : ''}`}
+                data-testid="split-screen-editor-container"
+              >
+                <SplitScreenEditor
+                  value={activeFileContent}
+                  onChange={handleEditorChange}
+                  language={language}
+                  height={height ?? '500px'}
+                  functionName={functionName}
+                  inputParameters={inputParameters}
+                />
+              </div>
             ) : (
               <MonacoEditor
                 value={activeFileContent}
                 onChange={handleEditorChange}
                 language={language}
-                height={height ?? '280px'}
+                height={height ?? '400px'}
               />
             )}
           </div>

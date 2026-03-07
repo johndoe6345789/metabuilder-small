@@ -34,6 +34,8 @@ RUN cd build-config \
 COPY production/CMakeLists.txt ./
 COPY production/src/ ./src/
 COPY production/include/ ./include/
+# Tests not built in production (BUILD_TESTING=OFF by default); copy for optional test builds
+COPY production/tests/ ./tests/
 
 # Copy schemas and codegen script, then generate types into the include dir
 COPY shared/api/schema/ ./shared/api/schema/
@@ -71,6 +73,9 @@ COPY --from=builder /dbal/shared/api/schema/auth /app/schemas/auth
 # Embed workflow event config + workflow definitions
 COPY --from=builder /dbal/shared/api/schema/events    /app/schemas/events
 COPY --from=builder /dbal/shared/api/schema/workflows /app/schemas/workflows
+
+# Embed JSON query procedures (used by QueryRouteHandler at runtime)
+COPY --from=builder /dbal/shared/api/schema/queries   /app/schemas/queries
 
 # Embed seed data
 COPY --from=builder /dbal/shared/seeds/database /app/seeds/database

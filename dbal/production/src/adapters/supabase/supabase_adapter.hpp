@@ -7,6 +7,7 @@
 #include "dbal/core/compensating_transaction.hpp"
 #include "dbal/core/entity_loader.hpp"
 #include "../sql/postgres_adapter.hpp"
+#include "isupabase_http_client.hpp"
 #include "supabase_http_client.hpp"
 #include "supabase_auth_manager.hpp"
 #include "supabase_query_builder.hpp"
@@ -65,11 +66,23 @@ struct SupabaseConfig {
 class SupabaseAdapter : public Adapter {
 public:
     /**
-     * @brief Construct Supabase adapter
+     * @brief Construct Supabase adapter (production use).
      * @param config Configuration with URL, API key, and mode selection
      * @throws std::runtime_error if configuration is invalid
      */
     explicit SupabaseAdapter(const SupabaseConfig& config);
+
+    /**
+     * @brief Testing constructor — injects a mock HTTP client.
+     *
+     * Skips network/DB initialisation so unit tests can run without
+     * a real Supabase project.  Only the REST-API code-path is exercised.
+     *
+     * @param mock_client  Ownership of a mock ISupabaseHttpClient
+     * @param schemas      Optional entity schemas (empty = schema-free tests)
+     */
+    SupabaseAdapter(std::unique_ptr<ISupabaseHttpClient> mock_client,
+                    std::map<std::string, core::EntitySchema> schemas = {});
 
     ~SupabaseAdapter() override = default;
 
@@ -112,7 +125,7 @@ private:
     std::map<std::string, core::EntitySchema> schemas_;
 
     // Helper classes (REST API mode only)
-    std::unique_ptr<SupabaseHttpClient> http_client_;
+    std::unique_ptr<ISupabaseHttpClient> http_client_;
     std::unique_ptr<SupabaseAuthManager> auth_manager_;
     std::unique_ptr<SupabaseRlsManager> rls_manager_;
 

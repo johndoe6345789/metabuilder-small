@@ -66,7 +66,7 @@ export function SplitScreenEditor({
             onClick={() => setViewMode('code')}
             className={styles.viewModeBtn}
             data-testid="view-mode-code-btn"
-            aria-label="Show code only"
+            aria-label="Code"
             aria-pressed={viewMode === 'code'}
           >
             <MaterialIcon name="code" className={styles.iconSm} aria-hidden="true" />
@@ -78,7 +78,7 @@ export function SplitScreenEditor({
             onClick={() => setViewMode('split')}
             className={styles.viewModeBtn}
             data-testid="view-mode-split-btn"
-            aria-label="Show code and preview side by side"
+            aria-label="Split"
             aria-pressed={viewMode === 'split'}
           >
             <MaterialIcon name="horizontal_split" className={styles.iconSm} aria-hidden="true" />
@@ -90,7 +90,7 @@ export function SplitScreenEditor({
             onClick={() => setViewMode('preview')}
             className={styles.viewModeBtn}
             data-testid="view-mode-preview-btn"
-            aria-label={`Show ${isPython ? 'output' : 'preview'} only`}
+            aria-label={isPython ? 'Output' : 'Preview'}
             aria-pressed={viewMode === 'preview'}
           >
             <MaterialIcon name="visibility" className={styles.iconSm} aria-hidden="true" />

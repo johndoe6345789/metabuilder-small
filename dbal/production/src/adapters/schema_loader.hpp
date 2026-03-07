@@ -35,12 +35,31 @@ struct IndexDefinition {
     bool unique = false;
 };
 
+struct RelationDefinition {
+    std::string name;
+    std::string type;           // "has-many" | "belongs-to"
+    std::string entity;         // target entity name
+    std::string foreign_key;
+    bool cascade_delete = false;
+};
+
+// Separate from adapters::QueryConfig to avoid ODR violation — fields copied in sql_adapter_schema.cpp
+struct SchemaQueryConfig {
+    std::vector<std::string> allowed_operators;
+    std::vector<std::string> allowed_group_by;
+    std::vector<std::string> allowed_includes;
+    int max_results = 1000;
+    int timeout_ms = 0;
+};
+
 struct EntityDefinition {
     std::string name;
     std::string version;
     std::string description;
     std::vector<FieldDefinition> fields;
     std::vector<IndexDefinition> indexes;
+    std::vector<RelationDefinition> relations;
+    SchemaQueryConfig query_config;
 };
 
 /**
@@ -148,6 +167,33 @@ public:
                 }
             }
 
+            // Parse "relations" object: { "snippets": { "type": "has-many", "entity": "Snippet", ... } }
+            if (json.contains("relations") && json["relations"].is_object()) {
+                for (auto& [rel_name, rel_def] : json["relations"].items()) {
+                    RelationDefinition rel;
+                    rel.name         = rel_name;
+                    rel.type         = rel_def.value("type", std::string("has-many"));
+                    rel.entity       = rel_def.value("entity", std::string(""));
+                    rel.foreign_key  = rel_def.value("foreign_key", std::string(""));
+                    rel.cascade_delete = rel_def.value("cascade_delete", false);
+                    if (!rel.entity.empty()) entity.relations.push_back(rel);
+                }
+            }
+
+            // Parse "query" object: allowed_operators, allowed_group_by, allowed_includes, max_results, timeout_ms
+            if (json.contains("query") && json["query"].is_object()) {
+                const auto& q = json["query"];
+                auto parse_str_array = [&](const char* key, std::vector<std::string>& out) {
+                    if (q.contains(key) && q[key].is_array())
+                        for (const auto& v : q[key]) out.push_back(v.get<std::string>());
+                };
+                parse_str_array("allowed_operators", entity.query_config.allowed_operators);
+                parse_str_array("allowed_group_by",  entity.query_config.allowed_group_by);
+                parse_str_array("allowed_includes",  entity.query_config.allowed_includes);
+                entity.query_config.max_results = q.value("max_results", 1000);
+                entity.query_config.timeout_ms  = q.value("timeout_ms",  0);
+            }
+
             return entity;
 
         } catch (const nlohmann::json::parse_error& e) {
@@ -199,6 +245,17 @@ public:
                             field.generated = fd.value("generated", false);
                             field.optional  = fd.value("optional",  false);
                             field.nullable  = fd.value("nullable",  false);
+                            if (fd.contains("default")) {
+                                const auto& dv = fd["default"];
+                                if (dv.is_string())
+                                    field.default_value = dv.get<std::string>();
+                                else if (!dv.is_null() && !dv.is_object() && !dv.is_array())
+                                    field.default_value = dv.dump();
+                            }
+                            if (fd.contains("values") && fd["values"].is_array()) {
+                                for (const auto& val : fd["values"])
+                                    field.enum_values.push_back(val.get<std::string>());
+                            }
                             entity.fields.push_back(field);
                         }
                     }
@@ -210,6 +267,29 @@ public:
                             index.unique = idx.value("unique", false);
                             entity.indexes.push_back(index);
                         }
+                    }
+                    if (json.contains("relations") && json["relations"].is_object()) {
+                        for (auto& [rn, rd] : json["relations"].items()) {
+                            RelationDefinition rel;
+                            rel.name         = rn;
+                            rel.type         = rd.value("type",        std::string("has-many"));
+                            rel.entity       = rd.value("entity",      std::string(""));
+                            rel.foreign_key  = rd.value("foreign_key", std::string(""));
+                            rel.cascade_delete = rd.value("cascade_delete", false);
+                            if (!rel.entity.empty()) entity.relations.push_back(rel);
+                        }
+                    }
+                    if (json.contains("query") && json["query"].is_object()) {
+                        const auto& q = json["query"];
+                        auto psa = [&](const char* key, std::vector<std::string>& out) {
+                            if (q.contains(key) && q[key].is_array())
+                                for (const auto& v : q[key]) out.push_back(v.get<std::string>());
+                        };
+                        psa("allowed_operators", entity.query_config.allowed_operators);
+                        psa("allowed_group_by",  entity.query_config.allowed_group_by);
+                        psa("allowed_includes",  entity.query_config.allowed_includes);
+                        entity.query_config.max_results = q.value("max_results", 1000);
+                        entity.query_config.timeout_ms  = q.value("timeout_ms",  0);
                     }
                     entities.push_back(entity);
                 }

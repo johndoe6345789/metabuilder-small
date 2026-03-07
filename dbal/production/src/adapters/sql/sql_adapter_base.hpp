@@ -119,11 +119,11 @@ private:
     std::string buildUpdateSql(const EntitySchema& schema, const std::string& id, const Json& data) const;
     std::string buildDeleteSql(const EntitySchema& schema, const std::string& id) const;
     std::string buildFieldList(const EntitySchema& schema) const;
+    std::string coalesceDefault(const std::string& type, const std::string& val) const;
 
     // Data conversion helpers (private - only used by base class SQL builders)
     std::vector<SqlParam> jsonToParams(const EntitySchema& schema, const Json& data, const std::string& prependId = "") const;
     static std::string columnValue(const SqlRow& row, const std::string& key);
-    static std::string toLowerSnakeCase(const std::string& pascalCase);
 
     Dialect dialect_;
     std::unordered_map<std::string, EntitySchema> schemas_;

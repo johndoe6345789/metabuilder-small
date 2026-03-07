@@ -41,15 +41,15 @@
   },
   "indexes": [
     {
-      "fields": [
-        "userId"
-      ]
+      "fields": ["userId"]
     },
     {
-      "fields": [
-        "tenantId",
-        "userId"
-      ]
+      "fields": ["tenantId", "userId"]
+    },
+    {
+      "fields": ["userId", "name"],
+      "unique": true,
+      "description": "A user cannot have two namespaces with the same name"
     }
   ],
   "relations": {
@@ -60,6 +60,13 @@
       "cascade_delete": true,
       "description": "Snippets belonging to this namespace"
     }
+  },
+  "query": {
+    "allowed_operators": ["eq", "like", "in", "isnull", "isnotnull"],
+    "allowed_group_by": ["userId", "isDefault"],
+    "allowed_includes": [],
+    "max_results": 200,
+    "timeout_ms": 3000
   },
   "acl": {
     "create": {

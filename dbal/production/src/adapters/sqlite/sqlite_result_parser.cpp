@@ -30,6 +30,18 @@ Json SQLiteResultParser::rowToJson(const core::EntitySchema& schema, sqlite3_stm
         }
 
         if (!field) {
+            // Aggregate alias or computed column — include with raw value
+            const int colType = sqlite3_column_type(stmt, i);
+            if (colType == SQLITE_NULL) {
+                result[columnName] = nullptr;
+            } else if (colType == SQLITE_INTEGER) {
+                result[columnName] = sqlite3_column_int64(stmt, i);
+            } else if (colType == SQLITE_FLOAT) {
+                result[columnName] = sqlite3_column_double(stmt, i);
+            } else {
+                const unsigned char* text = sqlite3_column_text(stmt, i);
+                result[columnName] = text ? std::string(reinterpret_cast<const char*>(text)) : "";
+            }
             continue;
         }
 
@@ -89,7 +101,7 @@ Result<Json> SQLiteResultParser::readInsertedRecord(const core::EntitySchema& sc
     std::lock_guard<std::mutex> lock(conn_manager_.getMutex());
 
     const std::string fieldList = SQLiteQueryBuilder::buildFieldList(schema);
-    const std::string tableName = SQLiteQueryBuilder::toLowerSnakeCase(schema.name);
+    const std::string tableName = SQLiteQueryBuilder::quoteId(schema.name);
     const std::string selectSql = "SELECT " + fieldList +
                                  " FROM " + tableName +
                                  " WHERE rowid = ?";

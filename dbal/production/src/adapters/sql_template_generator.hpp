@@ -130,6 +130,33 @@ private:
                 }
             }
 
+            // CHECK constraint: build from enum values and length bounds
+            std::string q = (dialect == SqlDialect::MySQL) ? "`" : "\"";
+            std::vector<std::string> checks;
+            if (!field.enum_values.empty()) {
+                std::string in_list;
+                for (size_t i = 0; i < field.enum_values.size(); ++i) {
+                    if (i > 0) in_list += ", ";
+                    in_list += "'" + field.enum_values[i] + "'";
+                }
+                checks.push_back(q + field.name + q + " IN (" + in_list + ")");
+            }
+            if (field.min_length) {
+                checks.push_back("LENGTH(" + q + field.name + q + ") >= " + std::to_string(*field.min_length));
+            }
+            if (field.max_length) {
+                checks.push_back("LENGTH(" + q + field.name + q + ") <= " + std::to_string(*field.max_length));
+            }
+            if (!checks.empty()) {
+                std::string expr = "CHECK (";
+                for (size_t i = 0; i < checks.size(); ++i) {
+                    if (i > 0) expr += " AND ";
+                    expr += checks[i];
+                }
+                expr += ")";
+                field_json["check"] = expr;
+            }
+
             fields_array.push_back(field_json);
         }
         data["fields"] = fields_array;
@@ -274,17 +301,17 @@ private:
     std::string getInlineCreateTableTemplate(SqlDialect dialect) const {
         if (dialect == SqlDialect::SQLite) {
             return R"(CREATE TABLE IF NOT EXISTS "{{ table_name }}" (
-{% for field in fields %}    "{{ field.name }}" {{ field.type }}{% if field.primary %} PRIMARY KEY{% endif %}{% if field.required and not field.primary %} NOT NULL{% endif %}{% if field.unique and not field.primary %} UNIQUE{% endif %}{% if existsIn(field, "default") %} DEFAULT {{ field.default }}{% endif %}{% if not loop.is_last %},
+{% for field in fields %}    "{{ field.name }}" {{ field.type }}{% if field.primary %} PRIMARY KEY{% endif %}{% if field.required and not field.primary %} NOT NULL{% endif %}{% if field.unique and not field.primary %} UNIQUE{% endif %}{% if existsIn(field, "default") %} DEFAULT {{ field.default }}{% endif %}{% if existsIn(field, "check") %} {{ field.check }}{% endif %}{% if not loop.is_last %},
 {% endif %}{% endfor %}
 ))";
         } else if (dialect == SqlDialect::PostgreSQL) {
             return R"(CREATE TABLE IF NOT EXISTS "{{ table_name }}" (
-{% for field in fields %}    "{{ field.name }}" {{ field.type }}{% if field.primary %} PRIMARY KEY{% endif %}{% if field.required and not field.primary %} NOT NULL{% endif %}{% if field.unique and not field.primary %} UNIQUE{% endif %}{% if existsIn(field, "default") %} DEFAULT {{ field.default }}{% endif %}{% if not loop.is_last %},
+{% for field in fields %}    "{{ field.name }}" {{ field.type }}{% if field.primary %} PRIMARY KEY{% endif %}{% if field.required and not field.primary %} NOT NULL{% endif %}{% if field.unique and not field.primary %} UNIQUE{% endif %}{% if existsIn(field, "default") %} DEFAULT {{ field.default }}{% endif %}{% if existsIn(field, "check") %} {{ field.check }}{% endif %}{% if not loop.is_last %},
 {% endif %}{% endfor %}
 ))";
         } else {
             return R"(CREATE TABLE IF NOT EXISTS `{{ table_name }}` (
-{% for field in fields %}    `{{ field.name }}` {{ field.type }}{% if field.primary %} PRIMARY KEY{% endif %}{% if field.required and not field.primary %} NOT NULL{% endif %}{% if field.unique and not field.primary %} UNIQUE{% endif %}{% if existsIn(field, "default") %} DEFAULT {{ field.default }}{% endif %}{% if not loop.is_last %},
+{% for field in fields %}    `{{ field.name }}` {{ field.type }}{% if field.primary %} PRIMARY KEY{% endif %}{% if field.required and not field.primary %} NOT NULL{% endif %}{% if field.unique and not field.primary %} UNIQUE{% endif %}{% if existsIn(field, "default") %} DEFAULT {{ field.default }}{% endif %}{% if existsIn(field, "check") %} {{ field.check }}{% endif %}{% if not loop.is_last %},
 {% endif %}{% endfor %}
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci)";
         }

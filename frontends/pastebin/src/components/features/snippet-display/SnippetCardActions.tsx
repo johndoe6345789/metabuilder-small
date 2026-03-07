@@ -29,7 +29,7 @@ export function SnippetCardActions({
   const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null)
 
   return (
-    <div className={styles.actionsRow} data-testid="snippet-card-actions" role="group" aria-label="Snippet actions">
+    <div className={`${styles.actionsRow} flex items-center justify-between gap-2`} data-testid="snippet-card-actions" role="group" aria-label="Snippet actions">
       <div className={styles.actionsLeft}>
         <Button
           variant="ghost"
@@ -59,7 +59,7 @@ export function SnippetCardActions({
           variant="ghost"
           size="sm"
           onClick={onEdit}
-          className={styles.btnSquare}
+          className={`${styles.btnSquare} h-4 w-4`}
           data-testid="snippet-card-edit-btn"
           aria-label={t.snippetCard.ariaLabels.edit}
         >
@@ -85,7 +85,11 @@ export function SnippetCardActions({
           data-testid="snippet-actions-menu-content"
           onClick={(e) => e.stopPropagation()}
         >
-          {availableNamespaces.length > 0 && (
+          <div
+            data-testid="snippet-card-move-submenu"
+            aria-label="Move snippet to another namespace"
+            {...((availableNamespaces.length === 0 || isMoving) ? { disabled: true } : {})}
+          >
             <MenuItem
               disabled
               className={styles.menuLabel}
@@ -94,34 +98,36 @@ export function SnippetCardActions({
               <MaterialIcon name="folder_open" size={16} style={{ marginRight: 8 }} aria-hidden="true" />
               {t.snippetCard.moveTo}
             </MenuItem>
-          )}
-          {availableNamespaces.length === 0 && (
-            <MenuItem
-              disabled
-              data-testid="snippet-card-move-submenu"
-              aria-label="Move snippet to another namespace"
-            >
-              <MaterialIcon name="folder_open" size={16} style={{ marginRight: 8 }} aria-hidden="true" />
-              {t.snippetCard.noOtherNamespaces}
-            </MenuItem>
-          )}
-          {availableNamespaces.map((namespace) => (
-            <MenuItem
-              key={namespace.id}
-              onClick={() => { onMoveToNamespace(namespace.id); setMenuAnchor(null) }}
-              data-testid={`move-to-namespace-${namespace.id}`}
-              disabled={isMoving}
-            >
-              {namespace.name}
-              {namespace.isDefault && (
-                <span className={styles.defaultBadge}>{t.common.default}</span>
+            <div data-testid="move-to-namespaces-list">
+              {availableNamespaces.length === 0 ? (
+                <MenuItem
+                  disabled
+                  data-testid="no-namespaces-item"
+                >
+                  {t.snippetCard.noOtherNamespaces}
+                </MenuItem>
+              ) : (
+                availableNamespaces.map((namespace) => (
+                  <MenuItem
+                    key={namespace.id}
+                    onClick={() => { onMoveToNamespace(namespace.id); setMenuAnchor(null) }}
+                    data-testid={`move-to-namespace-${namespace.id}`}
+                    disabled={isMoving}
+                    aria-label={`Move to ${namespace.name}${namespace.isDefault ? ' (Default)' : ''}`}
+                  >
+                    {namespace.name}
+                    {namespace.isDefault && (
+                      <span className={styles.defaultBadge}>{t.common.default}</span>
+                    )}
+                  </MenuItem>
+                ))
               )}
-            </MenuItem>
-          ))}
-          {availableNamespaces.length > 0 && <Divider />}
+            </div>
+          </div>
+          <Divider />
           <MenuItem
             onClick={(e) => { e.stopPropagation(); onDelete(e); setMenuAnchor(null) }}
-            className={styles.deleteItem}
+            className={`${styles.deleteItem} text-destructive`}
             data-testid="snippet-card-delete-btn"
             aria-label={t.snippetCard.ariaLabels.delete}
           >

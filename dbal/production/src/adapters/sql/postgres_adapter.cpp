@@ -3,6 +3,7 @@
 #include <libpq-fe.h>
 #include <spdlog/spdlog.h>
 #include <cstdlib>
+#include <mutex>
 #include <stdexcept>
 
 namespace dbal {
@@ -29,6 +30,7 @@ void PostgresAdapter::ensureConnected() {
 
 PGresult* PostgresAdapter::execParams(const std::string& sql,
                                       const std::vector<SqlParam>& params) {
+    std::lock_guard<std::mutex> lock(pg_mutex_);
     ensureConnected();
 
     // Build the C-style arrays that PQexecParams expects.

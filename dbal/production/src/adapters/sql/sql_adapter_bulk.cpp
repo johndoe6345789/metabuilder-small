@@ -65,17 +65,17 @@ Result<int> SqlAdapter::updateMany(const std::string& entityName, const Json& fi
     ConnectionGuard guard(pool_, conn);
 
     // Build UPDATE with WHERE clause
-    const std::string tableName = toLowerSnakeCase(schema.name);
+    const std::string tableName = quoteId(schema.name);
     std::string sql = "UPDATE " + tableName + " SET ";
 
     std::vector<SqlParam> params;
     int paramIndex = 1;
 
-    // Build SET clause
+    // Build SET clause — validate fields against schema, use quoteId for dialect safety
     std::vector<std::string> setFragments;
     for (const auto& field : schema.fields) {
         if (data.contains(field.name)) {
-            setFragments.push_back(field.name + " = " + placeholder(paramIndex++));
+            setFragments.push_back(quoteId(field.name) + " = " + placeholder(paramIndex++));
             params.push_back({field.name, jsonValueToString(data[field.name])});
         }
     }
@@ -86,10 +86,17 @@ Result<int> SqlAdapter::updateMany(const std::string& entityName, const Json& fi
 
     sql += joinFragments(setFragments, ", ");
 
-    // Build WHERE clause
+    // Build WHERE clause — validate keys against schema to prevent injection
     std::vector<std::string> whereFragments;
     for (const auto& [key, value] : filter.items()) {
-        whereFragments.push_back(key + " = " + placeholder(paramIndex++));
+        bool field_found = false;
+        for (const auto& f : schema.fields) {
+            if (f.name == key) { field_found = true; break; }
+        }
+        if (!field_found) {
+            return Error::validationError("Unknown filter field: " + key);
+        }
+        whereFragments.push_back(quoteId(key) + " = " + placeholder(paramIndex++));
         params.push_back({key, jsonValueToString(value)});
     }
 
@@ -118,7 +125,7 @@ Result<int> SqlAdapter::deleteMany(const std::string& entityName, const Json& fi
     }
     ConnectionGuard guard(pool_, conn);
 
-    const std::string tableName = toLowerSnakeCase(schema.name);
+    const std::string tableName = quoteId(schema.name);
     std::string sql = "DELETE FROM " + tableName;
 
     std::vector<SqlParam> params;

@@ -3,6 +3,11 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { ComponentShowcase } from './ComponentShowcase'
 import '@testing-library/jest-dom'
 
+jest.mock('@/components/features/snippet-editor/SnippetDialog', () => ({
+  SnippetDialog: ({ open }: { open: boolean }) =>
+    open ? <div role="dialog" data-testid="snippet-dialog">Dialog</div> : null,
+}))
+
 describe('ComponentShowcase', () => {
   const mockOnSaveSnippet = jest.fn()
   const defaultProps = {

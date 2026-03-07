@@ -2,7 +2,7 @@ import { Card, Button, Chip, Table, TableBody, TableCell, TableContainer, TableH
 
 export function DataTablesShowcase() {
   return (
-    <section style={{ display: 'flex', flexDirection: 'column', gap: '24px' }} data-testid="data-tables-showcase" role="region" aria-label="Data tables showcase">
+    <section className="space-y-6" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }} data-testid="data-tables-showcase" role="region" aria-label="Data tables showcase">
       <div>
         <h2 style={{ fontSize: '1.875rem', lineHeight: '2.25rem', fontWeight: 700, marginBottom: '8px' }}>Data Tables</h2>
         <p style={{ color: 'var(--mat-sys-on-surface-variant)' }}>
@@ -11,7 +11,7 @@ export function DataTablesShowcase() {
       </div>
 
       <Card>
-        <div style={{ padding: '16px', borderBottom: '1px solid var(--mat-sys-outline-variant)' }}>
+        <div className="border-b" style={{ padding: '16px', borderBottom: '1px solid var(--mat-sys-outline-variant)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <h3 style={{ fontWeight: 600, fontSize: '1.125rem', lineHeight: '1.75rem' }}>Recent Transactions</h3>
             <Button variant="outlined" size="sm">

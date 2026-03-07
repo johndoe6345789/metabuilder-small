@@ -4,9 +4,13 @@ namespace dbal {
 namespace adapters {
 namespace sqlite {
 
+// Sentinel string used to represent SQL NULL in parameter vectors.
+// Using SOH+NULL+SOH — cannot appear in user data.
+static const std::string kSqlNullSentinel = "\x01NULL\x01";
+
 std::string SQLiteTypeConverter::jsonValueToString(const Json& value) {
     if (value.is_null()) {
-        return "";
+        return kSqlNullSentinel;
     } else if (value.is_boolean()) {
         return value.get<bool>() ? "1" : "0";
     } else if (value.is_number()) {
@@ -98,23 +102,65 @@ std::vector<std::string> SQLiteTypeConverter::buildFindParams(const Json& filter
     return values;
 }
 
+std::vector<std::string> SQLiteTypeConverter::buildCountParams(const ListOptions& options) {
+    std::vector<std::string> values;
+    for (const auto& [key, value] : options.filter) { values.push_back(value); }
+    for (const auto& cond : options.conditions) { appendConditionValues(cond, values); }
+    for (const auto& group : options.filter_groups) {
+        for (const auto& cond : group.conditions) { appendConditionValues(cond, values); }
+    }
+    return values;
+}
+
 std::vector<std::string> SQLiteTypeConverter::buildListParams(const ListOptions& options) {
     std::vector<std::string> values;
 
-    // Add tenantId filter if present
-    auto tenantFilter = options.filter.find("tenantId");
-    if (tenantFilter != options.filter.end()) {
-        values.push_back(tenantFilter->second);
+    // Legacy equality filters (std::map iterates in sorted key order, matching buildListQuery)
+    for (const auto& [key, value] : options.filter) {
+        values.push_back(value);
     }
 
-    // Add LIMIT and OFFSET
+    // Typed AND conditions
+    for (const auto& cond : options.conditions) {
+        appendConditionValues(cond, values);
+    }
+
+    // OR groups
+    for (const auto& group : options.filter_groups) {
+        for (const auto& cond : group.conditions) {
+            appendConditionValues(cond, values);
+        }
+    }
+
+    // LIMIT and OFFSET
     const int limit = options.limit > 0 ? options.limit : 50;
     const int offset = options.page > 1 ? (options.page - 1) * limit : 0;
-
     values.push_back(std::to_string(limit));
     values.push_back(std::to_string(offset));
 
     return values;
+}
+
+void SQLiteTypeConverter::appendConditionValues(const FilterCondition& cond,
+                                                std::vector<std::string>& out) {
+    switch (cond.op) {
+        case FilterOp::IsNull:
+        case FilterOp::IsNotNull:
+            break; // no bound parameters
+        case FilterOp::In:
+        case FilterOp::NotIn:
+            for (const auto& v : cond.values) out.push_back(v);
+            break;
+        case FilterOp::Between:
+            if (cond.values.size() >= 2) {
+                out.push_back(cond.values[0]);
+                out.push_back(cond.values[1]);
+            }
+            break;
+        default:
+            out.push_back(cond.value);
+            break;
+    }
 }
 
 } // namespace sqlite

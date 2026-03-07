@@ -55,6 +55,46 @@ Result<Json> SupabaseHttpClient::get(const std::string& resource_path) {
     return handleResponse(response.text, static_cast<int>(response.status_code));
 }
 
+Result<HttpListResponse> SupabaseHttpClient::getList(const std::string& resource_path) {
+    const auto url = buildUrl("/rest/v1/" + resource_path);
+    spdlog::debug("GET (count) {}", url);
+
+    auto response = cpr::Get(
+        cpr::Url{url},
+        cpr::Header{
+            {"Content-Type", "application/json"},
+            {"apikey", api_key_},
+            {"Authorization", "Bearer " + auth_token_},
+            {"Prefer", "count=exact"}
+        },
+        cpr::Timeout{timeout_}
+    );
+
+    auto itemsResult = handleResponse(response.text, static_cast<int>(response.status_code));
+    if (itemsResult.isError()) {
+        return Error(itemsResult.error().code(), itemsResult.error().what());
+    }
+
+    HttpListResponse listResp;
+    listResp.items = itemsResult.value();
+
+    // PostgREST returns "Content-Range: 0-49/200" or "*/200" when count=exact.
+    auto it = response.header.find("Content-Range");
+    if (it != response.header.end()) {
+        const auto& cr = it->second;
+        auto slashPos = cr.rfind('/');
+        if (slashPos != std::string::npos) {
+            try {
+                listResp.total = std::stoi(cr.substr(slashPos + 1));
+            } catch (...) {
+                // Malformed header — leave total == -1
+            }
+        }
+    }
+
+    return listResp;
+}
+
 Result<Json> SupabaseHttpClient::patch(const std::string& resource_path, const Json& body) {
     const auto url = buildUrl("/rest/v1/" + resource_path);
     spdlog::debug("PATCH {}", url);

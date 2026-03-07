@@ -12,7 +12,7 @@ interface NavigationBarsShowcaseProps {
 
 export function NavigationBarsShowcase({ onSaveSnippet }: NavigationBarsShowcaseProps) {
   return (
-    <section style={{ display: 'flex', flexDirection: 'column', gap: '24px' }} data-testid="navigation-bars-showcase" role="region" aria-label="Navigation bars showcase">
+    <section className="space-y-6" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }} data-testid="navigation-bars-showcase" role="region" aria-label="Navigation bars showcase">
       <div>
         <h2 style={{ fontSize: '1.875rem', lineHeight: '2.25rem', fontWeight: 700, marginBottom: '8px' }}>Navigation Bars</h2>
         <p style={{ color: 'var(--mat-sys-on-surface-variant)' }}>
@@ -54,7 +54,7 @@ export function NavigationBarsShowcase({ onSaveSnippet }: NavigationBarsShowcase
                 <Button variant="ghost">
                   <MaterialIcon name="settings" aria-hidden="true" />
                 </Button>
-                <Avatar style={{ width: '32px', height: '32px' }} src="https://i.pravatar.cc/150?img=3" alt="User">U</Avatar>
+                <Avatar className="rounded-full" style={{ width: '32px', height: '32px' }} src="https://i.pravatar.cc/150?img=3" alt="User">U</Avatar>
               </div>
             </div>
           </div>

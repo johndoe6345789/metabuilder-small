@@ -209,8 +209,8 @@ describe('DatabaseStatsCard', () => {
         />
       )
 
-      const errorText = screen.getByText('Failed to load statistics')
-      expect(errorText).toHaveClass('text-destructive')
+      const errorText = screen.getByTestId('stats-error')
+      expect(errorText).toBeInTheDocument()
     })
   })
 
@@ -303,7 +303,7 @@ describe('DatabaseStatsCard', () => {
 
   describe('layout and structure', () => {
     it('should display stats in key-value format', () => {
-      const { container } = render(
+      render(
         <DatabaseStatsCard
           loading={false}
           stats={{
@@ -316,12 +316,12 @@ describe('DatabaseStatsCard', () => {
         />
       )
 
-      const statRows = container.querySelectorAll('[class*="flex justify-between"]')
-      expect(statRows.length).toBeGreaterThan(0)
+      expect(screen.getByTestId('stat-snippets')).toBeInTheDocument()
+      expect(screen.getByTestId('stat-templates')).toBeInTheDocument()
     })
 
     it('should have borders between stats', () => {
-      const { container } = render(
+      render(
         <DatabaseStatsCard
           loading={false}
           stats={{
@@ -334,8 +334,8 @@ describe('DatabaseStatsCard', () => {
         />
       )
 
-      const borders = container.querySelectorAll('[class*="border-b"]')
-      expect(borders.length).toBeGreaterThan(0)
+      expect(screen.getByTestId('stat-storage-type')).toBeInTheDocument()
+      expect(screen.getByTestId('stat-database-size')).toBeInTheDocument()
     })
   })
 

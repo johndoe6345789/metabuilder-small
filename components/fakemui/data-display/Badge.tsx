@@ -4,7 +4,7 @@ import styles from '../../../scss/atoms/mat-badge.module.scss'
 export type BadgeColor = 'primary' | 'secondary' | 'tertiary' | 'success' | 'warning' | 'info' | 'error' | 'surface'
 export type BadgeSize = 'sm' | 'md' | 'lg'
 export type BadgePosition = 'topRight' | 'topLeft' | 'bottomRight' | 'bottomLeft' | 'inline'
-export type BadgeVariant = 'standard' | 'outlined'
+export type BadgeVariant = 'standard' | 'outlined' | 'outline' | 'secondary' | 'filled' | 'tonal' | 'danger'
 export type OverlapShape = 'circular' | 'rectangular'
 
 export interface BadgeProps extends Omit<React.HTMLAttributes<HTMLSpanElement>, 'color' | 'content'> {

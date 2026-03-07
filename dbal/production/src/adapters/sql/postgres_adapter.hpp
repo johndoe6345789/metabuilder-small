@@ -25,6 +25,7 @@ private:
     PGresult* execParams(const std::string& sql, const std::vector<SqlParam>& params);
     void ensureConnected();
 
+    mutable std::mutex pg_mutex_;  // serialise access to pg_ under concurrent load
     PostgresConnection pg_;
 };
 

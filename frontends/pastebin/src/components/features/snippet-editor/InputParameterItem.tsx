@@ -59,11 +59,9 @@ export function InputParameterItem({ param, index, onUpdate, onRemove }: InputPa
                 inputProps={{
                   id: `param-type-${index}`,
                   className: styles.inputSm,
-                  'data-testid': `param-type-select-${index}`,
-                  'aria-label': `Parameter ${index + 1} type`,
                 }}
-                data-testid={`param-type-options-${index}`}
-                aria-label="Parameter type options"
+                data-testid={`param-type-select-${index}`}
+                aria-label={`Parameter ${index + 1} type`}
               >
                 <MenuItem value="string" data-testid="type-string">string</MenuItem>
                 <MenuItem value="number" data-testid="type-number">number</MenuItem>
@@ -77,7 +75,7 @@ export function InputParameterItem({ param, index, onUpdate, onRemove }: InputPa
             variant="ghost"
             size="sm"
             onClick={() => onRemove(index)}
-            className={styles.removeBtn}
+            className={`${styles.removeBtn} h-8 w-8 p-0 text-destructive`}
             data-testid={`remove-parameter-btn-${index}`}
             aria-label={`Remove parameter ${index + 1}`}
           >
@@ -93,7 +91,7 @@ export function InputParameterItem({ param, index, onUpdate, onRemove }: InputPa
             placeholder={getPlaceholder(param.type)}
             value={param.defaultValue}
             onChange={(e) => onUpdate(index, 'defaultValue', e.target.value)}
-            className={styles.inputSmMono}
+            className={`${styles.inputSmMono} font-mono`}
             data-testid={`param-default-input-${index}`}
             aria-label={`Parameter ${index + 1} default value`}
             required

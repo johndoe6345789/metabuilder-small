@@ -1,6 +1,6 @@
 /**
  * Unit Tests for useSettingsState Hook
- * Tests composite settings state management combining database and storage config
+ * Tests composite settings state management combining database, storage config, and migration
  */
 
 import { renderHook, act } from '@testing-library/react';
@@ -13,6 +13,7 @@ jest.mock('@/hooks/useStorageMigration');
 
 import * as useDatabaseOpsHook from '@/hooks/useDatabaseOperations';
 import * as useStorageConfigHook from '@/hooks/useStorageConfig';
+import * as useStorageMigrationHook from '@/hooks/useStorageMigration';
 
 describe('useSettingsState Hook', () => {
   beforeEach(() => {
@@ -36,9 +37,20 @@ describe('useSettingsState Hook', () => {
     (useStorageConfigHook.useStorageConfig as jest.Mock).mockReturnValue({
       storageBackend: 'indexeddb',
       setStorageBackend: jest.fn(),
+      flaskUrl: 'http://localhost:5000',
+      setFlaskUrl: jest.fn(),
+      flaskConnectionStatus: 'unknown',
+      setFlaskConnectionStatus: jest.fn(),
+      testingConnection: false,
       envVarSet: false,
       loadConfig: jest.fn(),
+      handleTestConnection: jest.fn(),
       handleSaveStorageConfig: jest.fn(),
+    });
+
+    (useStorageMigrationHook.useStorageMigration as jest.Mock).mockReturnValue({
+      handleMigrateToFlask: jest.fn(),
+      handleMigrateToIndexedDB: jest.fn(),
     });
   });
 
@@ -76,6 +88,9 @@ describe('useSettingsState Hook', () => {
       const { result } = renderHook(() => useSettingsState());
 
       expect(result.current.storageBackend).toBe('indexeddb');
+      expect(result.current.flaskUrl).toBe('http://localhost:5000');
+      expect(result.current.flaskConnectionStatus).toBe('unknown');
+      expect(result.current.testingConnection).toBe(false);
       expect(result.current.envVarSet).toBe(false);
     });
 
@@ -87,7 +102,10 @@ describe('useSettingsState Hook', () => {
       expect(typeof result.current.handleClear).toBe('function');
       expect(typeof result.current.handleSeed).toBe('function');
       expect(typeof result.current.formatBytes).toBe('function');
+      expect(typeof result.current.handleTestConnection).toBe('function');
       expect(typeof result.current.handleSaveStorageConfig).toBe('function');
+      expect(typeof result.current.handleMigrateToFlask).toBe('function');
+      expect(typeof result.current.handleMigrateToIndexedDB).toBe('function');
       expect(typeof result.current.checkSchemaHealth).toBe('function');
     });
   });
@@ -113,8 +131,14 @@ describe('useSettingsState Hook', () => {
       (useStorageConfigHook.useStorageConfig as jest.Mock).mockReturnValue({
         storageBackend: 'indexeddb',
         setStorageBackend: jest.fn(),
+        flaskUrl: '',
+        setFlaskUrl: jest.fn(),
+        flaskConnectionStatus: 'unknown',
+        setFlaskConnectionStatus: jest.fn(),
+        testingConnection: false,
         envVarSet: false,
         loadConfig,
+        handleTestConnection: jest.fn(),
         handleSaveStorageConfig: jest.fn(),
       });
 
@@ -168,8 +192,14 @@ describe('useSettingsState Hook', () => {
       (useStorageConfigHook.useStorageConfig as jest.Mock).mockReturnValue({
         storageBackend: 'indexeddb',
         setStorageBackend: jest.fn(),
+        flaskUrl: '',
+        setFlaskUrl: jest.fn(),
+        flaskConnectionStatus: 'unknown',
+        setFlaskConnectionStatus: jest.fn(),
+        testingConnection: false,
         envVarSet: false,
         loadConfig: jest.fn(),
+        handleTestConnection: jest.fn(),
         handleSaveStorageConfig: saveConfig,
       });
 
@@ -183,24 +213,136 @@ describe('useSettingsState Hook', () => {
     });
   });
 
+  describe('handleMigrateToFlask wrapper', () => {
+    it('should call migrateToFlask with flaskUrl and loadStats callback', async () => {
+      const loadStats = jest.fn();
+      const migrateToFlask = jest.fn();
+
+      (useDatabaseOpsHook.useDatabaseOperations as jest.Mock).mockReturnValue({
+        stats: null,
+        loading: true,
+        schemaHealth: 'unknown',
+        checkingSchema: false,
+        loadStats,
+        checkSchemaHealth: jest.fn(),
+        handleExport: jest.fn(),
+        handleImport: jest.fn(),
+        handleClear: jest.fn(),
+        handleSeed: jest.fn(),
+        formatBytes: jest.fn(),
+      });
+
+      (useStorageConfigHook.useStorageConfig as jest.Mock).mockReturnValue({
+        storageBackend: 'indexeddb',
+        setStorageBackend: jest.fn(),
+        flaskUrl: 'http://localhost:5000',
+        setFlaskUrl: jest.fn(),
+        flaskConnectionStatus: 'unknown',
+        setFlaskConnectionStatus: jest.fn(),
+        testingConnection: false,
+        envVarSet: false,
+        loadConfig: jest.fn(),
+        handleTestConnection: jest.fn(),
+        handleSaveStorageConfig: jest.fn(),
+      });
+
+      (useStorageMigrationHook.useStorageMigration as jest.Mock).mockReturnValue({
+        handleMigrateToFlask: migrateToFlask,
+        handleMigrateToIndexedDB: jest.fn(),
+      });
+
+      const { result } = renderHook(() => useSettingsState());
+
+      await act(async () => {
+        await result.current.handleMigrateToFlask();
+      });
+
+      expect(migrateToFlask).toHaveBeenCalledWith('http://localhost:5000', loadStats);
+    });
+  });
+
+  describe('handleMigrateToIndexedDB wrapper', () => {
+    it('should call handleMigrateToIndexedDB with flaskUrl', async () => {
+      const migrateToIndexedDB = jest.fn();
+
+      (useStorageConfigHook.useStorageConfig as jest.Mock).mockReturnValue({
+        storageBackend: 'flask',
+        setStorageBackend: jest.fn(),
+        flaskUrl: 'http://api.example.com',
+        setFlaskUrl: jest.fn(),
+        flaskConnectionStatus: 'connected',
+        setFlaskConnectionStatus: jest.fn(),
+        testingConnection: false,
+        envVarSet: false,
+        loadConfig: jest.fn(),
+        handleTestConnection: jest.fn(),
+        handleSaveStorageConfig: jest.fn(),
+      });
+
+      (useStorageMigrationHook.useStorageMigration as jest.Mock).mockReturnValue({
+        handleMigrateToFlask: jest.fn(),
+        handleMigrateToIndexedDB: migrateToIndexedDB,
+      });
+
+      const { result } = renderHook(() => useSettingsState());
+
+      await act(async () => {
+        await result.current.handleMigrateToIndexedDB();
+      });
+
+      expect(migrateToIndexedDB).toHaveBeenCalledWith('http://api.example.com');
+    });
+  });
+
   describe('state updates', () => {
     it('should update storage backend', () => {
       const setStorageBackend = jest.fn();
       (useStorageConfigHook.useStorageConfig as jest.Mock).mockReturnValue({
         storageBackend: 'indexeddb',
         setStorageBackend,
+        flaskUrl: '',
+        setFlaskUrl: jest.fn(),
+        flaskConnectionStatus: 'unknown',
+        setFlaskConnectionStatus: jest.fn(),
+        testingConnection: false,
         envVarSet: false,
         loadConfig: jest.fn(),
+        handleTestConnection: jest.fn(),
         handleSaveStorageConfig: jest.fn(),
       });
 
       const { result } = renderHook(() => useSettingsState());
 
       act(() => {
-        result.current.setStorageBackend('dbal');
+        result.current.setStorageBackend('flask');
       });
 
-      expect(setStorageBackend).toHaveBeenCalledWith('dbal');
+      expect(setStorageBackend).toHaveBeenCalledWith('flask');
+    });
+
+    it('should update Flask URL', () => {
+      const setFlaskUrl = jest.fn();
+      (useStorageConfigHook.useStorageConfig as jest.Mock).mockReturnValue({
+        storageBackend: 'indexeddb',
+        setStorageBackend: jest.fn(),
+        flaskUrl: '',
+        setFlaskUrl,
+        flaskConnectionStatus: 'unknown',
+        setFlaskConnectionStatus: jest.fn(),
+        testingConnection: false,
+        envVarSet: false,
+        loadConfig: jest.fn(),
+        handleTestConnection: jest.fn(),
+        handleSaveStorageConfig: jest.fn(),
+      });
+
+      const { result } = renderHook(() => useSettingsState());
+
+      act(() => {
+        result.current.setFlaskUrl('http://localhost:5000');
+      });
+
+      expect(setFlaskUrl).toHaveBeenCalledWith('http://localhost:5000');
     });
   });
 
@@ -253,14 +395,20 @@ describe('useSettingsState Hook', () => {
         handleImport: jest.fn(),
         handleClear: jest.fn(),
         handleSeed: jest.fn(),
-        formatBytes: jest.fn((bytes: number) => `${bytes} B`),
+        formatBytes: jest.fn((bytes) => `${bytes} B`),
       });
 
       (useStorageConfigHook.useStorageConfig as jest.Mock).mockReturnValue({
         storageBackend: 'indexeddb',
         setStorageBackend: jest.fn(),
+        flaskUrl: 'http://localhost:5000',
+        setFlaskUrl: jest.fn(),
+        flaskConnectionStatus: 'unknown',
+        setFlaskConnectionStatus: jest.fn(),
+        testingConnection: false,
         envVarSet: false,
         loadConfig,
+        handleTestConnection: jest.fn(),
         handleSaveStorageConfig: jest.fn(),
       });
 

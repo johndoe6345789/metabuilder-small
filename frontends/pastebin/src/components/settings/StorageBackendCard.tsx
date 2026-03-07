@@ -22,15 +22,15 @@ export function StorageBackendCard({
   const s = t.settingsCards.storage
   return (
     <Card data-testid="storage-backend-card">
-      <CardHeader>
-        <h3 className={styles.cardTitleWithIcon}>
-          <MaterialIcon name="cloud_upload" size={24} aria-hidden="true" />
-          {s.title}
-        </h3>
-        <p className={styles.cardDescription}>
-          {s.description}
-        </p>
-      </CardHeader>
+      <CardHeader
+        title={
+          <h3 className={styles.cardTitleWithIcon}>
+            <MaterialIcon name="cloud_upload" size={24} aria-hidden="true" />
+            {s.title}
+          </h3>
+        }
+        subheader={<p className={styles.cardDescription}>{s.description}</p>}
+      />
       <CardContent>
         <div className={styles.contentStack}>
           {envVarSet && (

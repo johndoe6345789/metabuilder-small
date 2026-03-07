@@ -18,7 +18,7 @@ jest.mock('@metabuilder/components', () => ({
 describe('BackendIndicator', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    delete (process.env as any).NEXT_PUBLIC_DBAL_API_URL;
+    delete (process.env as any).NEXT_PUBLIC_FLASK_BACKEND_URL;
   });
 
   describe('Local storage mode', () => {
@@ -70,10 +70,10 @@ describe('BackendIndicator', () => {
     });
   });
 
-  describe('DBAL backend mode', () => {
+  describe('Flask backend mode', () => {
     beforeEach(() => {
       (storageModule.getStorageConfig as jest.Mock).mockReturnValue({
-        backend: 'dbal',
+        backend: 'flask',
       });
     });
 
@@ -110,21 +110,21 @@ describe('BackendIndicator', () => {
   describe('Auto-configuration indicator', () => {
     beforeEach(() => {
       (storageModule.getStorageConfig as jest.Mock).mockReturnValue({
-        backend: 'dbal',
+        backend: 'flask',
       });
     });
 
     test('shows dot indicator when auto-configured', () => {
-      (process.env as any).NEXT_PUBLIC_DBAL_API_URL = 'http://localhost:8080';
+      (process.env as any).NEXT_PUBLIC_FLASK_BACKEND_URL = 'http://localhost:5000';
       render(<BackendIndicator />);
       const dot = screen.getByTestId('activity-dot');
       expect(dot).toBeInTheDocument();
     });
 
     test('does not show dot when not auto-configured', () => {
-      delete (process.env as any).NEXT_PUBLIC_DBAL_API_URL;
+      delete (process.env as any).NEXT_PUBLIC_FLASK_BACKEND_URL;
       (storageModule.getStorageConfig as jest.Mock).mockReturnValue({
-        backend: 'dbal',
+        backend: 'flask',
       });
       render(<BackendIndicator />);
       expect(screen.getByText('Connected')).toBeInTheDocument();
@@ -141,9 +141,9 @@ describe('BackendIndicator', () => {
       expect(screen.getByTestId('backend-indicator')).toBeInTheDocument();
     });
 
-    test('renders status for DBAL backend', () => {
+    test('renders status for Flask backend', () => {
       (storageModule.getStorageConfig as jest.Mock).mockReturnValue({
-        backend: 'dbal',
+        backend: 'flask',
       });
       render(<BackendIndicator />);
       expect(screen.getByTestId('backend-indicator')).toBeInTheDocument();
@@ -185,9 +185,9 @@ describe('BackendIndicator', () => {
       expect(container).toBeInTheDocument();
     });
 
-    test('renders correctly with dbal backend', () => {
+    test('renders correctly with flask backend', () => {
       (storageModule.getStorageConfig as jest.Mock).mockReturnValue({
-        backend: 'dbal',
+        backend: 'flask',
       });
       const { container } = render(<BackendIndicator />);
       expect(container).toBeInTheDocument();

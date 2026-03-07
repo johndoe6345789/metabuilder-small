@@ -9,13 +9,20 @@ import * as storage from '@/lib/storage';
 
 jest.mock('@/lib/storage');
 
-// Mock useTranslation to avoid Redux dependency
+jest.mock('@metabuilder/components/fakemui', () => ({
+  toast: {
+    success: jest.fn(),
+    error: jest.fn(),
+  },
+}));
+
 jest.mock('@/hooks/useTranslation', () => ({
   useTranslation: () => ({
     settings: { storage: { backendUpdated: 'Storage backend updated successfully' } },
   }),
 }));
 
+import { toast } from '@metabuilder/components/fakemui';
 
 describe('useStorageConfig Hook', () => {
   beforeEach(() => {
@@ -35,8 +42,8 @@ describe('useStorageConfig Hook', () => {
   describe('loadConfig', () => {
     it('should load configuration from storage', () => {
       (storage.loadStorageConfig as jest.Mock).mockReturnValue({
-        backend: 'dbal',
-        dbalUrl: 'http://localhost:8080',
+        backend: 'flask',
+        flaskUrl: 'http://localhost:5000',
       });
 
       const { result } = renderHook(() => useStorageConfig());
@@ -45,11 +52,11 @@ describe('useStorageConfig Hook', () => {
         result.current.loadConfig();
       });
 
-      expect(result.current.storageBackend).toBe('dbal');
+      expect(result.current.storageBackend).toBe('flask');
     });
 
     it('should detect environment variable', () => {
-      (process.env as any).NEXT_PUBLIC_DBAL_API_URL = 'http://localhost:8080';
+      (process.env as any).NEXT_PUBLIC_DBAL_API_URL = 'http://api.example.com';
       (storage.loadStorageConfig as jest.Mock).mockReturnValue({
         backend: 'indexeddb',
       });
@@ -63,7 +70,7 @@ describe('useStorageConfig Hook', () => {
       expect(result.current.envVarSet).toBe(true);
     });
 
-    it('should not set envVarSet if no env var', () => {
+    it('should not set envVarSet when env var is absent', () => {
       (storage.loadStorageConfig as jest.Mock).mockReturnValue({
         backend: 'indexeddb',
       });
@@ -79,7 +86,7 @@ describe('useStorageConfig Hook', () => {
   });
 
   describe('handleSaveStorageConfig', () => {
-    it('should save indexeddb config without testing', async () => {
+    it('should save indexeddb config', async () => {
       (storage.saveStorageConfig as jest.Mock).mockImplementation();
 
       const { result } = renderHook(() => useStorageConfig());
@@ -95,6 +102,7 @@ describe('useStorageConfig Hook', () => {
       expect(storage.saveStorageConfig).toHaveBeenCalledWith({
         backend: 'indexeddb',
       });
+      expect(toast.success).toHaveBeenCalledWith('Storage backend updated successfully');
     });
 
     it('should call onSuccess callback if provided', async () => {
@@ -113,24 +121,6 @@ describe('useStorageConfig Hook', () => {
 
       expect(onSuccess).toHaveBeenCalled();
     });
-
-    it('should save dbal config', async () => {
-      (storage.saveStorageConfig as jest.Mock).mockImplementation();
-
-      const { result } = renderHook(() => useStorageConfig());
-
-      act(() => {
-        result.current.setStorageBackend('dbal');
-      });
-
-      await act(async () => {
-        await result.current.handleSaveStorageConfig();
-      });
-
-      expect(storage.saveStorageConfig).toHaveBeenCalledWith({
-        backend: 'dbal',
-      });
-    });
   });
 
   describe('state setters', () => {
@@ -138,14 +128,12 @@ describe('useStorageConfig Hook', () => {
       const { result } = renderHook(() => useStorageConfig());
 
       act(() => {
-        result.current.setStorageBackend('dbal');
+        result.current.setStorageBackend('flask');
       });
 
-      expect(result.current.storageBackend).toBe('dbal');
+      expect(result.current.storageBackend).toBe('flask');
     });
-  });
 
-  describe('complex scenarios', () => {
     it('should handle backend switching', () => {
       const { result } = renderHook(() => useStorageConfig());
 
@@ -156,30 +144,10 @@ describe('useStorageConfig Hook', () => {
       expect(result.current.storageBackend).toBe('indexeddb');
 
       act(() => {
-        result.current.setStorageBackend('dbal');
+        result.current.setStorageBackend('flask');
       });
 
-      expect(result.current.storageBackend).toBe('dbal');
-    });
-
-    it('should handle full save workflow', async () => {
-      (storage.saveStorageConfig as jest.Mock).mockImplementation();
-
-      const onSuccess = jest.fn().mockResolvedValue(undefined);
-
-      const { result } = renderHook(() => useStorageConfig());
-
-      act(() => {
-        result.current.loadConfig();
-        result.current.setStorageBackend('indexeddb');
-      });
-
-      await act(async () => {
-        await result.current.handleSaveStorageConfig(onSuccess);
-      });
-
-      expect(storage.saveStorageConfig).toHaveBeenCalled();
-      expect(onSuccess).toHaveBeenCalled();
+      expect(result.current.storageBackend).toBe('flask');
     });
   });
 });

@@ -1,6 +1,6 @@
 import type { SVGProps, HTMLAttributes } from 'react'
 
-export type IconWeight = 'thin' | 'light' | 'regular' | 'bold'
+export type IconWeight = 'thin' | 'light' | 'regular' | 'bold' | 'duotone' | 'fill'
 
 // Legacy SVG-based icon props
 export interface IconProps extends SVGProps<SVGSVGElement> {

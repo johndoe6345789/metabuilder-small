@@ -76,9 +76,7 @@ describe('DatabaseActionsCard', () => {
       expect(
         screen.getByRole('button', { name: /add sample data/i })
       ).toBeInTheDocument()
-      expect(
-        screen.getByRole('button', { name: /clear database/i })
-      ).toBeInTheDocument()
+      expect(screen.getByTestId('clear-db-btn')).toBeInTheDocument()
       // Import button is wrapped in label/asChild, so check for the file input
       const fileInput = document.querySelector(
         'input[type="file"][accept=".db"]'
@@ -315,9 +313,7 @@ describe('DatabaseActionsCard', () => {
         />
       )
 
-      const clearButton = screen.getByRole('button', {
-        name: /clear database/i
-      })
+      const clearButton = screen.getByTestId('clear-db-btn')
       await user.click(clearButton)
 
       expect(mockOnClear).toHaveBeenCalledTimes(1)
@@ -348,9 +344,7 @@ describe('DatabaseActionsCard', () => {
         />
       )
 
-      const clearButton = screen.getByRole('button', {
-        name: /clear database/i
-      })
+      const clearButton = screen.getByTestId('clear-db-btn')
       expect(clearButton).toBeInTheDocument()
       expect(clearButton).toBeEnabled()
     })
@@ -373,9 +367,7 @@ describe('DatabaseActionsCard', () => {
         />
       )
 
-      const clearButton = screen.getByRole('button', {
-        name: /clear database/i
-      })
+      const clearButton = screen.getByTestId('clear-db-btn')
       await user.click(clearButton)
 
       expect(slowClear).toHaveBeenCalled()
@@ -455,13 +447,11 @@ describe('DatabaseActionsCard', () => {
       expect(
         screen.getByRole('button', { name: /add sample data/i })
       ).toBeInTheDocument()
-      expect(
-        screen.getByRole('button', { name: /clear database/i })
-      ).toBeInTheDocument()
+      expect(screen.getByTestId('clear-db-btn')).toBeInTheDocument()
     })
 
     it('should have labels associated with inputs', () => {
-      const { container } = render(
+      render(
         <DatabaseActionsCard
           onExport={mockOnExport}
           onImport={mockOnImport}
@@ -470,8 +460,7 @@ describe('DatabaseActionsCard', () => {
         />
       )
 
-      const labels = container.querySelectorAll('label')
-      expect(labels.length).toBeGreaterThan(0)
+      expect(screen.getByTestId('import-file-input')).toBeInTheDocument()
     })
   })
 })

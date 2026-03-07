@@ -3,7 +3,7 @@ import styles from './TaskListsShowcase.module.scss'
 
 export function TaskListsShowcase() {
   return (
-    <section style={{ display: 'flex', flexDirection: 'column', gap: '24px' }} data-testid="task-lists-showcase" role="region" aria-label="Task lists showcase">
+    <section className="space-y-6" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }} data-testid="task-lists-showcase" role="region" aria-label="Task lists showcase">
       <div>
         <h2 style={{ fontSize: '1.875rem', lineHeight: '2.25rem', fontWeight: 700, marginBottom: '8px' }}>Task Lists</h2>
         <p style={{ color: 'var(--mat-sys-on-surface-variant)' }}>
@@ -22,8 +22,8 @@ export function TaskListsShowcase() {
           </div>
         </div>
 
-        <div>
-          <div className={styles.taskItem}>
+        <div className="divide-y">
+          <div className={`${styles.taskItem} hover:bg-muted`}>
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
               <MaterialIcon name="check_circle" size={24} style={{ color: 'var(--mat-sys-secondary-container)', marginTop: '2px' }} aria-hidden="true" />
               <div style={{ flex: 1, minWidth: 0 }}>
@@ -39,7 +39,7 @@ export function TaskListsShowcase() {
             </div>
           </div>
 
-          <div className={styles.taskItem}>
+          <div className={`${styles.taskItem} hover:bg-muted`}>
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
               <MaterialIcon name="schedule" size={24} style={{ color: 'var(--mat-sys-secondary-container)', marginTop: '2px' }} aria-hidden="true" />
               <div style={{ flex: 1, minWidth: 0 }}>
@@ -55,7 +55,7 @@ export function TaskListsShowcase() {
             </div>
           </div>
 
-          <div className={styles.taskItem}>
+          <div className={`${styles.taskItem} hover:bg-muted`}>
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
               <MaterialIcon name="cancel" size={24} style={{ color: 'var(--mat-sys-error)', marginTop: '2px' }} aria-hidden="true" />
               <div style={{ flex: 1, minWidth: 0 }}>

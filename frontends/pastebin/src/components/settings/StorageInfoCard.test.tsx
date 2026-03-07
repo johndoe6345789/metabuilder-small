@@ -19,7 +19,7 @@ describe('StorageInfoCard', () => {
     it('should render alert component', () => {
       const { container } = render(<StorageInfoCard storageType="indexeddb" />)
 
-      const alert = container.querySelector('[role="status"]')
+      const alert = container.querySelector('[data-slot="alert"]')
       expect(alert).toBeInTheDocument()
     })
   })
@@ -211,7 +211,7 @@ describe('StorageInfoCard', () => {
     it('should wrap message in AlertDescription', () => {
       const { container } = render(<StorageInfoCard storageType="indexeddb" />)
 
-      const alertDescription = container.querySelector('[data-testid="storage-type-description"]')
+      const alertDescription = container.querySelector('[data-slot="alert-description"]')
       expect(alertDescription).toBeInTheDocument()
     })
   })

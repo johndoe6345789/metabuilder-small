@@ -27,6 +27,8 @@ export interface LabelProps extends React.HTMLAttributes<HTMLSpanElement> {
   required?: boolean
   /** Enable inline-flex layout for icon alignment */
   withIcon?: boolean
+  /** Associate label with form element */
+  htmlFor?: string
 }
 
 const sizeClassMap: Record<LabelSize, string | undefined> = {
