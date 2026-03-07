@@ -4,7 +4,7 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { Snippet, SnippetTemplate } from '@/lib/types'
 import { toast } from '@metabuilder/components/fakemui'
 import { useTranslation } from '@/hooks/useTranslation'
-import { seedDatabase, syncTemplatesFromJSON } from '@/lib/db'
+import { syncTemplatesFromJSON } from '@/lib/db'
 import {
   fetchSnippetsByNamespace,
   deleteSnippet,
@@ -55,7 +55,6 @@ export function useSnippetManager(templates: SnippetTemplate[]) {
   useEffect(() => {
     const loadData = async () => {
       try {
-        await seedDatabase()
         await syncTemplatesFromJSON(templates)
         await dispatch(fetchNamespaces()).unwrap()
       } catch (error) {

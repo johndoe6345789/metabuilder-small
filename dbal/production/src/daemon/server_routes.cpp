@@ -6,6 +6,7 @@
 #include "server.hpp"
 #include "handlers/health_route_handler.hpp"
 #include "handlers/entity_route_handler.hpp"
+#include "handlers/query_route_handler.hpp"
 #include "security/jwt/jwt_validator.hpp"
 #include "auth/auth_config.hpp"
 #include "handlers/blob_route_handler.hpp"
@@ -34,6 +35,26 @@
 #include <unordered_map>
 
 namespace {
+    int env_int(const char* name, int default_val) {
+        const char* v = std::getenv(name);
+        if (v && *v) {
+            try { return std::stoi(v); } catch (...) {}
+        }
+        return default_val;
+    }
+
+    // Prefer X-Forwarded-For so each real client gets its own bucket
+    // when the daemon sits behind a reverse proxy (nginx, etc.)
+    std::string rate_limit_key(const drogon::HttpRequestPtr& req) {
+        auto xff = req->getHeader("X-Forwarded-For");
+        if (!xff.empty()) {
+            // Take only the first (original client) IP
+            auto comma = xff.find(',');
+            return comma == std::string::npos ? xff : xff.substr(0, comma);
+        }
+        return req->getPeerAddr().toIp();
+    }
+
     struct RateLimitEntry {
         int count = 0;
         std::chrono::steady_clock::time_point window_start = std::chrono::steady_clock::now();
@@ -66,9 +87,10 @@ namespace {
         std::unordered_map<std::string, RateLimitEntry> entries_;
     };
 
-    static SimpleRateLimiter admin_limiter(10, 60);    // 10 req/min for admin
-    static SimpleRateLimiter mutation_limiter(50, 60);  // 50 req/min for mutations
-    static SimpleRateLimiter read_limiter(100, 60);     // 100 req/min for reads
+    // Configurable via env: DBAL_ADMIN_RATE_LIMIT, DBAL_MUTATION_RATE_LIMIT, DBAL_READ_RATE_LIMIT
+    static SimpleRateLimiter admin_limiter(env_int("DBAL_ADMIN_RATE_LIMIT", 10), 60);
+    static SimpleRateLimiter mutation_limiter(env_int("DBAL_MUTATION_RATE_LIMIT", 50), 60);
+    static SimpleRateLimiter read_limiter(env_int("DBAL_READ_RATE_LIMIT", 1000), 60);
 }
 
 namespace dbal {
@@ -231,8 +253,8 @@ void Server::registerRoutes() {
     drogon::app().registerHandler(
         "/admin/config",
         [admin_handler](const drogon::HttpRequestPtr& req, DrogonCallback&& callback) {
-            auto client_ip = req->getPeerAddr().toIp();
-            if (!admin_limiter.allow(client_ip)) {
+            auto client_key = rate_limit_key(req);
+            if (!admin_limiter.allow(client_key)) {
                 auto resp = drogon::HttpResponse::newHttpResponse();
                 resp->setStatusCode(drogon::k429TooManyRequests);
                 callback(resp);
@@ -251,8 +273,8 @@ void Server::registerRoutes() {
     drogon::app().registerHandler(
         "/admin/adapters",
         [admin_handler](const drogon::HttpRequestPtr& req, DrogonCallback&& callback) {
-            auto client_ip = req->getPeerAddr().toIp();
-            if (!admin_limiter.allow(client_ip)) {
+            auto client_key = rate_limit_key(req);
+            if (!admin_limiter.allow(client_key)) {
                 auto resp = drogon::HttpResponse::newHttpResponse();
                 resp->setStatusCode(drogon::k429TooManyRequests);
                 callback(resp);
@@ -267,8 +289,8 @@ void Server::registerRoutes() {
     drogon::app().registerHandler(
         "/admin/test-connection",
         [admin_handler](const drogon::HttpRequestPtr& req, DrogonCallback&& callback) {
-            auto client_ip = req->getPeerAddr().toIp();
-            if (!admin_limiter.allow(client_ip)) {
+            auto client_key = rate_limit_key(req);
+            if (!admin_limiter.allow(client_key)) {
                 auto resp = drogon::HttpResponse::newHttpResponse();
                 resp->setStatusCode(drogon::k429TooManyRequests);
                 callback(resp);
@@ -284,8 +306,8 @@ void Server::registerRoutes() {
     drogon::app().registerHandler(
         "/admin/seed",
         [this](const drogon::HttpRequestPtr& req, DrogonCallback&& callback) {
-            auto client_ip = req->getPeerAddr().toIp();
-            if (!admin_limiter.allow(client_ip)) {
+            auto client_key = rate_limit_key(req);
+            if (!admin_limiter.allow(client_key)) {
                 auto resp = drogon::HttpResponse::newHttpResponse();
                 resp->setStatusCode(drogon::k429TooManyRequests);
                 callback(resp);
@@ -635,6 +657,67 @@ void Server::registerRoutes() {
          drogon::HttpMethod::Options}
     );
 
+    // ===== JSON procedure route — registered BEFORE generic entity wildcard =====
+    // GET /{tenant}/{package}/query/{name}?params...
+    // Literal "query" segment takes priority over {entity} wildcard in Drogon routing.
+    drogon::app().registerHandler(
+        "/{tenant}/{package}/query/{name}",
+        [this](const drogon::HttpRequestPtr& req, DrogonCallback&& callback,
+               const std::string& tenant, const std::string& package, const std::string& name) {
+            const char* env_cors = std::getenv("DBAL_CORS_ORIGIN");
+            std::string cors_org = env_cors ? env_cors : auth_config_.cors_origin;
+            if (req->method() == drogon::HttpMethod::Options) {
+                auto resp = drogon::HttpResponse::newHttpResponse();
+                resp->setStatusCode(drogon::k204NoContent);
+                resp->addHeader("Access-Control-Allow-Origin", cors_org);
+                resp->addHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+                resp->addHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+                callback(resp);
+                return;
+            }
+            auto cb = [orig = std::move(callback), cors_org](const drogon::HttpResponsePtr& resp) {
+                resp->addHeader("Access-Control-Allow-Origin", cors_org);
+                orig(resp);
+            };
+            auto client_ip = req->getPeerAddr().toIp();
+            if (!read_limiter.allow(client_ip)) {
+                auto resp = drogon::HttpResponse::newHttpResponse();
+                resp->setStatusCode(drogon::k429TooManyRequests);
+                cb(resp); return;
+            }
+            if (!ensureClient()) {
+                ::Json::Value body; body["success"] = false;
+                body["error"] = "DBAL client is unavailable";
+                auto resp = drogon::HttpResponse::newHttpJsonResponse(body);
+                resp->setStatusCode(drogon::HttpStatusCode::k503ServiceUnavailable);
+                cb(resp); return;
+            }
+
+            // Load procedures from DBAL_SCHEMA_DIR/queries/ (lazy, once per request — cached)
+            static std::once_flag query_loaded;
+            static std::shared_ptr<handlers::QueryRouteHandler> query_handler_s;
+            std::call_once(query_loaded, [this]() {
+                query_handler_s = std::make_shared<handlers::QueryRouteHandler>(*dbal_client_);
+                // DBAL_SCHEMA_DIR points to entities/ — queries/ is a sibling directory.
+                // Check explicit DBAL_QUERIES_DIR override first, then derive from parent.
+                const char* schema_dir  = std::getenv("DBAL_SCHEMA_DIR");
+                const char* queries_env = std::getenv("DBAL_QUERIES_DIR");
+                std::string queries_dir;
+                if (queries_env) {
+                    queries_dir = queries_env;
+                } else if (schema_dir) {
+                    queries_dir = (std::filesystem::path(schema_dir).parent_path() / "queries").string();
+                } else {
+                    queries_dir = "dbal/shared/api/schema/queries";
+                }
+                query_handler_s->loadProcedures(queries_dir);
+            });
+
+            query_handler_s->handle(req, std::move(cb), tenant, package, name);
+        },
+        {drogon::HttpMethod::Get, drogon::HttpMethod::Options}
+    );
+
     // RESTful entity routes require client
     drogon::app().registerHandler(
         "/{tenant}/{package}/{entity}",
@@ -661,9 +744,9 @@ void Server::registerRoutes() {
                 orig(resp);
             };
             // Rate limiting
-            auto client_ip = req->getPeerAddr().toIp();
+            auto client_key = rate_limit_key(req);
             auto& limiter = (req->method() == drogon::HttpMethod::Get) ? read_limiter : mutation_limiter;
-            if (!limiter.allow(client_ip)) {
+            if (!limiter.allow(client_key)) {
                 auto resp = drogon::HttpResponse::newHttpResponse();
                 resp->setStatusCode(drogon::k429TooManyRequests);
                 cb(resp);
