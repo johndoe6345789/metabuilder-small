@@ -2,6 +2,7 @@
 
 #include <drogon/HttpRequest.h>
 #include <drogon/HttpResponse.h>
+#include <json/json.h>
 #include <functional>
 #include <string>
 #include <unordered_map>
@@ -10,6 +11,7 @@
 #include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
 #include "dbal/core/client.hpp"
+#include "../json_convert.hpp"
 
 namespace dbal {
 namespace daemon {
@@ -64,7 +66,8 @@ public:
     ) {
         auto it = procedures_.find(name);
         if (it == procedures_.end()) {
-            nlohmann::json err = {{"error", "Unknown procedure: " + name}};
+            ::Json::Value err;
+            err["error"] = "Unknown procedure: " + name;
             auto resp = drogon::HttpResponse::newHttpJsonResponse(err);
             resp->setStatusCode(drogon::HttpStatusCode::k404NotFound);
             callback(resp);
@@ -106,17 +109,19 @@ public:
                     {"page", lr.page},
                     {"limit", lr.limit}
                 };
-                auto resp = drogon::HttpResponse::newHttpJsonResponse(body);
+                auto resp = drogon::HttpResponse::newHttpJsonResponse(nlohmann_to_jsoncpp(body));
                 callback(resp);
             } else {
-                nlohmann::json err = {{"error", result.error().message}};
+                ::Json::Value err;
+                err["error"] = std::string(result.error().what());
                 auto resp = drogon::HttpResponse::newHttpJsonResponse(err);
                 resp->setStatusCode(drogon::HttpStatusCode::k500InternalServerError);
                 callback(resp);
             }
         } catch (const std::exception& e) {
             spdlog::error("QueryRouteHandler: Error executing '{}': {}", name, e.what());
-            nlohmann::json err = {{"error", e.what()}};
+            ::Json::Value err;
+            err["error"] = std::string(e.what());
             auto resp = drogon::HttpResponse::newHttpJsonResponse(err);
             resp->setStatusCode(drogon::HttpStatusCode::k500InternalServerError);
             callback(resp);
