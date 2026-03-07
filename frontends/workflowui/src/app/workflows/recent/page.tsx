@@ -4,7 +4,7 @@
 
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import Link from 'next/link';
 import {
   Box,
@@ -31,18 +31,12 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default function RecentWorkflowsPage() {
-  const { isLoading, listWorkflows } = useWorkflows();
-  const [workflows, setWorkflows] = useState<Workflow[]>([]);
+  const { workflows: rawWorkflows, isLoading, listWorkflows } = useWorkflows();
+  const workflows = [...(rawWorkflows || [])].sort((a, b) => b.updatedAt - a.updatedAt);
 
   useEffect(() => {
-    loadWorkflows();
+    listWorkflows({ limit: 20 });
   }, []);
-
-  const loadWorkflows = async () => {
-    // Get recent workflows (sorted by updatedAt)
-    const data = await listWorkflows({ limit: 20 });
-    setWorkflows(data.sort((a, b) => b.updatedAt - a.updatedAt));
-  };
 
   const formatTimeAgo = (timestamp: number) => {
     const date = new Date(timestamp);
