@@ -62,6 +62,35 @@ export const registerUser = createAsyncThunk(
   }
 )
 
+function isTokenValid(token: string | null): boolean {
+  if (!token) return false
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]))
+    if (!payload.exp) return false
+    return payload.exp * 1000 > Date.now()
+  } catch {
+    return false
+  }
+}
+
+export const validateToken = createAsyncThunk(
+  'auth/validateToken',
+  async (_, { getState, rejectWithValue }) => {
+    const { auth } = getState() as { auth: AuthState }
+    if (!auth.token) return rejectWithValue('No token')
+    try {
+      const res = await fetch(`${apiBase()}/api/auth/me`, {
+        headers: { Authorization: `Bearer ${auth.token}` },
+      })
+      if (!res.ok) return rejectWithValue('Invalid token')
+      const data = await res.json()
+      return { user: data as AuthUser, token: auth.token }
+    } catch {
+      return rejectWithValue('Network error')
+    }
+  }
+)
+
 const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -108,9 +137,30 @@ const authSlice = createSlice({
       .addCase(registerUser.pending,   onPending)
       .addCase(registerUser.fulfilled, onFulfilled)
       .addCase(registerUser.rejected,  onRejected)
+      .addCase(validateToken.fulfilled, (state, action) => {
+        state.user = action.payload.user
+        state.token = action.payload.token
+        state.isAuthenticated = true
+        setAuthToken(action.payload.token)
+      })
+      .addCase(validateToken.rejected, (state) => {
+        state.user = null
+        state.token = null
+        state.isAuthenticated = false
+        setAuthToken(null)
+      })
       .addMatcher(
         (action: Action) => action.type === 'persist/REHYDRATE',
-        (state) => { state.error = null; state.loading = false },
+        (state) => {
+          state.error = null
+          state.loading = false
+          if (state.token && !isTokenValid(state.token)) {
+            state.user = null
+            state.token = null
+            state.isAuthenticated = false
+            setAuthToken(null)
+          }
+        },
       )
   },
 })

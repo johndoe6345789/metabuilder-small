@@ -7,6 +7,7 @@ import {
   createProfileComment as createProfileCommentDB,
 } from '@/lib/db'
 import { getAuthToken } from '@/lib/authToken'
+import type { RootState } from '@/store/index'
 
 function getUserFromToken(): { id: string; username: string } {
   const token = getAuthToken()
@@ -16,6 +17,15 @@ function getUserFromToken(): { id: string; username: string } {
     return { id: payload.sub ?? '', username: payload.username ?? '' }
   } catch {
     return { id: '', username: '' }
+  }
+}
+
+function getUser(state: RootState): { id: string; username: string } {
+  const fromToken = getUserFromToken()
+  const authUser = state.auth.user
+  return {
+    id: fromToken.id || (authUser as Record<string, string>)?.id || '',
+    username: fromToken.username || (authUser as Record<string, string>)?.username || 'anonymous',
   }
 }
 
@@ -43,8 +53,8 @@ export const fetchSnippetComments = createAsyncThunk(
 
 export const addSnippetComment = createAsyncThunk(
   'comments/addSnippet',
-  async ({ snippetId, content }: { snippetId: string; content: string }) => {
-    const user = getUserFromToken()
+  async ({ snippetId, content }: { snippetId: string; content: string }, { getState }) => {
+    const user = getUser(getState() as RootState)
     const comment: SnippetComment = {
       id: crypto.randomUUID(),
       snippetId,
@@ -67,8 +77,8 @@ export const fetchProfileComments = createAsyncThunk(
 
 export const addProfileComment = createAsyncThunk(
   'comments/addProfile',
-  async ({ profileUserId, content }: { profileUserId: string; content: string }) => {
-    const user = getUserFromToken()
+  async ({ profileUserId, content }: { profileUserId: string; content: string }, { getState }) => {
+    const user = getUser(getState() as RootState)
     const comment: ProfileComment = {
       id: crypto.randomUUID(),
       profileUserId,

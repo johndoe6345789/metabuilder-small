@@ -9,6 +9,7 @@ import revisionsReducer from './slices/revisionsSlice'
 import shareReducer from './slices/shareSlice'
 import profilesReducer from './slices/profilesSlice'
 import { setAuthToken } from '@/lib/authToken'
+import { validateToken } from './slices/authSlice'
 
 const { store, persistor } = createPersistedStore({
   reducers: {
@@ -36,6 +37,19 @@ const { store, persistor } = createPersistedStore({
 // Keep the token bridge in sync with Redux auth state.
 // store.subscribe fires on REHYDRATE too, so this handles page-reload token restoration.
 store.subscribe(() => setAuthToken(store.getState().auth.token))
+
+// After rehydration, validate the persisted token against the server.
+// If invalid/expired, the user is logged out automatically.
+let _validated = false
+persistor.subscribe(() => {
+  const { bootstrapped } = persistor.getState()
+  if (bootstrapped && !_validated) {
+    _validated = true
+    if (store.getState().auth.token) {
+      store.dispatch(validateToken())
+    }
+  }
+})
 
 export { store, persistor }
 
