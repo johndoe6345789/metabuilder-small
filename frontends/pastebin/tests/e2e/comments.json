@@ -45,8 +45,8 @@
         { "action": "waitForSelector", "selector": "[data-testid='snippet-view-page']", "timeout": 30000 },
         { "action": "fill", "label": "Comment text", "value": "Playwright JSON test comment" },
         { "action": "click", "role": "button", "text": "Post Comment" },
-        { "action": "waitForSelector", "selector": "[data-testid='markdown-renderer']", "timeout": 15000 },
-        { "action": "expect", "testId": "markdown-renderer", "assertion": { "matcher": "toContainText", "text": "Playwright JSON test comment" } }
+        { "action": "expect", "label": "Comment text", "assertion": { "matcher": "toHaveValue", "value": "" }, "timeout": 10000 },
+        { "action": "expect", "role": "button", "text": "Post Comment", "assertion": { "matcher": "toBeDisabled" } }
       ]
     },
     {

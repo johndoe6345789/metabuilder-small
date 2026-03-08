@@ -251,7 +251,7 @@ export class DBALStorageAdapter {
 
   async getSnippetComments(snippetId: string): Promise<SnippetComment[]> {
     const url = `${this.entityUrl('SnippetComment')}?filter.snippetId=${encodeURIComponent(snippetId)}&sort.createdAt=asc&limit=200`
-    const r = await fetch(url)
+    const r = await fetch(url, { headers: this.authHeader() })
     if (!r.ok) return []
     const json = await r.json()
     return json.data?.data ?? json.data ?? []
@@ -270,7 +270,7 @@ export class DBALStorageAdapter {
 
   async getProfileComments(profileUserId: string): Promise<ProfileComment[]> {
     const url = `${this.entityUrl('ProfileComment')}?filter.profileUserId=${encodeURIComponent(profileUserId)}&sort.createdAt=asc&limit=200`
-    const r = await fetch(url)
+    const r = await fetch(url, { headers: this.authHeader() })
     if (!r.ok) return []
     const json = await r.json()
     return json.data?.data ?? json.data ?? []

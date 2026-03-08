@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import { toast } from '@metabuilder/components/fakemui'
 import { useAppSelector, useAppDispatch } from '@/store/hooks'
 import { selectIsAuthenticated, selectSnippetComments, selectCommentsLoading } from '@/store/selectors'
 import { fetchSnippetComments, addSnippetComment } from '@/store/slices/commentsSlice'
@@ -23,7 +24,11 @@ export function SnippetComments({ snippetId }: SnippetCommentsProps) {
   }, [dispatch, snippetId])
 
   async function handleSubmit(content: string) {
-    await dispatch(addSnippetComment({ snippetId, content }))
+    try {
+      await dispatch(addSnippetComment({ snippetId, content })).unwrap()
+    } catch {
+      toast.error('Failed to post comment')
+    }
   }
 
   return (
