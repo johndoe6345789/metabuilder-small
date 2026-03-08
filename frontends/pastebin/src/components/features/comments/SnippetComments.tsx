@@ -1,9 +1,9 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { SnippetComment, fetchSnippetComments, createSnippetComment } from '@/lib/commentsApi'
-import { useAppSelector } from '@/store/hooks'
-import { selectIsAuthenticated } from '@/store/selectors'
+import { useEffect } from 'react'
+import { useAppSelector, useAppDispatch } from '@/store/hooks'
+import { selectIsAuthenticated, selectSnippetComments, selectCommentsLoading } from '@/store/selectors'
+import { fetchSnippetComments, addSnippetComment } from '@/store/slices/commentsSlice'
 import { CommentItem } from './CommentItem'
 import { CommentForm } from './CommentForm'
 import styles from './comments.module.scss'
@@ -13,25 +13,28 @@ interface SnippetCommentsProps {
 }
 
 export function SnippetComments({ snippetId }: SnippetCommentsProps) {
-  const [comments, setComments] = useState<SnippetComment[]>([])
+  const dispatch = useAppDispatch()
+  const comments = useAppSelector(state => selectSnippetComments(state, snippetId))
+  const loading = useAppSelector(selectCommentsLoading)
   const isAuthenticated = useAppSelector(selectIsAuthenticated)
 
   useEffect(() => {
-    fetchSnippetComments(snippetId).then(setComments)
-  }, [snippetId])
+    dispatch(fetchSnippetComments(snippetId))
+  }, [dispatch, snippetId])
 
   async function handleSubmit(content: string) {
-    const created = await createSnippetComment(snippetId, content)
-    if (created) setComments(prev => [...prev, created])
+    await dispatch(addSnippetComment({ snippetId, content }))
   }
 
   return (
     <section className={styles.section}>
       <h2 className={styles.sectionTitle}>Comments</h2>
       <div className={styles.list}>
-        {comments.length === 0
-          ? <p className={styles.empty}>No comments yet.</p>
-          : comments.map(c => <CommentItem key={c.id} comment={c} />)
+        {loading && comments.length === 0
+          ? <p className={styles.empty}>Loading comments…</p>
+          : comments.length === 0
+            ? <p className={styles.empty}>No comments yet.</p>
+            : comments.map(c => <CommentItem key={c.id} comment={c} />)
         }
       </div>
       {isAuthenticated && (

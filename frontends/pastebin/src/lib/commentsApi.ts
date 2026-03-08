@@ -1,8 +1,15 @@
 import { getStorageConfig } from './storage'
 import { getAuthToken } from './authToken'
 
-function baseUrl(): string {
-  return (getStorageConfig().flaskUrl ?? '').replace(/\/$/, '')
+const DBAL_TENANT = 'pastebin'
+const DBAL_PACKAGE = 'pastebin'
+
+function dbalBaseUrl(): string {
+  return (getStorageConfig().dbalUrl ?? '').replace(/\/$/, '')
+}
+
+function entityUrl(entity: string): string {
+  return `${dbalBaseUrl()}/${DBAL_TENANT}/${DBAL_PACKAGE}/${entity}`
 }
 
 function authHeaders(): Record<string, string> {
@@ -10,21 +17,18 @@ function authHeaders(): Record<string, string> {
   return token ? { Authorization: `Bearer ${token}` } : {}
 }
 
-export interface Comment {
-  id: string
-  authorId: string
-  authorUsername: string
-  content: string
-  createdAt: number
+function getUserId(): string {
+  const token = getAuthToken()
+  if (!token) return ''
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]))
+    return payload.sub ?? ''
+  } catch {
+    return ''
+  }
 }
 
-export interface SnippetComment extends Comment {
-  snippetId: string
-}
-
-export interface ProfileComment extends Comment {
-  profileUserId: string
-}
+export type { Comment, SnippetComment, ProfileComment } from './types'
 
 export interface UserProfile {
   id: string
@@ -34,53 +38,20 @@ export interface UserProfile {
 }
 
 export async function fetchUserByUsername(username: string): Promise<UserProfile | null> {
-  const url = `${baseUrl()}/api/users/${encodeURIComponent(username)}`
+  const url = `${entityUrl('User')}?filter.username=${encodeURIComponent(username)}&limit=1`
   const r = await fetch(url)
   if (!r.ok) return null
-  return r.json()
+  const json = await r.json()
+  const items = json.data?.data ?? json.data ?? []
+  return items[0] ?? null
 }
 
 export async function updateMyProfile(bio: string): Promise<void> {
-  const url = `${baseUrl()}/api/users/me/profile`
-  await fetch(url, {
-    method: 'PATCH',
+  const userId = getUserId()
+  if (!userId) return
+  await fetch(`${entityUrl('User')}/${userId}`, {
+    method: 'PUT',
     headers: { 'Content-Type': 'application/json', ...authHeaders() },
     body: JSON.stringify({ bio }),
   })
-}
-
-export async function fetchSnippetComments(snippetId: string): Promise<SnippetComment[]> {
-  const url = `${baseUrl()}/api/comments/snippet/${encodeURIComponent(snippetId)}`
-  const r = await fetch(url)
-  if (!r.ok) return []
-  return r.json()
-}
-
-export async function createSnippetComment(snippetId: string, content: string): Promise<SnippetComment | null> {
-  const url = `${baseUrl()}/api/comments/snippet/${encodeURIComponent(snippetId)}`
-  const r = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...authHeaders() },
-    body: JSON.stringify({ content }),
-  })
-  if (!r.ok) return null
-  return r.json()
-}
-
-export async function fetchProfileComments(profileUserId: string): Promise<ProfileComment[]> {
-  const url = `${baseUrl()}/api/comments/profile/${encodeURIComponent(profileUserId)}`
-  const r = await fetch(url)
-  if (!r.ok) return []
-  return r.json()
-}
-
-export async function createProfileComment(profileUserId: string, content: string): Promise<ProfileComment | null> {
-  const url = `${baseUrl()}/api/comments/profile/${encodeURIComponent(profileUserId)}`
-  const r = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...authHeaders() },
-    body: JSON.stringify({ content }),
-  })
-  if (!r.ok) return null
-  return r.json()
 }

@@ -2,7 +2,7 @@
  * Unified storage interface - routes to IndexedDB or DBAL based on configuration
  */
 
-import type { Snippet, Namespace } from './types';
+import type { Snippet, Namespace, SnippetComment, ProfileComment } from './types';
 import { getStorageConfig, DBALStorageAdapter } from './storage';
 import * as IndexedDBStorage from './indexeddb-storage';
 
@@ -238,6 +238,42 @@ export async function importDatabase(jsonData: string): Promise<void> {
 export function validateDatabaseSchema(): Promise<boolean> {
   // With IndexedDB, schema is always valid
   return Promise.resolve(true);
+}
+
+// Comment operations
+
+export async function getSnippetComments(snippetId: string): Promise<SnippetComment[]> {
+  const adapter = getActiveStorage();
+  if (adapter) {
+    return await adapter.getSnippetComments(snippetId);
+  }
+  return await IndexedDBStorage.getSnippetComments(snippetId);
+}
+
+export async function createSnippetComment(comment: SnippetComment): Promise<SnippetComment> {
+  const adapter = getActiveStorage();
+  if (adapter) {
+    return await adapter.createSnippetComment(comment);
+  }
+  await IndexedDBStorage.createSnippetComment(comment);
+  return comment;
+}
+
+export async function getProfileComments(profileUserId: string): Promise<ProfileComment[]> {
+  const adapter = getActiveStorage();
+  if (adapter) {
+    return await adapter.getProfileComments(profileUserId);
+  }
+  return await IndexedDBStorage.getProfileComments(profileUserId);
+}
+
+export async function createProfileComment(comment: ProfileComment): Promise<ProfileComment> {
+  const adapter = getActiveStorage();
+  if (adapter) {
+    return await adapter.createProfileComment(comment);
+  }
+  await IndexedDBStorage.createProfileComment(comment);
+  return comment;
 }
 
 // For backward compatibility

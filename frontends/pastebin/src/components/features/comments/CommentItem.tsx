@@ -1,4 +1,4 @@
-import { Comment } from '@/lib/commentsApi'
+import type { Comment } from '@/lib/types'
 import { UserAvatar } from '@/components/layout/UserAvatar'
 import { MarkdownRenderer } from '@/components/error/MarkdownRenderer'
 import styles from './comments.module.scss'

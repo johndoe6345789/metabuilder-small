@@ -47,3 +47,9 @@ export const selectCurrentUser = (state: RootState) => state.auth.user
 export const selectIsAuthenticated = (state: RootState) => state.auth.isAuthenticated
 export const selectAuthLoading = (state: RootState) => state.auth.loading
 export const selectAuthError = (state: RootState) => state.auth.error
+
+export const selectSnippetComments = (state: RootState, snippetId: string) =>
+  state.comments.snippetComments[snippetId] ?? []
+export const selectProfileComments = (state: RootState, profileUserId: string) =>
+  state.comments.profileComments[profileUserId] ?? []
+export const selectCommentsLoading = (state: RootState) => state.comments.loading

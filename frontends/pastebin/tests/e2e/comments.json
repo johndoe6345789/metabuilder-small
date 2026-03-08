@@ -1,0 +1,54 @@
+{
+  "$schema": "../../../schemas/package-schemas/playwright.schema.json",
+  "package": "pastebin",
+  "version": "1.0.0",
+  "description": "Snippet and profile comment system tests",
+  "suite": "Comments",
+  "tests": [
+    {
+      "name": "comments section visible on snippet page",
+      "steps": [
+        { "action": "hook", "name": "loginViaApi", "args": { "username": "demo", "password": "demo123" } },
+        { "action": "navigate", "url": "snippet/d0100000-0000-0000-0000-000000000004" },
+        { "action": "waitForSelector", "selector": "h2", "timeout": 30000 },
+        { "action": "expect", "selector": "section h2", "assertion": { "matcher": "toContainText", "text": "Comments" } }
+      ]
+    },
+    {
+      "name": "comment form visible when authenticated",
+      "steps": [
+        { "action": "hook", "name": "loginViaApi", "args": { "username": "demo", "password": "demo123" } },
+        { "action": "navigate", "url": "snippet/d0100000-0000-0000-0000-000000000004" },
+        { "action": "waitForSelector", "selector": "h2", "timeout": 30000 },
+        { "action": "expect", "label": "Comment text", "assertion": { "matcher": "toBeVisible" } },
+        { "action": "expect", "role": "button", "text": "Post Comment", "assertion": { "matcher": "toBeVisible" } }
+      ]
+    },
+    {
+      "name": "post a comment on a snippet",
+      "timeout": 60000,
+      "steps": [
+        { "action": "hook", "name": "loginViaApi", "args": { "username": "demo", "password": "demo123" } },
+        { "action": "navigate", "url": "snippet/d0100000-0000-0000-0000-000000000004" },
+        { "action": "waitForSelector", "selector": "h2", "timeout": 30000 },
+        { "action": "fill", "label": "Comment text", "value": "Playwright JSON test comment" },
+        { "action": "click", "role": "button", "text": "Post Comment" },
+        { "action": "waitForSelector", "selector": "text=Playwright JSON test comment", "timeout": 15000 },
+        { "action": "expect", "text": "Playwright JSON test comment", "assertion": { "matcher": "toBeVisible" } }
+      ]
+    },
+    {
+      "name": "write and preview tabs toggle",
+      "steps": [
+        { "action": "hook", "name": "loginViaApi", "args": { "username": "demo", "password": "demo123" } },
+        { "action": "navigate", "url": "snippet/d0100000-0000-0000-0000-000000000004" },
+        { "action": "waitForSelector", "selector": "h2", "timeout": 30000 },
+        { "action": "fill", "label": "Comment text", "value": "**bold test**" },
+        { "action": "click", "role": "button", "text": "Preview" },
+        { "action": "expect", "label": "Comment text", "assertion": { "matcher": "toBeHidden" } },
+        { "action": "click", "role": "button", "text": "Write" },
+        { "action": "expect", "label": "Comment text", "assertion": { "matcher": "toBeVisible" } }
+      ]
+    }
+  ]
+}

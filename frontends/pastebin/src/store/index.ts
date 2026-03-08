@@ -4,6 +4,7 @@ import snippetsReducer from './slices/snippetsSlice'
 import namespacesReducer from './slices/namespacesSlice'
 import uiReducer from './slices/uiSlice'
 import authReducer from './slices/authSlice'
+import commentsReducer from './slices/commentsSlice'
 import { setAuthToken } from '@/lib/authToken'
 
 const { store, persistor } = createPersistedStore({
@@ -12,10 +13,11 @@ const { store, persistor } = createPersistedStore({
     namespaces: namespacesReducer,
     ui: uiReducer,
     auth: authReducer,
+    comments: commentsReducer,
   },
   persist: {
     key: 'pastebin',
-    whitelist: ['snippets', 'namespaces', 'ui', 'auth'],
+    whitelist: ['snippets', 'namespaces', 'ui', 'auth', 'comments'],
     throttle: 100,
   },
   devTools: {

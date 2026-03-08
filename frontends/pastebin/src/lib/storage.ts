@@ -1,4 +1,4 @@
-import type { Snippet, Namespace } from './types'
+import type { Snippet, Namespace, SnippetComment, ProfileComment } from './types'
 import { getAuthToken } from './authToken'
 
 export type StorageBackend = 'indexeddb' | 'dbal'
@@ -245,6 +245,46 @@ export class DBALStorageAdapter {
       headers: this.authHeader(),
     })
     if (!r.ok) throw new Error(`Failed to delete namespace: ${r.statusText}`)
+  }
+
+  // --- Comments ---
+
+  async getSnippetComments(snippetId: string): Promise<SnippetComment[]> {
+    const url = `${this.entityUrl('SnippetComment')}?filter.snippetId=${encodeURIComponent(snippetId)}&sort.createdAt=asc&limit=200`
+    const r = await fetch(url)
+    if (!r.ok) return []
+    const json = await r.json()
+    return json.data?.data ?? json.data ?? []
+  }
+
+  async createSnippetComment(comment: SnippetComment): Promise<SnippetComment> {
+    const r = await fetch(this.entityUrl('SnippetComment'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...this.authHeader() },
+      body: JSON.stringify({ ...comment, tenantId: DBAL_TENANT }),
+    })
+    if (!r.ok) throw new Error(`Failed to create comment: ${r.statusText}`)
+    const json = await r.json()
+    return json.data ?? json
+  }
+
+  async getProfileComments(profileUserId: string): Promise<ProfileComment[]> {
+    const url = `${this.entityUrl('ProfileComment')}?filter.profileUserId=${encodeURIComponent(profileUserId)}&sort.createdAt=asc&limit=200`
+    const r = await fetch(url)
+    if (!r.ok) return []
+    const json = await r.json()
+    return json.data?.data ?? json.data ?? []
+  }
+
+  async createProfileComment(comment: ProfileComment): Promise<ProfileComment> {
+    const r = await fetch(this.entityUrl('ProfileComment'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...this.authHeader() },
+      body: JSON.stringify({ ...comment, tenantId: DBAL_TENANT }),
+    })
+    if (!r.ok) throw new Error(`Failed to create comment: ${r.statusText}`)
+    const json = await r.json()
+    return json.data ?? json
   }
 
   // --- Database ops ---

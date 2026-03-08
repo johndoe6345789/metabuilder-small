@@ -62,6 +62,24 @@ export interface SnippetTemplate {
   entryPoint?: string
 }
 
+export interface Comment {
+  id: string
+  authorId: string
+  authorUsername: string
+  content: string
+  createdAt: number
+}
+
+export interface SnippetComment extends Comment {
+  snippetId: string
+  tenantId?: string
+}
+
+export interface ProfileComment extends Comment {
+  profileUserId: string
+  tenantId?: string
+}
+
 
 
 

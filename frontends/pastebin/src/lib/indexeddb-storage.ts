@@ -2,12 +2,14 @@
  * IndexedDB Storage - Direct storage of snippets and namespaces
  */
 
-import type { Snippet, Namespace } from './types';
+import type { Snippet, Namespace, SnippetComment, ProfileComment } from './types';
 
 const DB_NAME = 'codesnippet-db';
-const DB_VERSION = 2;
+const DB_VERSION = 3;
 const SNIPPETS_STORE = 'snippets';
 const NAMESPACES_STORE = 'namespaces';
+const SNIPPET_COMMENTS_STORE = 'snippetComments';
+const PROFILE_COMMENTS_STORE = 'profileComments';
 
 let dbInstance: IDBDatabase | null = null;
 
@@ -32,6 +34,18 @@ export async function openDB(): Promise<IDBDatabase> {
       // Create namespaces store if it doesn't exist
       if (!db.objectStoreNames.contains(NAMESPACES_STORE)) {
         db.createObjectStore(NAMESPACES_STORE, { keyPath: 'id' });
+      }
+
+      // Create comment stores if they don't exist
+      if (!db.objectStoreNames.contains(SNIPPET_COMMENTS_STORE)) {
+        const commentStore = db.createObjectStore(SNIPPET_COMMENTS_STORE, { keyPath: 'id' });
+        commentStore.createIndex('snippetId', 'snippetId', { unique: false });
+        commentStore.createIndex('createdAt', 'createdAt', { unique: false });
+      }
+      if (!db.objectStoreNames.contains(PROFILE_COMMENTS_STORE)) {
+        const profileCommentStore = db.createObjectStore(PROFILE_COMMENTS_STORE, { keyPath: 'id' });
+        profileCommentStore.createIndex('profileUserId', 'profileUserId', { unique: false });
+        profileCommentStore.createIndex('createdAt', 'createdAt', { unique: false });
       }
     };
 
@@ -217,9 +231,9 @@ export async function exportDatabase(): Promise<{ snippets: Snippet[]; namespace
 
 export async function importDatabase(data: { snippets: Snippet[]; namespaces: Namespace[] }): Promise<void> {
   await clearDatabase();
-  
+
   const db = await openDB();
-  
+
   return new Promise((resolve, reject) => {
     const transaction = db.transaction([SNIPPETS_STORE, NAMESPACES_STORE], 'readwrite');
     const snippetsStore = transaction.objectStore(SNIPPETS_STORE);
@@ -237,5 +251,61 @@ export async function importDatabase(data: { snippets: Snippet[]; namespaces: Na
 
     transaction.onerror = () => reject(transaction.error);
     transaction.oncomplete = () => resolve();
+  });
+}
+
+// Comment operations
+
+export async function getSnippetComments(snippetId: string): Promise<SnippetComment[]> {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction([SNIPPET_COMMENTS_STORE], 'readonly');
+    const store = tx.objectStore(SNIPPET_COMMENTS_STORE);
+    const index = store.index('snippetId');
+    const request = index.getAll(snippetId);
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => {
+      const results = request.result as SnippetComment[];
+      results.sort((a, b) => a.createdAt - b.createdAt);
+      resolve(results);
+    };
+  });
+}
+
+export async function createSnippetComment(comment: SnippetComment): Promise<void> {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction([SNIPPET_COMMENTS_STORE], 'readwrite');
+    const store = tx.objectStore(SNIPPET_COMMENTS_STORE);
+    const request = store.add(comment);
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => resolve();
+  });
+}
+
+export async function getProfileComments(profileUserId: string): Promise<ProfileComment[]> {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction([PROFILE_COMMENTS_STORE], 'readonly');
+    const store = tx.objectStore(PROFILE_COMMENTS_STORE);
+    const index = store.index('profileUserId');
+    const request = index.getAll(profileUserId);
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => {
+      const results = request.result as ProfileComment[];
+      results.sort((a, b) => a.createdAt - b.createdAt);
+      resolve(results);
+    };
+  });
+}
+
+export async function createProfileComment(comment: ProfileComment): Promise<void> {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction([PROFILE_COMMENTS_STORE], 'readwrite');
+    const store = tx.objectStore(PROFILE_COMMENTS_STORE);
+    const request = store.add(comment);
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => resolve();
   });
 }
