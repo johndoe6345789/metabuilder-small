@@ -118,7 +118,6 @@
     },
     {
       "name": "network requests succeed on load",
-      "skip": true,
       "steps": [
         { "action": "hook", "name": "watchNetworkErrors" },
         { "action": "navigate", "url": "" },

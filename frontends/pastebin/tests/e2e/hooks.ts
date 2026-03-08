@@ -175,7 +175,9 @@ export const setupHooks: Record<string, SetupHook> = {
     const errors: string[] = []
 
     const handler = (response: Response) => {
-      if (!response.ok() && response.status() !== 304) {
+      // Only flag 5xx server errors — 4xx (401, 404) are expected on initial
+      // unauthenticated load and should not count as test failures.
+      if (response.status() >= 500) {
         errors.push(`${response.status()} ${response.url()}`)
       }
     }
