@@ -8,7 +8,7 @@
     {
       "name": "comments section visible on snippet page",
       "steps": [
-        { "action": "hook", "name": "loginViaApi", "args": { "username": "demo", "password": "demo123" } },
+        { "action": "hook", "name": "loginViaApi" },
         { "action": "navigate", "url": "" },
         { "action": "waitForLoadState", "state": "networkidle" },
         { "action": "click", "testId": "namespace-chip-d0000001-0000-0000-0000-000000000002" },
@@ -21,7 +21,7 @@
     {
       "name": "comment form visible when authenticated",
       "steps": [
-        { "action": "hook", "name": "loginViaApi", "args": { "username": "demo", "password": "demo123" } },
+        { "action": "hook", "name": "loginViaApi" },
         { "action": "navigate", "url": "" },
         { "action": "waitForLoadState", "state": "networkidle" },
         { "action": "click", "testId": "namespace-chip-d0000001-0000-0000-0000-000000000002" },
@@ -36,7 +36,7 @@
       "name": "post a comment on a snippet",
       "timeout": 90000,
       "steps": [
-        { "action": "hook", "name": "loginViaApi", "args": { "username": "demo", "password": "demo123" } },
+        { "action": "hook", "name": "loginViaApi" },
         { "action": "navigate", "url": "" },
         { "action": "waitForLoadState", "state": "networkidle" },
         { "action": "click", "testId": "namespace-chip-d0000001-0000-0000-0000-000000000002" },
@@ -52,7 +52,7 @@
     {
       "name": "write and preview tabs toggle",
       "steps": [
-        { "action": "hook", "name": "loginViaApi", "args": { "username": "demo", "password": "demo123" } },
+        { "action": "hook", "name": "loginViaApi" },
         { "action": "navigate", "url": "" },
         { "action": "waitForLoadState", "state": "networkidle" },
         { "action": "click", "testId": "namespace-chip-d0000001-0000-0000-0000-000000000002" },

@@ -103,7 +103,12 @@ const commentsSlice = createSlice({
       })
       .addCase(fetchSnippetComments.fulfilled, (state, action) => {
         state.loading = false
-        state.snippetComments[action.payload.snippetId] = action.payload.comments
+        const sorted = [...action.payload.comments].sort((a, b) => {
+          const ta = typeof a.createdAt === 'number' ? a.createdAt : new Date(a.createdAt).getTime()
+          const tb = typeof b.createdAt === 'number' ? b.createdAt : new Date(b.createdAt).getTime()
+          return ta - tb
+        })
+        state.snippetComments[action.payload.snippetId] = sorted
       })
       .addCase(fetchSnippetComments.rejected, (state, action) => {
         state.loading = false
@@ -123,7 +128,12 @@ const commentsSlice = createSlice({
       })
       .addCase(fetchProfileComments.fulfilled, (state, action) => {
         state.loading = false
-        state.profileComments[action.payload.profileUserId] = action.payload.comments
+        const sorted = [...action.payload.comments].sort((a, b) => {
+          const ta = typeof a.createdAt === 'number' ? a.createdAt : new Date(a.createdAt).getTime()
+          const tb = typeof b.createdAt === 'number' ? b.createdAt : new Date(b.createdAt).getTime()
+          return ta - tb
+        })
+        state.profileComments[action.payload.profileUserId] = sorted
       })
       .addCase(fetchProfileComments.rejected, (state, action) => {
         state.loading = false

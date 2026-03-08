@@ -29,12 +29,21 @@
       "tenantId": "pastebin",
       "passwordHash": "scrypt:32768:8:1$JCIhCrzjBLv5iUMY$0174ca94e566e9b9d60dc6f58d969af63721001494584c84ba9219e84563d120f8f18c01ef3270276cfbb822d3a77b0a5929ab65e5f72768a7d2f4e276aaffa2",
       "createdAt": 0
+    },
+    {
+      "id": "44444444-4444-4444-4444-444444444444",
+      "username": "playwright",
+      "email": "playwright@codesnippet.local",
+      "role": "user",
+      "tenantId": "pastebin",
+      "passwordHash": "scrypt:32768:8:1$wFy2KXr4ZHWOYAFy$dffe5e5bd1548fea0ad9531acb09294eb8cd8d98e45aa05c6ea5f70f92a224d14928057aad7644181a0233bfba30c70df0775e1ca55ebd0644deb1be2d8e2b54",
+      "createdAt": 0
     }
   ],
   "metadata": {
     "bootstrap": true,
     "useCurrentTimestamp": true,
     "timestampField": "createdAt",
-    "note": "passwordHash is Flask-only — DBAL ignores it. demo=demo1234, alice=alice1234, bob=bob12345"
+    "note": "passwordHash is Flask-only — DBAL ignores it. demo=demo1234, alice=alice1234, bob=bob12345, playwright=pw-test-2024"
   }
 }

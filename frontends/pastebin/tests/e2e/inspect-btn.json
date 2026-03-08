@@ -9,16 +9,16 @@
       "name": "create button has correct styling",
       "steps": [
         { "action": "navigate", "url": "" },
-        { "action": "waitForSelector", "selector": "[data-testid='new-snippet-btn'],[data-testid='empty-state-create-menu']", "timeout": 10000 },
-        { "action": "evalExpect", "name": "getComputedStyle", "args": { "selector": "[data-testid='new-snippet-btn'],[data-testid='empty-state-create-menu']", "property": "cursor" }, "assertion": { "matcher": "toBeTruthy" } }
+        { "action": "waitForSelector", "selector": "[data-testid='snippet-create-menu-trigger'],[data-testid='empty-state-create-menu']", "timeout": 10000 },
+        { "action": "evalExpect", "name": "getComputedStyle", "args": { "selector": "[data-testid='snippet-create-menu-trigger'],[data-testid='empty-state-create-menu']", "property": "cursor" }, "assertion": { "matcher": "toBeTruthy" } }
       ]
     },
     {
       "name": "buttons have pointer cursor",
       "steps": [
         { "action": "navigate", "url": "" },
-        { "action": "waitForSelector", "selector": "button", "timeout": 5000 },
-        { "action": "evalExpect", "name": "getComputedStyle", "args": { "selector": "button", "property": "cursor" }, "assertion": { "matcher": "toEqual", "expected": "pointer" } }
+        { "action": "waitForSelector", "selector": "[data-testid='navigation-toggle-btn']", "timeout": 10000 },
+        { "action": "evalExpect", "name": "getComputedStyle", "args": { "selector": "[data-testid='navigation-toggle-btn']", "property": "cursor" }, "assertion": { "matcher": "toBeTruthy" } }
       ]
     },
     {

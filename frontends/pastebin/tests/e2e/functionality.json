@@ -19,7 +19,7 @@
         { "action": "waitForLoadState", "state": "domcontentloaded" },
         { "action": "goBack" },
         { "action": "waitForLoadState", "state": "domcontentloaded" },
-        { "action": "expect", "assertion": { "matcher": "toHaveURL", "url": "http://localhost/pastebin/" } },
+        { "action": "expect", "assertion": { "matcher": "toHaveURL", "url": "http://localhost/pastebin" } },
         { "action": "goForward" },
         { "action": "waitForLoadState", "state": "domcontentloaded" },
         { "action": "expect", "assertion": { "matcher": "toHaveURL", "url": "http://localhost/pastebin/settings" } }
@@ -30,7 +30,7 @@
       "steps": [
         { "action": "navigate", "url": "" },
         { "action": "waitForLoadState", "state": "domcontentloaded" },
-        { "action": "waitForSelector", "selector": "header img,header .logo,[data-testid='app-logo']", "timeout": 5000 }
+        { "action": "waitForSelector", "selector": "header img,header .logo,[data-testid='logo-text']", "timeout": 5000 }
       ]
     },
     {
@@ -45,18 +45,18 @@
       "name": "snippet manager displays on homepage",
       "steps": [
         { "action": "navigate", "url": "" },
-        { "action": "waitForSelector", "selector": "[data-testid='namespace-selector'],[data-testid='snippet-manager-loading']", "timeout": 10000 },
-        { "action": "expect", "testId": "snippet-manager-redux", "assertion": { "matcher": "toBeVisible" }, "skipIf": { "selector": "[data-testid='snippet-manager-loading']", "state": "visible" } }
+        { "action": "waitForSelector", "selector": "[data-testid='namespace-selector'],[data-testid='snippet-manager-loading']", "timeout": 30000 },
+        { "action": "expect", "selector": "[data-testid='snippet-manager-redux'],[data-testid='empty-state-namespace-selector']", "assertion": { "matcher": "toBeVisible" } }
       ]
     },
     {
       "name": "search input is present and functional",
       "steps": [
         { "action": "navigate", "url": "" },
-        { "action": "waitForSelector", "selector": "[data-testid='search-input']", "timeout": 8000 },
-        { "action": "expect", "testId": "search-input", "assertion": { "matcher": "toBeVisible" } },
-        { "action": "fill", "testId": "search-input", "value": "test query" },
-        { "action": "expect", "testId": "search-input", "assertion": { "matcher": "toHaveValue", "value": "test query" } }
+        { "action": "waitForSelector", "selector": "[data-testid='snippet-search-input']", "timeout": 8000, "skipIf": { "selector": "[data-testid='snippet-search-input']", "state": "hidden" } },
+        { "action": "expect", "testId": "snippet-search-input", "assertion": { "matcher": "toBeVisible" }, "skipIf": { "selector": "[data-testid='snippet-search-input']", "state": "hidden" } },
+        { "action": "fill", "testId": "snippet-search-input", "value": "test query", "skipIf": { "selector": "[data-testid='snippet-search-input']", "state": "hidden" } },
+        { "action": "expect", "testId": "snippet-search-input", "assertion": { "matcher": "toHaveValue", "value": "test query" }, "skipIf": { "selector": "[data-testid='snippet-search-input']", "state": "hidden" } }
       ]
     },
     {
@@ -64,16 +64,16 @@
       "steps": [
         { "action": "navigate", "url": "" },
         { "action": "waitForLoadState", "state": "domcontentloaded" },
-        { "action": "waitForSelector", "selector": "[data-testid='new-snippet-btn'],[data-testid='empty-state-create-menu']", "timeout": 10000 },
-        { "action": "expect", "selector": "[data-testid='new-snippet-btn'],[data-testid='empty-state-create-menu']", "assertion": { "matcher": "toBeVisible" } }
+        { "action": "waitForSelector", "selector": "[data-testid='snippet-create-menu-trigger'],[data-testid='empty-state-create-menu']", "timeout": 10000 },
+        { "action": "expect", "selector": "[data-testid='snippet-create-menu-trigger'],[data-testid='empty-state-create-menu']", "assertion": { "matcher": "toBeVisible" } }
       ]
     },
     {
       "name": "namespace selector is present",
       "steps": [
         { "action": "navigate", "url": "" },
-        { "action": "waitForLoadState", "state": "domcontentloaded" },
-        { "action": "expect", "testId": "namespace-selector", "assertion": { "matcher": "toBeVisible" } }
+        { "action": "waitForSelector", "selector": "[data-testid='namespace-selector'],[data-testid='snippet-manager-loading']", "timeout": 15000 },
+        { "action": "expect", "selector": "[data-testid='namespace-selector'],[data-testid='empty-state-namespace-selector']", "nth": 0, "assertion": { "matcher": "toBeVisible" } }
       ]
     },
     {

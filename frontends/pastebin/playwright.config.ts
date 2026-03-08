@@ -1,9 +1,20 @@
 import { defineConfig, devices } from "@playwright/test"
 
-// SKIP_WEBSERVER=true → run against Docker stack at localhost/pastebin/
-// Default → start Next.js dev server on port 3004
+// Three modes:
+//   Default (or USE_TESTCONTAINERS=true) → Testcontainers spins up full stack, real DB calls
+//   SKIP_WEBSERVER=true                  → run against manually started Docker stack at localhost/pastebin/
+//   NO_CONTAINERS=true                   → start Next.js dev server on port 3004 (no Docker)
+const noContainers = !!process.env.NO_CONTAINERS
 const useDocker = !!process.env.SKIP_WEBSERVER
-const baseURL = useDocker ? "http://localhost/pastebin/" : "http://127.0.0.1:3004"
+const useTestcontainers = !noContainers && !useDocker
+
+const e2ePort = process.env.E2E_NGINX_PORT || "8888"
+
+const baseURL = useTestcontainers
+  ? `http://localhost:${e2ePort}/pastebin/`
+  : useDocker
+    ? "http://localhost/pastebin/"
+    : "http://127.0.0.1:3004"
 
 export default defineConfig({
   testDir: "./tests",
@@ -35,7 +46,13 @@ export default defineConfig({
       },
     },
   ],
-  ...(!useDocker && {
+  // Testcontainers mode (default): global setup/teardown manage the stack
+  ...(useTestcontainers && {
+    globalSetup: "./tests/e2e/global-setup.ts",
+    globalTeardown: "./tests/e2e/global-teardown.ts",
+  }),
+  // Dev server mode: start Next.js locally (no Docker)
+  ...(noContainers && {
     webServer: {
       command: "npm run dev -- -p 3004 -H 0.0.0.0",
       port: 3004,

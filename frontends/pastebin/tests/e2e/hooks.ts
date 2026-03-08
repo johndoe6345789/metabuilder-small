@@ -70,7 +70,7 @@ export const setupHooks: Record<string, SetupHook> = {
 
     // IndexedDB requires a page with the target origin to be loaded.
     // Navigate to the app root so we're in the right security context.
-    if (!page.url().startsWith('http://localhost/pastebin')) {
+    if (!page.url().includes('/pastebin')) {
       await page.goto('', { waitUntil: 'domcontentloaded' })
     }
 

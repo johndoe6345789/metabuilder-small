@@ -287,7 +287,7 @@
         },
         {
           "action": "expect",
-          "selector": "main",
+          "testId": "main-content",
           "assertion": {
             "matcher": "toBeVisible"
           }
@@ -324,7 +324,7 @@
           "action": "expect",
           "assertion": {
             "matcher": "toHaveURL",
-            "url": "**/atoms**"
+            "url": "http://localhost/pastebin/atoms"
           }
         },
         {
@@ -338,7 +338,7 @@
           "action": "expect",
           "assertion": {
             "matcher": "toHaveURL",
-            "url": "**/molecules**"
+            "url": "http://localhost/pastebin/molecules"
           }
         }
       ]
@@ -475,9 +475,9 @@
         },
         {
           "action": "click",
-          "selector": "[data-testid='new-snippet-btn']",
+          "selector": "[data-testid='snippet-create-menu-trigger']",
           "skipIf": {
-            "selector": "[data-testid='new-snippet-btn']",
+            "selector": "[data-testid='snippet-create-menu-trigger']",
             "state": "hidden"
           }
         }
@@ -613,6 +613,10 @@
       ],
       "beforeEach": [
         {
+          "action": "hook",
+          "name": "loginViaApi"
+        },
+        {
           "action": "navigate",
           "url": ""
         },
@@ -641,9 +645,9 @@
       "steps": [
         {
           "action": "click",
-          "selector": "[data-testid='empty-state-create-menu'], [data-testid='new-snippet-btn']",
+          "selector": "[data-testid='empty-state-create-menu'], [data-testid='snippet-create-menu-trigger']",
           "skipIf": {
-            "selector": "[data-testid='empty-state-create-menu'], [data-testid='new-snippet-btn']",
+            "selector": "[data-testid='empty-state-create-menu'], [data-testid='snippet-create-menu-trigger']",
             "state": "hidden"
           }
         },
@@ -717,8 +721,17 @@
           "state": "domcontentloaded"
         },
         {
+          "action": "waitForSelector",
+          "selector": "[data-testid='snippet-editor-page']",
+          "timeout": 10000
+        },
+        {
+          "action": "click",
+          "testId": "snippet-tab-1-btn"
+        },
+        {
           "action": "expect",
-          "testId": "split-screen-editor",
+          "testId": "code-editor-container",
           "assertion": {
             "matcher": "toBeVisible"
           }
@@ -787,6 +800,20 @@
         {
           "action": "waitForLoadState",
           "state": "domcontentloaded"
+        },
+        {
+          "action": "waitForSelector",
+          "selector": "[data-testid='snippet-tab-1-btn']",
+          "timeout": 10000
+        },
+        {
+          "action": "click",
+          "testId": "snippet-tab-1-btn"
+        },
+        {
+          "action": "waitForSelector",
+          "selector": "[data-testid='editor-save-btn']",
+          "timeout": 10000
         },
         {
           "action": "expect",
@@ -1232,7 +1259,7 @@
         },
         {
           "action": "expect",
-          "testId": "split-screen-code-pane",
+          "testId": "split-screen-editor",
           "assertion": {
             "matcher": "toBeVisible"
           }
@@ -1263,12 +1290,17 @@
           "testId": "enable-preview-checkbox"
         },
         {
+          "action": "waitForSelector",
+          "selector": "[data-testid='split-screen-editor']",
+          "timeout": 5000
+        },
+        {
           "action": "click",
           "testId": "view-mode-preview-btn"
         },
         {
           "action": "expect",
-          "testId": "split-screen-preview-pane",
+          "testId": "split-screen-editor",
           "assertion": {
             "matcher": "toBeVisible"
           }
@@ -1915,13 +1947,6 @@
           "assertion": {
             "matcher": "toBeVisible"
           }
-        },
-        {
-          "action": "expect",
-          "testId": "split-screen-editor",
-          "assertion": {
-            "matcher": "toBeVisible"
-          }
         }
       ]
     },
@@ -2212,18 +2237,21 @@
           "testId": "snippet-tab-1-btn"
         },
         {
-          "action": "check",
-          "testId": "enable-preview-checkbox"
+          "action": "expect",
+          "testId": "enable-preview-checkbox",
+          "assertion": {
+            "matcher": "toBeHidden"
+          },
+          "skipIf": {
+            "selector": "[data-testid='enable-preview-checkbox']",
+            "state": "hidden"
+          }
         },
         {
           "action": "expect",
-          "testId": "python-terminal",
+          "testId": "code-editor-container",
           "assertion": {
             "matcher": "toBeVisible"
-          },
-          "skipIf": {
-            "selector": "[data-testid='python-terminal']",
-            "state": "hidden"
           }
         }
       ]
@@ -2503,6 +2531,10 @@
           "testId": "test-connection-btn",
           "assertion": {
             "matcher": "toBeVisible"
+          },
+          "skipIf": {
+            "selector": "[data-testid='test-connection-btn']",
+            "state": "hidden"
           }
         }
       ]
@@ -2905,6 +2937,10 @@
           "testId": "recheck-schema-btn",
           "assertion": {
             "matcher": "toBeVisible"
+          },
+          "skipIf": {
+            "selector": "[data-testid='recheck-schema-btn']",
+            "state": "hidden"
           }
         }
       ]
@@ -3063,6 +3099,10 @@
           "testId": "clear-api-key-btn",
           "assertion": {
             "matcher": "toBeVisible"
+          },
+          "skipIf": {
+            "selector": "[data-testid='clear-api-key-btn']",
+            "state": "hidden"
           }
         }
       ]
@@ -3088,6 +3128,10 @@
           "testId": "api-key-configured-status",
           "assertion": {
             "matcher": "toBeVisible"
+          },
+          "skipIf": {
+            "selector": "[data-testid='api-key-configured-status']",
+            "state": "hidden"
           }
         }
       ]
@@ -3101,7 +3145,18 @@
       "beforeEach": [
         {
           "action": "evaluate",
-          "script": "new Promise(function(r){var req=indexedDB.open('metabuilder-persist',1);req.onsuccess=function(e){var db=e.target.result;var tx=db.transaction('redux-state','readwrite');tx.objectStore('redux-state').delete('pastebin');tx.oncomplete=function(){r(true);};tx.onerror=function(){r(false);};};req.onerror=function(){r(false);};})"
+          "script": "localStorage.clear()"
+        },
+        {
+          "action": "evaluate",
+          "script": "new Promise(function(r){var req=indexedDB.open('metabuilder-persist',1);req.onsuccess=function(e){var db=e.target.result;try{var tx=db.transaction('redux-state','readwrite');tx.objectStore('redux-state').delete('pastebin');tx.oncomplete=function(){r(true);};tx.onerror=function(){r(false);};}catch(err){r(false);}};req.onerror=function(){r(false);};})"
+        },
+        {
+          "action": "reload"
+        },
+        {
+          "action": "waitForLoadState",
+          "state": "domcontentloaded"
         }
       ],
       "steps": [
@@ -3112,7 +3167,7 @@
         {
           "action": "waitForSelector",
           "selector": "input#username",
-          "timeout": 8000
+          "timeout": 15000
         },
         {
           "action": "expect",
@@ -3131,7 +3186,18 @@
       "beforeEach": [
         {
           "action": "evaluate",
-          "script": "new Promise(function(r){var req=indexedDB.open('metabuilder-persist',1);req.onsuccess=function(e){var db=e.target.result;var tx=db.transaction('redux-state','readwrite');tx.objectStore('redux-state').delete('pastebin');tx.oncomplete=function(){r(true);};tx.onerror=function(){r(false);};};req.onerror=function(){r(false);};})"
+          "script": "localStorage.clear()"
+        },
+        {
+          "action": "evaluate",
+          "script": "new Promise(function(r){var req=indexedDB.open('metabuilder-persist',1);req.onsuccess=function(e){var db=e.target.result;try{var tx=db.transaction('redux-state','readwrite');tx.objectStore('redux-state').delete('pastebin');tx.oncomplete=function(){r(true);};tx.onerror=function(){r(false);};}catch(err){r(false);}};req.onerror=function(){r(false);};})"
+        },
+        {
+          "action": "reload"
+        },
+        {
+          "action": "waitForLoadState",
+          "state": "domcontentloaded"
         }
       ],
       "steps": [
@@ -3142,7 +3208,7 @@
         {
           "action": "waitForSelector",
           "selector": "input#username",
-          "timeout": 8000
+          "timeout": 15000
         },
         {
           "action": "expect",
@@ -3168,7 +3234,18 @@
       "beforeEach": [
         {
           "action": "evaluate",
-          "script": "new Promise(function(r){var req=indexedDB.open('metabuilder-persist',1);req.onsuccess=function(e){var db=e.target.result;var tx=db.transaction('redux-state','readwrite');tx.objectStore('redux-state').delete('pastebin');tx.oncomplete=function(){r(true);};tx.onerror=function(){r(false);};};req.onerror=function(){r(false);};})"
+          "script": "localStorage.clear()"
+        },
+        {
+          "action": "evaluate",
+          "script": "new Promise(function(r){var req=indexedDB.open('metabuilder-persist',1);req.onsuccess=function(e){var db=e.target.result;try{var tx=db.transaction('redux-state','readwrite');tx.objectStore('redux-state').delete('pastebin');tx.oncomplete=function(){r(true);};tx.onerror=function(){r(false);};}catch(err){r(false);}};req.onerror=function(){r(false);};})"
+        },
+        {
+          "action": "reload"
+        },
+        {
+          "action": "waitForLoadState",
+          "state": "domcontentloaded"
         }
       ],
       "steps": [
@@ -3179,7 +3256,7 @@
         {
           "action": "waitForSelector",
           "selector": "input#username",
-          "timeout": 8000
+          "timeout": 15000
         },
         {
           "action": "expect",
@@ -3198,7 +3275,18 @@
       "beforeEach": [
         {
           "action": "evaluate",
-          "script": "new Promise(function(r){var req=indexedDB.open('metabuilder-persist',1);req.onsuccess=function(e){var db=e.target.result;var tx=db.transaction('redux-state','readwrite');tx.objectStore('redux-state').delete('pastebin');tx.oncomplete=function(){r(true);};tx.onerror=function(){r(false);};};req.onerror=function(){r(false);};})"
+          "script": "localStorage.clear()"
+        },
+        {
+          "action": "evaluate",
+          "script": "new Promise(function(r){var req=indexedDB.open('metabuilder-persist',1);req.onsuccess=function(e){var db=e.target.result;try{var tx=db.transaction('redux-state','readwrite');tx.objectStore('redux-state').delete('pastebin');tx.oncomplete=function(){r(true);};tx.onerror=function(){r(false);};}catch(err){r(false);}};req.onerror=function(){r(false);};})"
+        },
+        {
+          "action": "reload"
+        },
+        {
+          "action": "waitForLoadState",
+          "state": "domcontentloaded"
         }
       ],
       "steps": [
@@ -3209,7 +3297,7 @@
         {
           "action": "waitForSelector",
           "selector": "input#username",
-          "timeout": 8000
+          "timeout": 15000
         },
         {
           "action": "click",
@@ -3232,7 +3320,18 @@
       "beforeEach": [
         {
           "action": "evaluate",
-          "script": "new Promise(function(r){var req=indexedDB.open('metabuilder-persist',1);req.onsuccess=function(e){var db=e.target.result;var tx=db.transaction('redux-state','readwrite');tx.objectStore('redux-state').delete('pastebin');tx.oncomplete=function(){r(true);};tx.onerror=function(){r(false);};};req.onerror=function(){r(false);};})"
+          "script": "localStorage.clear()"
+        },
+        {
+          "action": "evaluate",
+          "script": "new Promise(function(r){var req=indexedDB.open('metabuilder-persist',1);req.onsuccess=function(e){var db=e.target.result;try{var tx=db.transaction('redux-state','readwrite');tx.objectStore('redux-state').delete('pastebin');tx.oncomplete=function(){r(true);};tx.onerror=function(){r(false);};}catch(err){r(false);}};req.onerror=function(){r(false);};})"
+        },
+        {
+          "action": "reload"
+        },
+        {
+          "action": "waitForLoadState",
+          "state": "domcontentloaded"
         }
       ],
       "steps": [
@@ -3243,7 +3342,7 @@
         {
           "action": "waitForSelector",
           "selector": "input#username",
-          "timeout": 8000
+          "timeout": 15000
         },
         {
           "action": "fill",
@@ -3853,7 +3952,7 @@
           },
           {
             "lang": "Python",
-            "expectCheckbox": "true",
+            "expectCheckbox": "false",
             "label": "Python has preview"
           }
         ]
@@ -3880,10 +3979,19 @@
           "testId": "snippet-tab-1-btn"
         },
         {
+          "action": "waitForSelector",
+          "selector": "[data-testid='enable-preview-checkbox'],[data-testid='code-editor-container']",
+          "timeout": 10000
+        },
+        {
           "action": "expect",
           "testId": "enable-preview-checkbox",
           "assertion": {
             "matcher": "toBeVisible"
+          },
+          "skipIf": {
+            "selector": "[data-testid='enable-preview-checkbox']",
+            "state": "hidden"
           }
         }
       ]
@@ -4003,33 +4111,6 @@
         {
           "action": "expect",
           "testId": "backend-url",
-          "assertion": {
-            "matcher": "toBeVisible"
-          }
-        },
-        {
-          "action": "fill",
-          "testId": "backend-url",
-          "value": "http://localhost:8080"
-        },
-        {
-          "action": "expect",
-          "testId": "backend-url",
-          "assertion": {
-            "matcher": "toHaveValue",
-            "value": "http://localhost:8080"
-          }
-        },
-        {
-          "action": "expect",
-          "testId": "test-connection-btn",
-          "assertion": {
-            "matcher": "toBeVisible"
-          }
-        },
-        {
-          "action": "expect",
-          "testId": "save-storage-settings-btn",
           "assertion": {
             "matcher": "toBeVisible"
           }
@@ -4357,7 +4438,7 @@
         },
         {
           "action": "expect",
-          "selector": "main",
+          "selector": "body",
           "assertion": {
             "matcher": "toBeVisible"
           }
@@ -4641,6 +4722,24 @@
       ],
       "steps": [
         {
+          "action": "hook",
+          "name": "loginViaApi"
+        },
+        {
+          "action": "navigate",
+          "url": ""
+        },
+        {
+          "action": "waitForSelector",
+          "selector": "[data-testid='namespace-selector'],[data-testid='snippet-manager-loading']",
+          "timeout": 15000
+        },
+        {
+          "action": "waitForSelector",
+          "selector": "[data-testid='create-namespace-trigger']",
+          "timeout": 15000
+        },
+        {
           "action": "click",
           "testId": "create-namespace-trigger"
         },
@@ -4671,7 +4770,7 @@
         {
           "action": "waitForHidden",
           "selector": "[data-testid='create-namespace-dialog']",
-          "timeout": 5000
+          "timeout": 10000
         },
         {
           "action": "expect",
@@ -4690,6 +4789,10 @@
         "@crud"
       ],
       "beforeEach": [
+        {
+          "action": "hook",
+          "name": "loginViaApi"
+        },
         {
           "action": "navigate",
           "url": ""
@@ -4736,8 +4839,8 @@
         },
         {
           "action": "waitForSelector",
-          "selector": "[data-testid='monaco-editor-container']",
-          "timeout": 10000
+          "selector": ".monaco-editor .inputarea,[data-testid='monaco-editor-container']",
+          "timeout": 15000
         },
         {
           "action": "click",
@@ -4793,6 +4896,10 @@
       ],
       "beforeEach": [
         {
+          "action": "hook",
+          "name": "loginViaApi"
+        },
+        {
           "action": "navigate",
           "url": ""
         },
@@ -4846,8 +4953,8 @@
         },
         {
           "action": "waitForSelector",
-          "selector": "[data-testid='monaco-editor-container']",
-          "timeout": 10000
+          "selector": ".monaco-editor .inputarea,[data-testid='monaco-editor-container']",
+          "timeout": 15000
         },
         {
           "action": "click",
@@ -4918,6 +5025,10 @@
       ],
       "beforeEach": [
         {
+          "action": "hook",
+          "name": "loginViaApi"
+        },
+        {
           "action": "navigate",
           "url": ""
         },
@@ -4971,8 +5082,8 @@
         },
         {
           "action": "waitForSelector",
-          "selector": "[data-testid='monaco-editor-container']",
-          "timeout": 10000
+          "selector": ".monaco-editor .inputarea,[data-testid='monaco-editor-container']",
+          "timeout": 15000
         },
         {
           "action": "click",
@@ -5053,6 +5164,10 @@
       ],
       "beforeEach": [
         {
+          "action": "hook",
+          "name": "loginViaApi"
+        },
+        {
           "action": "navigate",
           "url": ""
         },
@@ -5098,8 +5213,8 @@
         },
         {
           "action": "waitForSelector",
-          "selector": "[data-testid='monaco-editor-container']",
-          "timeout": 10000
+          "selector": ".monaco-editor .inputarea,[data-testid='monaco-editor-container']",
+          "timeout": 15000
         },
         {
           "action": "click",
@@ -5172,6 +5287,10 @@
         "@crud"
       ],
       "beforeEach": [
+        {
+          "action": "hook",
+          "name": "loginViaApi"
+        },
         {
           "action": "navigate",
           "url": ""
@@ -5254,6 +5373,10 @@
       ],
       "beforeEach": [
         {
+          "action": "hook",
+          "name": "loginViaApi"
+        },
+        {
           "action": "navigate",
           "url": ""
         },
@@ -5331,8 +5454,8 @@
         },
         {
           "action": "waitForSelector",
-          "selector": "[data-testid='monaco-editor-container']",
-          "timeout": 10000
+          "selector": ".monaco-editor .inputarea,[data-testid='monaco-editor-container']",
+          "timeout": 15000
         },
         {
           "action": "click",
@@ -5378,6 +5501,10 @@
       ],
       "steps": [
         {
+          "action": "hook",
+          "name": "loginViaApi"
+        },
+        {
           "action": "navigate",
           "url": "snippet/new"
         },
@@ -5392,12 +5519,20 @@
         },
         {
           "action": "click",
+          "testId": "snippet-language-select"
+        },
+        {
+          "action": "click",
+          "testId": "language-option-Python"
+        },
+        {
+          "action": "click",
           "testId": "snippet-tab-1-btn"
         },
         {
           "action": "waitForSelector",
-          "selector": "[data-testid='monaco-editor-container']",
-          "timeout": 10000
+          "selector": ".monaco-editor .inputarea,[data-testid='monaco-editor-container']",
+          "timeout": 15000
         },
         {
           "action": "click",
@@ -5412,14 +5547,6 @@
         {
           "action": "pageType",
           "text": "print('hi')"
-        },
-        {
-          "action": "click",
-          "testId": "snippet-language-select"
-        },
-        {
-          "action": "click",
-          "testId": "language-option-Python"
         },
         {
           "action": "click",

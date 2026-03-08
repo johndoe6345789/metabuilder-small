@@ -44,7 +44,7 @@
       "steps": [
         { "action": "navigate", "url": "" },
         { "action": "waitForLoadState", "state": "domcontentloaded" },
-        { "action": "expect", "selector": "nav a,[role='navigation'] a", "assertion": { "matcher": "toBeVisible" } }
+        { "action": "expect", "testId": "navigation-toggle-btn", "assertion": { "matcher": "toBeVisible" } }
       ]
     },
     {
@@ -52,7 +52,9 @@
       "steps": [
         { "action": "navigate", "url": "" },
         { "action": "waitForLoadState", "state": "domcontentloaded" },
-        { "action": "click", "selector": "a[href*='settings'],a[href='/pastebin/settings'],[data-testid='nav-settings']" },
+        { "action": "click", "testId": "navigation-toggle-btn" },
+        { "action": "waitForSelector", "selector": "[data-testid='nav-link--settings']", "timeout": 10000 },
+        { "action": "click", "testId": "nav-link--settings" },
         { "action": "expect", "assertion": { "matcher": "toHaveURL", "url": "http://localhost/pastebin/settings" } }
       ]
     },
@@ -93,7 +95,7 @@
       "steps": [
         { "action": "navigate", "url": "" },
         { "action": "waitForSelector", "selector": "[data-testid='namespace-selector'],[data-testid='snippet-manager-loading']", "timeout": 30000 },
-        { "action": "click", "selector": "[data-testid='empty-state-create-menu'],[data-testid='new-snippet-btn']", "skipIf": { "selector": "[data-testid='empty-state-create-menu'],[data-testid='new-snippet-btn']", "state": "hidden" } },
+        { "action": "click", "selector": "[data-testid='empty-state-create-menu'],[data-testid='snippet-create-menu-trigger']", "skipIf": { "selector": "[data-testid='empty-state-create-menu'],[data-testid='snippet-create-menu-trigger']", "state": "hidden" } },
         { "action": "expect", "testId": "snippet-dialog", "assertion": { "matcher": "toBeVisible" }, "skipIf": { "selector": "[data-testid='snippet-dialog']", "state": "hidden" } }
       ]
     },
@@ -102,7 +104,7 @@
       "steps": [
         { "action": "navigate", "url": "" },
         { "action": "waitForSelector", "selector": "[data-testid='namespace-selector'],[data-testid='snippet-manager-loading']", "timeout": 30000 },
-        { "action": "click", "selector": "[data-testid='empty-state-create-menu'],[data-testid='new-snippet-btn']", "skipIf": { "selector": "[data-testid='empty-state-create-menu'],[data-testid='new-snippet-btn']", "state": "hidden" } },
+        { "action": "click", "selector": "[data-testid='empty-state-create-menu'],[data-testid='snippet-create-menu-trigger']", "skipIf": { "selector": "[data-testid='empty-state-create-menu'],[data-testid='snippet-create-menu-trigger']", "state": "hidden" } },
         { "action": "waitForSelector", "selector": "[data-testid='snippet-dialog']", "timeout": 5000, "skipIf": { "selector": "[data-testid='snippet-dialog']", "state": "hidden" } },
         { "action": "press", "key": "Escape", "testId": "snippet-dialog", "skipIf": { "selector": "[data-testid='snippet-dialog']", "state": "hidden" } }
       ]

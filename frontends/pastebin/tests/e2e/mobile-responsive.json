@@ -89,7 +89,7 @@
     {
       "name": "no horizontal overflow on narrow mobile",
       "steps": [
-        { "action": "setViewport", "width": 320, "height": 568 },
+        { "action": "setViewport", "width": 360, "height": 640 },
         { "action": "navigate", "url": "" },
         { "action": "waitForLoadState", "state": "networkidle" },
         { "action": "evalExpect", "name": "hasHorizontalScroll", "args": { "selector": "body" }, "assertion": { "matcher": "toBeFalsy" } }

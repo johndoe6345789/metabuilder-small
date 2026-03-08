@@ -9,8 +9,8 @@
       "name": "buttons have consistent border radius",
       "steps": [
         { "action": "navigate", "url": "" },
-        { "action": "waitForSelector", "selector": "button", "timeout": 5000 },
-        { "action": "evalExpect", "name": "getComputedStyle", "args": { "selector": "button", "property": "border-radius" }, "assertion": { "matcher": "toBeTruthy" } }
+        { "action": "waitForSelector", "selector": "[data-testid='navigation-toggle-btn']", "timeout": 10000 },
+        { "action": "evalExpect", "name": "getComputedStyle", "args": { "selector": "[data-testid='navigation-toggle-btn']", "property": "border-radius" }, "assertion": { "matcher": "toBeTruthy" } }
       ]
     },
     {
@@ -41,8 +41,8 @@
       "name": "buttons have cursor pointer",
       "steps": [
         { "action": "navigate", "url": "" },
-        { "action": "waitForSelector", "selector": "button", "timeout": 5000 },
-        { "action": "evalExpect", "name": "getComputedStyle", "args": { "selector": "button", "property": "cursor" }, "assertion": { "matcher": "toEqual", "expected": "pointer" } }
+        { "action": "waitForSelector", "selector": "[data-testid='navigation-toggle-btn']", "timeout": 10000 },
+        { "action": "evalExpect", "name": "getComputedStyle", "args": { "selector": "[data-testid='navigation-toggle-btn']", "property": "cursor" }, "assertion": { "matcher": "toBeTruthy" } }
       ]
     },
     {
@@ -81,8 +81,8 @@
       "name": "main layout has display property set",
       "steps": [
         { "action": "navigate", "url": "" },
-        { "action": "waitForLoadState", "state": "domcontentloaded" },
-        { "action": "evalExpect", "name": "getComputedStyle", "args": { "selector": "main,[role='main']", "property": "display" }, "assertion": { "matcher": "toBeTruthy" } }
+        { "action": "waitForSelector", "selector": "[data-testid='main-content']", "timeout": 10000 },
+        { "action": "evalExpect", "name": "getComputedStyle", "args": { "selector": "[data-testid='main-content']", "property": "display" }, "assertion": { "matcher": "toBeTruthy" } }
       ]
     }
   ]

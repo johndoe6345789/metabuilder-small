@@ -435,8 +435,15 @@ class PlaywrightTestInterpreter {
 
     // Page-level matchers
     if (assertion.matcher === 'toHaveURL') {
+      let expectedUrl = (assertion.url ?? assertion.expected) as string
+      // Rewrite hardcoded http://localhost/pastebin URLs to match the actual test origin
+      // so tests work with both port 80 (Docker stack) and dynamic ports (Testcontainers).
+      if (expectedUrl && typeof expectedUrl === 'string') {
+        const pageOrigin = new URL(this.page.url()).origin
+        expectedUrl = expectedUrl.replace(/^http:\/\/localhost(?=\/pastebin)/, pageOrigin)
+      }
       const base = assertion.not ? expect(this.page).not : expect(this.page)
-      await (base as any).toHaveURL(assertion.url ?? assertion.expected, {
+      await (base as any).toHaveURL(expectedUrl, {
         timeout: assertion.timeout,
       })
       return

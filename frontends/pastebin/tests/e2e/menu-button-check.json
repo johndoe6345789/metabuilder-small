@@ -18,8 +18,8 @@
       "steps": [
         { "action": "navigate", "url": "" },
         { "action": "waitForSelector", "selector": "[data-testid='namespace-selector'],[data-testid='snippet-manager-loading']", "timeout": 15000 },
-        { "action": "click", "selector": "[data-testid='new-snippet-btn'],[data-testid='empty-state-create-menu']", "skipIf": { "selector": "[data-testid='new-snippet-btn'],[data-testid='empty-state-create-menu']", "state": "hidden" } },
-        { "action": "waitForSelector", "selector": "[data-testid='snippet-dialog'],[data-testid='create-menu']", "timeout": 5000 }
+        { "action": "click", "selector": "[data-testid='snippet-create-menu-trigger'],[data-testid='empty-state-create-menu']", "skipIf": { "selector": "[data-testid='snippet-create-menu-trigger'],[data-testid='empty-state-create-menu']", "state": "hidden" } },
+        { "action": "waitForSelector", "selector": "[data-testid='snippet-dialog'],[data-testid='create-menu-content'],[data-testid='create-blank-snippet-item']", "timeout": 5000 }
       ]
     },
     {

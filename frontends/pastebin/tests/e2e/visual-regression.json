@@ -78,7 +78,7 @@
       "steps": [
         { "action": "navigate", "url": "" },
         { "action": "waitForSelector", "selector": "[data-testid='namespace-selector'],[data-testid='snippet-manager-loading']", "timeout": 15000 },
-        { "action": "click", "selector": "[data-testid='empty-state-create-menu'],[data-testid='new-snippet-btn']", "skipIf": { "selector": "[data-testid='empty-state-create-menu'],[data-testid='new-snippet-btn']", "state": "hidden" } },
+        { "action": "click", "selector": "[data-testid='empty-state-create-menu'],[data-testid='snippet-create-menu-trigger']", "skipIf": { "selector": "[data-testid='empty-state-create-menu'],[data-testid='snippet-create-menu-trigger']", "state": "hidden" } },
         { "action": "waitForSelector", "selector": "[data-testid='snippet-dialog']", "timeout": 5000, "skipIf": { "selector": "[data-testid='snippet-dialog']", "state": "hidden" } },
         { "action": "store", "name": "getBoundingBox", "args": { "testId": "snippet-dialog" }, "as": "dialogBox", "skipIf": { "selector": "[data-testid='snippet-dialog']", "state": "hidden" } },
         { "action": "screenshot", "filename": "screenshots/dialog.png", "clipFrom": "dialogBox" }

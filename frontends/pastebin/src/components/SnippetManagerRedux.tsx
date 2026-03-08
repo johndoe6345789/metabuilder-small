@@ -63,7 +63,7 @@ export function SnippetManagerRedux() {
   }
 
   return (
-    <div className={styles.root} data-testid="snippet-manager-redux" role="main" aria-label="Snippet manager">
+    <div className={styles.root} data-testid="snippet-manager-redux" aria-label="Snippet manager">
       <div className={styles.controlBar}>
         <NamespaceSelector
           selectedNamespaceId={selectedNamespaceId}
