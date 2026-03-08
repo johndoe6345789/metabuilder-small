@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { MaterialIcon } from '@metabuilder/components/fakemui'
 import { useAppDispatch } from '@/store/hooks'
 import { patchSnippetLocal } from '@/store/slices/snippetsSlice'
-import { generateShareToken, revokeShareToken } from '@/lib/shareApi'
+import { generateShareToken, revokeShareToken } from '@/store/slices/shareSlice'
 import type { Snippet } from '@/lib/types'
 import styles from './share-dialog.module.scss'
 
@@ -36,17 +36,19 @@ export function ShareDialog({ open, onClose, snippet }: ShareDialogProps) {
 
   async function handleGenerate() {
     setGenerating(true)
-    const token = await generateShareToken(snippet.id)
-    if (token) {
-      dispatch(patchSnippetLocal({ id: snippet.id, fields: { shareToken: token } }))
-    }
+    try {
+      const result = await dispatch(generateShareToken(snippet.id)).unwrap()
+      dispatch(patchSnippetLocal({ id: snippet.id, fields: { shareToken: result.token } }))
+    } catch { /* error handled by slice */ }
     setGenerating(false)
   }
 
   async function handleRevoke() {
     setRevoking(true)
-    await revokeShareToken(snippet.id)
-    dispatch(patchSnippetLocal({ id: snippet.id, fields: { shareToken: undefined } }))
+    try {
+      await dispatch(revokeShareToken(snippet.id)).unwrap()
+      dispatch(patchSnippetLocal({ id: snippet.id, fields: { shareToken: undefined } }))
+    } catch { /* error handled by slice */ }
     setRevoking(false)
   }
 

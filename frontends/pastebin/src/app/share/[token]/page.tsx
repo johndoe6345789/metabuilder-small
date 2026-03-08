@@ -4,7 +4,9 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import { MaterialIcon } from '@metabuilder/components/fakemui'
-import { fetchSharedSnippet, SharedSnippet } from '@/lib/shareApi'
+import { useAppDispatch, useAppSelector } from '@/store/hooks'
+import { fetchSharedSnippet } from '@/store/slices/shareSlice'
+import { selectSharedSnippet, selectShareLoading } from '@/store/selectors'
 import { ForkDialog } from '@/components/features/snippet-viewer/ForkDialog'
 import { LANGUAGE_COLORS } from '@/lib/config'
 import styles from './share-page.module.scss'
@@ -16,18 +18,15 @@ const MonacoEditor = dynamic(
 
 export default function SharePage() {
   const { token } = useParams<{ token: string }>()
-  const [snippet, setSnippet] = useState<SharedSnippet | null>(null)
-  const [loading, setLoading] = useState(true)
+  const dispatch = useAppDispatch()
+  const snippet = useAppSelector(state => selectSharedSnippet(state, token))
+  const loading = useAppSelector(selectShareLoading)
   const [copied, setCopied] = useState(false)
   const [forkOpen, setForkOpen] = useState(false)
 
   useEffect(() => {
-    if (!token) return
-    fetchSharedSnippet(token).then(s => {
-      setSnippet(s)
-      setLoading(false)
-    })
-  }, [token])
+    if (token) dispatch(fetchSharedSnippet(token))
+  }, [token, dispatch])
 
   function handleCopy() {
     if (!snippet) return
@@ -39,7 +38,7 @@ export default function SharePage() {
     setTimeout(() => setCopied(false), 2000)
   }
 
-  if (loading) {
+  if (loading && !snippet) {
     return (
       <div className={styles.centered}>
         <span className={styles.muted}>Loading…</span>

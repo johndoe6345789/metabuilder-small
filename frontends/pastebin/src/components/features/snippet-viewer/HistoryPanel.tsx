@@ -1,12 +1,12 @@
 'use client'
 
-import { useEffect, useState, useTransition } from 'react'
+import { useEffect } from 'react'
 import { toast } from '@metabuilder/components/fakemui'
 import { MaterialIcon } from '@metabuilder/components/fakemui'
-import { useAppDispatch } from '@/store/hooks'
+import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { patchSnippetLocal } from '@/store/slices/snippetsSlice'
-import { fetchRevisions, revertToRevision } from '@/lib/revisionApi'
-import type { SnippetRevision } from '@/lib/types'
+import { fetchRevisions, revertToRevision } from '@/store/slices/revisionsSlice'
+import { selectRevisions, selectRevisionsLoading } from '@/store/selectors'
 import styles from './history-panel.module.scss'
 
 function relativeTime(ms: number): string {
@@ -25,37 +25,26 @@ interface HistoryPanelProps {
 
 export function HistoryPanel({ open, onClose, snippetId }: HistoryPanelProps) {
   const dispatch = useAppDispatch()
-  const [revisions, setRevisions] = useState<SnippetRevision[]>([])
-  const [loading, setLoading] = useState(false)
-  const [revertingId, setRevertingId] = useState<string | null>(null)
-  const [isPending, startTransition] = useTransition()
+  const revisions = useAppSelector(state => selectRevisions(state, snippetId))
+  const loading = useAppSelector(selectRevisionsLoading)
 
   useEffect(() => {
     if (!open) return
-    setLoading(true)
-    fetchRevisions(snippetId).then(revs => {
-      setRevisions(revs)
-      setLoading(false)
-    })
-  }, [open, snippetId])
+    dispatch(fetchRevisions(snippetId))
+  }, [open, snippetId, dispatch])
 
-  function handleRevert(rev: SnippetRevision) {
-    setRevertingId(rev.id)
-    startTransition(async () => {
-      const updated = await revertToRevision(snippetId, rev.id)
-      setRevertingId(null)
-      if (!updated) {
-        toast.error('Failed to revert — please try again')
-        return
-      }
+  async function handleRevert(revisionId: string) {
+    try {
+      const updated = await dispatch(revertToRevision({ snippetId, revisionId })).unwrap()
       dispatch(patchSnippetLocal({
         id: snippetId,
         fields: { code: updated.code, files: updated.files },
       }))
       toast.success('Reverted successfully')
-      // Re-fetch revisions to show the new revert entry
-      fetchRevisions(snippetId).then(setRevisions)
-    })
+      dispatch(fetchRevisions(snippetId))
+    } catch {
+      toast.error('Failed to revert — please try again')
+    }
   }
 
   if (!open) return null
@@ -91,12 +80,12 @@ export function HistoryPanel({ open, onClose, snippetId }: HistoryPanelProps) {
               {idx !== 0 && (
                 <button
                   className={styles.revertBtn}
-                  onClick={() => handleRevert(rev)}
-                  disabled={isPending && revertingId === rev.id}
+                  onClick={() => handleRevert(rev.id)}
+                  disabled={loading}
                   aria-label={`Revert to version from ${relativeTime(rev.createdAt)}`}
                 >
                   <MaterialIcon name="restore" size={14} aria-hidden="true" />
-                  {revertingId === rev.id ? 'Reverting…' : 'Revert'}
+                  Revert
                 </button>
               )}
             </div>

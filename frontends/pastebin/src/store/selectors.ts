@@ -53,3 +53,15 @@ export const selectSnippetComments = (state: RootState, snippetId: string) =>
 export const selectProfileComments = (state: RootState, profileUserId: string) =>
   state.comments.profileComments[profileUserId] ?? []
 export const selectCommentsLoading = (state: RootState) => state.comments.loading
+
+export const selectRevisions = (state: RootState, snippetId: string) =>
+  state.revisions.bySnippetId[snippetId] ?? []
+export const selectRevisionsLoading = (state: RootState) => state.revisions.loading
+
+export const selectSharedSnippet = (state: RootState, token: string) =>
+  state.share.sharedSnippets[token] ?? null
+export const selectShareLoading = (state: RootState) => state.share.loading
+
+export const selectUserProfile = (state: RootState, username: string) =>
+  state.profiles.byUsername[username] ?? null
+export const selectProfilesLoading = (state: RootState) => state.profiles.loading

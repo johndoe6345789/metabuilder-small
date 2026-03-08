@@ -1,12 +1,12 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from '@metabuilder/components/fakemui'
 import { MaterialIcon } from '@metabuilder/components/fakemui'
 import { useAppDispatch } from '@/store/hooks'
 import { addSnippetLocal } from '@/store/slices/snippetsSlice'
-import { forkSnippet, forkSharedSnippet } from '@/lib/revisionApi'
+import { forkSnippet, forkSharedSnippet } from '@/store/slices/revisionsSlice'
 import type { Snippet } from '@/lib/types'
 import styles from './fork-dialog.module.scss'
 
@@ -22,23 +22,23 @@ export function ForkDialog({ open, onClose, snippet, isShared, token }: ForkDial
   const dispatch = useAppDispatch()
   const router = useRouter()
   const [title, setTitle] = useState(`${snippet.title} (fork)`)
-  const [isPending, startTransition] = useTransition()
+  const [forking, setForking] = useState(false)
 
   if (!open) return null
 
-  function handleFork() {
-    startTransition(async () => {
+  async function handleFork() {
+    setForking(true)
+    try {
       const newSnippet = isShared && token
-        ? await forkSharedSnippet(token, title)
-        : await forkSnippet(snippet.id, title)
-      if (!newSnippet) {
-        toast.error('Failed to fork snippet — please try again')
-        return
-      }
+        ? await dispatch(forkSharedSnippet({ token, title })).unwrap()
+        : await dispatch(forkSnippet({ snippetId: snippet.id, title })).unwrap()
       dispatch(addSnippetLocal(newSnippet))
       onClose()
       router.push(`/snippet/${newSnippet.id}`)
-    })
+    } catch {
+      toast.error('Failed to fork snippet — please try again')
+    }
+    setForking(false)
   }
 
   return (
@@ -78,10 +78,10 @@ export function ForkDialog({ open, onClose, snippet, isShared, token }: ForkDial
           <button
             className={styles.forkBtn}
             onClick={handleFork}
-            disabled={isPending || !title.trim()}
+            disabled={forking || !title.trim()}
           >
             <MaterialIcon name="call_split" size={16} aria-hidden="true" />
-            {isPending ? 'Forking…' : 'Fork'}
+            {forking ? 'Forking…' : 'Fork'}
           </button>
         </div>
       </div>

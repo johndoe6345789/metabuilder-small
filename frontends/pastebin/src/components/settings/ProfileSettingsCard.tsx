@@ -1,16 +1,17 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, Button, FormLabel, MaterialIcon } from '@metabuilder/components/fakemui';
-import { useAppSelector } from '@/store/hooks';
+import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { selectCurrentUser } from '@/store/selectors';
+import { updateMyProfile } from '@/store/slices/profilesSlice';
 import { MarkdownRenderer } from '@/components/error/MarkdownRenderer';
-import { updateMyProfile } from '@/lib/commentsApi';
 import styles from './settings-card.module.scss';
 import profileStyles from './profile-settings-card.module.scss';
 
 export function ProfileSettingsCard() {
   const user = useAppSelector(selectCurrentUser);
+  const dispatch = useAppDispatch();
   const [bio, setBio] = useState('');
   const [preview, setPreview] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -18,10 +19,12 @@ export function ProfileSettingsCard() {
 
   const handleSave = async () => {
     setSaving(true);
-    await updateMyProfile(bio);
+    try {
+      await dispatch(updateMyProfile(bio)).unwrap();
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } catch { /* error handled by slice */ }
     setSaving(false);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
   };
 
   if (!user) return null;
