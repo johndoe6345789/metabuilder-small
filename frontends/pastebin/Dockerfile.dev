@@ -4,16 +4,6 @@
 
 FROM metabuilder/base-node-deps:latest
 
-# Copy pyodide runtime into public/ — needed at dev runtime, not mounted
-RUN mkdir -p /app/frontends/pastebin/public/pyodide && \
-    cp /app/node_modules/pyodide/pyodide.js \
-       /app/node_modules/pyodide/pyodide.mjs \
-       /app/node_modules/pyodide/pyodide.asm.js \
-       /app/node_modules/pyodide/pyodide.asm.wasm \
-       /app/node_modules/pyodide/python_stdlib.zip \
-       /app/node_modules/pyodide/pyodide-lock.json \
-       /app/frontends/pastebin/public/pyodide/
-
 # Config files baked in — changing these still requires a container restart
 COPY frontends/pastebin/package.json         ./frontends/pastebin/
 COPY frontends/pastebin/next.config.js       ./frontends/pastebin/

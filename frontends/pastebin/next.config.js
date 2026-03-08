@@ -67,29 +67,7 @@ const nextConfig = {
     // Resolve @metabuilder/components/fakemui subpath (used by migrated components)
     config.resolve.alias['@metabuilder/components/fakemui'] = join(fakeMuiPath, 'index.ts');
 
-    if (isServer) {
-      // Server-side: pyodide is browser-only. Use null-loader so any accidental
-      // server import returns an empty module instead of trying to load WASM in Node.
-      config.module.rules.push({
-        test: /node_modules[\\/]pyodide[\\/]pyodide\.js/,
-        use: 'null-loader',
-      });
-    } else {
-      // Client-side: redirect import('pyodide') to a native browser ESM import of
-      // pyodide.mjs served from the local public directory (no CDN, files from npm).
-      // Using a promise external means webpack emits a native import() for this module
-      // so pyodide's own internal dynamic imports (asm.js, wasm, stdlib) are also
-      // native browser fetches — webpack's chunk loader never intercepts them.
-      config.externals = [
-        ...(Array.isArray(config.externals) ? config.externals
-            : config.externals ? [config.externals] : []),
-        async ({ request }) => {
-          if (request === 'pyodide') {
-            return 'promise import("/pastebin/pyodide/pyodide.mjs")';
-          }
-        },
-      ];
-
+    if (!isServer) {
       config.resolve.fallback = {
         ...config.resolve.fallback,
         path: false,
