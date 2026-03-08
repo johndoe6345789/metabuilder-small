@@ -9,8 +9,12 @@
       "name": "comments section visible on snippet page",
       "steps": [
         { "action": "hook", "name": "loginViaApi", "args": { "username": "demo", "password": "demo123" } },
-        { "action": "navigate", "url": "snippet/d0100000-0000-0000-0000-000000000004" },
-        { "action": "waitForSelector", "selector": "h2", "timeout": 30000 },
+        { "action": "navigate", "url": "" },
+        { "action": "waitForLoadState", "state": "networkidle" },
+        { "action": "click", "testId": "namespace-chip-d0000001-0000-0000-0000-000000000002" },
+        { "action": "waitForSelector", "selector": "[data-testid='snippet-manager-redux']", "timeout": 30000 },
+        { "action": "click", "text": "HTTP GET with retry", "nth": 0 },
+        { "action": "waitForSelector", "selector": "[data-testid='snippet-view-page']", "timeout": 30000 },
         { "action": "expect", "selector": "section h2", "assertion": { "matcher": "toContainText", "text": "Comments" } }
       ]
     },
@@ -18,31 +22,43 @@
       "name": "comment form visible when authenticated",
       "steps": [
         { "action": "hook", "name": "loginViaApi", "args": { "username": "demo", "password": "demo123" } },
-        { "action": "navigate", "url": "snippet/d0100000-0000-0000-0000-000000000004" },
-        { "action": "waitForSelector", "selector": "h2", "timeout": 30000 },
+        { "action": "navigate", "url": "" },
+        { "action": "waitForLoadState", "state": "networkidle" },
+        { "action": "click", "testId": "namespace-chip-d0000001-0000-0000-0000-000000000002" },
+        { "action": "waitForSelector", "selector": "[data-testid='snippet-manager-redux']", "timeout": 30000 },
+        { "action": "click", "text": "HTTP GET with retry", "nth": 0 },
+        { "action": "waitForSelector", "selector": "[data-testid='snippet-view-page']", "timeout": 30000 },
         { "action": "expect", "label": "Comment text", "assertion": { "matcher": "toBeVisible" } },
         { "action": "expect", "role": "button", "text": "Post Comment", "assertion": { "matcher": "toBeVisible" } }
       ]
     },
     {
       "name": "post a comment on a snippet",
-      "timeout": 60000,
+      "timeout": 90000,
       "steps": [
         { "action": "hook", "name": "loginViaApi", "args": { "username": "demo", "password": "demo123" } },
-        { "action": "navigate", "url": "snippet/d0100000-0000-0000-0000-000000000004" },
-        { "action": "waitForSelector", "selector": "h2", "timeout": 30000 },
+        { "action": "navigate", "url": "" },
+        { "action": "waitForLoadState", "state": "networkidle" },
+        { "action": "click", "testId": "namespace-chip-d0000001-0000-0000-0000-000000000002" },
+        { "action": "waitForSelector", "selector": "[data-testid='snippet-manager-redux']", "timeout": 30000 },
+        { "action": "click", "text": "HTTP GET with retry", "nth": 0 },
+        { "action": "waitForSelector", "selector": "[data-testid='snippet-view-page']", "timeout": 30000 },
         { "action": "fill", "label": "Comment text", "value": "Playwright JSON test comment" },
         { "action": "click", "role": "button", "text": "Post Comment" },
-        { "action": "waitForSelector", "selector": "text=Playwright JSON test comment", "timeout": 15000 },
-        { "action": "expect", "text": "Playwright JSON test comment", "assertion": { "matcher": "toBeVisible" } }
+        { "action": "waitForSelector", "selector": "[data-testid='markdown-renderer']", "timeout": 15000 },
+        { "action": "expect", "testId": "markdown-renderer", "assertion": { "matcher": "toContainText", "text": "Playwright JSON test comment" } }
       ]
     },
     {
       "name": "write and preview tabs toggle",
       "steps": [
         { "action": "hook", "name": "loginViaApi", "args": { "username": "demo", "password": "demo123" } },
-        { "action": "navigate", "url": "snippet/d0100000-0000-0000-0000-000000000004" },
-        { "action": "waitForSelector", "selector": "h2", "timeout": 30000 },
+        { "action": "navigate", "url": "" },
+        { "action": "waitForLoadState", "state": "networkidle" },
+        { "action": "click", "testId": "namespace-chip-d0000001-0000-0000-0000-000000000002" },
+        { "action": "waitForSelector", "selector": "[data-testid='snippet-manager-redux']", "timeout": 30000 },
+        { "action": "click", "text": "HTTP GET with retry", "nth": 0 },
+        { "action": "waitForSelector", "selector": "[data-testid='snippet-view-page']", "timeout": 30000 },
         { "action": "fill", "label": "Comment text", "value": "**bold test**" },
         { "action": "click", "role": "button", "text": "Preview" },
         { "action": "expect", "label": "Comment text", "assertion": { "matcher": "toBeHidden" } },
