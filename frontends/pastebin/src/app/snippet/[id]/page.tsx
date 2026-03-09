@@ -62,7 +62,7 @@ function relativeTime(ts: number): string {
   return `${Math.floor(hours / 24)}d ago`
 }
 
-type ActiveTab = 'code' | 'terminal'
+type ActiveTab = 'code' | 'terminal' | 'debug'
 
 export default function SnippetViewPage() {
   const { id } = useParams<{ id: string }>()
@@ -677,6 +677,15 @@ export default function SnippetViewPage() {
                 <span>Terminal</span>
                 {terminal.isRunning && <span className={styles.runningDot} aria-hidden="true" />}
               </button>
+              <button
+                className={`${styles.editorTab} ${activeTab === 'debug' ? styles.editorTabActive : ''}`}
+                role="tab"
+                aria-selected={activeTab === 'debug'}
+                onClick={() => setActiveTab('debug')}
+              >
+                <MaterialIcon name="bug_report" size={12} aria-hidden="true" />
+                <span>Debug</span>
+              </button>
               <div className={styles.editorTabRail} aria-hidden="true" />
             </div>
 
@@ -706,6 +715,64 @@ export default function SnippetViewPage() {
                 entryPoint={snippet.entryPoint ?? activeFile}
                 controller={terminal}
               />
+            </div>
+
+            {/* Debug panel */}
+            <div
+              className={`${styles.editorPanel} ${styles.debugPanel} ${activeTab === 'debug' ? styles.editorPanelVisible : styles.editorPanelHidden}`}
+              role="tabpanel"
+            >
+              <div className={styles.debugContent}>
+                <section className={styles.debugSection}>
+                  <h3 className={styles.debugHeading}>Snippet</h3>
+                  <dl className={styles.debugTable}>
+                    <dt>Language</dt><dd>{snippet.language}</dd>
+                    <dt>Entry point (stored)</dt><dd className={styles.debugMono}>{snippet.entryPoint || <em>not set</em>}</dd>
+                    <dt>Files</dt>
+                    <dd>
+                      <ul className={styles.debugFileList}>
+                        {files.map(f => (
+                          <li key={f.name} className={styles.debugMono}>
+                            {f.name}
+                            {(snippet.entryPoint === f.name || (!snippet.entryPoint && f.name === files[0]?.name)) && (
+                              <span className={styles.debugBadge}>entry</span>
+                            )}
+                          </li>
+                        ))}
+                      </ul>
+                    </dd>
+                  </dl>
+                </section>
+
+                {terminal.lastRunInfo ? (
+                  <section className={styles.debugSection}>
+                    <h3 className={styles.debugHeading}>Last Run</h3>
+                    <dl className={styles.debugTable}>
+                      <dt>Runner key</dt><dd className={styles.debugMono}>{terminal.lastRunInfo.runnerKey}</dd>
+                      <dt>Mode</dt><dd>{terminal.lastRunInfo.interactive ? 'Interactive (stdin polling)' : 'Non-interactive'}</dd>
+                      <dt>Entry point sent</dt><dd className={styles.debugMono}>{terminal.lastRunInfo.entryPointSent || <em>none</em>}</dd>
+                      <dt>Files sent</dt>
+                      <dd>
+                        <ul className={styles.debugFileList}>
+                          {terminal.lastRunInfo.files.map(f => (
+                            <li key={f.name} className={styles.debugMono}>{f.name}</li>
+                          ))}
+                        </ul>
+                      </dd>
+                      <dt>Started</dt><dd>{new Date(terminal.lastRunInfo.startedAt).toLocaleTimeString()}</dd>
+                    </dl>
+                    <p className={styles.debugNote}>
+                      The backend assigns each file a UUID path inside the runner container
+                      so no user-supplied names reach <code>/workspace</code>.
+                      The entry point is resolved by exact name → stem → first file.
+                    </p>
+                  </section>
+                ) : (
+                  <section className={styles.debugSection}>
+                    <p className={styles.debugEmpty}>No run yet — press Run to see debug info.</p>
+                  </section>
+                )}
+              </div>
             </div>
 
           </div>

@@ -24,6 +24,15 @@ export interface TerminalLine {
   id: string
 }
 
+export interface RunDebugInfo {
+  language: string
+  runnerKey: string
+  interactive: boolean
+  files: { name: string }[]
+  entryPointSent: string
+  startedAt: number
+}
+
 function mapType(backendType: string): TerminalLine['type'] {
   switch (backendType) {
     case 'err':         return 'error'
@@ -42,6 +51,7 @@ export function useCodeTerminal() {
   const [isRunning, setIsRunning] = useState(false)
   const [inputValue, setInputValue] = useState('')
   const [waitingForInput, setWaitingForInput] = useState(false)
+  const [lastRunInfo, setLastRunInfo] = useState<RunDebugInfo | null>(null)
 
   const sessionIdRef = useRef<string | null>(null)
   const offsetRef = useRef(0)
@@ -95,9 +105,19 @@ export function useCodeTerminal() {
 
     const runnerKey = getRunnerKey(language)
     const opts = { language: runnerKey, files, entryPoint }
+    const isInteractive = INTERACTIVE_RUNNER_KEYS.has(runnerKey)
+
+    setLastRunInfo({
+      language,
+      runnerKey,
+      interactive: isInteractive,
+      files: files.map(f => ({ name: f.name })),
+      entryPointSent: entryPoint ?? '',
+      startedAt: Date.now(),
+    })
 
     try {
-      if (INTERACTIVE_RUNNER_KEYS.has(runnerKey)) {
+      if (isInteractive) {
         const sid = await startInteractiveSession(opts)
         sessionIdRef.current = sid
         pollTimerRef.current = setTimeout(poll, POLL_INTERVAL_MS)
@@ -143,6 +163,7 @@ export function useCodeTerminal() {
     isInitializing: false,
     inputValue,
     waitingForInput,
+    lastRunInfo,
     setInputValue,
     handleInputSubmit,
     handleRun,
