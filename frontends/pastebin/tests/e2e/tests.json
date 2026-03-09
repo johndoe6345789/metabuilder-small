@@ -4907,19 +4907,19 @@
           }
         },
         {
-          "action": "evaluate",
-          "script": "(function(){ var btn = document.querySelector('[data-testid=\"snippet-card-view-btn\"]'); if (!btn) throw new Error('No view btn found'); btn.click(); return true; })()"
+          "action": "waitForSelector",
+          "selector": "[data-testid='snippet-card-view-btn']",
+          "timeout": 10000
         },
         {
-          "action": "waitForLoadState",
-          "state": "domcontentloaded"
+          "action": "click",
+          "testId": "snippet-card-view-btn",
+          "nth": 0
         },
         {
-          "action": "expect",
-          "testId": "snippet-view-page",
-          "assertion": {
-            "matcher": "toBeVisible"
-          }
+          "action": "waitForSelector",
+          "selector": "[data-testid='snippet-view-page']",
+          "timeout": 15000
         },
         {
           "action": "expect",
