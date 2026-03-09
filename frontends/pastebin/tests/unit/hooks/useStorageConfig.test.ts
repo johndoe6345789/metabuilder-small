@@ -42,8 +42,8 @@ describe('useStorageConfig Hook', () => {
   describe('loadConfig', () => {
     it('should load configuration from storage', () => {
       (storage.loadStorageConfig as jest.Mock).mockReturnValue({
-        backend: 'flask',
-        flaskUrl: 'http://localhost:5000',
+        backend: 'dbal',
+        dbalUrl: 'http://localhost:5000',
       });
 
       const { result } = renderHook(() => useStorageConfig());
@@ -52,7 +52,7 @@ describe('useStorageConfig Hook', () => {
         result.current.loadConfig();
       });
 
-      expect(result.current.storageBackend).toBe('flask');
+      expect(result.current.storageBackend).toBe('dbal');
     });
 
     it('should detect environment variable', () => {
@@ -128,10 +128,10 @@ describe('useStorageConfig Hook', () => {
       const { result } = renderHook(() => useStorageConfig());
 
       act(() => {
-        result.current.setStorageBackend('flask');
+        result.current.setStorageBackend('dbal');
       });
 
-      expect(result.current.storageBackend).toBe('flask');
+      expect(result.current.storageBackend).toBe('dbal');
     });
 
     it('should handle backend switching', () => {
@@ -144,10 +144,10 @@ describe('useStorageConfig Hook', () => {
       expect(result.current.storageBackend).toBe('indexeddb');
 
       act(() => {
-        result.current.setStorageBackend('flask');
+        result.current.setStorageBackend('dbal');
       });
 
-      expect(result.current.storageBackend).toBe('flask');
+      expect(result.current.storageBackend).toBe('dbal');
     });
   });
 });

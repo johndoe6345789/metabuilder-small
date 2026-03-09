@@ -35,21 +35,12 @@ describe('useSettingsState Hook', () => {
     mockUseStorageConfig.mockReturnValue({
       storageBackend: 'indexeddb',
       setStorageBackend: jest.fn(),
-      flaskUrl: 'http://localhost:5000',
-      setFlaskUrl: jest.fn(),
-      flaskConnectionStatus: 'unknown',
-      setFlaskConnectionStatus: jest.fn(),
-      testingConnection: false,
       envVarSet: false,
       loadConfig: jest.fn().mockResolvedValue(undefined),
-      handleTestConnection: jest.fn().mockResolvedValue(undefined),
       handleSaveStorageConfig: jest.fn().mockResolvedValue(undefined),
     } as any)
 
-    mockUseStorageMigration.mockReturnValue({
-      handleMigrateToFlask: jest.fn().mockResolvedValue(undefined),
-      handleMigrateToIndexedDB: jest.fn().mockResolvedValue(undefined),
-    } as any)
+    mockUseStorageMigration.mockReturnValue({} as any)
   })
 
   describe('initialization', () => {
@@ -57,7 +48,6 @@ describe('useSettingsState Hook', () => {
       const { result } = renderHook(() => useSettingsState())
 
       expect(result.current.storageBackend).toBe('indexeddb')
-      expect(result.current.flaskUrl).toBe('http://localhost:5000')
       expect(result.current.loading).toBe(false)
       expect(result.current.schemaHealth).toBe('unknown')
     })
@@ -84,14 +74,8 @@ describe('useSettingsState Hook', () => {
       mockUseStorageConfig.mockReturnValue({
         storageBackend: 'indexeddb',
         setStorageBackend: jest.fn(),
-        flaskUrl: 'http://localhost:5000',
-        setFlaskUrl: jest.fn(),
-        flaskConnectionStatus: 'unknown',
-        setFlaskConnectionStatus: jest.fn(),
-        testingConnection: false,
         envVarSet: false,
         loadConfig,
-        handleTestConnection: jest.fn().mockResolvedValue(undefined),
         handleSaveStorageConfig: jest.fn().mockResolvedValue(undefined),
       } as any)
 
@@ -135,58 +119,36 @@ describe('useSettingsState Hook', () => {
 
     it('should expose storage config state', () => {
       mockUseStorageConfig.mockReturnValue({
-        storageBackend: 'flask',
+        storageBackend: 'dbal',
         setStorageBackend: jest.fn(),
-        flaskUrl: 'http://example.com:5000',
-        setFlaskUrl: jest.fn(),
-        flaskConnectionStatus: 'connected',
-        setFlaskConnectionStatus: jest.fn(),
-        testingConnection: true,
         envVarSet: true,
         loadConfig: jest.fn(),
-        handleTestConnection: jest.fn(),
         handleSaveStorageConfig: jest.fn(),
       } as any)
 
       const { result } = renderHook(() => useSettingsState())
 
-      expect(result.current.storageBackend).toBe('flask')
-      expect(result.current.flaskUrl).toBe('http://example.com:5000')
-      expect(result.current.flaskConnectionStatus).toBe('connected')
-      expect(result.current.testingConnection).toBe(true)
+      expect(result.current.storageBackend).toBe('dbal')
       expect(result.current.envVarSet).toBe(true)
     })
 
     it('should expose setter functions', () => {
       const setStorageBackend = jest.fn()
-      const setFlaskUrl = jest.fn()
-      const setFlaskConnectionStatus = jest.fn()
 
       mockUseStorageConfig.mockReturnValue({
         storageBackend: 'indexeddb',
         setStorageBackend,
-        flaskUrl: 'http://localhost:5000',
-        setFlaskUrl,
-        flaskConnectionStatus: 'unknown',
-        setFlaskConnectionStatus,
-        testingConnection: false,
         envVarSet: false,
         loadConfig: jest.fn(),
-        handleTestConnection: jest.fn(),
         handleSaveStorageConfig: jest.fn(),
       } as any)
 
       const { result } = renderHook(() => useSettingsState())
 
       act(() => {
-        result.current.setStorageBackend('flask')
+        result.current.setStorageBackend('dbal')
       })
-      expect(setStorageBackend).toHaveBeenCalledWith('flask')
-
-      act(() => {
-        result.current.setFlaskUrl('http://example.com')
-      })
-      expect(setFlaskUrl).toHaveBeenCalledWith('http://example.com')
+      expect(setStorageBackend).toHaveBeenCalledWith('dbal')
     })
   })
 
@@ -198,14 +160,8 @@ describe('useSettingsState Hook', () => {
       mockUseStorageConfig.mockReturnValue({
         storageBackend: 'indexeddb',
         setStorageBackend: jest.fn(),
-        flaskUrl: 'http://localhost:5000',
-        setFlaskUrl: jest.fn(),
-        flaskConnectionStatus: 'unknown',
-        setFlaskConnectionStatus: jest.fn(),
-        testingConnection: false,
         envVarSet: false,
         loadConfig: jest.fn(),
-        handleTestConnection: jest.fn(),
         handleSaveStorageConfig: saveConfig,
       } as any)
 
@@ -233,94 +189,12 @@ describe('useSettingsState Hook', () => {
     })
   })
 
-  describe('handleMigrateToFlask', () => {
-    it('should call migration handler with flask URL and loadStats callback', async () => {
-      const migrateToFlask = jest.fn().mockResolvedValue(undefined)
-      const loadStats = jest.fn().mockResolvedValue(undefined)
-
-      mockUseStorageMigration.mockReturnValue({
-        handleMigrateToFlask: migrateToFlask,
-        handleMigrateToIndexedDB: jest.fn(),
-      } as any)
-
-      mockUseDatabaseOperations.mockReturnValue({
-        stats: null,
-        loading: false,
-        schemaHealth: 'unknown',
-        checkingSchema: false,
-        loadStats,
-        checkSchemaHealth: jest.fn(),
-        handleExport: jest.fn(),
-        handleImport: jest.fn(),
-        handleClear: jest.fn(),
-        handleSeed: jest.fn(),
-        formatBytes: jest.fn(),
-      } as any)
-
-      mockUseStorageConfig.mockReturnValue({
-        storageBackend: 'indexeddb',
-        setStorageBackend: jest.fn(),
-        flaskUrl: 'http://example.com:5000',
-        setFlaskUrl: jest.fn(),
-        flaskConnectionStatus: 'unknown',
-        setFlaskConnectionStatus: jest.fn(),
-        testingConnection: false,
-        envVarSet: false,
-        loadConfig: jest.fn(),
-        handleTestConnection: jest.fn(),
-        handleSaveStorageConfig: jest.fn(),
-      } as any)
-
-      const { result } = renderHook(() => useSettingsState())
-
-      await act(async () => {
-        await result.current.handleMigrateToFlask()
-      })
-
-      expect(migrateToFlask).toHaveBeenCalledWith('http://example.com:5000', loadStats)
-    })
-  })
-
-  describe('handleMigrateToIndexedDB', () => {
-    it('should call migration handler with flask URL', async () => {
-      const migrateToIndexedDB = jest.fn().mockResolvedValue(undefined)
-
-      mockUseStorageMigration.mockReturnValue({
-        handleMigrateToFlask: jest.fn(),
-        handleMigrateToIndexedDB: migrateToIndexedDB,
-      } as any)
-
-      mockUseStorageConfig.mockReturnValue({
-        storageBackend: 'flask',
-        setStorageBackend: jest.fn(),
-        flaskUrl: 'http://example.com:5000',
-        setFlaskUrl: jest.fn(),
-        flaskConnectionStatus: 'connected',
-        setFlaskConnectionStatus: jest.fn(),
-        testingConnection: false,
-        envVarSet: false,
-        loadConfig: jest.fn(),
-        handleTestConnection: jest.fn(),
-        handleSaveStorageConfig: jest.fn(),
-      } as any)
-
-      const { result } = renderHook(() => useSettingsState())
-
-      await act(async () => {
-        await result.current.handleMigrateToIndexedDB()
-      })
-
-      expect(migrateToIndexedDB).toHaveBeenCalledWith('http://example.com:5000')
-    })
-  })
-
   describe('handler functions', () => {
     it('should expose database operation handlers', () => {
       const handleExport = jest.fn()
       const handleImport = jest.fn()
       const handleClear = jest.fn()
       const handleSeed = jest.fn()
-      const handleTestConnection = jest.fn()
       const checkSchemaHealth = jest.fn()
 
       mockUseDatabaseOperations.mockReturnValue({
@@ -337,27 +211,12 @@ describe('useSettingsState Hook', () => {
         formatBytes: jest.fn(),
       } as any)
 
-      mockUseStorageConfig.mockReturnValue({
-        storageBackend: 'indexeddb',
-        setStorageBackend: jest.fn(),
-        flaskUrl: 'http://localhost:5000',
-        setFlaskUrl: jest.fn(),
-        flaskConnectionStatus: 'unknown',
-        setFlaskConnectionStatus: jest.fn(),
-        testingConnection: false,
-        envVarSet: false,
-        loadConfig: jest.fn(),
-        handleTestConnection,
-        handleSaveStorageConfig: jest.fn(),
-      } as any)
-
       const { result } = renderHook(() => useSettingsState())
 
       expect(result.current.handleExport).toBe(handleExport)
       expect(result.current.handleImport).toBe(handleImport)
       expect(result.current.handleClear).toBe(handleClear)
       expect(result.current.handleSeed).toBe(handleSeed)
-      expect(result.current.handleTestConnection).toBe(handleTestConnection)
       expect(result.current.checkSchemaHealth).toBe(checkSchemaHealth)
     })
 
@@ -394,11 +253,6 @@ describe('useSettingsState Hook', () => {
         'loading',
         'storageBackend',
         'setStorageBackend',
-        'flaskUrl',
-        'setFlaskUrl',
-        'flaskConnectionStatus',
-        'setFlaskConnectionStatus',
-        'testingConnection',
         'envVarSet',
         'schemaHealth',
         'checkingSchema',
@@ -407,10 +261,7 @@ describe('useSettingsState Hook', () => {
         'handleClear',
         'handleSeed',
         'formatBytes',
-        'handleTestConnection',
         'handleSaveStorageConfig',
-        'handleMigrateToFlask',
-        'handleMigrateToIndexedDB',
         'checkSchemaHealth',
       ]
 
@@ -419,62 +270,24 @@ describe('useSettingsState Hook', () => {
       })
     })
 
-    it('should handle concurrent operations', async () => {
-      const loadStats = jest.fn().mockResolvedValue(undefined)
-      const checkSchemaHealth = jest.fn().mockResolvedValue(undefined)
-
-      mockUseDatabaseOperations.mockReturnValue({
-        stats: null,
-        loading: false,
-        schemaHealth: 'unknown',
-        checkingSchema: false,
-        loadStats,
-        checkSchemaHealth,
-        handleExport: jest.fn().mockResolvedValue(undefined),
-        handleImport: jest.fn().mockResolvedValue(undefined),
-        handleClear: jest.fn().mockResolvedValue(undefined),
-        handleSeed: jest.fn().mockResolvedValue(undefined),
-        formatBytes: jest.fn(),
-      } as any)
-
-      const { result } = renderHook(() => useSettingsState())
-
-      await act(async () => {
-        await Promise.all([
-          result.current.handleExport(),
-          result.current.handleTestConnection(),
-        ])
-      })
-
-      // Verify handlers were called
-      expect(result.current.handleExport).toBeDefined()
-      expect(result.current.handleTestConnection).toBeDefined()
-    })
-
     it('should update storage backend when changed', () => {
       const setStorageBackend = jest.fn()
 
       mockUseStorageConfig.mockReturnValue({
         storageBackend: 'indexeddb',
         setStorageBackend,
-        flaskUrl: 'http://localhost:5000',
-        setFlaskUrl: jest.fn(),
-        flaskConnectionStatus: 'unknown',
-        setFlaskConnectionStatus: jest.fn(),
-        testingConnection: false,
         envVarSet: false,
         loadConfig: jest.fn(),
-        handleTestConnection: jest.fn(),
         handleSaveStorageConfig: jest.fn(),
       } as any)
 
       const { result } = renderHook(() => useSettingsState())
 
       act(() => {
-        result.current.setStorageBackend('flask')
+        result.current.setStorageBackend('dbal')
       })
 
-      expect(setStorageBackend).toHaveBeenCalledWith('flask')
+      expect(setStorageBackend).toHaveBeenCalledWith('dbal')
     })
 
     it('should handle error states gracefully', () => {
@@ -492,24 +305,9 @@ describe('useSettingsState Hook', () => {
         formatBytes: jest.fn(),
       } as any)
 
-      mockUseStorageConfig.mockReturnValue({
-        storageBackend: 'indexeddb',
-        setStorageBackend: jest.fn(),
-        flaskUrl: 'http://localhost:5000',
-        setFlaskUrl: jest.fn(),
-        flaskConnectionStatus: 'failed',
-        setFlaskConnectionStatus: jest.fn(),
-        testingConnection: false,
-        envVarSet: false,
-        loadConfig: jest.fn(),
-        handleTestConnection: jest.fn(),
-        handleSaveStorageConfig: jest.fn(),
-      } as any)
-
       const { result } = renderHook(() => useSettingsState())
 
       expect(result.current.schemaHealth).toBe('corrupted')
-      expect(result.current.flaskConnectionStatus).toBe('failed')
     })
   })
 })

@@ -42,9 +42,6 @@ pids
 .spark-workbench-id
 .aider*
 
-# Pyodide runtime files — copied from node_modules at build time (see Dockerfile + copy:pyodide script)
-public/pyodide/
-
 # Temporary test artifacts
 tests/temp-*/
 

@@ -104,7 +104,7 @@ export function usePythonTerminal() {
   return {
     lines,
     isRunning,
-    isInitializing: false,   // no Pyodide init — Flask is always ready
+    isInitializing: false,
     inputValue,
     waitingForInput,
     setInputValue,

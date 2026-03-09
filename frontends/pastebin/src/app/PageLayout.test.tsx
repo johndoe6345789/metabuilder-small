@@ -123,8 +123,8 @@ describe('PageLayout', () => {
       const footerText = screen.getByText(/Save, organize, and share your code snippets/i);
       expect(footerText).toBeInTheDocument();
 
-      const pyodideText = screen.getByText(/Supports React preview and Python execution via Pyodide/i);
-      expect(pyodideText).toBeInTheDocument();
+      const techNote = screen.getByText(/Supports React preview and multi-language Docker execution/i);
+      expect(techNote).toBeInTheDocument();
     });
 
     it('should render grid pattern background', () => {

@@ -46,7 +46,8 @@ persistor.subscribe(() => {
   if (bootstrapped && !_validated) {
     _validated = true
     if (store.getState().auth.token) {
-      store.dispatch(validateToken())
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ;(store.dispatch as ThunkDispatch<any, any, UnknownAction>)(validateToken())
     }
   }
 })

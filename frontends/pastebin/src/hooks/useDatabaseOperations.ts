@@ -15,7 +15,7 @@ export function useDatabaseOperations() {
   const [stats, setStats] = useState<{
     snippetCount: number
     templateCount: number
-    storageType: 'indexeddb' | 'localstorage' | 'none' | 'flask'
+    storageType: 'indexeddb' | 'localstorage' | 'none' | 'dbal'
     namespaceCount?: number
     databaseSize: number
   } | null>(null)

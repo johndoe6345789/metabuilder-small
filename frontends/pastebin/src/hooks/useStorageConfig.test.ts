@@ -53,19 +53,19 @@ describe('useStorageConfig Hook', () => {
       const { result } = renderHook(() => useStorageConfig())
 
       act(() => {
-        result.current.setStorageBackend('flask')
+        result.current.setStorageBackend('dbal')
       })
 
-      expect(result.current.storageBackend).toBe('flask')
+      expect(result.current.storageBackend).toBe('dbal')
     })
 
     it('should support toggling between backends', () => {
       const { result } = renderHook(() => useStorageConfig())
 
       act(() => {
-        result.current.setStorageBackend('flask')
+        result.current.setStorageBackend('dbal')
       })
-      expect(result.current.storageBackend).toBe('flask')
+      expect(result.current.storageBackend).toBe('dbal')
 
       act(() => {
         result.current.setStorageBackend('indexeddb')
@@ -77,7 +77,7 @@ describe('useStorageConfig Hook', () => {
   describe('loadConfig', () => {
     it('should load config from storage and update state', () => {
       mockStorage.loadStorageConfig.mockReturnValue({
-        backend: 'flask',
+        backend: 'dbal',
       })
 
       const { result } = renderHook(() => useStorageConfig())
@@ -86,7 +86,7 @@ describe('useStorageConfig Hook', () => {
         result.current.loadConfig()
       })
 
-      expect(result.current.storageBackend).toBe('flask')
+      expect(result.current.storageBackend).toBe('dbal')
     })
 
     it('should use environment variable to set envVarSet', () => {

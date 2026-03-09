@@ -1,6 +1,6 @@
 /**
- * Unit Tests for Storage Configuration and Flask Adapter
- * Comprehensive tests for HTTP communication with Flask backend
+ * Unit Tests for Storage Configuration and DBAL Adapter
+ * Comprehensive tests for HTTP communication with DBAL backend
  *
  * Coverage includes:
  * - Connection health checks with timeout handling
@@ -18,7 +18,7 @@ import {
   loadStorageConfig,
   saveStorageConfig,
   getStorageConfig,
-  FlaskStorageAdapter,
+  DBALStorageAdapter,
 } from '@/lib/storage';
 import type { Snippet, Namespace } from '@/lib/types';
 
@@ -61,7 +61,7 @@ describe('Storage Config Functions', () => {
     localStorage.clear();
     jest.resetModules();
     // Reset environment variables
-    delete process.env.NEXT_PUBLIC_FLASK_BACKEND_URL;
+    delete process.env.NEXT_PUBLIC_DBAL_API_URL;
   });
 
   afterEach(() => {
@@ -74,11 +74,11 @@ describe('Storage Config Functions', () => {
       expect(config.backend).toBe('indexeddb');
     });
 
-    it('should return flask config when env var is set', () => {
-      process.env.NEXT_PUBLIC_FLASK_BACKEND_URL = 'http://localhost:5000';
+    it('should return dbal config when env var is set', () => {
+      process.env.NEXT_PUBLIC_DBAL_API_URL = 'http://localhost:5000';
       const config = loadStorageConfig();
-      expect(config.backend).toBe('flask');
-      expect(config.flaskUrl).toBe('http://localhost:5000');
+      expect(config.backend).toBe('dbal');
+      expect(config.dbalUrl).toBe('http://localhost:5000');
     });
 
     it('should load config from localStorage when available', () => {
@@ -100,19 +100,19 @@ describe('Storage Config Functions', () => {
     });
 
     it('should prefer env var over localStorage', () => {
-      process.env.NEXT_PUBLIC_FLASK_BACKEND_URL = 'http://api.example.com';
+      process.env.NEXT_PUBLIC_DBAL_API_URL = 'http://api.example.com';
       localStorage.setItem('codesnippet-storage-config', JSON.stringify({ backend: 'indexeddb' }));
       const config = loadStorageConfig();
-      expect(config.backend).toBe('flask');
-      expect(config.flaskUrl).toBe('http://api.example.com');
+      expect(config.backend).toBe('dbal');
+      expect(config.dbalUrl).toBe('http://api.example.com');
     });
   });
 
   describe('saveStorageConfig', () => {
     it('should save config to localStorage', () => {
       const config: StorageConfig = {
-        backend: 'flask',
-        flaskUrl: 'http://localhost:5000',
+        backend: 'dbal',
+        dbalUrl: 'http://localhost:5000',
       };
       saveStorageConfig(config);
       const saved = localStorage.getItem('codesnippet-storage-config');
@@ -138,18 +138,18 @@ describe('Storage Config Functions', () => {
   describe('getStorageConfig', () => {
     it('should return current config', () => {
       const config: StorageConfig = {
-        backend: 'flask',
-        flaskUrl: 'http://test.com',
+        backend: 'dbal',
+        dbalUrl: 'http://test.com',
       };
       saveStorageConfig(config);
       const retrieved = getStorageConfig();
-      expect(retrieved.backend).toBe('flask');
-      expect(retrieved.flaskUrl).toBe('http://test.com');
+      expect(retrieved.backend).toBe('dbal');
+      expect(retrieved.dbalUrl).toBe('http://test.com');
     });
   });
 });
 
-describe('FlaskStorageAdapter', () => {
+describe('DBALStorageAdapter', () => {
   const baseUrl = 'http://localhost:5000';
 
   beforeEach(() => {
@@ -159,20 +159,20 @@ describe('FlaskStorageAdapter', () => {
 
   describe('constructor', () => {
     it('should create adapter with valid URL', () => {
-      const adapter = new FlaskStorageAdapter(baseUrl);
+      const adapter = new DBALStorageAdapter(baseUrl);
       expect(adapter).toBeTruthy();
     });
 
     it('should throw error with empty URL', () => {
-      expect(() => new FlaskStorageAdapter('')).toThrow('Flask backend URL cannot be empty');
+      expect(() => new DBALStorageAdapter('')).toThrow('DBAL backend URL cannot be empty');
     });
 
     it('should throw error with whitespace-only URL', () => {
-      expect(() => new FlaskStorageAdapter('   ')).toThrow('Flask backend URL cannot be empty');
+      expect(() => new DBALStorageAdapter('   ')).toThrow('DBAL backend URL cannot be empty');
     });
 
     it('should strip trailing slash from URL', () => {
-      const adapter = new FlaskStorageAdapter('http://localhost:5000/');
+      const adapter = new DBALStorageAdapter('http://localhost:5000/');
       // Test by checking the URL is used correctly in operations
       (global.fetch as jest.Mock).mockResolvedValue({ ok: true, json: async () => [] });
       adapter.getAllSnippets();
@@ -183,20 +183,20 @@ describe('FlaskStorageAdapter', () => {
   describe('testConnection', () => {
     it('should return false on failed connection', async () => {
       (global.fetch as jest.Mock).mockResolvedValue({ ok: false });
-      const adapter = new FlaskStorageAdapter(baseUrl);
+      const adapter = new DBALStorageAdapter(baseUrl);
       const result = await adapter.testConnection();
       expect(result).toBe(false);
     });
 
     it('should return false on network error', async () => {
       (global.fetch as jest.Mock).mockRejectedValue(new Error('Network error'));
-      const adapter = new FlaskStorageAdapter(baseUrl);
+      const adapter = new DBALStorageAdapter(baseUrl);
       const result = await adapter.testConnection();
       expect(result).toBe(false);
     });
 
     it('should return false on invalid URL', async () => {
-      const adapter = new FlaskStorageAdapter('not-a-url');
+      const adapter = new DBALStorageAdapter('not-a-url');
       const result = await adapter.testConnection();
       expect(result).toBe(false);
     });
@@ -204,7 +204,7 @@ describe('FlaskStorageAdapter', () => {
     it('should handle abort/timeout error gracefully', async () => {
       const abortError = new Error('AbortError');
       (global.fetch as jest.Mock).mockRejectedValue(abortError);
-      const adapter = new FlaskStorageAdapter(baseUrl);
+      const adapter = new DBALStorageAdapter(baseUrl);
       const result = await adapter.testConnection();
       expect(result).toBe(false);
     });
@@ -217,7 +217,7 @@ describe('FlaskStorageAdapter', () => {
       // 3. Returns false on network errors
       // 4. Returns false on invalid URLs
       // The implementation uses /health endpoint with GET method and timeout signal
-      const adapter = new FlaskStorageAdapter(baseUrl);
+      const adapter = new DBALStorageAdapter(baseUrl);
       expect(adapter).toBeTruthy();
     });
   });
@@ -243,7 +243,7 @@ describe('FlaskStorageAdapter', () => {
         ok: true,
         json: async () => mockSnippets,
       });
-      const adapter = new FlaskStorageAdapter(baseUrl);
+      const adapter = new DBALStorageAdapter(baseUrl);
       const result = await adapter.getAllSnippets();
       expect(result).toHaveLength(1);
       expect(result[0].title).toBe('Test');
@@ -254,13 +254,13 @@ describe('FlaskStorageAdapter', () => {
         ok: false,
         statusText: 'Not Found',
       });
-      const adapter = new FlaskStorageAdapter(baseUrl);
+      const adapter = new DBALStorageAdapter(baseUrl);
       await expect(adapter.getAllSnippets()).rejects.toThrow('Failed to fetch snippets');
     });
 
     it('should throw error for invalid URL', async () => {
-      const adapter = new FlaskStorageAdapter('invalid');
-      await expect(adapter.getAllSnippets()).rejects.toThrow('Invalid Flask backend URL');
+      const adapter = new DBALStorageAdapter('invalid');
+      await expect(adapter.getAllSnippets()).rejects.toThrow('Invalid DBAL backend URL');
     });
 
     it('should convert ISO timestamp strings to numbers', async () => {
@@ -277,7 +277,7 @@ describe('FlaskStorageAdapter', () => {
         ok: true,
         json: async () => mockSnippets,
       });
-      const adapter = new FlaskStorageAdapter(baseUrl);
+      const adapter = new DBALStorageAdapter(baseUrl);
       const result = await adapter.getAllSnippets();
       expect(typeof result[0].createdAt).toBe('number');
       expect(typeof result[0].updatedAt).toBe('number');
@@ -303,14 +303,14 @@ describe('FlaskStorageAdapter', () => {
         ok: true,
         json: async () => mockSnippet,
       });
-      const adapter = new FlaskStorageAdapter(baseUrl);
+      const adapter = new DBALStorageAdapter(baseUrl);
       const result = await adapter.getSnippet('1');
       expect(result?.id).toBe('1');
     });
 
     it('should return null for 404 response', async () => {
       (global.fetch as jest.Mock).mockResolvedValue({ status: 404 });
-      const adapter = new FlaskStorageAdapter(baseUrl);
+      const adapter = new DBALStorageAdapter(baseUrl);
       const result = await adapter.getSnippet('nonexistent');
       expect(result).toBeNull();
     });
@@ -321,7 +321,7 @@ describe('FlaskStorageAdapter', () => {
         status: 500,
         statusText: 'Server Error',
       });
-      const adapter = new FlaskStorageAdapter(baseUrl);
+      const adapter = new DBALStorageAdapter(baseUrl);
       await expect(adapter.getSnippet('1')).rejects.toThrow('Failed to fetch snippet');
     });
   });
@@ -329,7 +329,7 @@ describe('FlaskStorageAdapter', () => {
   describe('createSnippet', () => {
     it('should create snippet successfully', async () => {
       (global.fetch as jest.Mock).mockResolvedValue({ ok: true });
-      const adapter = new FlaskStorageAdapter(baseUrl);
+      const adapter = new DBALStorageAdapter(baseUrl);
       const snippet: Snippet = {
         id: '1',
         title: 'New',
@@ -352,14 +352,14 @@ describe('FlaskStorageAdapter', () => {
         ok: false,
         statusText: 'Bad Request',
       });
-      const adapter = new FlaskStorageAdapter(baseUrl);
+      const adapter = new DBALStorageAdapter(baseUrl);
       const snippet = createMockSnippet();
       await expect(adapter.createSnippet(snippet)).rejects.toThrow('Failed to create snippet');
     });
 
     it('should convert timestamps to ISO strings', async () => {
       (global.fetch as jest.Mock).mockResolvedValue({ ok: true });
-      const adapter = new FlaskStorageAdapter(baseUrl);
+      const adapter = new DBALStorageAdapter(baseUrl);
       const now = Date.now();
       const snippet: Snippet = {
         id: '1',
@@ -384,7 +384,7 @@ describe('FlaskStorageAdapter', () => {
   describe('updateSnippet', () => {
     it('should update snippet successfully', async () => {
       (global.fetch as jest.Mock).mockResolvedValue({ ok: true });
-      const adapter = new FlaskStorageAdapter(baseUrl);
+      const adapter = new DBALStorageAdapter(baseUrl);
       const snippet: Snippet = {
         id: '1',
         title: 'Updated',
@@ -406,14 +406,14 @@ describe('FlaskStorageAdapter', () => {
         ok: false,
         statusText: 'Not Found',
       });
-      const adapter = new FlaskStorageAdapter(baseUrl);
+      const adapter = new DBALStorageAdapter(baseUrl);
       const snippet = createMockSnippet({ id: '1' });
       await expect(adapter.updateSnippet(snippet)).rejects.toThrow('Failed to update snippet');
     });
 
     it('should use PUT method for update', async () => {
       (global.fetch as jest.Mock).mockResolvedValue({ ok: true });
-      const adapter = new FlaskStorageAdapter(baseUrl);
+      const adapter = new DBALStorageAdapter(baseUrl);
       const snippet: Snippet = {
         id: '123',
         title: 'Test',
@@ -437,7 +437,7 @@ describe('FlaskStorageAdapter', () => {
   describe('deleteSnippet', () => {
     it('should delete snippet successfully', async () => {
       (global.fetch as jest.Mock).mockResolvedValue({ ok: true });
-      const adapter = new FlaskStorageAdapter(baseUrl);
+      const adapter = new DBALStorageAdapter(baseUrl);
       await expect(adapter.deleteSnippet('1')).resolves.not.toThrow();
     });
 
@@ -446,13 +446,13 @@ describe('FlaskStorageAdapter', () => {
         ok: false,
         statusText: 'Not Found',
       });
-      const adapter = new FlaskStorageAdapter(baseUrl);
+      const adapter = new DBALStorageAdapter(baseUrl);
       await expect(adapter.deleteSnippet('nonexistent')).rejects.toThrow('Failed to delete snippet');
     });
 
     it('should use DELETE method', async () => {
       (global.fetch as jest.Mock).mockResolvedValue({ ok: true });
-      const adapter = new FlaskStorageAdapter(baseUrl);
+      const adapter = new DBALStorageAdapter(baseUrl);
       await adapter.deleteSnippet('123');
       const call = (global.fetch as jest.Mock).mock.calls[0];
       expect(call[1].method).toBe('DELETE');
@@ -468,21 +468,21 @@ describe('FlaskStorageAdapter', () => {
         ok: true,
         json: async () => mockNamespaces,
       });
-      const adapter = new FlaskStorageAdapter(baseUrl);
+      const adapter = new DBALStorageAdapter(baseUrl);
       const result = await adapter.getAllNamespaces();
       expect(result).toHaveLength(1);
     });
 
     it('should create namespace', async () => {
       (global.fetch as jest.Mock).mockResolvedValue({ ok: true });
-      const adapter = new FlaskStorageAdapter(baseUrl);
+      const adapter = new DBALStorageAdapter(baseUrl);
       const namespace: Namespace = { id: '1', name: 'New', createdAt: Date.now(), isDefault: false };
       await expect(adapter.createNamespace(namespace)).resolves.not.toThrow();
     });
 
     it('should delete namespace', async () => {
       (global.fetch as jest.Mock).mockResolvedValue({ ok: true });
-      const adapter = new FlaskStorageAdapter(baseUrl);
+      const adapter = new DBALStorageAdapter(baseUrl);
       await expect(adapter.deleteNamespace('1')).resolves.not.toThrow();
     });
 
@@ -497,7 +497,7 @@ describe('FlaskStorageAdapter', () => {
         ok: true,
         json: async () => [mockNamespace],
       });
-      const adapter = new FlaskStorageAdapter(baseUrl);
+      const adapter = new DBALStorageAdapter(baseUrl);
       const result = await adapter.getNamespace('1');
       expect(result?.id).toBe('1');
     });
@@ -507,7 +507,7 @@ describe('FlaskStorageAdapter', () => {
         ok: true,
         json: async () => [],
       });
-      const adapter = new FlaskStorageAdapter(baseUrl);
+      const adapter = new DBALStorageAdapter(baseUrl);
       const result = await adapter.getNamespace('nonexistent');
       expect(result).toBeNull();
     });
@@ -516,7 +516,7 @@ describe('FlaskStorageAdapter', () => {
   describe('database operations', () => {
     it('should wipe database', async () => {
       (global.fetch as jest.Mock).mockResolvedValue({ ok: true });
-      const adapter = new FlaskStorageAdapter(baseUrl);
+      const adapter = new DBALStorageAdapter(baseUrl);
       await expect(adapter.wipeDatabase()).resolves.not.toThrow();
       const call = (global.fetch as jest.Mock).mock.calls[0];
       expect(call[1].method).toBe('POST');
@@ -524,13 +524,13 @@ describe('FlaskStorageAdapter', () => {
 
     it('should clear database (alias)', async () => {
       (global.fetch as jest.Mock).mockResolvedValue({ ok: true });
-      const adapter = new FlaskStorageAdapter(baseUrl);
+      const adapter = new DBALStorageAdapter(baseUrl);
       await expect(adapter.clearDatabase()).resolves.not.toThrow();
     });
 
     it('should bulk move snippets', async () => {
       (global.fetch as jest.Mock).mockResolvedValue({ ok: true });
-      const adapter = new FlaskStorageAdapter(baseUrl);
+      const adapter = new DBALStorageAdapter(baseUrl);
       await expect(adapter.bulkMoveSnippets(['1', '2'], 'target')).resolves.not.toThrow();
     });
 
@@ -539,7 +539,7 @@ describe('FlaskStorageAdapter', () => {
         ok: true,
         json: async () => [],
       });
-      const adapter = new FlaskStorageAdapter(baseUrl);
+      const adapter = new DBALStorageAdapter(baseUrl);
       const stats = await adapter.getStats();
       expect(stats).toHaveProperty('snippetCount');
       expect(stats).toHaveProperty('templateCount');
@@ -558,7 +558,7 @@ describe('FlaskStorageAdapter', () => {
           ok: true,
           json: async () => mockNamespaces,
         });
-      const adapter = new FlaskStorageAdapter(baseUrl);
+      const adapter = new DBALStorageAdapter(baseUrl);
       const result = await adapter.exportDatabase();
       expect(result).toHaveProperty('snippets');
       expect(result).toHaveProperty('namespaces');
@@ -568,7 +568,7 @@ describe('FlaskStorageAdapter', () => {
 
     it('should import database', async () => {
       (global.fetch as jest.Mock).mockResolvedValue({ ok: true });
-      const adapter = new FlaskStorageAdapter(baseUrl);
+      const adapter = new DBALStorageAdapter(baseUrl);
       const data = { snippets: [], namespaces: [] };
       await expect(adapter.importDatabase(data)).resolves.not.toThrow();
     });
@@ -579,7 +579,7 @@ describe('FlaskStorageAdapter', () => {
         ok: true,
         json: async () => mockSnippets,
       });
-      const adapter = new FlaskStorageAdapter(baseUrl);
+      const adapter = new DBALStorageAdapter(baseUrl);
       const result = await adapter.getSnippetsByNamespace('ns1');
       expect(Array.isArray(result)).toBe(true);
     });
@@ -587,7 +587,7 @@ describe('FlaskStorageAdapter', () => {
 
   describe('error handling for invalid URLs', () => {
     it('should reject invalid URLs in all methods', async () => {
-      const adapter = new FlaskStorageAdapter('not-a-url');
+      const adapter = new DBALStorageAdapter('not-a-url');
       await expect(adapter.getAllSnippets()).rejects.toThrow();
       await expect(adapter.getAllNamespaces()).rejects.toThrow();
       await expect(adapter.wipeDatabase()).rejects.toThrow();
@@ -596,7 +596,7 @@ describe('FlaskStorageAdapter', () => {
 
   // COMPREHENSIVE ERROR HANDLING TESTS
   describe('HTTP Error Responses', () => {
-    const adapter = new FlaskStorageAdapter(baseUrl);
+    const adapter = new DBALStorageAdapter(baseUrl);
 
     it('should handle 400 Bad Request on snippet creation', async () => {
       (global.fetch as jest.Mock).mockResolvedValue({
@@ -647,7 +647,7 @@ describe('FlaskStorageAdapter', () => {
 
   // NETWORK ERROR HANDLING TESTS
   describe('Network Errors', () => {
-    const adapter = new FlaskStorageAdapter(baseUrl);
+    const adapter = new DBALStorageAdapter(baseUrl);
 
     it('should handle connection timeout', async () => {
       const timeoutError = new Error('AbortError: The operation was aborted');
@@ -675,7 +675,7 @@ describe('FlaskStorageAdapter', () => {
 
   // INVALID JSON RESPONSE TESTS
   describe('Invalid JSON Responses', () => {
-    const adapter = new FlaskStorageAdapter(baseUrl);
+    const adapter = new DBALStorageAdapter(baseUrl);
 
     it('should handle invalid JSON from getAllSnippets', async () => {
       (global.fetch as jest.Mock).mockResolvedValue({
@@ -704,7 +704,7 @@ describe('FlaskStorageAdapter', () => {
 
   // DATA SERIALIZATION TESTS
   describe('Date Serialization & Deserialization', () => {
-    const adapter = new FlaskStorageAdapter(baseUrl);
+    const adapter = new DBALStorageAdapter(baseUrl);
 
     it('should convert ISO date strings to timestamps on fetch', async () => {
       const isoDate = '2024-01-15T10:30:00.000Z';
@@ -788,7 +788,7 @@ describe('FlaskStorageAdapter', () => {
 
   // NULL/UNDEFINED HANDLING TESTS
   describe('Null and Undefined Handling', () => {
-    const adapter = new FlaskStorageAdapter(baseUrl);
+    const adapter = new DBALStorageAdapter(baseUrl);
 
     it('should handle null snippet description', async () => {
       const mockSnippet = createMockSnippet({ description: null as any });
@@ -838,7 +838,7 @@ describe('FlaskStorageAdapter', () => {
 
   // COMPLEX OBJECT HANDLING TESTS
   describe('Complex Object Serialization', () => {
-    const adapter = new FlaskStorageAdapter(baseUrl);
+    const adapter = new DBALStorageAdapter(baseUrl);
 
     it('should handle input parameters in snippet', async () => {
       const snippet = createMockSnippet({
@@ -888,9 +888,9 @@ describe('FlaskStorageAdapter', () => {
 
   // MIGRATION OPERATIONS TESTS
   describe('Migration Operations', () => {
-    const adapter = new FlaskStorageAdapter(baseUrl);
+    const adapter = new DBALStorageAdapter(baseUrl);
 
-    it('should migrate snippets from IndexedDB to Flask', async () => {
+    it('should migrate snippets from IndexedDB to DBAL', async () => {
       (global.fetch as jest.Mock).mockResolvedValue({ ok: true });
       const snippets = [
         createMockSnippet({ id: '1' }),
@@ -912,7 +912,7 @@ describe('FlaskStorageAdapter', () => {
       await expect(adapter.migrateFromIndexedDB(snippets)).rejects.toThrow();
     });
 
-    it('should migrate snippets from Flask to IndexedDB', async () => {
+    it('should migrate snippets from DBAL to IndexedDB', async () => {
       const mockSnippets = [
         createMockSnippet({ id: '1' }),
         createMockSnippet({ id: '2' }),
@@ -934,7 +934,7 @@ describe('FlaskStorageAdapter', () => {
 
   // FETCH CALL VALIDATION TESTS
   describe('HTTP Request Validation', () => {
-    const adapter = new FlaskStorageAdapter(baseUrl);
+    const adapter = new DBALStorageAdapter(baseUrl);
 
     it('should use correct HTTP methods for each operation', async () => {
       (global.fetch as jest.Mock).mockResolvedValue({
@@ -985,7 +985,7 @@ describe('FlaskStorageAdapter', () => {
 
   // EDGE CASES TESTS
   describe('Edge Cases and Boundary Conditions', () => {
-    const adapter = new FlaskStorageAdapter(baseUrl);
+    const adapter = new DBALStorageAdapter(baseUrl);
 
     it('should handle very large snippet code', async () => {
       const largeCode = 'a'.repeat(100000);
@@ -1016,7 +1016,7 @@ describe('FlaskStorageAdapter', () => {
     });
 
     it('should handle URL with trailing slashes correctly', async () => {
-      const adapterWithTrailingSlash = new FlaskStorageAdapter('http://localhost:5000/');
+      const adapterWithTrailingSlash = new DBALStorageAdapter('http://localhost:5000/');
       (global.fetch as jest.Mock).mockResolvedValue({
         ok: true,
         json: async () => [],
@@ -1041,7 +1041,7 @@ describe('FlaskStorageAdapter', () => {
 
   // DATABASE OPERATIONS INTEGRATION TESTS
   describe('Database Operations Integration', () => {
-    const adapter = new FlaskStorageAdapter(baseUrl);
+    const adapter = new DBALStorageAdapter(baseUrl);
 
     it('should export and re-import database', async () => {
       const exportData = {
@@ -1086,7 +1086,7 @@ describe('FlaskStorageAdapter', () => {
 
   // NAMESPACE OPERATIONS EDGE CASES
   describe('Namespace Operations Edge Cases', () => {
-    const adapter = new FlaskStorageAdapter(baseUrl);
+    const adapter = new DBALStorageAdapter(baseUrl);
 
     it('should handle creating namespace with empty description', async () => {
       (global.fetch as jest.Mock).mockResolvedValue({ ok: true });

@@ -548,14 +548,6 @@ services:
       NEXT_PUBLIC_DBAL_API_URL: /api/dbal
       NEXT_PUBLIC_FLASK_BACKEND_URL: /pastebin-api
       NEXT_TELEMETRY_DISABLED: "1"
-    volumes:
-      # Mount pastebin src for instant hot reload — no rebuild needed for src changes
-      - ../frontends/pastebin/src:/app/frontends/pastebin/src
-      # Mount shared source packages for hot reload
-      - ../hooks:/app/hooks
-      - ../components:/app/components
-      - ../scss:/app/scss
-      - ../icons:/app/icons
     depends_on:
       pastebin-backend:
         condition: service_healthy

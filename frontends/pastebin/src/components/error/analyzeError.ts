@@ -3,7 +3,7 @@ import { getStorageConfig } from '@/lib/storage';
 import { getAuthToken } from '@/lib/authToken';
 
 function baseUrl(): string {
-  return (getStorageConfig().flaskUrl ?? '').replace(/\/$/, '');
+  return (getStorageConfig().dbalUrl ?? '').replace(/\/$/, '');
 }
 
 function authHeaders(): Record<string, string> {

@@ -1,6 +1,9 @@
 # Minimal stack for Playwright E2E tests via Testcontainers
 # Only includes services needed for the pastebin app
 #
+# All images are self-contained (baked-in files). No host bind mounts.
+# Works in Docker Compose, Testcontainers, and Kubernetes.
+#
 # Usage: Started automatically by tests/e2e/global-setup.ts
 # Manual: docker compose -f docker-compose.e2e.yml up -d
 
@@ -98,7 +101,7 @@ services:
     networks:
       - e2e
 
-  # Pastebin Next.js frontend (dev mode with Turbopack)
+  # Pastebin Next.js frontend (dev mode with Turbopack, all source baked in)
   pastebin:
     build:
       context: ../..
@@ -110,12 +113,6 @@ services:
       NEXT_PUBLIC_DBAL_API_URL: /api/dbal
       NEXT_PUBLIC_FLASK_BACKEND_URL: /pastebin-api
       NEXT_TELEMETRY_DISABLED: "1"
-    volumes:
-      - ../../frontends/pastebin/src:/app/frontends/pastebin/src
-      - ../../hooks:/app/hooks
-      - ../../components:/app/components
-      - ../../scss:/app/scss
-      - ../../icons:/app/icons
     depends_on:
       pastebin-backend:
         condition: service_healthy
@@ -130,9 +127,9 @@ services:
 
   # nginx reverse proxy — routes /pastebin, /pastebin-api/, /api/dbal/
   nginx:
-    image: nginx:alpine
-    volumes:
-      - ./tests/e2e/nginx.e2e.conf:/etc/nginx/nginx.conf:ro
+    build:
+      context: .
+      dockerfile: tests/e2e/Dockerfile.nginx
     depends_on:
       pastebin:
         condition: service_healthy
