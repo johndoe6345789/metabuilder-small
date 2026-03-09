@@ -546,5 +546,47 @@
       }
     ],
     "metadata": { "useCurrentTimestamp": true, "timestampField": "createdAt" }
+  },
+  {
+    "entity": "Snippet",
+    "version": "1.0",
+    "description": "playwright — Default namespace snippets",
+    "records": [
+      {
+        "id": "e0100000-0000-0000-0000-000000000001",
+        "title": "Hello World (Python)",
+        "language": "python",
+        "category": "basics",
+        "description": "Simple hello world for E2E testing.",
+        "code": "print('Hello, World!')\n",
+        "functionName": null,
+        "entryPoint": null,
+        "inputParameters": "[]",
+        "hasPreview": false,
+        "isTemplate": false,
+        "namespaceId": "e0000004-0000-0000-0000-000000000001",
+        "userId": "44444444-4444-4444-4444-444444444444",
+        "tenantId": "pastebin",
+        "createdAt": 0
+      },
+      {
+        "id": "e0100000-0000-0000-0000-000000000002",
+        "title": "Greeting Function",
+        "language": "javascript",
+        "category": "basics",
+        "description": "A simple greeting function for E2E testing.",
+        "code": "function greet(name) {\n  return `Hello, ${name}!`;\n}\n\nconsole.log(greet('Playwright'));\n",
+        "functionName": "greet",
+        "entryPoint": null,
+        "inputParameters": "[{\"name\":\"name\",\"type\":\"string\",\"default\":\"World\",\"label\":\"Name\"}]",
+        "hasPreview": false,
+        "isTemplate": false,
+        "namespaceId": "e0000004-0000-0000-0000-000000000001",
+        "userId": "44444444-4444-4444-4444-444444444444",
+        "tenantId": "pastebin",
+        "createdAt": 0
+      }
+    ],
+    "metadata": { "useCurrentTimestamp": true, "timestampField": "createdAt" }
   }
 ]

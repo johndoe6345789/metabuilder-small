@@ -39,8 +39,10 @@ inline std::vector<ValidationError> validateEntityData(
     std::vector<ValidationError> errors;
 
     for (const auto& field : schema.fields) {
-        // Primary keys are server-managed; skip
-        if (field.unique && field.name == "id") continue;
+        // Primary key is server-generated; skip validation
+        if (field.name == "id") continue;
+        // DB-generated timestamp; skip validation
+        if (field.name == "createdAt") continue;
 
         bool present = data.contains(field.name) && !data[field.name].is_null();
 

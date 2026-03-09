@@ -106,6 +106,81 @@ export const setupHooks: Record<string, SetupHook> = {
   },
 
   /**
+   * Create a snippet via the DBAL API and navigate to its view page.
+   * Requires loginViaApi to have been called first (token in IndexedDB).
+   * Stores the snippet ID in vars as 'snippetId'.
+   */
+  createAndViewSnippet: async (page, args, vars) => {
+    // First ensure auth state is in IndexedDB (so the page renders authenticated)
+    await setupHooks.loginViaApi(page, args, vars)
+
+    // Get auth token from the login response for API calls
+    const username = (args.username as string | undefined) ?? 'playwright'
+    const password = (args.password as string | undefined) ?? 'pw-test-2024'
+
+    const loginResp = await page.request.post('/pastebin-api/api/auth/login', {
+      data: { username, password },
+      headers: { 'Content-Type': 'application/json' },
+    })
+    if (!loginResp.ok()) throw new Error('createAndViewSnippet: login failed')
+    const { token } = (await loginResp.json()) as { token: string }
+
+    // Get namespaces to find one to use
+    const nsResp = await page.request.get('/api/dbal/pastebin/pastebin/Namespace', {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+    const nsData = (await nsResp.json()) as { data: { data: Array<{ id: string; name: string }> } }
+    let namespaceId = nsData.data?.data?.[0]?.id
+
+    // Create a namespace only if none exist
+    if (!namespaceId) {
+      const createResp = await page.request.post('/api/dbal/pastebin/pastebin/Namespace', {
+        data: { name: 'E2E Comments', isDefault: false, tenantId: 'pastebin' },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      })
+      if (createResp.ok()) {
+        const created = (await createResp.json()) as { data: { id: string } }
+        namespaceId = created.data?.id
+      }
+    }
+    if (!namespaceId) throw new Error('createAndViewSnippet: no namespace found')
+
+    // Create a snippet
+    const snippetResp = await page.request.post('/api/dbal/pastebin/pastebin/Snippet', {
+      data: {
+        title: 'E2E Comment Test Snippet',
+        language: 'python',
+        category: 'test',
+        description: 'Created by E2E test for comment testing',
+        code: 'print("hello")\n',
+        namespaceId,
+        tenantId: 'pastebin',
+        hasPreview: false,
+        isTemplate: false,
+        inputParameters: '[]',
+      },
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    })
+    if (!snippetResp.ok()) {
+      const body = await snippetResp.text()
+      throw new Error(`createAndViewSnippet: snippet creation failed (${snippetResp.status()}): ${body}`)
+    }
+    const snippetData = (await snippetResp.json()) as { data: { id: string }; id?: string }
+    const snippetId = snippetData.data?.id ?? snippetData.id
+    if (!snippetId) throw new Error('createAndViewSnippet: no snippet ID returned')
+    vars.set('snippetId', snippetId)
+
+    // Navigate to home page to load snippets into Redux store
+    await page.goto('', { waitUntil: 'domcontentloaded' })
+    // Wait for snippet cards to appear (the snippet we just created should be listed)
+    await page.waitForSelector('[data-testid="snippet-card-view-btn"]', { timeout: 15000 })
+    // Click the first snippet view button
+    await page.locator('[data-testid="snippet-card-view-btn"]').first().click()
+    // Wait for the snippet view page to render
+    await page.waitForSelector('[data-testid="snippet-view-page"]', { timeout: 15000 })
+  },
+
+  /**
    * Clear localStorage and sessionStorage.
    * Use before tests that need a clean auth/preferences state.
    */

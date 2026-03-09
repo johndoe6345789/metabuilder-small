@@ -32,6 +32,7 @@
     "@metabuilder/service-adapters": "*",
     "@metabuilder/services": "*",
     "@metabuilder/timing-utils": "*",
+    "@monaco-editor/loader": "^1.7.0",
     "@monaco-editor/react": "^4.7.0",
     "@reduxjs/toolkit": "^2.11.2",
     "clsx": "^2.1.1",
@@ -70,6 +71,7 @@
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "@types/react": "^19.2.8",
-    "@types/react-dom": "^19.0.4"
+    "@types/react-dom": "^19.0.4",
+    "monaco-editor": "0.53.0"
   }
 }

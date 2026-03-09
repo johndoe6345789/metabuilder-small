@@ -4754,18 +4754,18 @@
         },
         {
           "action": "waitForSelector",
-          "selector": ".monaco-editor .inputarea,[data-testid='monaco-editor-container']",
-          "timeout": 15000
+          "selector": "[data-testid='monaco-editor-container'] .monaco-editor textarea",
+          "timeout": 30000
         },
         {
           "action": "click",
-          "selector": ".monaco-editor .inputarea"
+          "selector": "[data-testid='monaco-editor-container'] .monaco-editor"
         },
         {
           "action": "keyboard",
           "keys": [
-            "ctrl+a",
-            "ctrl+a"
+            "Control+a",
+            "Control+a"
           ]
         },
         {
@@ -4778,8 +4778,8 @@
         },
         {
           "action": "waitForURL",
-          "urlPattern": "**/",
-          "timeout": 8000
+          "urlPattern": "**/pastebin**",
+          "timeout": 15000
         },
         {
           "action": "waitForLoadState",
@@ -4868,18 +4868,18 @@
         },
         {
           "action": "waitForSelector",
-          "selector": ".monaco-editor .inputarea,[data-testid='monaco-editor-container']",
-          "timeout": 15000
+          "selector": "[data-testid='monaco-editor-container'] .monaco-editor textarea",
+          "timeout": 30000
         },
         {
           "action": "click",
-          "selector": ".monaco-editor .inputarea"
+          "selector": "[data-testid='monaco-editor-container'] .monaco-editor"
         },
         {
           "action": "keyboard",
           "keys": [
-            "ctrl+a",
-            "ctrl+a"
+            "Control+a",
+            "Control+a"
           ]
         },
         {
@@ -4892,8 +4892,8 @@
         },
         {
           "action": "waitForURL",
-          "urlPattern": "**/",
-          "timeout": 8000
+          "urlPattern": "**/pastebin**",
+          "timeout": 15000
         },
         {
           "action": "waitForLoadState",
@@ -4997,18 +4997,18 @@
         },
         {
           "action": "waitForSelector",
-          "selector": ".monaco-editor .inputarea,[data-testid='monaco-editor-container']",
-          "timeout": 15000
+          "selector": "[data-testid='monaco-editor-container'] .monaco-editor textarea",
+          "timeout": 30000
         },
         {
           "action": "click",
-          "selector": ".monaco-editor .inputarea"
+          "selector": "[data-testid='monaco-editor-container'] .monaco-editor"
         },
         {
           "action": "keyboard",
           "keys": [
-            "ctrl+a",
-            "ctrl+a"
+            "Control+a",
+            "Control+a"
           ]
         },
         {
@@ -5021,16 +5021,22 @@
         },
         {
           "action": "waitForURL",
-          "urlPattern": "**/",
-          "timeout": 8000
+          "urlPattern": "**/pastebin**",
+          "timeout": 15000
         },
         {
           "action": "waitForLoadState",
           "state": "domcontentloaded"
         },
         {
-          "action": "evaluate",
-          "script": "(function(){ var btn = document.querySelector('[data-testid=\"snippet-card-view-btn\"]'); if (!btn) throw new Error('No view btn'); btn.click(); return true; })()"
+          "action": "waitForSelector",
+          "selector": "[data-testid='snippet-card-view-btn']",
+          "timeout": 10000
+        },
+        {
+          "action": "click",
+          "testId": "snippet-card-view-btn",
+          "nth": 0
         },
         {
           "action": "waitForLoadState",
@@ -5128,18 +5134,18 @@
         },
         {
           "action": "waitForSelector",
-          "selector": ".monaco-editor .inputarea,[data-testid='monaco-editor-container']",
-          "timeout": 15000
+          "selector": "[data-testid='monaco-editor-container'] .monaco-editor textarea",
+          "timeout": 30000
         },
         {
           "action": "click",
-          "selector": ".monaco-editor .inputarea"
+          "selector": "[data-testid='monaco-editor-container'] .monaco-editor"
         },
         {
           "action": "keyboard",
           "keys": [
-            "ctrl+a",
-            "ctrl+a"
+            "Control+a",
+            "Control+a"
           ]
         },
         {
@@ -5152,16 +5158,22 @@
         },
         {
           "action": "waitForURL",
-          "urlPattern": "**/",
-          "timeout": 8000
+          "urlPattern": "**/pastebin**",
+          "timeout": 15000
         },
         {
           "action": "waitForLoadState",
           "state": "domcontentloaded"
         },
         {
-          "action": "evaluate",
-          "script": "(function(){ var btn = document.querySelector('[data-testid=\"snippet-card-view-btn\"]'); if (!btn) throw new Error('No view btn'); btn.click(); return true; })()"
+          "action": "waitForSelector",
+          "selector": "[data-testid='snippet-card-view-btn']",
+          "timeout": 10000
+        },
+        {
+          "action": "click",
+          "testId": "snippet-card-view-btn",
+          "nth": 0
         },
         {
           "action": "waitForLoadState",
@@ -5369,17 +5381,17 @@
         },
         {
           "action": "waitForSelector",
-          "selector": ".monaco-editor .inputarea,[data-testid='monaco-editor-container']",
-          "timeout": 15000
+          "selector": "[data-testid='monaco-editor-container'] .monaco-editor textarea",
+          "timeout": 30000
         },
         {
           "action": "click",
-          "selector": ".monaco-editor .inputarea"
+          "selector": "[data-testid='monaco-editor-container'] .monaco-editor"
         },
         {
           "action": "keyboard",
           "keys": [
-            "ctrl+a"
+            "Control+a"
           ]
         },
         {
@@ -5392,8 +5404,8 @@
         },
         {
           "action": "waitForURL",
-          "urlPattern": "**/",
-          "timeout": 8000
+          "urlPattern": "**/pastebin**",
+          "timeout": 15000
         },
         {
           "action": "waitForLoadState",
@@ -5446,17 +5458,17 @@
         },
         {
           "action": "waitForSelector",
-          "selector": ".monaco-editor .inputarea,[data-testid='monaco-editor-container']",
-          "timeout": 15000
+          "selector": "[data-testid='monaco-editor-container'] .monaco-editor textarea",
+          "timeout": 30000
         },
         {
           "action": "click",
-          "selector": ".monaco-editor .inputarea"
+          "selector": "[data-testid='monaco-editor-container'] .monaco-editor"
         },
         {
           "action": "keyboard",
           "keys": [
-            "ctrl+a"
+            "Control+a"
           ]
         },
         {
@@ -5469,8 +5481,8 @@
         },
         {
           "action": "waitForURL",
-          "urlPattern": "**/",
-          "timeout": 8000
+          "urlPattern": "**/pastebin**",
+          "timeout": 15000
         },
         {
           "action": "evaluate",

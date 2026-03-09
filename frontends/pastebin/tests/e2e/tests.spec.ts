@@ -290,8 +290,14 @@ class PlaywrightTestInterpreter {
         break
 
       case 'keyboard':
-        for (const key of [step.keys].flat()) {
-          await this.page.keyboard.press(key as string)
+        for (const rawKey of [step.keys].flat()) {
+          // Normalize shorthand modifier names to Playwright key names
+          const key = (rawKey as string)
+            .replace(/\bctrl\b/gi, 'Control')
+            .replace(/\balt\b/gi, 'Alt')
+            .replace(/\bmeta\b/gi, 'Meta')
+            .replace(/\bshift\b/gi, 'Shift')
+          await this.page.keyboard.press(key)
         }
         break
 

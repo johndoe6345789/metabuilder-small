@@ -4,6 +4,9 @@
   "private": true,
   "type": "module",
   "description": "MetaBuilder - Universal Platform",
+  "scripts": {
+    "postinstall": "bash scripts/patch-bundled-deps.sh"
+  },
   "workspaces": [
     "types",
     "interfaces",
@@ -74,7 +77,13 @@
     "@joshwooding/vite-plugin-react-docgen-typescript": {
       "vite": "^7.3.1"
     },
-    "minimatch": ">=10.2.1",
+    "minimatch": "10.2.4",
+    "tar": "7.5.11",
+    "monaco-editor": "0.53.0",
+    "esbuild": ">=0.25.0",
+    "@chromatic-com/playwright": {
+      "storybook": "8.6.18"
+    },
     "eslint-plugin-jsx-a11y": {
       "eslint": "$eslint"
     },

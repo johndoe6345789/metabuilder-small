@@ -118,5 +118,29 @@
       }
     ],
     "metadata": { "useCurrentTimestamp": true, "timestampField": "createdAt" }
+  },
+  {
+    "entity": "Namespace",
+    "version": "1.0",
+    "description": "playwright test user namespaces",
+    "records": [
+      {
+        "id": "e0000004-0000-0000-0000-000000000001",
+        "name": "Default",
+        "isDefault": true,
+        "userId": "44444444-4444-4444-4444-444444444444",
+        "tenantId": "pastebin",
+        "createdAt": 0
+      },
+      {
+        "id": "e0000004-0000-0000-0000-000000000002",
+        "name": "Test Snippets",
+        "isDefault": false,
+        "userId": "44444444-4444-4444-4444-444444444444",
+        "tenantId": "pastebin",
+        "createdAt": 0
+      }
+    ],
+    "metadata": { "useCurrentTimestamp": true, "timestampField": "createdAt" }
   }
 ]

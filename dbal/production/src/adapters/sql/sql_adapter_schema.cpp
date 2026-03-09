@@ -40,7 +40,8 @@ void SqlAdapter::loadSchemas() {
             ef.unique   = field.unique   || field.primary;
             ef.nullable = field.nullable || field.optional;
             ef.defaultValue = field.default_value;
-            ef.enumValues   = field.enum_values;
+            ef.enumValues   = field.enum_values.empty() ? std::nullopt
+                                : std::optional<std::vector<std::string>>(field.enum_values);
             ef.minLength    = field.min_length;
             ef.maxLength    = field.max_length;
             ef.pattern      = field.pattern;

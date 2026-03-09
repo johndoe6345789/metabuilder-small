@@ -8,28 +8,14 @@
     {
       "name": "comments section visible on snippet page",
       "steps": [
-        { "action": "hook", "name": "loginViaApi" },
-        { "action": "navigate", "url": "" },
-        { "action": "waitForSelector", "selector": "[data-testid='namespace-selector'],[data-testid='snippet-manager-loading']", "timeout": 30000 },
-        { "action": "waitForSelector", "selector": "[data-testid^='namespace-chip-']", "timeout": 10000, "skipIf": { "selector": "[data-testid^='namespace-chip-']", "state": "hidden" } },
-        { "action": "click", "selector": "[data-testid^='namespace-chip-']", "nth": 0, "skipIf": { "selector": "[data-testid^='namespace-chip-']", "state": "hidden" } },
-        { "action": "waitForSelector", "selector": "[data-testid='snippet-manager-redux'] [data-testid^='snippet-card-']", "timeout": 30000, "skipIf": { "selector": "[data-testid^='snippet-card-']", "state": "hidden" } },
-        { "action": "click", "selector": "[data-testid='snippet-card-view-btn']", "nth": 0, "skipIf": { "selector": "[data-testid='snippet-card-view-btn']", "state": "hidden" } },
-        { "action": "waitForSelector", "selector": "[data-testid='snippet-view-page']", "timeout": 30000 },
+        { "action": "hook", "name": "createAndViewSnippet" },
         { "action": "expect", "selector": "section h2", "assertion": { "matcher": "toContainText", "text": "Comments" } }
       ]
     },
     {
       "name": "comment form visible when authenticated",
       "steps": [
-        { "action": "hook", "name": "loginViaApi" },
-        { "action": "navigate", "url": "" },
-        { "action": "waitForSelector", "selector": "[data-testid='namespace-selector'],[data-testid='snippet-manager-loading']", "timeout": 30000 },
-        { "action": "waitForSelector", "selector": "[data-testid^='namespace-chip-']", "timeout": 10000, "skipIf": { "selector": "[data-testid^='namespace-chip-']", "state": "hidden" } },
-        { "action": "click", "selector": "[data-testid^='namespace-chip-']", "nth": 0, "skipIf": { "selector": "[data-testid^='namespace-chip-']", "state": "hidden" } },
-        { "action": "waitForSelector", "selector": "[data-testid='snippet-manager-redux'] [data-testid^='snippet-card-']", "timeout": 30000, "skipIf": { "selector": "[data-testid^='snippet-card-']", "state": "hidden" } },
-        { "action": "click", "selector": "[data-testid='snippet-card-view-btn']", "nth": 0, "skipIf": { "selector": "[data-testid='snippet-card-view-btn']", "state": "hidden" } },
-        { "action": "waitForSelector", "selector": "[data-testid='snippet-view-page']", "timeout": 30000 },
+        { "action": "hook", "name": "createAndViewSnippet" },
         { "action": "expect", "label": "Comment text", "assertion": { "matcher": "toBeVisible" } },
         { "action": "expect", "role": "button", "text": "Post Comment", "assertion": { "matcher": "toBeVisible" } }
       ]
@@ -38,15 +24,11 @@
       "name": "post a comment on a snippet",
       "timeout": 90000,
       "steps": [
-        { "action": "hook", "name": "loginViaApi" },
-        { "action": "navigate", "url": "" },
-        { "action": "waitForSelector", "selector": "[data-testid='namespace-selector'],[data-testid='snippet-manager-loading']", "timeout": 30000 },
-        { "action": "waitForSelector", "selector": "[data-testid^='namespace-chip-']", "timeout": 10000, "skipIf": { "selector": "[data-testid^='namespace-chip-']", "state": "hidden" } },
-        { "action": "click", "selector": "[data-testid^='namespace-chip-']", "nth": 0, "skipIf": { "selector": "[data-testid^='namespace-chip-']", "state": "hidden" } },
-        { "action": "waitForSelector", "selector": "[data-testid='snippet-manager-redux'] [data-testid^='snippet-card-']", "timeout": 30000, "skipIf": { "selector": "[data-testid^='snippet-card-']", "state": "hidden" } },
-        { "action": "click", "selector": "[data-testid='snippet-card-view-btn']", "nth": 0, "skipIf": { "selector": "[data-testid='snippet-card-view-btn']", "state": "hidden" } },
-        { "action": "waitForSelector", "selector": "[data-testid='snippet-view-page']", "timeout": 30000 },
+        { "action": "hook", "name": "createAndViewSnippet" },
         { "action": "fill", "label": "Comment text", "value": "Playwright JSON test comment" },
+        { "action": "keyboard", "keys": ["Escape"] },
+        { "action": "wait", "timeout": 300 },
+        { "action": "evaluate", "script": "document.querySelector('button')&&Array.from(document.querySelectorAll('button')).find(b=>b.textContent.includes('Post Comment'))?.scrollIntoView({block:'center'})" },
         { "action": "click", "role": "button", "text": "Post Comment" },
         { "action": "expect", "label": "Comment text", "assertion": { "matcher": "toHaveValue", "value": "" }, "timeout": 10000 },
         { "action": "expect", "role": "button", "text": "Post Comment", "assertion": { "matcher": "toBeDisabled" } }
@@ -55,14 +37,7 @@
     {
       "name": "write and preview tabs toggle",
       "steps": [
-        { "action": "hook", "name": "loginViaApi" },
-        { "action": "navigate", "url": "" },
-        { "action": "waitForSelector", "selector": "[data-testid='namespace-selector'],[data-testid='snippet-manager-loading']", "timeout": 30000 },
-        { "action": "waitForSelector", "selector": "[data-testid^='namespace-chip-']", "timeout": 10000, "skipIf": { "selector": "[data-testid^='namespace-chip-']", "state": "hidden" } },
-        { "action": "click", "selector": "[data-testid^='namespace-chip-']", "nth": 0, "skipIf": { "selector": "[data-testid^='namespace-chip-']", "state": "hidden" } },
-        { "action": "waitForSelector", "selector": "[data-testid='snippet-manager-redux'] [data-testid^='snippet-card-']", "timeout": 30000, "skipIf": { "selector": "[data-testid^='snippet-card-']", "state": "hidden" } },
-        { "action": "click", "selector": "[data-testid='snippet-card-view-btn']", "nth": 0, "skipIf": { "selector": "[data-testid='snippet-card-view-btn']", "state": "hidden" } },
-        { "action": "waitForSelector", "selector": "[data-testid='snippet-view-page']", "timeout": 30000 },
+        { "action": "hook", "name": "createAndViewSnippet" },
         { "action": "fill", "label": "Comment text", "value": "**bold test**" },
         { "action": "click", "role": "button", "text": "Preview" },
         { "action": "expect", "label": "Comment text", "assertion": { "matcher": "toBeHidden" } },

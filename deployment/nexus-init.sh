@@ -1,6 +1,6 @@
 #!/bin/sh
 # One-shot Nexus initialisation — runs inside the nexus-init container.
-# Creates a Docker hosted repository on port 5000 and configures auth.
+# Creates Docker + npm repositories. Conan2 is handled by Artifactory CE.
 set -e
 
 NEXUS_URL="${NEXUS_URL:-http://nexus:8081}"
@@ -13,7 +13,12 @@ log() { echo "[nexus-init] $*"; }
 # ── Resolve admin password (idempotent across multiple runs) ─────────────────
 # On first boot Nexus writes a random password to admin.password, then deletes
 # it once changed. On re-runs the file is gone — try NEW_PASS directly.
-if [ -f "$PASS_FILE" ]; then
+# Try the desired password first (idempotent re-runs)
+HTTP=$(curl -s -o /dev/null -w "%{http_code}" \
+  "$NEXUS_URL/service/rest/v1/status" -u "admin:$NEW_PASS")
+if [ "$HTTP" = "200" ]; then
+  log "Already initialised, continuing with password '$NEW_PASS'"
+elif [ -f "$PASS_FILE" ]; then
   INIT_PASS=$(cat "$PASS_FILE")
   log "First run: changing admin password..."
   HTTP=$(curl -s -o /dev/null -w "%{http_code}" -X PUT \
@@ -24,15 +29,8 @@ if [ -f "$PASS_FILE" ]; then
     *)   log "ERROR: password change returned HTTP $HTTP"; exit 1 ;;
   esac
 else
-  # File gone = password already changed; verify we can authenticate
-  HTTP=$(curl -s -o /dev/null -w "%{http_code}" \
-    "$NEXUS_URL/service/rest/v1/status" -u "admin:$NEW_PASS")
-  if [ "$HTTP" = "200" ]; then
-    log "Already initialised, continuing with password '$NEW_PASS'"
-  else
-    log "ERROR: cannot authenticate (HTTP $HTTP) — is NEXUS_ADMIN_NEW_PASS correct?"
-    exit 1
-  fi
+  log "ERROR: cannot authenticate — is NEXUS_ADMIN_NEW_PASS correct?"
+  exit 1
 fi
 
 AUTH="admin:$NEW_PASS"
@@ -78,68 +76,88 @@ case "$HTTP" in
   *)   log "ERROR: repo creation returned HTTP $HTTP"; exit 1 ;;
 esac
 
-# ── Enable Conan Token realm ──────────────────────────────────────────────────
+# ── Enable npm Bearer Token realm ──────────────────────────────────────────
+# Note: Conan2 is handled by Artifactory CE — not Nexus
 curl -sf -X PUT "$NEXUS_URL/service/rest/v1/security/realms/active" \
   -u "$AUTH" -H "Content-Type: application/json" \
-  -d '["NexusAuthenticatingRealm","DockerToken","ConanToken"]'
-log "Conan Token realm enabled"
+  -d '["NexusAuthenticatingRealm","DockerToken","NpmToken"]'
+log "npm Bearer Token realm enabled"
 
-# ── Create Conan repositories ──────────────────────────────────────────────
-# Helper: 201 = created, 400 = already exists (both are fine)
-create_conan_repo() {
-  REPO_NAME="$1"
-  REPO_TYPE="$2"
-  REPO_BODY="$3"
-  HTTP=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
-    "$NEXUS_URL/service/rest/v1/repositories/conan2/$REPO_TYPE" \
-    -u "$AUTH" -H "Content-Type: application/json" -d "$REPO_BODY")
-  case "$HTTP" in
-    201) log "Conan $REPO_TYPE repo '$REPO_NAME' created" ;;
-    400) log "Conan repo '$REPO_NAME' already exists, skipping" ;;
-    *)   log "ERROR: conan repo '$REPO_NAME' creation returned HTTP $HTTP"; exit 1 ;;
-  esac
-}
-
-# Proxy — caches Conan Center packages locally (avoids repeated internet downloads)
-create_conan_repo "conan-proxy" "proxy" "$(cat <<JSON
-{
-  "name": "conan-proxy",
-  "online": true,
-  "storage": {"blobStoreName": "default", "strictContentTypeValidation": true},
-  "proxy": {"remoteUrl": "https://center2.conan.io", "contentMaxAge": 1440, "metadataMaxAge": 1440},
-  "negativeCache": {"enabled": true, "timeToLive": 1440},
-  "httpClient": {"blocked": false, "autoBlock": true}
-}
-JSON
-)"
-
-# Hosted — private packages (testcontainers-sidecar, testcontainers-native, etc.)
-create_conan_repo "conan-hosted" "hosted" "$(cat <<JSON
-{
-  "name": "conan-hosted",
-  "online": true,
-  "storage": {"blobStoreName": "default", "strictContentTypeValidation": true, "writePolicy": "allow"},
-  "component": {"proprietaryComponents": true}
-}
-JSON
-)"
-
-# Group — single URL that merges hosted (wins) + proxy (fallback)
+# ── Create npm hosted repository ──────────────────────────────────────────
 HTTP=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
-  "$NEXUS_URL/service/rest/v1/repositories/conan2/group" \
+  "$NEXUS_URL/service/rest/v1/repositories/npm/hosted" \
   -u "$AUTH" -H "Content-Type: application/json" -d "$(cat <<JSON
 {
-  "name": "conan-group",
+  "name": "npm-hosted",
   "online": true,
-  "storage": {"blobStoreName": "default", "strictContentTypeValidation": true},
-  "group": {"memberNames": ["conan-hosted", "conan-proxy"]}
+  "storage": {
+    "blobStoreName": "default",
+    "strictContentTypeValidation": true,
+    "writePolicy": "allow_once"
+  }
 }
 JSON
 )")
 case "$HTTP" in
-  201) log "Conan group repo 'conan-group' created" ;;
-  400) log "Conan repo 'conan-group' already exists, skipping" ;;
-  *)   log "ERROR: conan group repo creation returned HTTP $HTTP"; exit 1 ;;
+  201) log "npm hosted repo 'npm-hosted' created" ;;
+  400) log "npm repo 'npm-hosted' already exists, skipping" ;;
+  *)   log "ERROR: npm hosted repo creation returned HTTP $HTTP"; exit 1 ;;
+esac
+
+# ── Create npm proxy repository (caches npmjs.org) ────────────────────────
+HTTP=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
+  "$NEXUS_URL/service/rest/v1/repositories/npm/proxy" \
+  -u "$AUTH" -H "Content-Type: application/json" -d "$(cat <<JSON
+{
+  "name": "npm-proxy",
+  "online": true,
+  "storage": {
+    "blobStoreName": "default",
+    "strictContentTypeValidation": true
+  },
+  "proxy": {
+    "remoteUrl": "https://registry.npmjs.org",
+    "contentMaxAge": 1440,
+    "metadataMaxAge": 1440
+  },
+  "negativeCache": {
+    "enabled": true,
+    "timeToLive": 1440
+  },
+  "httpClient": {
+    "blocked": false,
+    "autoBlock": true
+  }
+}
+JSON
+)")
+case "$HTTP" in
+  201) log "npm proxy repo 'npm-proxy' created" ;;
+  400) log "npm repo 'npm-proxy' already exists, skipping" ;;
+  *)   log "ERROR: npm proxy repo creation returned HTTP $HTTP"; exit 1 ;;
+esac
+
+# ── Create npm group repository (hosted wins, proxy fallback) ─────────────
+HTTP=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
+  "$NEXUS_URL/service/rest/v1/repositories/npm/group" \
+  -u "$AUTH" -H "Content-Type: application/json" -d "$(cat <<JSON
+{
+  "name": "npm-group",
+  "online": true,
+  "storage": {
+    "blobStoreName": "default",
+    "strictContentTypeValidation": true
+  },
+  "group": {
+    "memberNames": ["npm-hosted", "npm-proxy"]
+  }
+}
+JSON
+)")
+case "$HTTP" in
+  201) log "npm group repo 'npm-group' created" ;;
+  400) log "npm repo 'npm-group' already exists, skipping" ;;
+  *)   log "ERROR: npm group repo creation returned HTTP $HTTP"; exit 1 ;;
 esac
 
 log ""
@@ -149,10 +167,11 @@ log "  Registry : localhost:$DOCKER_PORT"
 log "  Web UI   : http://localhost:8091"
 log "  Login    : admin / $NEW_PASS"
 log ""
-log "  Conan group URL: $NEXUS_URL/repository/conan-group/"
-log "  Conan hosted URL: $NEXUS_URL/repository/conan-hosted/"
+log "  npm group URL: $NEXUS_URL/repository/npm-group/"
+log "  npm hosted URL: $NEXUS_URL/repository/npm-hosted/"
 log ""
 log "  Next steps:"
-log "    cd deployment && ./push-to-nexus.sh     (Docker images)"
-log "    cd deployment && ./build-testcontainers.sh  (Conan packages)"
+log "    cd deployment && ./push-to-nexus.sh         (Docker images)"
+log "    Conan2 is on Artifactory CE (port 8092)"
+log "    cd deployment && ./publish-npm-patches.sh    (Patched npm packages)"
 log "══════════════════════════════════════════"
