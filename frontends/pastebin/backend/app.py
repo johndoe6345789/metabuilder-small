@@ -15,6 +15,7 @@ from email.message import EmailMessage
 from functools import wraps
 import jwt
 from werkzeug.security import generate_password_hash, check_password_hash
+import re
 import docker as _docker_lib
 import requests as _http
 
@@ -317,6 +318,48 @@ def _make_container_env(files: list) -> dict:
     return {'FILES_PAYLOAD': payload}
 
 
+_SAFE_EXT_RE = re.compile(r'[^a-z0-9.]')
+
+
+def _safe_files_and_entry(files: list, entry_point: str) -> tuple:
+    """Assign UUID-based names to all files to keep user data out of /workspace paths.
+
+    Resolves entry_point to the UUID name of the matching file:
+      1. Exact match against the original file name
+      2. Stem match (original name without extension == entry_point)
+      3. Falls back to the first file if no match found
+
+    Non-file entry points (e.g. Java class names, CMake exe targets) are kept
+    unchanged when they carry no extension and match no file name or stem.
+    """
+    name_map: dict = {}   # original_name -> uuid_name
+    stem_map: dict = {}   # original_stem  -> uuid_name  (first match wins)
+    sanitized: list = []
+
+    for f in files:
+        basename = os.path.basename(f['name'])
+        ext = os.path.splitext(basename)[1].lower()
+        ext = _SAFE_EXT_RE.sub('', ext)[:10]
+        uid = uuid.uuid4().hex + ext
+        name_map[f['name']] = uid
+        stem = os.path.splitext(basename)[0]
+        stem_map.setdefault(stem, uid)
+        sanitized.append({'name': uid, 'content': f['content']})
+
+    if entry_point in name_map:
+        resolved = name_map[entry_point]
+    elif entry_point in stem_map:
+        resolved = stem_map[entry_point]
+    elif sanitized:
+        # Could be a non-file identifier (Java class, CMake target) — keep if extension-free
+        has_no_ext = '.' not in entry_point
+        resolved = entry_point if (has_no_ext and entry_point) else sanitized[0]['name']
+    else:
+        resolved = entry_point
+
+    return sanitized, resolved
+
+
 def _build_cmd(language: str, entry: str, interactive: bool = False) -> list:
     """Build the container command for the given language."""
     runner = _RUNNERS[language]
@@ -372,7 +415,13 @@ def _parse_run_request(data: dict):
             files = [{'name': 'CMakeLists.txt', 'content': cmake_content}] + list(files)
             entry_point = exe_name  # cmake runner uses exe name, not filename
 
-    return language, files, entry_point or 'main.py'
+    entry_point = entry_point or 'main.py'
+
+    # Replace user-supplied file names with UUIDs so no user data reaches /workspace paths.
+    # Also resolves mismatched entry points (e.g. "fib" → first file fallback).
+    files, entry_point = _safe_files_and_entry(files, entry_point)
+
+    return language, files, entry_point
 
 # ---------------------------------------------------------------------------
 # Interactive Python session store
