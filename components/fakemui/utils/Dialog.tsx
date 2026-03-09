@@ -23,6 +23,10 @@ export interface DialogPanelProps extends React.HTMLAttributes<HTMLDivElement> {
   open?: boolean
   /** Show dialog with actions - adjusts content padding per Angular Material */
   hasActions?: boolean
+  /** Test ID for automated testing */
+  testId?: string
+  /** ID of the element labelling this dialog (for aria-labelledby) */
+  'aria-labelledby'?: string
 }
 
 export const DialogPanel: React.FC<DialogPanelProps> = ({
@@ -34,6 +38,8 @@ export const DialogPanel: React.FC<DialogPanelProps> = ({
   fullWidth,
   open = true,
   hasActions,
+  testId,
+  'aria-labelledby': ariaLabelledBy,
   className = '',
   ...props
 }) => {
@@ -49,6 +55,8 @@ export const DialogPanel: React.FC<DialogPanelProps> = ({
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
+        aria-labelledby={ariaLabelledBy}
+        data-testid={testId}
         tabIndex={-1}
       >
         <div className={styles.dialogInnerContainer}>

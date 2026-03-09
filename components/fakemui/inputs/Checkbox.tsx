@@ -1,5 +1,6 @@
 import React, { forwardRef, useId } from 'react'
 import classNames from 'classnames'
+import { useAccessible } from '../../../hooks/useAccessible'
 import styles from '../../../scss/atoms/mat-checkbox.module.scss'
 
 /** Resolve a class key through CSS Modules; falls back to the raw string when the module does not export it. */
@@ -14,6 +15,8 @@ export interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputE
   size?: CheckboxSize
   error?: boolean
   indeterminate?: boolean
+  /** Unique identifier for testing and accessibility */
+  testId?: string
 }
 
 /**
@@ -35,10 +38,17 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
     disabled,
     indeterminate = false,
     id: providedId,
+    testId,
     ...props
   }, ref) => {
     const autoId = useId()
     const id = providedId ?? autoId
+
+    const accessible = useAccessible({
+      feature: 'form',
+      component: 'checkbox',
+      identifier: testId || String(label),
+    })
 
     // Build class list for the root element
     const rootClasses = classNames(
@@ -62,7 +72,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
     })
 
     return (
-      <div className={rootClasses}>
+      <div className={rootClasses} data-testid={accessible['data-testid']}>
         <div className={s('mat-internal-form-field')}>
           <div className={mdcClasses}>
             <input

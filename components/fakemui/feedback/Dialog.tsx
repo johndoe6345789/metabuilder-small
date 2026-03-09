@@ -9,6 +9,7 @@
 import React, { useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { DialogOverlay, DialogPanel } from '../utils/Dialog';
+import { useFocusTrap } from '../../hooks/useAccessible';
 
 export interface DialogProps {
   open: boolean;
@@ -19,6 +20,10 @@ export interface DialogProps {
   fullScreen?: boolean;
   disableEscapeKeyDown?: boolean;
   disableBackdropClick?: boolean;
+  /** Test ID for automated testing */
+  testId?: string;
+  /** ID of the element labelling this dialog (for aria-labelledby) */
+  'aria-labelledby'?: string;
 }
 
 export function Dialog({
@@ -30,7 +35,12 @@ export function Dialog({
   fullScreen = false,
   disableEscapeKeyDown = false,
   disableBackdropClick = false,
+  testId,
+  'aria-labelledby': ariaLabelledBy,
 }: DialogProps): React.ReactElement | null {
+  // Focus trapping
+  const { focusTrapRef } = useFocusTrap(open);
+
   // Handle escape key
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
@@ -69,17 +79,21 @@ export function Dialog({
 
   const dialog = (
     <DialogOverlay onClick={handleBackdropClick}>
-      <DialogPanel
-        open={open}
-        fullScreen={fullScreen}
-        fullWidth={fullWidth}
-        sm={sizeProps.sm}
-        lg={sizeProps.lg}
-        xl={sizeProps.xl}
-        hasActions={true}
-      >
-        {children}
-      </DialogPanel>
+      <div ref={focusTrapRef}>
+        <DialogPanel
+          open={open}
+          fullScreen={fullScreen}
+          fullWidth={fullWidth}
+          sm={sizeProps.sm}
+          lg={sizeProps.lg}
+          xl={sizeProps.xl}
+          hasActions={true}
+          testId={testId}
+          aria-labelledby={ariaLabelledBy}
+        >
+          {children}
+        </DialogPanel>
+      </div>
     </DialogOverlay>
   );
 

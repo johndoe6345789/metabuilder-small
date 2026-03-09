@@ -11,10 +11,32 @@ export interface TabsProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'o
   onValueChange?: (value: any) => void
   variant?: 'standard' | 'scrollable' | 'fullWidth' | 'secondary' | 'centered'
   fullWidth?: boolean
+  testId?: string
 }
 
 export const Tabs = forwardRef<HTMLDivElement, TabsProps>(
-  ({ children, value, onChange, onValueChange, variant, fullWidth, className = '', ...props }, ref) => {
+  ({ children, value, onChange, onValueChange, variant, fullWidth, testId, className = '', ...props }, ref) => {
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+      const tabs = Array.from(
+        (e.currentTarget as HTMLElement).querySelectorAll<HTMLElement>('[role="tab"]:not([disabled])')
+      )
+      const currentIndex = tabs.indexOf(e.target as HTMLElement)
+      if (currentIndex === -1) return
+
+      let nextIndex: number | null = null
+      switch (e.key) {
+        case 'ArrowRight': nextIndex = (currentIndex + 1) % tabs.length; break
+        case 'ArrowLeft': nextIndex = (currentIndex - 1 + tabs.length) % tabs.length; break
+        case 'Home': nextIndex = 0; break
+        case 'End': nextIndex = tabs.length - 1; break
+      }
+      if (nextIndex !== null) {
+        e.preventDefault()
+        tabs[nextIndex]?.focus()
+        tabs[nextIndex]?.click()
+      }
+    }
+
     const variantClasses = [
       variant === 'secondary' && styles.secondary,
       variant === 'scrollable' && styles.scrollable,
@@ -29,6 +51,8 @@ export const Tabs = forwardRef<HTMLDivElement, TabsProps>(
         ref={ref}
         className={`${s('mat-mdc-tab-group')} ${styles.matTabs} ${variantClasses} ${className}`.trim()}
         role="tablist"
+        data-testid={testId}
+        onKeyDown={handleKeyDown}
         {...props}
       >
         <div className={s('mat-mdc-tab-header')}>
@@ -54,10 +78,11 @@ export interface TabProps extends React.ButtonHTMLAttributes<HTMLButtonElement> 
   value?: any
   selected?: boolean
   disabled?: boolean
+  testId?: string
 }
 
 export const Tab = forwardRef<HTMLButtonElement, TabProps>(
-  ({ children, label, icon, value, selected, disabled, className = '', ...props }, ref) => {
+  ({ children, label, icon, value, selected, disabled, testId, className = '', ...props }, ref) => {
     const hasIcon = Boolean(icon)
     const tabClasses = [
       s('mdc-tab'),
@@ -78,6 +103,8 @@ export const Tab = forwardRef<HTMLButtonElement, TabProps>(
         aria-selected={selected}
         aria-disabled={disabled}
         disabled={disabled}
+        tabIndex={selected ? 0 : -1}
+        data-testid={testId}
         {...props}
       >
         <span className={`${s('mdc-tab__ripple')} ${s('mat-mdc-tab-ripple')}`} />
@@ -100,10 +127,11 @@ export interface TabPanelProps extends React.HTMLAttributes<HTMLDivElement> {
   value?: any
   index?: number | string
   hidden?: boolean
+  testId?: string
 }
 
 export const TabPanel = forwardRef<HTMLDivElement, TabPanelProps>(
-  ({ children, value, index, hidden, className = '', ...props }, ref) => {
+  ({ children, value, index, hidden, testId, className = '', ...props }, ref) => {
     const isHidden = hidden ?? (value !== undefined && index !== undefined && value !== index)
 
     if (isHidden) {
@@ -115,6 +143,7 @@ export const TabPanel = forwardRef<HTMLDivElement, TabPanelProps>(
         ref={ref}
         className={`${s('mat-mdc-tab-body')} ${styles.tabPanel} ${className}`.trim()}
         role="tabpanel"
+        data-testid={testId}
         {...props}
       >
         {children}

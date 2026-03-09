@@ -12,6 +12,7 @@ export interface AlertProps extends Omit<React.HTMLAttributes<HTMLDivElement>, '
   action?: React.ReactNode
   variant?: AlertVariant
   onClose?: (event: React.MouseEvent<HTMLButtonElement>) => void
+  testId?: string
 }
 
 function getDefaultIcon(severity: AlertSeverity): string {
@@ -50,6 +51,7 @@ export const Alert: React.FC<AlertProps> = ({
   action,
   variant = 'standard',
   onClose,
+  testId,
   className = '',
   ...props
 }) => {
@@ -63,7 +65,7 @@ export const Alert: React.FC<AlertProps> = ({
     .join(' ')
 
   return (
-    <div className={classNames} role="alert" {...props}>
+    <div className={classNames} role="alert" aria-live="assertive" aria-label={props['aria-label'] || `${severity.charAt(0).toUpperCase() + severity.slice(1)} alert`} data-testid={testId} {...props}>
       {icon !== false && <span className={styles.alertIcon}>{icon || getDefaultIcon(severity)}</span>}
       <div className={styles.alertContent}>
         {title && <AlertTitle>{title}</AlertTitle>}

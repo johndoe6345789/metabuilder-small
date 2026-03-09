@@ -24,6 +24,8 @@ export interface MenuProps extends React.HTMLAttributes<HTMLDivElement> {
   multiColumn?: boolean
   /** Max height per column when multiColumn is true (default 80vh) */
   columnHeight?: number
+  /** Test identifier */
+  testId?: string
 }
 
 export const Menu: React.FC<MenuProps> = ({
@@ -36,6 +38,7 @@ export const Menu: React.FC<MenuProps> = ({
   dense,
   multiColumn,
   columnHeight,
+  testId,
   className,
   style,
   ...props
@@ -59,6 +62,44 @@ export const Menu: React.FC<MenuProps> = ({
     document.addEventListener('keydown', handleKeyDown)
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [open, onClose])
+
+  // Arrow key navigation between menu items (WAI-ARIA menu pattern)
+  useEffect(() => {
+    if (!open) return
+    const el = menuRef.current
+    if (!el) return
+
+    const items = () => Array.from(el.querySelectorAll<HTMLElement>('[role="menuitem"]:not([disabled])'))
+    const firstItem = items()[0]
+    if (firstItem) firstItem.focus()
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const menuItems = items()
+      const currentIndex = menuItems.indexOf(document.activeElement as HTMLElement)
+
+      switch (e.key) {
+        case 'ArrowDown':
+          e.preventDefault()
+          menuItems[(currentIndex + 1) % menuItems.length]?.focus()
+          break
+        case 'ArrowUp':
+          e.preventDefault()
+          menuItems[(currentIndex - 1 + menuItems.length) % menuItems.length]?.focus()
+          break
+        case 'Home':
+          e.preventDefault()
+          menuItems[0]?.focus()
+          break
+        case 'End':
+          e.preventDefault()
+          menuItems[menuItems.length - 1]?.focus()
+          break
+      }
+    }
+
+    el.addEventListener('keydown', handleKeyDown)
+    return () => el.removeEventListener('keydown', handleKeyDown)
+  }, [open])
 
   // Clamp position within viewport after render (runs before paint — no flicker)
   useLayoutEffect(() => {
@@ -122,6 +163,7 @@ export const Menu: React.FC<MenuProps> = ({
           className
         )}
         role="menu"
+        data-testid={testId}
         style={{
           ...position,
           ...(multiColumn ? {
@@ -163,10 +205,12 @@ export interface MenuItemProps extends React.ButtonHTMLAttributes<HTMLButtonElem
   shortcut?: string
   /** Trailing element */
   trailing?: React.ReactNode
+  /** Test identifier */
+  testId?: string
 }
 
 export const MenuItem = forwardRef<HTMLButtonElement, MenuItemProps>(
-  ({ children, selected, disabled, value, icon, shortcut, trailing, className, ...props }, ref) => (
+  ({ children, selected, disabled, value, icon, shortcut, trailing, testId, className, ...props }, ref) => (
     <button
       ref={ref}
       className={classNames(
@@ -179,6 +223,7 @@ export const MenuItem = forwardRef<HTMLButtonElement, MenuItemProps>(
       role="menuitem"
       disabled={disabled}
       aria-disabled={disabled}
+      data-testid={testId}
       data-value={value}
       {...props}
     >

@@ -1,4 +1,5 @@
 import React, { forwardRef } from 'react'
+import { useAccessible } from '../../../hooks/useAccessible'
 import { sxToStyle } from '../utils/sx'
 import styles from '../../../scss/atoms/icon-button.module.scss'
 
@@ -17,10 +18,17 @@ export interface IconButtonProps extends React.ButtonHTMLAttributes<HTMLButtonEl
   edge?: 'start' | 'end' | false
   /** MUI sx prop */
   sx?: Record<string, unknown>
+  /** Unique identifier for testing and accessibility */
+  testId?: string
 }
 
 export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
-  ({ children, sm, lg, size, color, variant, edge, className = '', sx, style, ...props }, ref) => {
+  ({ children, sm, lg, size, color, variant, edge, className = '', sx, style, testId, 'aria-label': ariaLabel, ...props }, ref) => {
+    const accessible = useAccessible({
+      feature: 'form',
+      component: 'button',
+      identifier: testId || ariaLabel,
+    })
     // Build class list
     const classes = [
       styles.iconButton,
@@ -48,6 +56,8 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
         ref={ref}
         className={classes}
         style={{ ...sxToStyle(sx), ...style }}
+        data-testid={accessible['data-testid']}
+        aria-label={ariaLabel || accessible['aria-label']}
         {...props}
       >
         {children}

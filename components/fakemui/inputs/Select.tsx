@@ -63,6 +63,8 @@ export interface SelectProps<T = string> extends Omit<React.HTMLAttributes<HTMLD
   IconComponent?: React.ComponentType<{ className?: string }>
   /** Input props */
   inputProps?: Record<string, unknown>
+  /** Test ID for testing frameworks */
+  testId?: string
 }
 
 /**
@@ -106,6 +108,7 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
       MenuProps,
       IconComponent,
       inputProps,
+      testId,
       ...props
     },
     ref
@@ -211,8 +214,34 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
         setIsOpen(!isOpen)
       } else if (event.key === 'Escape') {
         setIsOpen(false)
+      } else if (isOpen && (event.key === 'ArrowDown' || event.key === 'ArrowUp')) {
+        event.preventDefault()
+        const panel = containerRef.current?.querySelector('[role="listbox"]')
+        if (!panel) return
+        const items = Array.from(panel.querySelectorAll<HTMLElement>('button:not([disabled]), [role="option"]:not([aria-disabled="true"])'))
+        const focused = document.activeElement as HTMLElement
+        const currentIndex = items.indexOf(focused)
+        const nextIndex = event.key === 'ArrowDown'
+          ? (currentIndex + 1) % items.length
+          : (currentIndex - 1 + items.length) % items.length
+        items[nextIndex]?.focus()
+      } else if (!isOpen && (event.key === 'ArrowDown' || event.key === 'ArrowUp')) {
+        event.preventDefault()
+        setIsOpen(true)
       }
     }
+
+    // Focus first or selected item when dropdown opens
+    useEffect(() => {
+      if (!isOpen) return
+      requestAnimationFrame(() => {
+        const panel = containerRef.current?.querySelector('[role="listbox"]')
+        if (!panel) return
+        const selected = panel.querySelector<HTMLElement>('[class*="highlighted"]')
+        const first = panel.querySelector<HTMLElement>('button')
+        ;(selected || first)?.focus()
+      })
+    }, [isOpen])
 
     const displayValue = getDisplayValue()
     const hasValue = displayValue !== null && displayValue !== ''
@@ -279,6 +308,7 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
           className
         ].filter(Boolean).join(' ')}
         {...props}
+        {...(testId ? { 'data-testid': testId } : {})}
       >
         {/* Hidden input for form submission */}
         <input
@@ -295,6 +325,7 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
           aria-haspopup="listbox"
           aria-disabled={disabled}
           aria-required={required}
+          {...(label ? { 'aria-label': label } : {})}
           tabIndex={disabled ? -1 : 0}
           className={styles.trigger}
           onClick={() => !disabled && setIsOpen(!isOpen)}
