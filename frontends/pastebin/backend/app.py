@@ -318,33 +318,26 @@ def _make_container_env(files: list) -> dict:
     return {'FILES_PAYLOAD': payload}
 
 
-_SAFE_EXT_RE = re.compile(r'[^a-z0-9.]')
+_SAFE_NAME_RE = re.compile(r'[^a-zA-Z0-9._\-]')
 
 
-def _safe_files_and_entry(files: list, entry_point: str) -> tuple:
-    """Assign UUID-based names to all files to keep user data out of /workspace paths.
+def _sanitize_files_and_entry(files: list, entry_point: str) -> tuple:
+    """Sanitize file names (path traversal defence) and resolve entry_point.
 
-    Resolves entry_point to the UUID name of the matching file:
-      1. Exact match against the original file name
-      2. Stem match (original name without extension == entry_point)
-      3. Falls back to the first file if no match found
-
-    Falls back to the first file for any unresolved entry point (e.g. stale
-    entryPoint values like "fib" that don't match any current file).
+    The frontend assigns UUID names before sending; this function strips any
+    remaining path components and unsafe characters as defence-in-depth, then
+    resolves entry_point via: exact match → stem match → first file fallback.
     """
-    name_map: dict = {}   # original_name -> uuid_name
-    stem_map: dict = {}   # original_stem  -> uuid_name  (first match wins)
     sanitized: list = []
+    name_map: dict = {}   # original -> sanitized
+    stem_map: dict = {}   # stem     -> sanitized (first match wins)
 
     for f in files:
-        basename = os.path.basename(f['name'])
-        ext = os.path.splitext(basename)[1].lower()
-        ext = _SAFE_EXT_RE.sub('', ext)[:10]
-        uid = uuid.uuid4().hex + ext
-        name_map[f['name']] = uid
-        stem = os.path.splitext(basename)[0]
-        stem_map.setdefault(stem, uid)
-        sanitized.append({'name': uid, 'content': f['content']})
+        safe = _SAFE_NAME_RE.sub('_', os.path.basename(f['name']))[:128] or 'file'
+        name_map[f['name']] = safe
+        stem = os.path.splitext(safe)[0]
+        stem_map.setdefault(stem, safe)
+        sanitized.append({'name': safe, 'content': f['content']})
 
     if entry_point in name_map:
         resolved = name_map[entry_point]
@@ -415,9 +408,8 @@ def _parse_run_request(data: dict):
 
     entry_point = entry_point or 'main.py'
 
-    # Replace user-supplied file names with UUIDs so no user data reaches /workspace paths.
-    # Also resolves mismatched entry points (e.g. "fib" → first file fallback).
-    files, entry_point = _safe_files_and_entry(files, entry_point)
+    # Sanitize names and resolve entry point (frontend already UUID-ifies; this is defence-in-depth).
+    files, entry_point = _sanitize_files_and_entry(files, entry_point)
 
     return language, files, entry_point
 

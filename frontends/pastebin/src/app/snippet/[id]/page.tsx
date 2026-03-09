@@ -723,53 +723,88 @@ export default function SnippetViewPage() {
               role="tabpanel"
             >
               <div className={styles.debugContent}>
-                <section className={styles.debugSection}>
-                  <h3 className={styles.debugHeading}>Snippet</h3>
-                  <dl className={styles.debugTable}>
-                    <dt>Language</dt><dd>{snippet.language}</dd>
-                    <dt>Entry point (stored)</dt><dd className={styles.debugMono}>{snippet.entryPoint || <em>not set</em>}</dd>
-                    <dt>Files</dt>
-                    <dd>
-                      <ul className={styles.debugFileList}>
-                        {files.map(f => (
-                          <li key={f.name} className={styles.debugMono}>
-                            {f.name}
-                            {(snippet.entryPoint === f.name || (!snippet.entryPoint && f.name === files[0]?.name)) && (
-                              <span className={styles.debugBadge}>entry</span>
-                            )}
-                          </li>
-                        ))}
-                      </ul>
-                    </dd>
-                  </dl>
-                </section>
-
                 {terminal.lastRunInfo ? (
-                  <section className={styles.debugSection}>
-                    <h3 className={styles.debugHeading}>Last Run</h3>
-                    <dl className={styles.debugTable}>
-                      <dt>Runner key</dt><dd className={styles.debugMono}>{terminal.lastRunInfo.runnerKey}</dd>
-                      <dt>Mode</dt><dd>{terminal.lastRunInfo.interactive ? 'Interactive (stdin polling)' : 'Non-interactive'}</dd>
-                      <dt>Entry point sent</dt><dd className={styles.debugMono}>{terminal.lastRunInfo.entryPointSent || <em>none</em>}</dd>
-                      <dt>Files sent</dt>
-                      <dd>
-                        <ul className={styles.debugFileList}>
+                  <>
+                    <section className={styles.debugSection}>
+                      <h3 className={styles.debugHeading}>How it ran</h3>
+                      <p className={styles.debugNote}>
+                        Your files were renamed to random IDs before being sent to the runner,
+                        so your file names never appear in the container.
+                        The file to run was picked by matching the stored entry point — if it
+                        didn&apos;t match any file name, the first file was used instead.
+                      </p>
+                    </section>
+
+                    <section className={styles.debugSection}>
+                      <h3 className={styles.debugHeading}>Runner</h3>
+                      <dl className={styles.debugTable}>
+                        <dt>Language</dt><dd>{terminal.lastRunInfo.language}</dd>
+                        <dt>Runner</dt><dd className={styles.debugMono}>{terminal.lastRunInfo.runnerKey}</dd>
+                        <dt>Mode</dt><dd>{terminal.lastRunInfo.interactive ? 'Interactive — reads input() in real time' : 'Non-interactive — runs to completion'}</dd>
+                        <dt>Started at</dt><dd>{new Date(terminal.lastRunInfo.startedAt).toLocaleTimeString()}</dd>
+                      </dl>
+                    </section>
+
+                    <section className={styles.debugSection}>
+                      <h3 className={styles.debugHeading}>Entry point</h3>
+                      <dl className={styles.debugTable}>
+                        <dt>Stored value</dt>
+                        <dd className={styles.debugMono}>{terminal.lastRunInfo.entryPointOriginal || <em>not set</em>}</dd>
+                        <dt>Ran as</dt>
+                        <dd className={styles.debugMono}>{terminal.lastRunInfo.entryPointSent}</dd>
+                        {terminal.lastRunInfo.entryPointOriginal !== terminal.lastRunInfo.entryPointSent && (
+                          <>
+                            <dt></dt>
+                            <dd className={styles.debugWarn}>
+                              Stored value didn&apos;t match any file — fell back to the first file.
+                            </dd>
+                          </>
+                        )}
+                      </dl>
+                    </section>
+
+                    <section className={styles.debugSection}>
+                      <h3 className={styles.debugHeading}>Files</h3>
+                      <table className={styles.debugFilesTable}>
+                        <thead>
+                          <tr>
+                            <th>Your file name</th>
+                            <th>Sent to container as</th>
+                          </tr>
+                        </thead>
+                        <tbody>
                           {terminal.lastRunInfo.files.map(f => (
-                            <li key={f.name} className={styles.debugMono}>{f.name}</li>
+                            <tr key={f.uuidName} className={f.uuidName === terminal.lastRunInfo!.entryPointSent ? styles.debugFileEntry : ''}>
+                              <td className={styles.debugMono}>{f.originalName}</td>
+                              <td className={styles.debugMono}>{f.uuidName}</td>
+                            </tr>
                           ))}
-                        </ul>
-                      </dd>
-                      <dt>Started</dt><dd>{new Date(terminal.lastRunInfo.startedAt).toLocaleTimeString()}</dd>
-                    </dl>
-                    <p className={styles.debugNote}>
-                      The backend assigns each file a UUID path inside the runner container
-                      so no user-supplied names reach <code>/workspace</code>.
-                      The entry point is resolved by exact name → stem → first file.
-                    </p>
-                  </section>
+                        </tbody>
+                      </table>
+                    </section>
+
+                    <section className={styles.debugSection}>
+                      <h3 className={styles.debugHeading}>Container workspace</h3>
+                      <p className={styles.debugNote}>What <code>/workspace/</code> looked like inside the runner container:</p>
+                      <div className={styles.debugTree}>
+                        <div className={styles.debugTreeRoot}>/workspace/</div>
+                        {terminal.lastRunInfo.files.map((f, i) => {
+                          const isLast = i === terminal.lastRunInfo!.files.length - 1
+                          const isEntry = f.uuidName === terminal.lastRunInfo!.entryPointSent
+                          return (
+                            <div key={f.uuidName} className={styles.debugTreeRow}>
+                              <span className={styles.debugTreeBranch}>{isLast ? '└── ' : '├── '}</span>
+                              <span className={`${styles.debugMono} ${isEntry ? styles.debugTreeEntry : ''}`}>{f.uuidName}</span>
+                              <span className={styles.debugTreeOrig}>← {f.originalName}{isEntry ? ' (ran this)' : ''}</span>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </section>
+                  </>
                 ) : (
                   <section className={styles.debugSection}>
-                    <p className={styles.debugEmpty}>No run yet — press Run to see debug info.</p>
+                    <p className={styles.debugEmpty}>Press <strong>Run</strong> to see how this snippet is executed.</p>
                   </section>
                 )}
               </div>

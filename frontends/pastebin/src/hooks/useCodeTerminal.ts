@@ -24,13 +24,53 @@ export interface TerminalLine {
   id: string
 }
 
+export interface RunFileMap {
+  originalName: string
+  uuidName: string
+}
+
 export interface RunDebugInfo {
   language: string
   runnerKey: string
   interactive: boolean
-  files: { name: string }[]
+  files: RunFileMap[]
+  entryPointOriginal: string
   entryPointSent: string
   startedAt: number
+}
+
+/** Assign UUID names to files and resolve the entry point — mirrors backend logic. */
+function safeFilesAndEntry(
+  files: SnippetFile[],
+  entryPoint: string,
+): { safeFiles: SnippetFile[]; resolvedEntry: string; fileMap: RunFileMap[] } {
+  const nameMap = new Map<string, string>()  // original → uuid
+  const stemMap = new Map<string, string>()  // stem     → uuid
+  const safeFiles: SnippetFile[] = []
+  const fileMap: RunFileMap[] = []
+
+  for (const f of files) {
+    const basename = f.name.split('/').pop() ?? f.name
+    const dotIdx = basename.lastIndexOf('.')
+    const ext = dotIdx >= 0 ? basename.slice(dotIdx).toLowerCase().replace(/[^a-z0-9.]/g, '') : ''
+    const uid = crypto.randomUUID().replace(/-/g, '') + ext
+    nameMap.set(f.name, uid)
+    const stem = dotIdx >= 0 ? basename.slice(0, dotIdx) : basename
+    if (!stemMap.has(stem)) stemMap.set(stem, uid)
+    safeFiles.push({ name: uid, content: f.content })
+    fileMap.push({ originalName: f.name, uuidName: uid })
+  }
+
+  let resolvedEntry: string
+  if (nameMap.has(entryPoint)) {
+    resolvedEntry = nameMap.get(entryPoint)!
+  } else if (stemMap.has(entryPoint)) {
+    resolvedEntry = stemMap.get(entryPoint)!
+  } else {
+    resolvedEntry = safeFiles[0]?.name ?? entryPoint
+  }
+
+  return { safeFiles, resolvedEntry, fileMap }
 }
 
 function mapType(backendType: string): TerminalLine['type'] {
@@ -104,15 +144,17 @@ export function useCodeTerminal() {
     setIsRunning(true)
 
     const runnerKey = getRunnerKey(language)
-    const opts = { language: runnerKey, files, entryPoint }
     const isInteractive = INTERACTIVE_RUNNER_KEYS.has(runnerKey)
+    const { safeFiles, resolvedEntry, fileMap } = safeFilesAndEntry(files, entryPoint ?? '')
+    const opts = { language: runnerKey, files: safeFiles, entryPoint: resolvedEntry }
 
     setLastRunInfo({
       language,
       runnerKey,
       interactive: isInteractive,
-      files: files.map(f => ({ name: f.name })),
-      entryPointSent: entryPoint ?? '',
+      files: fileMap,
+      entryPointOriginal: entryPoint ?? '',
+      entryPointSent: resolvedEntry,
       startedAt: Date.now(),
     })
 
