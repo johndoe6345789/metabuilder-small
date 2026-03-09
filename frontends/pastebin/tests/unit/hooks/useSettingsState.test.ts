@@ -37,21 +37,12 @@ describe('useSettingsState Hook', () => {
     (useStorageConfigHook.useStorageConfig as jest.Mock).mockReturnValue({
       storageBackend: 'indexeddb',
       setStorageBackend: jest.fn(),
-      dbalUrl: 'http://localhost:5000',
-      setDbalUrl: jest.fn(),
-      dbalConnectionStatus: 'unknown',
-      setDbalConnectionStatus: jest.fn(),
-      testingConnection: false,
       envVarSet: false,
       loadConfig: jest.fn(),
-      handleTestDbalConnection: jest.fn(),
       handleSaveStorageConfig: jest.fn(),
     });
 
-    (useStorageMigrationHook.useStorageMigration as jest.Mock).mockReturnValue({
-      handleMigrateToDbal: jest.fn(),
-      handleMigrateToIndexedDB: jest.fn(),
-    });
+    (useStorageMigrationHook.useStorageMigration as jest.Mock).mockReturnValue({});
   });
 
   describe('returned properties', () => {
@@ -88,9 +79,6 @@ describe('useSettingsState Hook', () => {
       const { result } = renderHook(() => useSettingsState());
 
       expect(result.current.storageBackend).toBe('indexeddb');
-      expect(result.current.dbalUrl).toBe('http://localhost:5000');
-      expect(result.current.dbalConnectionStatus).toBe('unknown');
-      expect(result.current.testingConnection).toBe(false);
       expect(result.current.envVarSet).toBe(false);
     });
 
@@ -102,10 +90,7 @@ describe('useSettingsState Hook', () => {
       expect(typeof result.current.handleClear).toBe('function');
       expect(typeof result.current.handleSeed).toBe('function');
       expect(typeof result.current.formatBytes).toBe('function');
-      expect(typeof result.current.handleTestDbalConnection).toBe('function');
       expect(typeof result.current.handleSaveStorageConfig).toBe('function');
-      expect(typeof result.current.handleMigrateToDbal).toBe('function');
-      expect(typeof result.current.handleMigrateToIndexedDB).toBe('function');
       expect(typeof result.current.checkSchemaHealth).toBe('function');
     });
   });
@@ -131,14 +116,8 @@ describe('useSettingsState Hook', () => {
       (useStorageConfigHook.useStorageConfig as jest.Mock).mockReturnValue({
         storageBackend: 'indexeddb',
         setStorageBackend: jest.fn(),
-        dbalUrl: '',
-        setDbalUrl: jest.fn(),
-        dbalConnectionStatus: 'unknown',
-        setDbalConnectionStatus: jest.fn(),
-        testingConnection: false,
         envVarSet: false,
         loadConfig,
-        handleTestDbalConnection: jest.fn(),
         handleSaveStorageConfig: jest.fn(),
       });
 
@@ -192,14 +171,8 @@ describe('useSettingsState Hook', () => {
       (useStorageConfigHook.useStorageConfig as jest.Mock).mockReturnValue({
         storageBackend: 'indexeddb',
         setStorageBackend: jest.fn(),
-        dbalUrl: '',
-        setDbalUrl: jest.fn(),
-        dbalConnectionStatus: 'unknown',
-        setDbalConnectionStatus: jest.fn(),
-        testingConnection: false,
         envVarSet: false,
         loadConfig: jest.fn(),
-        handleTestDbalConnection: jest.fn(),
         handleSaveStorageConfig: saveConfig,
       });
 
@@ -213,101 +186,14 @@ describe('useSettingsState Hook', () => {
     });
   });
 
-  describe('handleMigrateToDbal wrapper', () => {
-    it('should call migrateToDbal with dbalUrl and loadStats callback', async () => {
-      const loadStats = jest.fn();
-      const migrateToDbal = jest.fn();
-
-      (useDatabaseOpsHook.useDatabaseOperations as jest.Mock).mockReturnValue({
-        stats: null,
-        loading: true,
-        schemaHealth: 'unknown',
-        checkingSchema: false,
-        loadStats,
-        checkSchemaHealth: jest.fn(),
-        handleExport: jest.fn(),
-        handleImport: jest.fn(),
-        handleClear: jest.fn(),
-        handleSeed: jest.fn(),
-        formatBytes: jest.fn(),
-      });
-
-      (useStorageConfigHook.useStorageConfig as jest.Mock).mockReturnValue({
-        storageBackend: 'indexeddb',
-        setStorageBackend: jest.fn(),
-        dbalUrl: 'http://localhost:5000',
-        setDbalUrl: jest.fn(),
-        dbalConnectionStatus: 'unknown',
-        setDbalConnectionStatus: jest.fn(),
-        testingConnection: false,
-        envVarSet: false,
-        loadConfig: jest.fn(),
-        handleTestDbalConnection: jest.fn(),
-        handleSaveStorageConfig: jest.fn(),
-      });
-
-      (useStorageMigrationHook.useStorageMigration as jest.Mock).mockReturnValue({
-        handleMigrateToDbal: migrateToDbal,
-        handleMigrateToIndexedDB: jest.fn(),
-      });
-
-      const { result } = renderHook(() => useSettingsState());
-
-      await act(async () => {
-        await result.current.handleMigrateToDbal();
-      });
-
-      expect(migrateToDbal).toHaveBeenCalledWith('http://localhost:5000', loadStats);
-    });
-  });
-
-  describe('handleMigrateToIndexedDB wrapper', () => {
-    it('should call handleMigrateToIndexedDB with dbalUrl', async () => {
-      const migrateToIndexedDB = jest.fn();
-
-      (useStorageConfigHook.useStorageConfig as jest.Mock).mockReturnValue({
-        storageBackend: 'dbal',
-        setStorageBackend: jest.fn(),
-        dbalUrl: 'http://api.example.com',
-        setDbalUrl: jest.fn(),
-        dbalConnectionStatus: 'connected',
-        setDbalConnectionStatus: jest.fn(),
-        testingConnection: false,
-        envVarSet: false,
-        loadConfig: jest.fn(),
-        handleTestDbalConnection: jest.fn(),
-        handleSaveStorageConfig: jest.fn(),
-      });
-
-      (useStorageMigrationHook.useStorageMigration as jest.Mock).mockReturnValue({
-        handleMigrateToDbal: jest.fn(),
-        handleMigrateToIndexedDB: migrateToIndexedDB,
-      });
-
-      const { result } = renderHook(() => useSettingsState());
-
-      await act(async () => {
-        await result.current.handleMigrateToIndexedDB();
-      });
-
-      expect(migrateToIndexedDB).toHaveBeenCalledWith('http://api.example.com');
-    });
-  });
-
   describe('state updates', () => {
     it('should update storage backend', () => {
       const setStorageBackend = jest.fn();
       (useStorageConfigHook.useStorageConfig as jest.Mock).mockReturnValue({
         storageBackend: 'indexeddb',
         setStorageBackend,
-        dbalUrl: '',
-        setDbalUrl: jest.fn(),
-        dbalConnectionStatus: 'unknown',
-        setDbalConnectionStatus: jest.fn(),
-        testingConnection: false,
         envVarSet: false,
         loadConfig: jest.fn(),
-        handleTestDbalConnection: jest.fn(),
         handleSaveStorageConfig: jest.fn(),
       });
 
@@ -318,31 +204,6 @@ describe('useSettingsState Hook', () => {
       });
 
       expect(setStorageBackend).toHaveBeenCalledWith('dbal');
-    });
-
-    it('should update DBAL URL', () => {
-      const setDbalUrl = jest.fn();
-      (useStorageConfigHook.useStorageConfig as jest.Mock).mockReturnValue({
-        storageBackend: 'indexeddb',
-        setStorageBackend: jest.fn(),
-        dbalUrl: '',
-        setDbalUrl,
-        dbalConnectionStatus: 'unknown',
-        setDbalConnectionStatus: jest.fn(),
-        testingConnection: false,
-        envVarSet: false,
-        loadConfig: jest.fn(),
-        handleTestDbalConnection: jest.fn(),
-        handleSaveStorageConfig: jest.fn(),
-      });
-
-      const { result } = renderHook(() => useSettingsState());
-
-      act(() => {
-        result.current.setDbalUrl('http://localhost:5000');
-      });
-
-      expect(setDbalUrl).toHaveBeenCalledWith('http://localhost:5000');
     });
   });
 
@@ -401,14 +262,8 @@ describe('useSettingsState Hook', () => {
       (useStorageConfigHook.useStorageConfig as jest.Mock).mockReturnValue({
         storageBackend: 'indexeddb',
         setStorageBackend: jest.fn(),
-        dbalUrl: 'http://localhost:5000',
-        setDbalUrl: jest.fn(),
-        dbalConnectionStatus: 'unknown',
-        setDbalConnectionStatus: jest.fn(),
-        testingConnection: false,
         envVarSet: false,
         loadConfig,
-        handleTestDbalConnection: jest.fn(),
         handleSaveStorageConfig: jest.fn(),
       });
 

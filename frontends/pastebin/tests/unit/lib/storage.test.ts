@@ -514,15 +514,7 @@ describe('DBALStorageAdapter', () => {
   });
 
   describe('database operations', () => {
-    it('should wipe database', async () => {
-      (global.fetch as jest.Mock).mockResolvedValue({ ok: true });
-      const adapter = new DBALStorageAdapter(baseUrl);
-      await expect(adapter.wipeDatabase()).resolves.not.toThrow();
-      const call = (global.fetch as jest.Mock).mock.calls[0];
-      expect(call[1].method).toBe('POST');
-    });
-
-    it('should clear database (alias)', async () => {
+    it('should clear database', async () => {
       (global.fetch as jest.Mock).mockResolvedValue({ ok: true });
       const adapter = new DBALStorageAdapter(baseUrl);
       await expect(adapter.clearDatabase()).resolves.not.toThrow();
@@ -590,7 +582,7 @@ describe('DBALStorageAdapter', () => {
       const adapter = new DBALStorageAdapter('not-a-url');
       await expect(adapter.getAllSnippets()).rejects.toThrow();
       await expect(adapter.getAllNamespaces()).rejects.toThrow();
-      await expect(adapter.wipeDatabase()).rejects.toThrow();
+      await expect(adapter.clearDatabase()).rejects.toThrow();
     });
   });
 
@@ -883,52 +875,6 @@ describe('DBALStorageAdapter', () => {
       const body = JSON.parse(call[1].body);
       expect(body.snippetIds).toEqual(snippetIds);
       expect(body.targetNamespaceId).toBe('newNamespace');
-    });
-  });
-
-  // MIGRATION OPERATIONS TESTS
-  describe('Migration Operations', () => {
-    const adapter = new DBALStorageAdapter(baseUrl);
-
-    it('should migrate snippets from IndexedDB to DBAL', async () => {
-      (global.fetch as jest.Mock).mockResolvedValue({ ok: true });
-      const snippets = [
-        createMockSnippet({ id: '1' }),
-        createMockSnippet({ id: '2' }),
-      ];
-      await adapter.migrateFromIndexedDB(snippets);
-      expect((global.fetch as jest.Mock).mock.calls).toHaveLength(2);
-      expect((global.fetch as jest.Mock).mock.calls[0][1].method).toBe('POST');
-    });
-
-    it('should handle failed migration gracefully', async () => {
-      (global.fetch as jest.Mock)
-        .mockResolvedValueOnce({ ok: true })
-        .mockResolvedValueOnce({ ok: false, statusText: 'Error' });
-      const snippets = [
-        createMockSnippet({ id: '1' }),
-        createMockSnippet({ id: '2' }),
-      ];
-      await expect(adapter.migrateFromIndexedDB(snippets)).rejects.toThrow();
-    });
-
-    it('should migrate snippets from DBAL to IndexedDB', async () => {
-      const mockSnippets = [
-        createMockSnippet({ id: '1' }),
-        createMockSnippet({ id: '2' }),
-      ];
-      (global.fetch as jest.Mock).mockResolvedValue({
-        ok: true,
-        json: async () => mockSnippets,
-      });
-      const result = await adapter.migrateToIndexedDB();
-      expect(result).toHaveLength(2);
-    });
-
-    it('should handle empty migration', async () => {
-      (global.fetch as jest.Mock).mockResolvedValue({ ok: true });
-      await adapter.migrateFromIndexedDB([]);
-      expect((global.fetch as jest.Mock).mock.calls).toHaveLength(0);
     });
   });
 
