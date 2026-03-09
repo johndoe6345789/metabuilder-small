@@ -270,6 +270,24 @@ _RUNNERS: dict = {
         'run_tpl':       'swift /workspace/{entry}',
         'default_entry': 'main.swift',
     },
+    # ---------------------------------------------------------------------------
+    # SQL runners — spin up a fresh DB container, execute SQL, destroy it
+    # ---------------------------------------------------------------------------
+    'sql-sqlite': {
+        'sql_runner':    'sqlite',
+        'image':         lambda: os.environ.get('PYTHON_RUNNER_IMAGE', 'python:3.11-slim'),
+        'default_entry': 'query.sql',
+    },
+    'sql-mysql': {
+        'sql_runner':    'mysql',
+        'image':         lambda: os.environ.get('MYSQL_RUNNER_IMAGE', 'mysql:8.0'),
+        'default_entry': 'query.sql',
+    },
+    'sql-postgres': {
+        'sql_runner':    'postgres',
+        'image':         lambda: os.environ.get('POSTGRES_RUNNER_IMAGE', 'postgres:16-alpine'),
+        'default_entry': 'query.sql',
+    },
 }
 
 # Python snippet to decode FILES_PAYLOAD env var and write files to /workspace
@@ -1337,6 +1355,142 @@ def wipe_database():
     return jsonify({'success': True, 'message': 'User data wiped'})
 
 
+# ---------------------------------------------------------------------------
+# SQL runner support
+# ---------------------------------------------------------------------------
+
+_SQL_TIMEOUT_S = int(os.environ.get('SQL_RUN_TIMEOUT', '120'))
+
+# Python script executed inside python:3.11-slim for SQLite runs.
+# Reads SQL from SQL_CODE_B64 env var, executes in :memory: DB, prints table output.
+_SQL_SQLITE_PY = """\
+import sqlite3, sys, os, base64
+sql = base64.b64decode(os.environ.get('SQL_CODE_B64', '')).decode('utf-8', 'replace')
+conn = sqlite3.connect(':memory:')
+
+def print_table(cursor, rows):
+    if not rows:
+        print('Empty set (0 rows)')
+        return
+    cols = [d[0] for d in cursor.description]
+    data = [[str(v) if v is not None else 'NULL' for v in row] for row in rows]
+    ws = [max(len(c), max((len(r[i]) for r in data), default=0)) for i, c in enumerate(cols)]
+    sep = '+' + '+'.join('-' * (w + 2) for w in ws) + '+'
+    def row_line(r):
+        return '|' + '|'.join(' {:<{}} '.format(v, ws[i]) for i, v in enumerate(r)) + '|'
+    print(sep)
+    print(row_line(cols))
+    print(sep)
+    for r in data:
+        print(row_line(r))
+    print(sep)
+    n = len(data)
+    print('({} row{})'.format(n, 's' if n != 1 else ''))
+
+stmts = [s.strip() for s in sql.split(';') if s.strip()]
+ok = True
+for stmt in stmts:
+    try:
+        cur = conn.execute(stmt)
+        if cur.description:
+            print_table(cur, cur.fetchall())
+        else:
+            conn.commit()
+            n = cur.rowcount
+            if n >= 0:
+                print('Query OK, {} row{} affected'.format(n, 's' if n != 1 else ''))
+            else:
+                print('Query OK')
+    except Exception as e:
+        print('ERROR: ' + str(e), file=sys.stderr)
+        ok = False
+conn.close()
+sys.exit(0 if ok else 1)
+"""
+
+
+def _run_sql_docker(runner_key: str, runner: dict, files: list, _entry: str):
+    """Spin up a fresh DB container, execute SQL, destroy it. Returns Flask response."""
+    sql_content = files[0]['content'] if files else ''
+    sql_b64 = base64.b64encode(sql_content.encode('utf-8')).decode()
+
+    image_name = runner['image']()
+    _ensure_image(image_name)
+
+    sql_type = runner['sql_runner']
+
+    if sql_type == 'sqlite':
+        command = ['python3', '-c', _SQL_SQLITE_PY]
+        env = {'SQL_CODE_B64': sql_b64}
+        network_disabled = True
+
+    elif sql_type == 'mysql':
+        mysql_script = (
+            'mkdir -p /tmp/db && '
+            'mysqld --initialize-insecure --user=mysql --datadir=/tmp/db 2>/dev/null && '
+            'mysqld --datadir=/tmp/db --user=mysql --socket=/tmp/mysql.sock '
+            '--skip-networking=0 --bind-address=127.0.0.1 --port=3306 '
+            '--pid-file=/tmp/mysql.pid 2>/dev/null & '
+            'for i in $(seq 60); do '
+            '  mysql -h127.0.0.1 -P3306 -uroot --silent -e "" 2>/dev/null && break; sleep 1; '
+            'done && '
+            'echo "$SQL_CODE_B64" | base64 -d > /tmp/query.sql && '
+            'mysql -h127.0.0.1 -P3306 -uroot --table < /tmp/query.sql'
+        )
+        command = ['bash', '-c', mysql_script]
+        env = {'SQL_CODE_B64': sql_b64, 'MYSQL_ALLOW_EMPTY_PASSWORD': '1'}
+        network_disabled = False  # mysqld needs loopback
+
+    elif sql_type == 'postgres':
+        pg_script = (
+            'initdb -D /tmp/pgdata -U postgres --no-locale --encoding=UTF8 2>/dev/null && '
+            'pg_ctl start -D /tmp/pgdata -l /tmp/pg.log -w '
+            '-o "--unix_socket_directories=/tmp --listen_addresses=127.0.0.1" 2>/dev/null && '
+            'echo "$SQL_CODE_B64" | base64 -d | '
+            'psql -U postgres --pset=border=2 -v ON_ERROR_STOP=1'
+        )
+        command = ['bash', '-c', pg_script]
+        env = {'SQL_CODE_B64': sql_b64}
+        network_disabled = False  # postgres needs loopback
+
+    else:
+        return jsonify({'error': f'Unknown SQL backend: {sql_type}'}), 400
+
+    print(f'[sql_runner] type={sql_type!r} image={image_name!r} sql_len={len(sql_content)}', flush=True)
+
+    container = None
+    try:
+        container = _docker().containers.create(
+            image=image_name,
+            command=command,
+            environment=env,
+            network_disabled=network_disabled,
+            mem_limit='512m',
+            nano_cpus=int(1.0e9),
+            pids_limit=200,
+        )
+        container.start()
+        result = container.wait(timeout=_SQL_TIMEOUT_S + 10)
+        exit_code = result['StatusCode']
+        stdout = container.logs(stdout=True, stderr=False).decode('utf-8', errors='replace')
+        stderr = container.logs(stdout=False, stderr=True).decode('utf-8', errors='replace')
+
+        if exit_code == 124:
+            return jsonify({'output': stdout, 'error': f'Timed out after {_SQL_TIMEOUT_S}s'}), 408
+        return jsonify({'output': stdout, 'error': stderr if exit_code != 0 else None})
+
+    except _docker_lib.errors.DockerException as e:
+        return jsonify({'error': str(e)}), 503
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        if container:
+            try:
+                container.remove(force=True)
+            except Exception:
+                pass
+
+
 @app.route('/api/run', methods=['POST'])
 @auth_required
 def run_code():
@@ -1350,6 +1504,11 @@ def run_code():
         return jsonify({'error': f'Unsupported language: {language}'}), 400
 
     runner = _RUNNERS[language]
+
+    # SQL runners get their own container lifecycle (no file-injection scaffolding)
+    if runner.get('sql_runner'):
+        return _run_sql_docker(language, runner, files, entry_point)
+
     image_name = runner['image']()
     _ensure_image(image_name, runner.get('dockerfile'))
     wait_timeout = (_RUN_TIMEOUT_S + 5) if runner.get('interactive') else (_BUILD_TIMEOUT_S + 5)

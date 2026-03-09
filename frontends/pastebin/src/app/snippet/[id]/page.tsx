@@ -43,7 +43,8 @@ const LANGUAGE_EXTENSIONS: Record<string, string> = {
   Swift: 'swift', Kotlin: 'kt', Scala: 'scala', Haskell: 'hs',
   R: 'r', Julia: 'jl', Elixir: 'ex', Dart: 'dart',
   Lua: 'lua', Perl: 'pl', HTML: 'html', CSS: 'css',
-  SQL: 'sql', Bash: 'sh',
+  SQL: 'sql', 'SQL (SQLite)': 'sql', 'SQL (MySQL)': 'sql', 'SQL (PostgreSQL)': 'sql',
+  Bash: 'sh',
 }
 
 function getFilename(title: string, language: string): string {

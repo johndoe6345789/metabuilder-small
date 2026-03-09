@@ -26,6 +26,9 @@
     "HTML",
     "CSS",
     "SQL",
+    "SQL (SQLite)",
+    "SQL (MySQL)",
+    "SQL (PostgreSQL)",
     "Other"
   ],
   "languageRunnerMap": {
@@ -49,7 +52,11 @@
     "Dart": "dart",
     "Lua": "lua",
     "Perl": "perl",
-    "Bash": "bash"
+    "Bash": "bash",
+    "SQL": "sql-sqlite",
+    "SQL (SQLite)": "sql-sqlite",
+    "SQL (MySQL)": "sql-mysql",
+    "SQL (PostgreSQL)": "sql-postgres"
   },
   "languageColors": {
     "JavaScript": {
@@ -176,6 +183,21 @@
       "bg": "bg-teal-500/20",
       "text": "text-teal-300",
       "border": "border-teal-500/30"
+    },
+    "SQL (SQLite)": {
+      "bg": "bg-teal-500/20",
+      "text": "text-teal-300",
+      "border": "border-teal-500/30"
+    },
+    "SQL (MySQL)": {
+      "bg": "bg-orange-500/20",
+      "text": "text-orange-300",
+      "border": "border-orange-500/30"
+    },
+    "SQL (PostgreSQL)": {
+      "bg": "bg-blue-600/20",
+      "text": "text-blue-300",
+      "border": "border-blue-600/30"
     },
     "Bash": {
       "bg": "bg-green-500/20",
