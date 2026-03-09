@@ -329,8 +329,8 @@ def _safe_files_and_entry(files: list, entry_point: str) -> tuple:
       2. Stem match (original name without extension == entry_point)
       3. Falls back to the first file if no match found
 
-    Non-file entry points (e.g. Java class names, CMake exe targets) are kept
-    unchanged when they carry no extension and match no file name or stem.
+    Falls back to the first file for any unresolved entry point (e.g. stale
+    entryPoint values like "fib" that don't match any current file).
     """
     name_map: dict = {}   # original_name -> uuid_name
     stem_map: dict = {}   # original_stem  -> uuid_name  (first match wins)
@@ -351,9 +351,7 @@ def _safe_files_and_entry(files: list, entry_point: str) -> tuple:
     elif entry_point in stem_map:
         resolved = stem_map[entry_point]
     elif sanitized:
-        # Could be a non-file identifier (Java class, CMake target) — keep if extension-free
-        has_no_ext = '.' not in entry_point
-        resolved = entry_point if (has_no_ext and entry_point) else sanitized[0]['name']
+        resolved = sanitized[0]['name']
     else:
         resolved = entry_point
 
