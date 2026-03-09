@@ -81,6 +81,7 @@
     "tar": "7.5.11",
     "monaco-editor": "0.53.0",
     "esbuild": ">=0.25.0",
+    "immutable": ">=5.1.5",
     "@chromatic-com/playwright": {
       "storybook": "8.6.18"
     },
