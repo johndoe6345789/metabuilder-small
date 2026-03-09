@@ -9,15 +9,17 @@ interface PerformanceSettingsProps {
   enableVirtualization: boolean;
   maxConcurrentRenders: number;
   onSettingChange: (key: string, value: any) => void;
+  testId?: string;
 }
 
 export const ZoomSettings: React.FC<PerformanceSettingsProps> = ({
   enableVirtualization,
   maxConcurrentRenders,
   onSettingChange,
+  testId,
 }) => {
   return (
-    <div >
+    <div data-testid={testId}>
       <h3 >Performance</h3>
 
       <div >

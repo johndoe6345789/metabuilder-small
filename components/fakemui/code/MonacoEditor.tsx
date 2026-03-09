@@ -68,6 +68,8 @@ export interface MonacoEditorProps {
   options?: Record<string, unknown>
   /** Called before Monaco mounts (for custom configuration) */
   beforeMount?: (monaco: Monaco) => void
+  /** Test ID for the component */
+  testId?: string
 }
 
 function EditorLoadingSkeleton({ height = '400px' }: { height?: string }) {
@@ -105,6 +107,7 @@ export function MonacoEditor({
   theme = 'vs-dark',
   options = {},
   beforeMount,
+  testId,
 }: MonacoEditorProps) {
   const monacoLanguage = getMonacoLanguage(language)
 
@@ -116,7 +119,7 @@ export function MonacoEditor({
   return (
     <Suspense fallback={<EditorLoadingSkeleton height={height} />}>
       <div
-        data-testid="monaco-editor-container"
+        data-testid={testId ?? "monaco-editor-container"}
         role="region"
         aria-label={`Code editor (${readOnly ? 'read-only' : 'editable'}, ${monacoLanguage} language)`}
       >

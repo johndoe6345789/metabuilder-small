@@ -15,6 +15,8 @@ export interface CodePreviewProps {
   codeClassName?: string
   /** Children to render after the code */
   children?: ReactNode
+  /** Test ID for the component */
+  testId?: string
 }
 
 /**
@@ -36,11 +38,14 @@ export function CodePreview({
   className = '',
   codeClassName = '',
   children,
+  testId,
 }: CodePreviewProps) {
   return (
     <div
       className={`rounded-md bg-secondary/30 p-3 border border-border ${className}`}
-      data-testid="code-preview"
+      data-testid={testId ?? "code-preview"}
+      role="region"
+      aria-label="Code preview"
     >
       <pre
         className={`text-xs text-muted-foreground overflow-x-auto whitespace-pre-wrap break-words font-mono ${codeClassName}`}

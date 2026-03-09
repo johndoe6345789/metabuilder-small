@@ -10,6 +10,8 @@ export type OverlapShape = 'circular' | 'rectangular'
 export interface BadgeProps extends Omit<React.HTMLAttributes<HTMLSpanElement>, 'color' | 'content'> {
   children?: React.ReactNode
   content?: React.ReactNode
+  /** Test ID for automated testing */
+  testId?: string
   dot?: boolean
   invisible?: boolean
   max?: number
@@ -24,6 +26,7 @@ export interface BadgeProps extends Omit<React.HTMLAttributes<HTMLSpanElement>, 
 export const Badge: React.FC<BadgeProps> = ({
   children,
   content,
+  testId,
   dot = false,
   invisible = false,
   max,
@@ -92,7 +95,7 @@ export const Badge: React.FC<BadgeProps> = ({
   })()
 
   return (
-    <span className={containerClasses} {...props}>
+    <span className={containerClasses} data-testid={testId} {...props}>
       {children}
       <span className={badgeContentClasses}>
         {displayContent}

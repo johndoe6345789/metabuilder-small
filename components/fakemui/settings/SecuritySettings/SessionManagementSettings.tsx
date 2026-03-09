@@ -14,10 +14,12 @@ interface Session {
 
 interface SessionManagementSettingsProps {
   onSessionsCleared?: () => void;
+  testId?: string;
 }
 
 export const SessionManagementSettings: React.FC<SessionManagementSettingsProps> = ({
-  onSessionsCleared
+  onSessionsCleared,
+  testId,
 }) => {
   const [sessions, setSessions] = useState<Session[]>([
     {
@@ -67,7 +69,7 @@ export const SessionManagementSettings: React.FC<SessionManagementSettingsProps>
   }, [onSessionsCleared]);
 
   return (
-    <div >
+    <div data-testid={testId}>
       <h3 >Active Sessions</h3>
       <p >
         Manage your active sessions across devices

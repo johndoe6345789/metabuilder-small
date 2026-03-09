@@ -19,6 +19,7 @@ export interface NotificationContainerProps {
   position?: NotificationPosition
   maxVisible?: number
   className?: string
+  testId?: string
 }
 
 const ICONS: Record<NotificationType, string> = {
@@ -69,6 +70,7 @@ export const NotificationContainer: React.FC<NotificationContainerProps> = ({
   position = 'top-right',
   maxVisible = 5,
   className = '',
+  testId,
 }) => {
   const handleClose = useCallback((id: string) => {
     onClose(id)
@@ -85,7 +87,7 @@ export const NotificationContainer: React.FC<NotificationContainerProps> = ({
   )
 
   return (
-    <div className={rootClass} aria-label="Notifications">
+    <div className={rootClass} data-testid={testId} role="region" aria-label="Notifications" aria-live="polite">
       {visibleNotifications.map((notification) => (
         <NotificationItem
           key={notification.id}

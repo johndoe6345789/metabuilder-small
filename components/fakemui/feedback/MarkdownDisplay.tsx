@@ -13,6 +13,8 @@ export interface MarkdownDisplayProps {
   disableAnimations?: boolean
   /** Custom wrapper for container */
   wrapper?: 'div' | 'article' | 'section'
+  /** Test ID for testing */
+  testId?: string
 }
 
 /**
@@ -33,6 +35,7 @@ export function MarkdownDisplay({
   ariaLabel = 'Content',
   disableAnimations = false,
   wrapper: Wrapper = 'div',
+  testId,
 }: MarkdownDisplayProps) {
   const renderLine = (line: string, idx: number): ReactNode => {
     if (line.startsWith('###')) {
@@ -83,7 +86,7 @@ export function MarkdownDisplay({
   return (
     <Wrapper
       className={`prose prose-invert prose-sm max-w-none ${disableAnimations ? '' : 'animate-fadeIn'} ${className}`}
-      data-testid="markdown-display"
+      data-testid={testId ?? "markdown-display"}
       role="region"
       aria-label={ariaLabel}
     >

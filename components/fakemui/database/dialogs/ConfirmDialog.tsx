@@ -18,6 +18,7 @@ export type ConfirmDialogProps = {
   confirmLabel?: string;
   cancelLabel?: string;
   confirmColor?: 'primary' | 'secondary' | 'error' | 'warning' | 'success';
+  testId?: string;
 };
 
 /**
@@ -33,10 +34,11 @@ export function ConfirmDialog({
   confirmLabel = 'Confirm',
   cancelLabel = 'Cancel',
   confirmColor = 'error',
+  testId,
 }: ConfirmDialogProps) {
   return (
-    <Dialog open={open} onClose={onCancel}>
-      <DialogTitle>{title}</DialogTitle>
+    <Dialog open={open} onClose={onCancel} data-testid={testId} role="alertdialog" aria-labelledby={testId ? `${testId}-title` : undefined}>
+      <DialogTitle id={testId ? `${testId}-title` : undefined}>{title}</DialogTitle>
       <DialogContent>
         <DialogContentText>{message}</DialogContentText>
       </DialogContent>

@@ -20,6 +20,8 @@ export interface TitleProps extends React.HTMLAttributes<HTMLElement> {
   headline?: HeadlineSize
   /** Title variant (large = cardTitle, medium, small) */
   title?: TitleSize
+  /** Test ID for automated testing */
+  testId?: string
 }
 
 export const Title: React.FC<TitleProps> = ({
@@ -27,6 +29,7 @@ export const Title: React.FC<TitleProps> = ({
   page,
   card,
   truncate,
+  testId,
   className,
   as: Tag = 'h2',
   display,
@@ -55,7 +58,7 @@ export const Title: React.FC<TitleProps> = ({
   )
 
   return (
-    <Tag className={computedClassName} {...props}>
+    <Tag className={computedClassName} data-testid={testId} {...props}>
       {children}
     </Tag>
   )

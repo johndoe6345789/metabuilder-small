@@ -31,6 +31,7 @@ export type QueryBuilderTabProps = {
   onExecuteQuery: (params: QueryBuilderParams) => Promise<QueryResult>;
   onFetchColumns: (tableName: string) => Promise<string[]>;
   operators?: QueryOperator[];
+  testId?: string;
 };
 
 export type QueryBuilderParams = {
@@ -78,6 +79,7 @@ export function QueryBuilderTab({
   onExecuteQuery,
   onFetchColumns,
   operators = DEFAULT_OPERATORS,
+  testId,
 }: QueryBuilderTabProps) {
   const [selectedTable, setSelectedTable] = useState('');
   const [selectedColumns, setSelectedColumns] = useState<string[]>([]);
@@ -209,7 +211,7 @@ export function QueryBuilderTab({
   };
 
   return (
-    <>
+    <div data-testid={testId}>
       <Typography variant="h5" gutterBottom>
         Query Builder
       </Typography>
@@ -460,7 +462,7 @@ export function QueryBuilderTab({
           )}
         </Paper>
       )}
-    </>
+    </div>
   );
 }
 

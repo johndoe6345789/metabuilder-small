@@ -24,6 +24,8 @@ export interface DividerProps extends React.HTMLAttributes<HTMLHRElement> {
   children?: React.ReactNode
   /** Text alignment when children are provided */
   textAlign?: DividerTextAlign
+  /** Test ID for automated testing */
+  testId?: string
 }
 
 export const Divider: React.FC<DividerProps> = ({
@@ -36,6 +38,7 @@ export const Divider: React.FC<DividerProps> = ({
   section = false,
   children,
   textAlign = 'center',
+  testId,
   className,
   ...props
 }) => {
@@ -52,6 +55,7 @@ export const Divider: React.FC<DividerProps> = ({
           className
         )}
         role="separator"
+        data-testid={testId}
         {...(props as React.HTMLAttributes<HTMLDivElement>)}
       >
         <span className={styles.dividerText}>{children}</span>
@@ -61,6 +65,8 @@ export const Divider: React.FC<DividerProps> = ({
 
   return (
     <hr
+      role="separator"
+      data-testid={testId}
       className={classNames(
         styles.divider,
         {

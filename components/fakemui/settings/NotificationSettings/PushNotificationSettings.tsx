@@ -9,15 +9,17 @@ interface PushNotificationSettingsProps {
   soundEnabled: boolean;
   desktopNotifications: boolean;
   onSettingChange: (key: string, value: any) => void;
+  testId?: string;
 }
 
 export const PushNotificationSettings: React.FC<PushNotificationSettingsProps> = ({
   soundEnabled,
   desktopNotifications,
   onSettingChange,
+  testId,
 }) => {
   return (
-    <div >
+    <div data-testid={testId}>
       <h3 >Sound & Desktop</h3>
 
       <div >

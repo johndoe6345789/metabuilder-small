@@ -41,6 +41,8 @@ export interface AccordionProps extends Omit<React.HTMLAttributes<HTMLDivElement
   disableGutters?: boolean
   /** If true, removes rounded corners when placed in an AccordionGroup */
   square?: boolean
+  /** Test ID for automated testing */
+  testId?: string
 }
 
 /**
@@ -64,6 +66,7 @@ export const Accordion = forwardRef<HTMLDivElement, AccordionProps>(
       disableGutters = false,
       square = false,
       className = '',
+      testId,
       ...props
     },
     ref
@@ -114,6 +117,7 @@ export const Accordion = forwardRef<HTMLDivElement, AccordionProps>(
           className={classes}
           aria-expanded={expanded}
           aria-disabled={disabled}
+          data-testid={testId}
           {...props}
         >
           {children}

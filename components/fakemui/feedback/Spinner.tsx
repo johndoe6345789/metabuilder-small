@@ -14,6 +14,8 @@ export interface SpinnerProps extends React.HTMLAttributes<HTMLDivElement> {
   sm?: boolean
   /** @deprecated Use size="lg" instead */
   lg?: boolean
+  /** Test ID for testing */
+  testId?: string
 }
 
 const sizeClassMap: Record<SpinnerSize, string> = {
@@ -39,6 +41,7 @@ export const Spinner: React.FC<SpinnerProps> = ({
   sm,
   lg,
   className,
+  testId,
   ...props
 }) => {
   // Handle deprecated boolean props for backward compatibility
@@ -51,7 +54,7 @@ export const Spinner: React.FC<SpinnerProps> = ({
     className
   )
 
-  return <div className={spinnerClass} {...props} />
+  return <div className={spinnerClass} data-testid={testId} role="status" aria-label="Loading" {...props} />
 }
 
 /** SVG-based circular progress indicator with M3 animation */

@@ -9,12 +9,15 @@ export interface SectionProps extends React.HTMLAttributes<HTMLDivElement> {
   size?: SectionSize
   /** @deprecated Use size="sm" instead */
   sm?: boolean
+  /** Test ID for automated testing */
+  testId?: string
 }
 
 export const Section: React.FC<SectionProps> = ({
   children,
   size = 'md',
   sm,
+  testId,
   className,
   ...props
 }) => {
@@ -31,6 +34,8 @@ export const Section: React.FC<SectionProps> = ({
         },
         className
       )}
+      data-testid={testId}
+      role="region"
       {...props}
     >
       {children}

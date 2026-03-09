@@ -22,6 +22,8 @@ export interface TerminalOutputProps {
   className?: string
   /** Disable animations */
   disableAnimations?: boolean
+  /** Test ID for the component */
+  testId?: string
 }
 
 /**
@@ -45,12 +47,13 @@ export function TerminalOutput({
   emptyMessage = 'No output yet',
   className = '',
   disableAnimations = false,
+  testId,
 }: TerminalOutputProps) {
   if (lines.length === 0 && !isRunning) {
     return (
       <div
         className={`flex items-center justify-center h-full text-muted-foreground ${className}`}
-        data-testid="terminal-empty-state"
+        data-testid={testId ?? "terminal-empty-state"}
         role="status"
         aria-live="polite"
         aria-label="Terminal output area"
@@ -66,7 +69,7 @@ export function TerminalOutput({
   return (
     <div
       className={`space-y-1 ${className}`}
-      data-testid="terminal-output-content"
+      data-testid={testId ?? "terminal-output-content"}
       aria-label="Terminal output area"
       role="log"
     >

@@ -11,6 +11,7 @@ interface InAppNotificationSettingsProps {
   projectShared: boolean;
   collaboratorJoined: boolean;
   onSettingChange: (key: string, value: any) => void;
+  testId?: string;
 }
 
 export const InAppNotificationSettings: React.FC<InAppNotificationSettingsProps> = ({
@@ -19,9 +20,10 @@ export const InAppNotificationSettings: React.FC<InAppNotificationSettingsProps>
   projectShared,
   collaboratorJoined,
   onSettingChange,
+  testId,
 }) => {
   return (
-    <div >
+    <div data-testid={testId}>
       <h3 >In-App Notifications</h3>
       <p >
         Get notified about important events while using WorkflowUI

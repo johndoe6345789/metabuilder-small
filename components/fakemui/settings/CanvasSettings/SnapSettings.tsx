@@ -11,6 +11,7 @@ interface SnapSettingsProps {
   zoomInvert: boolean;
   panDirection: 'shift' | 'space' | 'middle';
   onSettingChange: (key: string, value: any) => void;
+  testId?: string;
 }
 
 export const SnapSettings: React.FC<SnapSettingsProps> = ({
@@ -19,9 +20,10 @@ export const SnapSettings: React.FC<SnapSettingsProps> = ({
   zoomInvert,
   panDirection,
   onSettingChange,
+  testId,
 }) => {
   return (
-    <div >
+    <div data-testid={testId}>
       <h3 >Canvas Behavior</h3>
 
       <div >

@@ -9,6 +9,7 @@ export type RadioColor = 'primary' | 'secondary' | 'error' | 'success' | 'warnin
 export type RadioSize = 'sm' | 'md' | 'lg'
 
 export interface RadioProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'type' | 'size'> {
+  testId?: string
   /** Label text for the radio button */
   label?: React.ReactNode
   /** Color variant */
@@ -46,6 +47,7 @@ export const Radio = forwardRef<HTMLInputElement, RadioProps>(
       disabled,
       checked,
       disableRipple = false,
+      testId,
       id: providedId,
       ...props
     },
@@ -78,7 +80,7 @@ export const Radio = forwardRef<HTMLInputElement, RadioProps>(
     })
 
     return (
-      <div className={rootClasses}>
+      <div className={rootClasses} data-testid={testId}>
         <div className={mdcClasses}>
           <input
             ref={ref}

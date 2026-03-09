@@ -33,6 +33,7 @@ export type CreateTableDialogProps = {
   onClose: () => void;
   onCreate: (tableName: string, columns: TableColumn[]) => Promise<void>;
   dataTypes: string[];
+  testId?: string;
 };
 
 /**
@@ -44,6 +45,7 @@ export function CreateTableDialog({
   onClose,
   onCreate,
   dataTypes,
+  testId,
 }: CreateTableDialogProps) {
   const [tableName, setTableName] = useState('');
   const [columns, setColumns] = useState<TableColumn[]>([
@@ -96,8 +98,8 @@ export function CreateTableDialog({
   };
 
   return (
-    <Dialog open={open} onClose={handleClose}>
-      <DialogTitle>Create New Table</DialogTitle>
+    <Dialog open={open} onClose={handleClose} data-testid={testId} aria-labelledby={testId ? `${testId}-title` : undefined}>
+      <DialogTitle id={testId ? `${testId}-title` : undefined}>Create New Table</DialogTitle>
       <DialogContent>
         <TextField
           fullWidth

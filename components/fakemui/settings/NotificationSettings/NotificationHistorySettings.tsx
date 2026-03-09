@@ -15,6 +15,7 @@ interface NotificationHistorySettingsProps {
   history?: HistoryItem[];
   onClearItem?: (id: string) => void;
   onClearAll?: () => void;
+  testId?: string;
 }
 
 export const NotificationHistorySettings: React.FC<NotificationHistorySettingsProps> = ({
@@ -24,9 +25,10 @@ export const NotificationHistorySettings: React.FC<NotificationHistorySettingsPr
   ],
   onClearItem = () => {},
   onClearAll = () => {},
+  testId,
 }) => {
   return (
-    <div >
+    <div data-testid={testId}>
       <h3 >Notification History</h3>
       <p >
         View and manage your notification history

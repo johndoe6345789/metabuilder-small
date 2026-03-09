@@ -32,6 +32,8 @@ export interface StatBadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
   error?: boolean
   /** @deprecated Use status="info" */
   info?: boolean
+  /** Test ID for automated testing */
+  testId?: string
 }
 
 export const StatBadge: React.FC<StatBadgeProps> = ({
@@ -48,6 +50,7 @@ export const StatBadge: React.FC<StatBadgeProps> = ({
   success,
   error,
   info,
+  testId,
   className,
   ...props
 }) => {
@@ -95,7 +98,7 @@ export const StatBadge: React.FC<StatBadgeProps> = ({
   )
 
   return (
-    <span className={badgeClasses} {...props}>
+    <span className={badgeClasses} data-testid={testId} {...props}>
       {children}
     </span>
   )

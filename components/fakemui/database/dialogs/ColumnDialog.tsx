@@ -30,6 +30,7 @@ export type ColumnDialogProps = {
   onClose: () => void;
   onSubmit: (data: Record<string, unknown>) => Promise<void>;
   dataTypes: string[];
+  testId?: string;
 };
 
 /**
@@ -44,6 +45,7 @@ export function ColumnDialog({
   onClose,
   onSubmit,
   dataTypes,
+  testId,
 }: ColumnDialogProps) {
   const [columnName, setColumnName] = useState('');
   const [columnType, setColumnType] = useState('VARCHAR');
@@ -109,8 +111,8 @@ export function ColumnDialog({
   };
 
   return (
-    <Dialog open={open} onClose={onClose}>
-      <DialogTitle>{getTitle()}</DialogTitle>
+    <Dialog open={open} onClose={onClose} data-testid={testId} aria-labelledby={testId ? `${testId}-title` : undefined}>
+      <DialogTitle id={testId ? `${testId}-title` : undefined}>{getTitle()}</DialogTitle>
       <DialogContent>
         {mode === 'drop' && (
           <Typography variant="body2" color="error" gutterBottom>

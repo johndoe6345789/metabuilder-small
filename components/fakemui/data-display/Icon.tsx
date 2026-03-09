@@ -32,6 +32,8 @@ export interface IconProps extends React.HTMLAttributes<HTMLSpanElement> {
   sm?: boolean
   /** @deprecated Use size="lg" instead */
   lg?: boolean
+  /** Test ID for automated testing */
+  testId?: string
 }
 
 const sizeClassMap: Record<IconSize, string> = {
@@ -71,6 +73,7 @@ export const Icon: React.FC<IconProps> = ({
   button = false,
   sm,
   lg,
+  testId,
   className,
   ...props
 }) => {
@@ -90,7 +93,7 @@ export const Icon: React.FC<IconProps> = ({
   )
 
   return (
-    <span className={iconClassName} {...props}>
+    <span className={iconClassName} data-testid={testId} aria-hidden="true" {...props}>
       {children}
     </span>
   )

@@ -13,6 +13,8 @@ export interface LoadingContentProps {
   className?: string
   /** Disable animations */
   disableAnimations?: boolean
+  /** Test ID for testing */
+  testId?: string
 }
 
 /**
@@ -32,11 +34,12 @@ export function LoadingContent({
   skeletonLines = 3,
   className = '',
   disableAnimations = false,
+  testId,
 }: LoadingContentProps) {
   return (
     <div
       className={`space-y-3 ${className}`}
-      data-testid="loading-content"
+      data-testid={testId ?? "loading-content"}
       role="status"
       aria-busy="true"
       aria-label={message}

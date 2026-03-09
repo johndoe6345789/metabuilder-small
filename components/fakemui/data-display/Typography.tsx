@@ -14,6 +14,8 @@ export interface TypographyProps extends React.HTMLAttributes<HTMLElement> {
   as?: React.ElementType
   component?: React.ElementType  // MUI-compatible alias for 'as'
   sx?: Record<string, unknown>  // MUI sx prop for styling compatibility
+  /** Test ID for automated testing */
+  testId?: string
 }
 
 // Map variant prop to CSS module class names
@@ -53,6 +55,7 @@ export const Typography: React.FC<TypographyProps> = ({
   align,
   gutterBottom,
   noWrap,
+  testId,
   className = '',
   as,
   component,
@@ -90,6 +93,7 @@ export const Typography: React.FC<TypographyProps> = ({
     <Tag
       className={classes}
       style={{ ...sxToStyle(sx), ...style }}
+      data-testid={testId}
       {...props}
     >
       {children}

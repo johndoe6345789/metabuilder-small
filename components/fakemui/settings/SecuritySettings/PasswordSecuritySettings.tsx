@@ -8,8 +8,9 @@ interface PasswordForm {
   confirmPassword: string;
 }
 
-export const PasswordSecuritySettings: React.FC<{ onPasswordChanged?: () => void }> = ({
-  onPasswordChanged
+export const PasswordSecuritySettings: React.FC<{ onPasswordChanged?: () => void; testId?: string }> = ({
+  onPasswordChanged,
+  testId,
 }) => {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<PasswordForm>({
@@ -57,7 +58,7 @@ export const PasswordSecuritySettings: React.FC<{ onPasswordChanged?: () => void
   }, [validatePassword, onPasswordChanged]);
 
   return (
-    <div >
+    <div data-testid={testId}>
       <h3 >Change Password</h3>
       <p >Keep your account secure with a strong password</p>
       {!showForm ? (

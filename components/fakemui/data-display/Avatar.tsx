@@ -6,6 +6,8 @@ export interface AvatarProps extends React.HTMLAttributes<HTMLDivElement> {
   children?: React.ReactNode
   src?: string
   alt?: string
+  /** Test ID for automated testing */
+  testId?: string
   /** FakeMUI native sizes */
   sm?: boolean
   md?: boolean
@@ -26,6 +28,7 @@ export const Avatar: React.FC<AvatarProps> = ({
   lg,
   xl,
   variant = 'circular',
+  testId,
   className = '',
   sx,
   style,
@@ -52,6 +55,9 @@ export const Avatar: React.FC<AvatarProps> = ({
     <div
       className={`${styles.avatar} ${sizeClass} ${variantClass} ${className}`.trim()}
       style={{ ...sxToStyle(sx), ...style }}
+      data-testid={testId}
+      role="img"
+      aria-label={alt || undefined}
       {...props}
     >
       {src ? <img src={src} alt={alt} /> : children}

@@ -11,6 +11,7 @@ interface EmailNotificationSettingsProps {
   emailSecurityAlerts: boolean;
   emailProductUpdates: boolean;
   onSettingChange: (key: string, value: any) => void;
+  testId?: string;
 }
 
 export const EmailNotificationSettings: React.FC<EmailNotificationSettingsProps> = ({
@@ -19,9 +20,10 @@ export const EmailNotificationSettings: React.FC<EmailNotificationSettingsProps>
   emailSecurityAlerts,
   emailProductUpdates,
   onSettingChange,
+  testId,
 }) => {
   return (
-    <div >
+    <div data-testid={testId}>
       <h3 >Email Notifications</h3>
       <p >
         Receive email summaries and alerts

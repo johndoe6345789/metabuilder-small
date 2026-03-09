@@ -12,6 +12,7 @@ export type SQLQueryTabProps = {
   title?: string;
   description?: string;
   placeholder?: string;
+  testId?: string;
 };
 
 /**
@@ -23,6 +24,7 @@ export function SQLQueryTab({
   title = 'SQL Query Interface',
   description,
   placeholder = 'SELECT * FROM your_table LIMIT 10;',
+  testId,
 }: SQLQueryTabProps) {
   const [queryText, setQueryText] = useState('');
   const [loading, setLoading] = useState(false);
@@ -41,7 +43,7 @@ export function SQLQueryTab({
   };
 
   return (
-    <Box>
+    <Box data-testid={testId}>
       <Typography variant="h5" gutterBottom>
         {title}
       </Typography>

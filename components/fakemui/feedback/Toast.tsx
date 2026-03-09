@@ -148,15 +148,17 @@ function ToastItem({ entry, onDismiss }: ToastItemProps) {
 export interface ToasterProps {
   /** Screen position (default: bottom-right) */
   position?: 'top-left' | 'top-center' | 'top-right' | 'bottom-left' | 'bottom-center' | 'bottom-right'
+  /** Test ID for testing */
+  testId?: string
 }
 
-export function Toaster({ position = 'bottom-right' }: ToasterProps) {
+export function Toaster({ position = 'bottom-right', testId }: ToasterProps) {
   const toasts = useSyncExternalStore(_subscribe, _getSnapshot, () => [] as ToastEntry[])
 
   if (toasts.length === 0) return null
 
   return (
-    <div className={`${styles.container} ${styles[position.replace(/-/g, '_')]}`} aria-label="Notifications">
+    <div className={`${styles.container} ${styles[position.replace(/-/g, '_')]}`} data-testid={testId} role="alert" aria-live="assertive" aria-label="Notifications">
       {toasts.map(entry => (
         <ToastItem key={entry.id} entry={entry} onDismiss={() => _remove(entry.id)} />
       ))}

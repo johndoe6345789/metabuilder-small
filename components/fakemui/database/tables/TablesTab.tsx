@@ -22,6 +22,7 @@ export type TablesTabProps = {
   onTableClick: (tableName: string) => void;
   title?: string;
   description?: string;
+  testId?: string;
 };
 
 /**
@@ -34,9 +35,10 @@ export function TablesTab({
   onTableClick,
   title = 'Database Tables',
   description,
+  testId,
 }: TablesTabProps) {
   return (
-    <Box>
+    <Box data-testid={testId}>
       <Typography variant="h5" gutterBottom>
         {title}
       </Typography>

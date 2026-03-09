@@ -29,6 +29,8 @@ export interface LabelProps extends React.HTMLAttributes<HTMLSpanElement> {
   withIcon?: boolean
   /** Associate label with form element */
   htmlFor?: string
+  /** Test ID for automated testing */
+  testId?: string
 }
 
 const sizeClassMap: Record<LabelSize, string | undefined> = {
@@ -55,6 +57,7 @@ export const Label: React.FC<LabelProps> = ({
   uppercase = false,
   required = false,
   withIcon = false,
+  testId,
   ...props
 }) => {
   const labelClassName = classNames(
@@ -70,7 +73,7 @@ export const Label: React.FC<LabelProps> = ({
   )
 
   return (
-    <span className={labelClassName} {...props}>
+    <span className={labelClassName} data-testid={testId} {...props}>
       {children}
     </span>
   )

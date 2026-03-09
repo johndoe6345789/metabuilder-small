@@ -23,6 +23,8 @@ export interface ErrorDisplayProps {
   children?: ReactNode
   /** Custom className */
   className?: string
+  /** Test ID for testing */
+  testId?: string
 }
 
 /**
@@ -49,6 +51,7 @@ export function ErrorDisplay({
   icon,
   children,
   className = '',
+  testId,
 }: ErrorDisplayProps) {
   const [isStackOpen, setIsStackOpen] = useState(false)
   const [copied, setCopied] = useState(false)
@@ -77,7 +80,7 @@ export function ErrorDisplay({
   }
 
   return (
-    <div className={`space-y-4 ${className}`} data-testid="error-display">
+    <div className={`space-y-4 ${className}`} data-testid={testId ?? "error-display"} role="alert">
       <Alert severity="error" data-testid="error-alert" role="alert">
         {icon}
         <AlertTitle>{title}</AlertTitle>

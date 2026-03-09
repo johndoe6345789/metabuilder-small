@@ -20,6 +20,8 @@ export interface PanelProps extends React.HTMLAttributes<HTMLDivElement> {
   collapsible?: boolean
   /** Collapsed state (requires collapsible=true) */
   collapsed?: boolean
+  /** Test ID for automated testing */
+  testId?: string
 }
 
 export const Panel: React.FC<PanelProps> = ({
@@ -29,6 +31,7 @@ export const Panel: React.FC<PanelProps> = ({
   fixedPosition,
   collapsible = false,
   collapsed = false,
+  testId,
   ...props
 }) => {
   const panelClass = classNames(
@@ -54,7 +57,7 @@ export const Panel: React.FC<PanelProps> = ({
   )
 
   return (
-    <div className={panelClass} {...props}>
+    <div className={panelClass} data-testid={testId} role="region" {...props}>
       {children}
     </div>
   )

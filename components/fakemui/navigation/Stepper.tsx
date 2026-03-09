@@ -9,6 +9,8 @@ export interface StepperProps extends React.HTMLAttributes<HTMLDivElement> {
   alternativeLabel?: boolean
   nonLinear?: boolean
   connector?: React.ReactNode
+  /** Test ID for automated testing */
+  testId?: string
 }
 
 export const Stepper: React.FC<StepperProps> = ({
@@ -19,9 +21,13 @@ export const Stepper: React.FC<StepperProps> = ({
   nonLinear = false,
   connector,
   className,
+  testId,
   ...props
 }) => (
   <div
+    role="navigation"
+    aria-label="progress"
+    data-testid={testId}
     className={classNames(
       styles.stepper,
       {

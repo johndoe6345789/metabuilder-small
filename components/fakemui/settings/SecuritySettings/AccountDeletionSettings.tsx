@@ -8,11 +8,13 @@ import React, { useState, useCallback } from 'react';
 interface AccountDeletionSettingsProps {
   userEmail?: string;
   onAccountDeleted?: () => void;
+  testId?: string;
 }
 
 export const AccountDeletionSettings: React.FC<AccountDeletionSettingsProps> = ({
   userEmail = 'john@example.com',
-  onAccountDeleted
+  onAccountDeleted,
+  testId,
 }) => {
   const [showConfirm, setShowConfirm] = useState(false);
   const [confirmEmail, setConfirmEmail] = useState('');
@@ -47,7 +49,7 @@ export const AccountDeletionSettings: React.FC<AccountDeletionSettingsProps> = (
   }, []);
 
   return (
-    <div className={""}>
+    <div className={""} data-testid={testId}>
       <h3 >Danger Zone</h3>
       <p >
         These actions are permanent and cannot be undone

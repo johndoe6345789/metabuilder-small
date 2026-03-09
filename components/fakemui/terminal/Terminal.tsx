@@ -42,6 +42,8 @@ export interface TerminalProps {
   hideHeader?: boolean
   /** Additional header actions */
   headerActions?: ReactNode
+  /** Test ID for the component */
+  testId?: string
 }
 
 /**
@@ -80,6 +82,7 @@ export function Terminal({
   autoScroll = true,
   hideHeader = false,
   headerActions,
+  testId,
 }: TerminalProps) {
   const terminalEndRef = useRef<HTMLDivElement>(null)
 
@@ -92,7 +95,7 @@ export function Terminal({
   const hasErrors = lines.some((line) => line.type === 'error')
 
   return (
-    <div className={`flex flex-col h-full bg-card ${className}`} data-testid="terminal">
+    <div className={`flex flex-col h-full bg-card ${className}`} data-testid={testId ?? "terminal"} role="region" aria-label="Terminal">
       {!hideHeader && onRun && (
         <TerminalHeader
           onRun={onRun}

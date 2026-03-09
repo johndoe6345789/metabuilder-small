@@ -31,6 +31,8 @@ export interface SnackbarProps extends React.HTMLAttributes<HTMLDivElement> {
   resumeHideDuration?: number
   /** Transition duration in ms */
   transitionDuration?: number
+  /** Test ID for testing */
+  testId?: string
 }
 
 /**
@@ -63,6 +65,7 @@ export const Snackbar: React.FC<SnackbarProps> = ({
   resumeHideDuration,
   transitionDuration = 150,
   className = '',
+  testId,
   ...props
 }) => {
   const [exiting, setExiting] = useState(false)
@@ -142,7 +145,8 @@ export const Snackbar: React.FC<SnackbarProps> = ({
   return (
     <div
       className={wrapperClass}
-      role="alert"
+      data-testid={testId}
+      role="status"
       aria-live="polite"
       {...props}
     >

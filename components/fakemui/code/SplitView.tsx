@@ -38,6 +38,8 @@ export interface SplitViewProps {
   hideControls?: boolean
   /** Custom className for container */
   className?: string
+  /** Test ID for the component */
+  testId?: string
 }
 
 /**
@@ -72,6 +74,7 @@ export function SplitView({
   onModeChange,
   hideControls = false,
   className = '',
+  testId,
 }: SplitViewProps) {
   const [internalMode, setInternalMode] = useState<ViewMode>(defaultMode)
 
@@ -85,7 +88,7 @@ export function SplitView({
   }
 
   return (
-    <div className={`flex flex-col gap-3 ${className}`} data-testid="split-view">
+    <div className={`flex flex-col gap-3 ${className}`} data-testid={testId ?? "split-view"}>
       {!hideControls && (
         <div className="flex items-center justify-end">
           <div

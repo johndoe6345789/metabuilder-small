@@ -7,9 +7,10 @@ import React, { useState, useCallback } from 'react';
 
 interface TwoFactorSettingsProps {
   onStatusChange?: (enabled: boolean) => void;
+  testId?: string;
 }
 
-export const TwoFactorSettings: React.FC<TwoFactorSettingsProps> = ({ onStatusChange }) => {
+export const TwoFactorSettings: React.FC<TwoFactorSettingsProps> = ({ onStatusChange, testId }) => {
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
   const [showSetup, setShowSetup] = useState(false);
   const [verificationCode, setVerificationCode] = useState('');
@@ -54,7 +55,7 @@ export const TwoFactorSettings: React.FC<TwoFactorSettingsProps> = ({ onStatusCh
   }, [onStatusChange]);
 
   return (
-    <div >
+    <div data-testid={testId}>
       <h3 >Two-Factor Authentication</h3>
       <p >
         Add an extra layer of security to your account

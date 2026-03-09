@@ -20,6 +20,8 @@ export interface TerminalInputProps {
   className?: string
   /** Disable animations */
   disableAnimations?: boolean
+  /** Test ID for the component */
+  testId?: string
 }
 
 /**
@@ -45,6 +47,7 @@ export function TerminalInput({
   placeholder = 'Enter input...',
   className = '',
   disableAnimations = false,
+  testId,
 }: TerminalInputProps) {
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -62,7 +65,7 @@ export function TerminalInput({
     <form
       onSubmit={onSubmit}
       className={`flex items-center gap-2 mt-2 ${disableAnimations ? '' : 'animate-fadeIn'} ${className}`}
-      data-testid="terminal-input-form"
+      data-testid={testId ?? "terminal-input-form"}
     >
       <span className="text-primary font-bold" aria-hidden="true">
         {promptChar}

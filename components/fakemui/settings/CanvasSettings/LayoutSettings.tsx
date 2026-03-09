@@ -10,6 +10,7 @@ interface LayoutSettingsProps {
   showCardDescriptions: boolean;
   cardAnimations: boolean;
   onSettingChange: (key: string, value: any) => void;
+  testId?: string;
 }
 
 export const LayoutSettings: React.FC<LayoutSettingsProps> = ({
@@ -17,9 +18,10 @@ export const LayoutSettings: React.FC<LayoutSettingsProps> = ({
   showCardDescriptions,
   cardAnimations,
   onSettingChange,
+  testId,
 }) => {
   return (
-    <div >
+    <div data-testid={testId}>
       <h3 >Workflow Cards</h3>
 
       <div >

@@ -16,6 +16,8 @@ export interface DrawerProps extends React.HTMLAttributes<HTMLElement> {
   sx?: Record<string, unknown>
   /** Slot props for paper component */
   PaperProps?: React.HTMLAttributes<HTMLDivElement> & { sx?: Record<string, unknown> }
+  /** Test ID for automated testing */
+  testId?: string
 }
 
 /** Map anchor prop to CSS module class */
@@ -43,6 +45,7 @@ export const Drawer: React.FC<DrawerProps> = ({
   sx,
   style,
   PaperProps,
+  testId,
   ...props
 }) => {
   const classNames = [
@@ -64,6 +67,8 @@ export const Drawer: React.FC<DrawerProps> = ({
         <aside
           className={classNames}
           style={{ ...sxToStyle(sx), ...style }}
+          role="complementary"
+          data-testid={testId}
           {...props}
         >
           {children}

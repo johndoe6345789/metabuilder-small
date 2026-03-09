@@ -19,6 +19,7 @@ export type DropTableDialogProps = {
   tables: TableInfo[];
   onClose: () => void;
   onDrop: (tableName: string) => Promise<void>;
+  testId?: string;
 };
 
 /**
@@ -30,6 +31,7 @@ export function DropTableDialog({
   tables,
   onClose,
   onDrop,
+  testId,
 }: DropTableDialogProps) {
   const [selectedTable, setSelectedTable] = useState('');
   const [loading, setLoading] = useState(false);
@@ -52,8 +54,8 @@ export function DropTableDialog({
   };
 
   return (
-    <Dialog open={open} onClose={handleClose}>
-      <DialogTitle>Drop Table</DialogTitle>
+    <Dialog open={open} onClose={handleClose} data-testid={testId} role="alertdialog" aria-labelledby={testId ? `${testId}-title` : undefined}>
+      <DialogTitle id={testId ? `${testId}-title` : undefined}>Drop Table</DialogTitle>
       <DialogContent>
         <Typography variant="body2" color="error" gutterBottom>
           Warning: This will permanently delete the table and all its data!

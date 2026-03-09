@@ -7,11 +7,15 @@
 import React from 'react';
 import { aria } from '@metabuilder/utils/accessibility';
 
-export const PanHint: React.FC = () => {
+export interface PanHintProps {
+  testId?: string;
+}
+
+export const PanHint: React.FC<PanHintProps> = ({ testId }) => {
   return (
     <div
-
-      role="tooltip"
+      data-testid={testId}
+      role="status"
       aria-label="Pan canvas hint: Hold Shift plus Drag to pan"
       aria-live="polite"
     >

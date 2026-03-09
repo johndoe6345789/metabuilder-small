@@ -8,6 +8,7 @@ export interface BackdropProps extends React.HTMLAttributes<HTMLDivElement> {
   invisible?: boolean
   centered?: boolean
   top?: boolean
+  testId?: string
   onClick?: (event: React.MouseEvent<HTMLDivElement>) => void
 }
 
@@ -17,12 +18,15 @@ export const Backdrop: React.FC<BackdropProps> = ({
   invisible,
   centered,
   top,
+  testId,
   onClick,
   className,
   ...props
 }) =>
   open ? (
     <div
+      data-testid={testId}
+      aria-hidden="true"
       className={classNames(
         styles.backdrop,
         {

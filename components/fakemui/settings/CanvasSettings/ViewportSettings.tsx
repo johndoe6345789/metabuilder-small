@@ -10,6 +10,7 @@ interface ViewportSettingsProps {
   minZoom: number;
   maxZoom: number;
   onSettingChange: (key: string, value: any) => void;
+  testId?: string;
 }
 
 export const ViewportSettings: React.FC<ViewportSettingsProps> = ({
@@ -17,9 +18,10 @@ export const ViewportSettings: React.FC<ViewportSettingsProps> = ({
   minZoom,
   maxZoom,
   onSettingChange,
+  testId,
 }) => {
   return (
-    <div >
+    <div data-testid={testId}>
       <h3 >Viewport Defaults</h3>
 
       <div >

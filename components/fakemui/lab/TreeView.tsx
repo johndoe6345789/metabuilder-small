@@ -41,6 +41,8 @@ export interface TreeViewProps extends React.HTMLAttributes<HTMLUListElement> {
   onNodeToggle?: (event: React.SyntheticEvent, nodeIds: string[]) => void
   onNodeSelect?: (event: React.SyntheticEvent, nodeIds: string | string[]) => void
   disableSelection?: boolean
+  /** Test ID for automated testing */
+  testId?: string
 }
 
 export function TreeView({
@@ -59,6 +61,7 @@ export function TreeView({
   onNodeSelect,
   disableSelection = false,
   className,
+  testId,
   ...props
 }: TreeViewProps) {
   const [internalExpanded, setInternalExpanded] = useState<string[]>(defaultExpanded)
@@ -111,7 +114,7 @@ export function TreeView({
         defaultParentIcon,
       }}
     >
-      <ul className={classNames(styles.treeView, className)} role="tree" aria-multiselectable={multiSelect} {...props}>
+      <ul className={classNames(styles.treeView, className)} role="tree" aria-multiselectable={multiSelect} data-testid={testId} {...props}>
         {children}
       </ul>
     </TreeViewContext.Provider>

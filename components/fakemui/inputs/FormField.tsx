@@ -3,6 +3,7 @@ import classNames from 'classnames'
 import styles from '../../../scss/atoms/form.module.scss'
 
 export interface FormFieldProps extends React.HTMLAttributes<HTMLDivElement> {
+  testId?: string
   children?: React.ReactNode
   label?: string
   helperText?: string
@@ -26,6 +27,7 @@ export const FormField: React.FC<FormFieldProps> = ({
   required,
   disabled,
   fullWidth,
+  testId,
   className = '',
   ...props
 }) => (
@@ -37,6 +39,7 @@ export const FormField: React.FC<FormFieldProps> = ({
       fullWidth && styles.formFieldFullWidth,
       className
     )}
+    data-testid={testId}
     {...props}
   >
     {label && (

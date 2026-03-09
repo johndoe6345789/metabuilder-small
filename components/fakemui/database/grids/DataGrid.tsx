@@ -24,6 +24,7 @@ export type DataGridProps = {
   onEdit?: (row: Record<string, unknown>) => void;
   onDelete?: (row: Record<string, unknown>) => void;
   primaryKey?: string;
+  testId?: string;
 };
 
 /**
@@ -36,11 +37,12 @@ export function DataGrid({
   onEdit,
   onDelete,
   primaryKey = 'id',
+  testId,
 }: DataGridProps) {
   return (
-    <Paper>
+    <Paper data-testid={testId}>
       <TableContainer>
-        <Table size="small">
+        <Table size="small" role="grid">
         <TableHead>
           <TableRow>
             {columns.map((col) => (

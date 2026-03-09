@@ -8,6 +8,7 @@ import styles from '../../../scss/atoms/form.module.scss'
 export type InputSize = 'sm' | 'md' | 'lg'
 
 export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'> {
+  testId?: string
   /** Input size */
   size?: InputSize
   /** @deprecated Use size="sm" instead */
@@ -66,6 +67,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       fullWidth,
       startAdornment,
       endAdornment,
+      testId,
       className = '',
       id: idProp,
       'aria-describedby': ariaDescribedBy,
@@ -101,6 +103,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           className={classes}
           aria-invalid={error}
           aria-describedby={describedBy}
+          data-testid={testId}
           {...restProps}
         />
         {endAdornment && <span className={classNames(styles.inputAdornment, styles.inputAdornmentEnd)}>{endAdornment}</span>}

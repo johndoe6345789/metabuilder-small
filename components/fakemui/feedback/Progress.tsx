@@ -19,6 +19,8 @@ export interface LinearProgressProps extends React.HTMLAttributes<HTMLDivElement
   showLabel?: boolean
   /** Size variant */
   size?: 'thin' | 'default' | 'thick'
+  /** Test ID for testing */
+  testId?: string
 }
 
 // Map color prop to CSS module class names
@@ -48,6 +50,7 @@ export const LinearProgress: React.FC<LinearProgressProps> = ({
   showLabel = false,
   size = 'default',
   className = '',
+  testId,
   ...props
 }) => {
   // Support legacy indeterminate prop
@@ -73,6 +76,7 @@ export const LinearProgress: React.FC<LinearProgressProps> = ({
   const progressElement = (
     <div
       className={containerClasses}
+      data-testid={testId}
       role="progressbar"
       aria-valuenow={effectiveVariant === 'determinate' || effectiveVariant === 'buffer' ? clampedValue : undefined}
       aria-valuemin={0}
@@ -136,6 +140,8 @@ export interface CircularProgressProps extends React.HTMLAttributes<HTMLDivEleme
   color?: 'primary' | 'secondary' | 'success' | 'warning' | 'error' | 'info' | 'inherit'
   /** Show label with percentage (only for determinate) */
   showLabel?: boolean
+  /** Test ID for testing */
+  testId?: string
 }
 
 // Map color prop to CSS module class names for circular progress
@@ -159,6 +165,7 @@ export const CircularProgress: React.FC<CircularProgressProps> = ({
   showLabel = false,
   className = '',
   style,
+  testId,
   ...props
 }) => {
   const clampedValue = Math.min(100, Math.max(0, value))
@@ -186,6 +193,7 @@ export const CircularProgress: React.FC<CircularProgressProps> = ({
   const progressElement = (
     <div
       className={containerClasses}
+      data-testid={testId}
       role="progressbar"
       aria-valuenow={variant === 'determinate' ? clampedValue : undefined}
       aria-valuemin={0}

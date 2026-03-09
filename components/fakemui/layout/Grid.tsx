@@ -63,6 +63,7 @@ export interface GridProps extends React.HTMLAttributes<HTMLDivElement> {
   masonry?: boolean | 2 | 3 | 4
 
   sx?: Record<string, unknown>
+  testId?: string
 }
 
 // Map gap sizes to style class names
@@ -207,6 +208,7 @@ export const Grid: React.FC<GridProps> = ({
   className,
   sx,
   style,
+  testId,
   ...props
 }) => {
   // Determine if using CSS Grid or Flexbox mode
@@ -302,7 +304,7 @@ export const Grid: React.FC<GridProps> = ({
   }
 
   return (
-    <div className={classes} style={inlineStyles} {...props}>
+    <div className={classes} style={inlineStyles} data-testid={testId} {...props}>
       {children}
     </div>
   )

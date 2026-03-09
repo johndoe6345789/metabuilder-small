@@ -25,6 +25,7 @@ export type FormDialogProps = {
   onClose: () => void;
   onSubmit: (data: Record<string, unknown>) => Promise<void>;
   submitLabel?: string;
+  testId?: string;
 };
 
 /**
@@ -39,6 +40,7 @@ export function FormDialog({
   onClose,
   onSubmit,
   submitLabel = 'Submit',
+  testId,
 }: FormDialogProps) {
   const [formData, setFormData] = useState<Record<string, unknown>>({});
   const [loading, setLoading] = useState(false);
@@ -72,8 +74,8 @@ export function FormDialog({
   };
 
   return (
-    <Dialog open={open} onClose={onClose}>
-      <DialogTitle>{title}</DialogTitle>
+    <Dialog open={open} onClose={onClose} data-testid={testId} aria-labelledby={testId ? `${testId}-title` : undefined}>
+      <DialogTitle id={testId ? `${testId}-title` : undefined}>{title}</DialogTitle>
       <DialogContent>
         {fields.map((field) => (
           <TextField

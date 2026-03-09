@@ -11,6 +11,7 @@ interface GridSettingsProps {
   gridSize: number;
   gridStyle: 'dots' | 'lines';
   onSettingChange: (key: string, value: any) => void;
+  testId?: string;
 }
 
 export const GridSettings: React.FC<GridSettingsProps> = ({
@@ -19,9 +20,10 @@ export const GridSettings: React.FC<GridSettingsProps> = ({
   gridSize,
   gridStyle,
   onSettingChange,
+  testId,
 }) => {
   return (
-    <div >
+    <div data-testid={testId}>
       <h3 >Canvas Appearance</h3>
 
       <div >

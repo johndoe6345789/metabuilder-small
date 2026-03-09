@@ -22,6 +22,7 @@ export const useRadioGroup = () => useContext(RadioGroupContext)
  * Props for RadioGroup component
  */
 export interface RadioGroupProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange'> {
+  testId?: string
   children?: React.ReactNode
   /** Name attribute for all radio buttons */
   name?: string
@@ -58,6 +59,7 @@ export const RadioGroup = forwardRef<HTMLDivElement, RadioGroupProps>(
       defaultValue,
       onChange,
       row = false,
+      testId,
       className,
       ...props
     },
@@ -95,6 +97,7 @@ export const RadioGroup = forwardRef<HTMLDivElement, RadioGroupProps>(
           ref={ref}
           role="radiogroup"
           className={groupClasses}
+          data-testid={testId}
           {...props}
         >
           {enhancedChildren}

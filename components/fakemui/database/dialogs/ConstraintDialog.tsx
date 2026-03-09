@@ -33,6 +33,7 @@ export type ConstraintDialogProps = {
   selectedConstraint?: ConstraintInfo | null;
   onClose: () => void;
   onSubmit: (data: Record<string, unknown>) => Promise<void>;
+  testId?: string;
 };
 
 /**
@@ -46,6 +47,7 @@ export function ConstraintDialog({
   selectedConstraint,
   onClose,
   onSubmit,
+  testId,
 }: ConstraintDialogProps) {
   const [constraintName, setConstraintName] = useState('');
   const [constraintType, setConstraintType] = useState('UNIQUE');
@@ -130,8 +132,8 @@ export function ConstraintDialog({
   const currentType = constraintTypes.find((ct) => ct.name === constraintType);
 
   return (
-    <Dialog open={open} onClose={onClose}>
-      <DialogTitle>{getTitle()}</DialogTitle>
+    <Dialog open={open} onClose={onClose} data-testid={testId} aria-labelledby={testId ? `${testId}-title` : undefined}>
+      <DialogTitle id={testId ? `${testId}-title` : undefined}>{getTitle()}</DialogTitle>
       <DialogContent>
         {mode === 'delete' ? (
           <Typography variant="body2" color="error" gutterBottom>

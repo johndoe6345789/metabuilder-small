@@ -9,7 +9,7 @@
 import React, { useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { DialogOverlay, DialogPanel } from '../utils/Dialog';
-import { useFocusTrap } from '../../hooks/useAccessible';
+import { useFocusTrap } from '../../../hooks/useAccessible';
 
 export interface DialogProps {
   open: boolean;

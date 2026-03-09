@@ -29,6 +29,8 @@ export interface TerminalHeaderProps {
   className?: string
   /** Additional actions to render */
   actions?: ReactNode
+  /** Test ID for the component */
+  testId?: string
 }
 
 /**
@@ -58,13 +60,14 @@ export function TerminalHeader({
   runIcon,
   className = '',
   actions,
+  testId,
 }: TerminalHeaderProps) {
   const isDisabled = isRunning || isInitializing || waitingForInput
 
   return (
     <div
       className={`flex items-center justify-between p-4 border-b border-border bg-muted/30 ${className}`}
-      data-testid="terminal-header"
+      data-testid={testId ?? "terminal-header"}
     >
       <div className="flex items-center gap-2">
         {titleIcon}

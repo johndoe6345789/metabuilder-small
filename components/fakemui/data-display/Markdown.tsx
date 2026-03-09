@@ -5,6 +5,8 @@ export interface MarkdownProps extends React.HTMLAttributes<HTMLDivElement> {
   content?: string
   children?: string
   className?: string
+  /** Test ID for automated testing */
+  testId?: string
 }
 
 /**
@@ -15,6 +17,7 @@ export interface MarkdownProps extends React.HTMLAttributes<HTMLDivElement> {
 export const Markdown: React.FC<MarkdownProps> = ({
   content,
   children,
+  testId,
   className = '',
   ...props
 }) => {
@@ -45,6 +48,7 @@ export const Markdown: React.FC<MarkdownProps> = ({
   return (
     <div
       className={`${styles.markdown} ${className}`.trim()}
+      data-testid={testId}
       dangerouslySetInnerHTML={{ __html: renderMarkdown(markdownContent) }}
       {...props}
     />

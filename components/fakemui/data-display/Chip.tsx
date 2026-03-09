@@ -35,6 +35,8 @@ export interface ChipProps extends React.HTMLAttributes<HTMLSpanElement> {
   sx?: Record<string, unknown>
   /** Disabled state */
   disabled?: boolean
+  /** Test ID for automated testing */
+  testId?: string
 }
 
 export const Chip: React.FC<ChipProps> = ({
@@ -53,6 +55,7 @@ export const Chip: React.FC<ChipProps> = ({
   variant,
   outline,
   disabled,
+  testId,
   className = '',
   sx,
   style,
@@ -113,6 +116,8 @@ export const Chip: React.FC<ChipProps> = ({
     <span
       className={classNames.join(' ')}
       style={{ ...sxToStyle(sx), ...style }}
+      data-testid={testId}
+      role={(clickable || onDelete) ? 'button' : undefined}
       {...props}
     >
       {icon && (

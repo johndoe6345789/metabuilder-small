@@ -15,6 +15,8 @@ export interface ListProps extends React.HTMLAttributes<HTMLElement> {
   disablePadding?: boolean
   /** MUI sx prop */
   sx?: Record<string, unknown>
+  /** Test ID for automated testing */
+  testId?: string
 }
 
 export const List: React.FC<ListProps> = ({
@@ -23,6 +25,7 @@ export const List: React.FC<ListProps> = ({
   spaced,
   component: Component = 'ul',
   disablePadding,
+  testId,
   className = '',
   sx,
   style,
@@ -42,6 +45,8 @@ export const List: React.FC<ListProps> = ({
     <Component
       className={classNames}
       style={{ ...sxToStyle(sx), ...style }}
+      data-testid={testId}
+      role={Component !== 'ul' && Component !== 'ol' ? 'list' : undefined}
       {...props}
     >
       {children}
