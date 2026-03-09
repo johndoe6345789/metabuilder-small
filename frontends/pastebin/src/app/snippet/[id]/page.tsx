@@ -773,12 +773,18 @@ export default function SnippetViewPage() {
                           </tr>
                         </thead>
                         <tbody>
-                          {terminal.lastRunInfo.files.map(f => (
-                            <tr key={f.uuidName} className={f.uuidName === terminal.lastRunInfo!.entryPointSent ? styles.debugFileEntry : ''}>
-                              <td className={styles.debugMono}>{f.originalName}</td>
-                              <td className={styles.debugMono}>{f.uuidName}</td>
-                            </tr>
-                          ))}
+                          {terminal.lastRunInfo.files.map(f => {
+                            const isEntry = f.uuidName === terminal.lastRunInfo!.entryPointSent
+                            const isKept = f.uuidName === f.originalName.split('/').pop()
+                            return (
+                              <tr key={f.uuidName} className={isEntry ? styles.debugFileEntry : ''}>
+                                <td className={styles.debugMono}>{f.originalName}</td>
+                                <td className={styles.debugMono}>
+                                  {isKept ? <em title="Name kept — required by build tool">{f.uuidName}</em> : f.uuidName}
+                                </td>
+                              </tr>
+                            )
+                          })}
                         </tbody>
                       </table>
                     </section>
@@ -791,11 +797,18 @@ export default function SnippetViewPage() {
                         {terminal.lastRunInfo.files.map((f, i) => {
                           const isLast = i === terminal.lastRunInfo!.files.length - 1
                           const isEntry = f.uuidName === terminal.lastRunInfo!.entryPointSent
+                          const isKept = f.uuidName === f.originalName.split('/').pop()
                           return (
                             <div key={f.uuidName} className={styles.debugTreeRow}>
                               <span className={styles.debugTreeBranch}>{isLast ? '└── ' : '├── '}</span>
-                              <span className={`${styles.debugMono} ${isEntry ? styles.debugTreeEntry : ''}`}>{f.uuidName}</span>
-                              <span className={styles.debugTreeOrig}>← {f.originalName}{isEntry ? ' (ran this)' : ''}</span>
+                              <span className={`${styles.debugMono} ${isEntry ? styles.debugTreeEntry : ''}`}>
+                                {f.uuidName}
+                              </span>
+                              <span className={styles.debugTreeOrig}>
+                                ← {f.originalName}
+                                {isEntry ? ' (ran this)' : ''}
+                                {isKept ? ' (name kept for tooling)' : ''}
+                              </span>
                             </div>
                           )
                         })}

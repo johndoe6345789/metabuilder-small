@@ -39,28 +39,86 @@ export interface RunDebugInfo {
   startedAt: number
 }
 
-/** Assign UUID names to files and resolve the entry point — mirrors backend logic. */
+/**
+ * Files that build/package tools require by exact name.
+ * These keep their original names so tooling still finds them.
+ * Cross-references inside them are still rewritten to UUID names.
+ */
+const KEEP_ORIGINAL_NAMES = new Set([
+  'CMakeLists.txt', 'Makefile', 'makefile', 'GNUmakefile',
+  'requirements.txt', 'requirements-dev.txt',
+  'package.json', 'package-lock.json',
+  'go.mod', 'go.sum',
+  'Cargo.toml', 'Cargo.lock',
+  'pom.xml',
+  'build.gradle', 'build.gradle.kts', 'settings.gradle',
+  'Gemfile', 'Gemfile.lock',
+  'Project.toml', 'Manifest.toml',
+])
+
+function escapeRegex(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+/**
+ * Assign UUID names to source files, keep build/config files under their
+ * original names, then rewrite cross-references throughout all file contents.
+ *
+ * UUID names use an `f_` prefix so stems are valid identifiers in Python/JS/Go.
+ * Exact filename and word-boundary stem replacements are both performed.
+ */
 function safeFilesAndEntry(
   files: SnippetFile[],
   entryPoint: string,
 ): { safeFiles: SnippetFile[]; resolvedEntry: string; fileMap: RunFileMap[] } {
-  const nameMap = new Map<string, string>()  // original → uuid
-  const stemMap = new Map<string, string>()  // stem     → uuid
-  const safeFiles: SnippetFile[] = []
+  // ── Phase 1: assign names ────────────────────────────────────────────────
+  const nameMap = new Map<string, string>()  // original path → safe name
+  const stemMap = new Map<string, string>()  // original stem → safe name
+  const rawFiles: Array<{ name: string; content: string }> = []
   const fileMap: RunFileMap[] = []
 
   for (const f of files) {
     const basename = f.name.split('/').pop() ?? f.name
     const dotIdx = basename.lastIndexOf('.')
+    const origStem = dotIdx >= 0 ? basename.slice(0, dotIdx) : basename
     const ext = dotIdx >= 0 ? basename.slice(dotIdx).toLowerCase().replace(/[^a-z0-9.]/g, '') : ''
-    const uid = crypto.randomUUID().replace(/-/g, '') + ext
-    nameMap.set(f.name, uid)
-    const stem = dotIdx >= 0 ? basename.slice(0, dotIdx) : basename
-    if (!stemMap.has(stem)) stemMap.set(stem, uid)
-    safeFiles.push({ name: uid, content: f.content })
-    fileMap.push({ originalName: f.name, uuidName: uid })
+
+    let safeName: string
+    if (KEEP_ORIGINAL_NAMES.has(basename)) {
+      safeName = basename  // tool config — keep exact name
+    } else {
+      // f_ prefix guarantees a valid identifier stem for Python/JS/Go imports
+      safeName = 'f_' + crypto.randomUUID().replace(/-/g, '') + ext
+    }
+
+    nameMap.set(f.name, safeName)
+    if (!stemMap.has(origStem)) stemMap.set(origStem, safeName)
+    rawFiles.push({ name: safeName, content: f.content })
+    fileMap.push({ originalName: f.name, uuidName: safeName })
   }
 
+  // ── Phase 2: rewrite cross-references in all file contents ───────────────
+  const safeFiles: SnippetFile[] = rawFiles.map(rf => {
+    let content = rf.content
+    for (const [origPath, safeName] of nameMap.entries()) {
+      if (origPath === safeName) continue  // name unchanged — nothing to replace
+      const origBasename = origPath.split('/').pop() ?? origPath
+      const dotIdx = origBasename.lastIndexOf('.')
+      const origStem = dotIdx >= 0 ? origBasename.slice(0, dotIdx) : origBasename
+      const safeStem = dotIdx >= 0 ? safeName.slice(0, safeName.lastIndexOf('.')) : safeName
+
+      // Exact filename (covers open('file.py'), require('./file.py'), CMakeLists refs)
+      content = content.split(origBasename).join(safeName)
+
+      // Stem replacement for imports — only for valid identifier stems
+      if (/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(origStem) && origStem !== origBasename) {
+        content = content.replace(new RegExp(`\\b${escapeRegex(origStem)}\\b`, 'g'), safeStem)
+      }
+    }
+    return { name: rf.name, content }
+  })
+
+  // ── Phase 3: resolve entry point ────────────────────────────────────────
   let resolvedEntry: string
   if (nameMap.has(entryPoint)) {
     resolvedEntry = nameMap.get(entryPoint)!
