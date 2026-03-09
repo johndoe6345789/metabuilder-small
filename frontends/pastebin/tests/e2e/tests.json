@@ -611,43 +611,30 @@
         "@snippets",
         "@crud"
       ],
-      "beforeEach": [
-        {
-          "action": "hook",
-          "name": "loginViaApi"
-        },
+      "steps": [
         {
           "action": "navigate",
           "url": ""
         },
         {
-          "action": "waitForLoadState",
-          "state": "domcontentloaded"
+          "action": "waitForSelector",
+          "selector": "[data-testid='namespace-selector'],[data-testid='snippet-manager-loading'],[data-testid='empty-state-namespace-selector']",
+          "timeout": 15000
         },
-        {
-          "action": "evaluate",
-          "script": "localStorage.clear()"
-        },
-        {
-          "action": "reload"
-        },
-        {
-          "action": "waitForLoadState",
-          "state": "domcontentloaded"
-        }
-      ],
-      "afterEach": [
-        {
-          "action": "evaluate",
-          "script": "localStorage.clear()"
-        }
-      ],
-      "steps": [
         {
           "action": "click",
-          "selector": "[data-testid='empty-state-create-menu'], [data-testid='snippet-create-menu-trigger']",
+          "selector": "[data-testid='empty-state-create-menu'],[data-testid='snippet-create-menu-trigger']",
           "skipIf": {
-            "selector": "[data-testid='empty-state-create-menu'], [data-testid='snippet-create-menu-trigger']",
+            "selector": "[data-testid='empty-state-create-menu'],[data-testid='snippet-create-menu-trigger']",
+            "state": "hidden"
+          }
+        },
+        {
+          "action": "waitForSelector",
+          "selector": "[data-testid='create-blank-snippet-item']",
+          "timeout": 5000,
+          "skipIf": {
+            "selector": "[data-testid='create-blank-snippet-item']",
             "state": "hidden"
           }
         },
@@ -660,11 +647,9 @@
           }
         },
         {
-          "action": "expect",
-          "testId": "snippet-dialog",
-          "assertion": {
-            "matcher": "toBeVisible"
-          }
+          "action": "waitForSelector",
+          "selector": "[data-testid='snippet-editor-page']",
+          "timeout": 10000
         },
         {
           "action": "fill",
@@ -3143,21 +3128,7 @@
         "@auth"
       ],
       "beforeEach": [
-        {
-          "action": "evaluate",
-          "script": "localStorage.clear()"
-        },
-        {
-          "action": "evaluate",
-          "script": "new Promise(function(r){var req=indexedDB.open('metabuilder-persist',1);req.onsuccess=function(e){var db=e.target.result;try{var tx=db.transaction('redux-state','readwrite');tx.objectStore('redux-state').delete('pastebin');tx.oncomplete=function(){r(true);};tx.onerror=function(){r(false);};}catch(err){r(false);}};req.onerror=function(){r(false);};})"
-        },
-        {
-          "action": "reload"
-        },
-        {
-          "action": "waitForLoadState",
-          "state": "domcontentloaded"
-        }
+        { "action": "hook", "name": "clearAuth" }
       ],
       "steps": [
         {
@@ -3184,21 +3155,7 @@
         "@auth"
       ],
       "beforeEach": [
-        {
-          "action": "evaluate",
-          "script": "localStorage.clear()"
-        },
-        {
-          "action": "evaluate",
-          "script": "new Promise(function(r){var req=indexedDB.open('metabuilder-persist',1);req.onsuccess=function(e){var db=e.target.result;try{var tx=db.transaction('redux-state','readwrite');tx.objectStore('redux-state').delete('pastebin');tx.oncomplete=function(){r(true);};tx.onerror=function(){r(false);};}catch(err){r(false);}};req.onerror=function(){r(false);};})"
-        },
-        {
-          "action": "reload"
-        },
-        {
-          "action": "waitForLoadState",
-          "state": "domcontentloaded"
-        }
+        { "action": "hook", "name": "clearAuth" }
       ],
       "steps": [
         {
@@ -3212,14 +3169,14 @@
         },
         {
           "action": "expect",
-          "label": "Username",
+          "selector": "input#username",
           "assertion": {
             "matcher": "toBeVisible"
           }
         },
         {
           "action": "expect",
-          "label": "Password",
+          "selector": "input#password",
           "assertion": {
             "matcher": "toBeVisible"
           }
@@ -3232,21 +3189,7 @@
         "@auth"
       ],
       "beforeEach": [
-        {
-          "action": "evaluate",
-          "script": "localStorage.clear()"
-        },
-        {
-          "action": "evaluate",
-          "script": "new Promise(function(r){var req=indexedDB.open('metabuilder-persist',1);req.onsuccess=function(e){var db=e.target.result;try{var tx=db.transaction('redux-state','readwrite');tx.objectStore('redux-state').delete('pastebin');tx.oncomplete=function(){r(true);};tx.onerror=function(){r(false);};}catch(err){r(false);}};req.onerror=function(){r(false);};})"
-        },
-        {
-          "action": "reload"
-        },
-        {
-          "action": "waitForLoadState",
-          "state": "domcontentloaded"
-        }
+        { "action": "hook", "name": "clearAuth" }
       ],
       "steps": [
         {
@@ -3273,21 +3216,7 @@
         "@auth"
       ],
       "beforeEach": [
-        {
-          "action": "evaluate",
-          "script": "localStorage.clear()"
-        },
-        {
-          "action": "evaluate",
-          "script": "new Promise(function(r){var req=indexedDB.open('metabuilder-persist',1);req.onsuccess=function(e){var db=e.target.result;try{var tx=db.transaction('redux-state','readwrite');tx.objectStore('redux-state').delete('pastebin');tx.oncomplete=function(){r(true);};tx.onerror=function(){r(false);};}catch(err){r(false);}};req.onerror=function(){r(false);};})"
-        },
-        {
-          "action": "reload"
-        },
-        {
-          "action": "waitForLoadState",
-          "state": "domcontentloaded"
-        }
+        { "action": "hook", "name": "clearAuth" }
       ],
       "steps": [
         {
@@ -3318,21 +3247,7 @@
         "@auth"
       ],
       "beforeEach": [
-        {
-          "action": "evaluate",
-          "script": "localStorage.clear()"
-        },
-        {
-          "action": "evaluate",
-          "script": "new Promise(function(r){var req=indexedDB.open('metabuilder-persist',1);req.onsuccess=function(e){var db=e.target.result;try{var tx=db.transaction('redux-state','readwrite');tx.objectStore('redux-state').delete('pastebin');tx.oncomplete=function(){r(true);};tx.onerror=function(){r(false);};}catch(err){r(false);}};req.onerror=function(){r(false);};})"
-        },
-        {
-          "action": "reload"
-        },
-        {
-          "action": "waitForLoadState",
-          "state": "domcontentloaded"
-        }
+        { "action": "hook", "name": "clearAuth" }
       ],
       "steps": [
         {

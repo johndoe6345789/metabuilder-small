@@ -117,6 +117,29 @@ export const setupHooks: Record<string, SetupHook> = {
   },
 
   /**
+   * Fully clear auth state: delete the metabuilder-persist IndexedDB, clear
+   * storage, then navigate to the login page. Use before login/register tests
+   * that need an unauthenticated session.
+   */
+  clearAuth: async (page) => {
+    await page.evaluate(() => {
+      localStorage.clear()
+      sessionStorage.clear()
+    })
+    await page.evaluate(
+      () =>
+        new Promise<void>((resolve) => {
+          const req = indexedDB.deleteDatabase('metabuilder-persist')
+          req.onsuccess = () => resolve()
+          req.onerror = () => resolve()
+          req.onblocked = () => resolve()
+        }),
+    )
+    // Navigate to login — this forces a fresh page load without cached Redux state
+    await page.goto('login', { waitUntil: 'domcontentloaded' })
+  },
+
+  /**
    * Delete the 'pastebin' IndexedDB database.
    * Use before tests that need a clean snippet/namespace state.
    */
