@@ -1,3 +1,30 @@
+> [!CAUTION]
+> **This repository is archived. Do not build against it.**
+>
+> MetaBuilder was split into single-purpose repos and the active, slimmed-down
+> repo is now **[metabuilder](https://github.com/johndoe6345789/metabuilder)**.
+> Everything below describes the old monolith — the Flask backends, the
+> combined `frontends/` tree and the 27k-file layout are all history.
+>
+> One thing here is still live and is the reason this repo has not simply been
+> deleted: `.github/workflows/gated-pipeline.yml` is what last published
+> `ghcr.io/johndoe6345789/metabuilder-small/*`, including
+> `postgres-dashboard`, which metabuilder's `deploy/compose.yml` still pulls.
+> Those images are therefore **stale and unmaintained**. Until each one is
+> rebuilt from its own repo, treat them as frozen artifacts rather than
+> something this pipeline will refresh.
+>
+> Where things went:
+>
+> | Looking for | Now in |
+> |---|---|
+> | The platform, its frontends and CI | [metabuilder](https://github.com/johndoe6345789/metabuilder) |
+> | The C++ DBAL daemon | [dbal](https://github.com/johndoe6345789/dbal) |
+> | The Postgres admin dashboard | [postgres](https://github.com/johndoe6345789/postgres) |
+> | Everything else, repo by repo | [reposplit](https://github.com/johndoe6345789/reposplit#readme) |
+
+---
+
 # MetaBuilder
 
 **Philosophy**: 95% JSON config, 5% TypeScript/C++ infrastructure
