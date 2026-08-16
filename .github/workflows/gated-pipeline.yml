@@ -1568,6 +1568,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # Required for the arm64 half of the build below, exactly as in the
+      # base-image tiers. Without it this job silently produced amd64-only app
+      # images while every base image underneath it was already dual-arch.
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -1597,6 +1603,10 @@ jobs:
         with:
           context: ${{ matrix.context }}
           file: ${{ matrix.dockerfile }}
+          # The base images this builds FROM are already dual-arch, so the
+          # arm64 leg resolves; omitting this was what left the app images
+          # amd64-only and unpullable on Apple silicon.
+          platforms: linux/amd64,linux/arm64
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
@@ -1678,14 +1688,46 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Verify multi-arch manifests
-        # build-push-action with platforms: linux/amd64,linux/arm64 already pushes
-        # a combined manifest — this step confirms all images are reachable.
+        # This gate used to prove nothing. It inspected only the base images --
+        # never the app images -- checked that a manifest *existed* rather than
+        # which architectures were in it, and swallowed every failure through
+        # `|| echo WARNING`, so it passed unconditionally. Meanwhile
+        # container-build-apps set no platforms at all, and the app images went
+        # out amd64-only for months behind a green "Multi-Arch Manifests" tick.
+        #
+        # Now it asserts both architectures are present, for apps as well as
+        # bases, and fails when one is missing.
         run: |
-          for image in base-apt base-node-deps base-pip-deps base-conan-deps base-android-sdk devcontainer; do
-            echo "Inspecting $REGISTRY/$IMAGE_NAME/$image:$REF_NAME"
-            docker manifest inspect "$REGISTRY/$IMAGE_NAME/$image:$REF_NAME" || \
-              echo "WARNING: manifest not found for $image (may not have been built on this run)"
+          set -uo pipefail
+          missing=0
+          images="base-apt base-node-deps base-pip-deps base-conan-deps"
+          images="$images base-android-sdk devcontainer"
+          images="$images nextjs-app codegen pastebin emailclient"
+          images="$images postgres-dashboard workflowui exploded-diagrams"
+
+          for image in $images; do
+            ref="$REGISTRY/$IMAGE_NAME/$image:$REF_NAME"
+            echo "── $ref"
+            raw=$(docker buildx imagetools inspect "$ref" --raw 2>/dev/null) || {
+              echo "   NOT FOUND (not built on this run?)"
+              continue
+            }
+            for want in amd64 arm64; do
+              if echo "$raw" | grep -q "\"$want\""; then
+                echo "   ok: linux/$want"
+              else
+                echo "   MISSING: linux/$want"
+                missing=1
+              fi
+            done
           done
+
+          if [ "$missing" -ne 0 ]; then
+            echo
+            echo "One or more images are not dual-arch. A pull on that platform"
+            echo "fails outright rather than running slowly."
+            exit 1
+          fi
 
   # ============================================================================
   # CodeQL Semantic Analysis (manual dispatch only)
