@@ -6,13 +6,13 @@
 > Everything below describes the old monolith — the Flask backends, the
 > combined `frontends/` tree and the 27k-file layout are all history.
 >
-> One thing here is still live and is the reason this repo has not simply been
-> deleted: `.github/workflows/gated-pipeline.yml` is what last published
-> `ghcr.io/johndoe6345789/metabuilder-small/*`, including
-> `postgres-dashboard`, which metabuilder's `deploy/compose.yml` still pulls.
-> Those images are therefore **stale and unmaintained**. Until each one is
-> rebuilt from its own repo, treat them as frozen artifacts rather than
-> something this pipeline will refresh.
+> Nothing depends on this repo any more. `.github/workflows/gated-pipeline.yml`
+> was the last publisher of `ghcr.io/johndoe6345789/metabuilder-small/*`, and
+> the final consumer — metabuilder's `deploy/compose.yml`, which pulled
+> `postgres-dashboard` — was repointed at the postgres repo's own dual-arch
+> image on 2026-08-16. Any `metabuilder-small/*` image still in a registry is a
+> **frozen, unmaintained artifact**: nothing rebuilds it, and the app images
+> among them are amd64-only, so they need emulation on Apple silicon.
 >
 > Where things went:
 >
